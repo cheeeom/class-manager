@@ -984,6 +984,16 @@ tbody tr.highlight{
   .content{padding:10px 10px 76px 10px}
   .card{padding:12px;border-radius:10px}
   .topbar h1{font-size:16px}
+  .login-card{width:94vw;max-width:none}
+  .login-left{padding:20px 18px 14px}
+  .login-title{font-size:20px}
+  .login-right{padding:18px 16px 16px}
+  .login-keypad{gap:6px}
+  .key{height:44px;font-size:17px;border-radius:10px}
+  .login-pwd-display{height:44px;font-size:16px;gap:8px}
+  .pwd-dots{gap:8px;font-size:20px}
+  .login-tip{display:none}
+  .login-divider{margin:10px 0}
 }
 @media(max-width:768px){
   /* Mobile: hide sidebar, use bottom tab bar */
@@ -994,7 +1004,7 @@ tbody tr.highlight{
   .topbar h1{font-size:17px}
   .topbar .btn-icon{height:32px;font-size:14px;padding:0 6px}
   .topbar .btn-icon .icon-label{display:none}
-  .mobile-tabbar{display:flex;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);z-index:100;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -2px 12px rgba(0,180,216,0.06)}
+  .mobile-tabbar{display:flex;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);z-index:100;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -2px 12px rgba(0,180,216,0.06);padding-top:4px}
   .mobile-tabbar::-webkit-scrollbar{display:none}
   .mobile-tab{flex:1 0 auto;min-width:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;cursor:pointer;color:var(--text-muted);font-size:10px;transition:all .2s;white-space:nowrap;gap:2px}
   .mobile-tab .tab-icon{font-size:20px;line-height:1}
@@ -1119,7 +1129,7 @@ tbody tr.highlight{
   gap:22px;
 }
 .login-input-area{text-align:center}
-.login-pwd-label{font-size:13px;color:var(--text-muted);margin-bottom:10px;letter-spacing:2px}
+.login-pwd-label{font-size:13px;color:var(--text-muted);margin-bottom:10px;letter-spacing:1px}
 .login-pwd-display{
   height:56px;
   background:var(--bg);
@@ -1135,7 +1145,7 @@ tbody tr.highlight{
 .pwd-dots{display:flex;gap:10px;letter-spacing:4px;font-size:24px;color:var(--primary-dark);min-height:30px;align-items:center}
 .pwd-cursor{width:2px;height:24px;background:var(--primary);animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
-.login-help{font-size:12px;color:var(--text-muted);text-align:center;margin-top:8px}
+.login-help{font-size:12px;color:var(--text-muted);text-align:center;margin-top:10px;padding:4px}
 .login-err{height:20px;font-size:12px;color:var(--danger);margin-top:6px}
 .login-keypad{
   display:grid;
@@ -1256,7 +1266,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.0.0</div>
+      <div class="login-version">v2.0.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1346,7 +1356,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.0.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.0.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
