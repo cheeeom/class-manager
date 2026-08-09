@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00B4D8"/>
+      <stop offset="100%" stop-color="#023E8A"/>
+    </linearGradient>
+    <linearGradient id="book" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E0F7FF"/>
+    </linearGradient>
+  </defs>
+  <!-- 圆角背景 -->
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#bg)"/>
+  <!-- 打开的书本 -->
+  <path d="M32 18 C28 14, 20 13, 13 15 L13 42 C20 40, 28 41, 32 45 C36 41, 44 40, 51 42 L51 15 C44 13, 36 14, 32 18 Z" fill="url(#book)"/>
+  <!-- 书脊中线 -->
+  <path d="M32 18 L32 45" stroke="#023E8A" stroke-width="1.6" opacity="0.35"/>
+  <!-- 书本文字线 -->
+  <path d="M19 24 C24 22.5, 28 23.5, 30 25" stroke="#00B4D8" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.6"/>
+  <path d="M19 29 C24 27.5, 28 28.5, 30 30" stroke="#00B4D8" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.6"/>
+  <path d="M34 25 C36 23.5, 40 22.5, 45 24" stroke="#00B4D8" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.6"/>
+  <path d="M34 30 C36 28.5, 40 27.5, 45 29" stroke="#00B4D8" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.6"/>
+  <!-- 星星（右上） -->
+  <path d="M50 10 L51.6 14.4 L56 16 L51.6 17.6 L50 22 L48.4 17.6 L44 16 L48.4 14.4 Z" fill="#FFD166"/>
+  <!-- 小星星（左下） -->
+  <path d="M14 50 L14.9 52.6 L17.5 53.5 L14.9 54.4 L14 57 L13.1 54.4 L10.5 53.5 L13.1 52.6 Z" fill="#FFD166" opacity="0.9"/>
+</svg>
