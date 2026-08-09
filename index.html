@@ -1166,10 +1166,12 @@ tbody tr.highlight{
 }
 .key:hover{background:var(--primary-light);color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,180,216,0.3)}
   @media(hover:none){.key:hover{background:var(--bg);color:var(--text);transform:none;box-shadow:none}}
+  @media(hover:none){.key:hover{background:var(--bg);color:var(--text);transform:none;box-shadow:none}}
 .key:active{transform:scale(0.95)}
 .key-fn{font-size:14px;color:var(--text-secondary)}
 .key-ok{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;border:none;font-size:16px}
 .key-ok:hover{background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff}
+  @media(hover:none){.key-ok:hover{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff}}
   @media(hover:none){.key-ok:hover{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff}}
 
 
@@ -1280,7 +1282,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.0.1</div>
+      <div class="login-version">v2.1.2</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1370,7 +1372,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.0.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.1.2 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -1789,11 +1791,11 @@ tbody tr.highlight{
           <h3>🔒 修改登录密码</h3>
           <div class="form-group">
             <label>管理员密码（验证身份）</label>
-            <input type="password" id="adminPwdInput" placeholder="输入管理员密码" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px">
+            <input type="password" id="adminPwdInput" placeholder="输入管理员密码" inputmode="numeric" pattern="\d*" oninput="this.value=this.value.replace(/\D/g,'')" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px">
           </div>
           <div class="form-group">
             <label>新登录密码（6位数字）</label>
-            <input type="password" id="newLoginPwdInput" placeholder="输入新密码" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px">
+            <input type="password" id="newLoginPwdInput" placeholder="输入新密码（6位数字）" maxlength="6" inputmode="numeric" pattern="\d*" oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px">
           </div>
           <button class="btn btn-primary btn-sm" onclick="changeLoginPwd()">保存新密码</button>
           <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">密码经哈希加密存储，请妥善保管</div>
@@ -4254,11 +4256,12 @@ function renderPwdDots(){
 }
 
 function loginKey(k){
+  if(!/^\d$/.test(k)) return;
+  if(loginInput.length >= 6) return;
   const err = document.getElementById('loginErr');
   if(err) err.textContent = '';
   const display = document.getElementById('loginPwdDisplay');
   if(display) display.classList.remove('error');
-  if(loginInput.length >= 12) return;
   loginInput += k;
   renderPwdDots();
 }
@@ -4273,6 +4276,7 @@ function loginClear(){
 }
 
 function loginSubmit(){
+  if(loginInput.length !== 6){ showToast('请输入6位数字密码','error'); return; }
   if(verifyLoginPwd(loginInput)){
     sessionStorage.setItem(SESSION_KEY, '1');
     document.getElementById('loginOverlay').classList.add('hidden');
