@@ -1165,10 +1165,12 @@ tbody tr.highlight{
   user-select:none;
 }
 .key:hover{background:var(--primary-light);color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,180,216,0.3)}
+  @media(hover:none){.key:hover{background:var(--bg);color:var(--text);transform:none;box-shadow:none}}
 .key:active{transform:scale(0.95)}
 .key-fn{font-size:14px;color:var(--text-secondary)}
 .key-ok{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;border:none;font-size:16px}
 .key-ok:hover{background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff}
+  @media(hover:none){.key-ok:hover{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff}}
 
 
 /* ==================== Water Duty Card ==================== */
