@@ -1171,6 +1171,18 @@ tbody tr.highlight{
 .key-ok:hover{background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff}
 
 
+/* ==================== Water Duty Card ==================== */
+.duty-water-card{background:#fff;border-radius:14px;padding:16px 20px;margin-top:12px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.duty-water-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.duty-water-icon{font-size:22px}
+.duty-water-title{font-size:15px;font-weight:600;color:var(--text)}
+.duty-water-list{display:flex;flex-wrap:wrap;gap:10px}
+.duty-water-student{background:linear-gradient(135deg,rgba(0,180,216,0.08),rgba(72,202,228,0.04));border:1px solid rgba(0,180,216,0.2);border-radius:10px;padding:8px 14px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.duty-water-student .ws-num{width:22px;height:22px;background:var(--primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.duty-water-empty{color:var(--text-muted);font-size:13px;padding:16px;text-align:center;width:100%}
+.duty-water-info{margin-top:10px;font-size:12px;color:var(--text-muted)}
+.duty-water-info .round-tag{display:inline-block;background:rgba(0,180,216,0.1);color:var(--primary-dark);padding:2px 8px;border-radius:4px;font-weight:600;margin-left:6px}
+
 /* ==================== Attendance (Leave) ==================== */
 .leave-card{background:#fff;border-radius:14px;padding:16px 20px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-left:4px solid var(--primary);transition:all .2s}
 .leave-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.1)}
@@ -1546,7 +1558,7 @@ tbody tr.highlight{
       <div class="page" id="page-duty">
         <div class="duty-today-card" id="dutyTodayCard" style="display:none"></div>
         <div class="duty-toolbar">
-          <div class="section-title" style="margin-bottom:0"><span class="dot"></span>公共卫生值日表</div>
+          <div class="section-title" style="margin-bottom:0"><span class="dot"></span>值日安排</div>
           <span style="flex:1"></span>
           <div class="week-toggle">
             <button class="active" onclick="switchWeek(0,this)">本周</button>
@@ -1560,16 +1572,27 @@ tbody tr.highlight{
             <thead>
               <tr>
                 <th>星期</th>
-                <th>教室</th>
-                <th>走廊</th>
-                <th>楼梯</th>
-                <th>公共区</th>
-                <th>饮水机</th>
+                <th>教室（4人）</th>
+                <th>公共区（4人）</th>
               </tr>
             </thead>
             <tbody id="dutyTableBody"></tbody>
         <div id="dutyEmptyHint" class="empty-state" style="display:none"><div class="icon">🧹</div><div class="text">暂无值日安排</div><div style="margin-top:8px"><button class="btn btn-primary btn-sm" onclick="autoDuty()">⚡ 一键排班</button></div></div>
           </table>
+        </div>
+        <!-- 饮水机值日卡片 -->
+        <div class="duty-water-card" id="dutyWaterCard">
+          <div class="duty-water-header">
+            <span class="duty-water-icon">💧</span>
+            <span class="duty-water-title">饮水机值日</span>
+            <span style="flex:1"></span>
+            <button class="btn btn-primary btn-sm" onclick="autoWaterDuty()" id="waterDutyBtn">⚡ 自动排值日</button>
+            <button class="btn btn-outline btn-sm" onclick="clearWaterDuty()">清空</button>
+          </div>
+          <div class="duty-water-list" id="dutyWaterList">
+            <div class="duty-water-empty">点击「自动排值日」分配饮水机值日同学</div>
+          </div>
+          <div class="duty-water-info" id="dutyWaterInfo"></div>
         </div>
       </div>
 
@@ -2033,7 +2056,7 @@ let state = {
   scheduleImage: null,
   committee: { banzhang:null, fubanzhang:null, xuexi:null, shenghuo:null, tiyu:null },
   seating: { cols:8, rows:5, seats:[] },
-  duty: { currentWeek:0, schedule:[] },  // 值日排班
+  duty: { currentWeek:0, schedule:[], waterDuty:[], waterUsedIds:[], waterRound:1 },  // 值日排班
   exportedOpsCount: 0,  // 上次导出时的操作总数，用于计算未导出操作数
   classAvatar: null,  // 班级头像(base64)
   classMotto: '不积跬步，无以至千里；不积小流，无以成江海。',
@@ -2063,7 +2086,7 @@ function loadData(){
       state.scheduleImage = d.scheduleImage || null;
       state.committee = d.committee || { banzhang:null, fubanzhang:null, xuexi:null, shenghuo:null, tiyu:null };
       state.seating = d.seating || { cols:8, rows:5, seats:[] };
-      state.duty = d.duty || { currentWeek:0, schedule:[] };
+      state.duty = d.duty || { currentWeek:0, schedule:[], waterDuty:[], waterUsedIds:[], waterRound:1 };
       state.exportedOpsCount = d.exportedOpsCount || 0;
       state.classAvatar = d.classAvatar || null;
       state.classMotto = d.classMotto || '不积跬步，无以至千里；不积小流，无以成江海。';
@@ -2200,7 +2223,8 @@ function autoSyncFromCloud(){
       var localData=localRaw?JSON.parse(localRaw):{};
       cloudDataInfo={students:remoteData.students.length,operations:(remoteData.operations||[]).length,leaves:(remoteData.leaves||[]).length,todos:(remoteData.todos||[]).length,lastExport:remoteData.lastExport||null};
       var localCount=(localData.students||[]).length;
-      if(localCount===0){localStorage.setItem(STORE_KEY,JSON.stringify(remoteData));loadData();renderAll();lastSyncTime=new Date().toISOString();console.log("[Sync] Local empty, loaded cloud data");return true;}
+      if(localCount===0){localStorage.setItem(STORE_KEY,JSON.stringify(remoteData));loadData();renderAll();
+  renderWaterDuty();lastSyncTime=new Date().toISOString();console.log("[Sync] Local empty, loaded cloud data");return true;}
       if(localCount===remoteData.students.length&&JSON.stringify(localData)===JSON.stringify(remoteData)){console.log("[Sync] Data identical");return true;}
       var merged=smartMergeData(localData,remoteData);
       localStorage.setItem(STORE_KEY,JSON.stringify(merged));
@@ -2308,7 +2332,7 @@ function navigateTo(page){
   if(page==='students'){renderStudents();initStudentTabIndicator();}
   if(page==='committee') renderCommittee();
   if(page==='seating'){syncInlineSeatInputs();renderSeating();initSeatIndicator();}
-  if(page==='duty') renderDuty();
+  if(page==='duty'){renderDuty();renderDutyToday();renderWaterDuty();}
   if(page==='attendance') renderAttendance();
   if(page==='grades') renderGrades();
   if(page==='todo') renderTodo();
@@ -3041,13 +3065,33 @@ function confirmStudentSelect(){
     renderSeating();
     showToast('座位已安排','success');
   } else if(ctx === 'duty'){
-    const day = modal.dataset.day;
-    const area = modal.dataset.area;
-    state.duty.schedule = state.duty.schedule.filter(s=>!(s.day===day && s.area===area && (s.week||0)===state.duty.currentWeek));
-    state.duty.schedule.push({ day, area, studentId, week: state.duty.currentWeek });
+    var day = modal.dataset.day;
+    var area = modal.dataset.area;
+    var week = state.duty.currentWeek;
+    var maxCount = dutyAreaCounts[area] || 1;
+    // Check if student already assigned to this day/area
+    var existing = state.duty.schedule.filter(function(s){return s.day===day && s.area===area && (s.week||0)===week;});
+    var alreadyIn = existing.some(function(s){return s.studentId === studentId;});
+    if(alreadyIn){
+      showToast('该学生已在本时段值日名单中','warning');
+      return;
+    }
+    if(existing.length >= maxCount){
+      // Replace the first one
+      state.duty.schedule = state.duty.schedule.filter(function(s){return !(s.day===day && s.area===area && (s.week||0)===week);});
+      state.duty.schedule.push({ day: day, area: area, studentId: studentId, week: week });
+      // Re-add the rest
+      for(var i = 1; i < existing.length; i++){
+        state.duty.schedule.push({ day: day, area: area, studentId: existing[i].studentId, week: week });
+      }
+      showToast('已替换值日生','success');
+    } else {
+      state.duty.schedule.push({ day: day, area: area, studentId: studentId, week: week });
+      showToast('已添加值日生 (' + (existing.length + 1) + '/' + maxCount + ')','success');
+    }
     saveData();
     renderDuty();
-    showToast('值日已安排','success');
+    renderDutyToday();
   }
   closeModal('studentSelectModal');
 }
@@ -3266,55 +3310,76 @@ function saveSeatLayoutInline(){
 
 /* ==================== Duty ==================== */
 const dutyDays = ['周一','周二','周三','周四','周五','周日'];
-const dutyAreas = ['教室','走廊','楼梯','公共区','饮水机'];
+const dutyAreas = ['教室','公共区'];
+const dutyAreaCounts = {'教室':4,'公共区':4}; // 每个区域的人数
 
 function renderDutyToday(){
-  const today = new Date();
-  const dayNames = ['周日','周一','周二','周三','周四','周五','周六'];
-  const todayName = dayNames[today.getDay()];
-  const week = state.duty.currentWeek;
-  const todayItems = state.duty.schedule.filter(s => s.day === todayName && s.week === week);
-  const card = document.getElementById('dutyTodayCard');
+  var today = new Date();
+  var dayNames = ['周日','周一','周二','周三','周四','周五','周六'];
+  var todayName = dayNames[today.getDay()];
+  var week = state.duty.currentWeek;
+  var todayItems = state.duty.schedule.filter(function(s){return s.day === todayName && s.week === week;});
+  var card = document.getElementById('dutyTodayCard');
   if(!card) return;
   if(todayItems.length === 0){ card.style.display = 'none'; return; }
   card.style.display = '';
-  const items = todayItems.map(s => {
-    const stu = state.students.find(x => x.id === s.studentId);
-    return `<div class="duty-today-item"><span class="duty-area">${s.area}</span><span class="duty-student">${stu ? stu.name : '?'}</span></div>`;
+  var areaGroups = {};
+  todayItems.forEach(function(s){
+    if(!areaGroups[s.area]) areaGroups[s.area] = [];
+    var stu = state.students.find(function(x){return x.id === s.studentId;});
+    areaGroups[s.area].push(stu ? stu.name : '?');
+  });
+  var items = Object.keys(areaGroups).map(function(area){
+    return '<div class="duty-today-item"><span class="duty-area">' + area + '</span><span class="duty-student">' + areaGroups[area].join('、') + '</span></div>';
   }).join('');
-  card.innerHTML = `<div class="duty-today-header"><span>📌 今日值日（${todayName}）</span></div><div class="duty-today-list">${items}</div>`;
+  card.innerHTML = '<div class="duty-today-header"><span>📌 今日值日（' + todayName + '）</span></div><div class="duty-today-list">' + items + '</div>';
 }
 
 function renderDuty(){
-  const tbody = document.getElementById('dutyTableBody');
-  const week = state.duty.currentWeek;
-  const weekPrefix = week === 0 ? '' : '(下周)';
-  tbody.innerHTML = dutyDays.map(day=>{
-    const cells = dutyAreas.map(area=>{
-      const entry = state.duty.schedule.find(s=>s.day===day && s.area===area && (s.week||0)===week);
-      const student = entry ? state.students.find(st=>st.id===entry.studentId) : null;
-      const name = student ? student.name : '';
-      return `<td>
-        <div class="duty-cell ${student?'assigned':''}" onclick="dutyCellClick('${day}','${area}',${entry?entry.studentId:'null'})">
-          ${student ? `<span class="duty-name">${name}</span>` : '<span class="duty-empty">点击安排</span>'}
-        </div>
-      </td>`;
+  var tbody = document.getElementById('dutyTableBody');
+  var week = state.duty.currentWeek;
+  var weekPrefix = week === 0 ? '' : '(下周)';
+  tbody.innerHTML = dutyDays.map(function(day){
+    var cells = dutyAreas.map(function(area){
+      var count = dutyAreaCounts[area] || 1;
+      var entries = state.duty.schedule.filter(function(s){
+        return s.day === day && s.area === area && (s.week||0) === week;
+      });
+      var cellHTML = '';
+      for (var i = 0; i < count; i++) {
+        var entry = entries[i];
+        var student = entry ? state.students.find(function(st){return st.id === entry.studentId;}) : null;
+        if (student) {
+          cellHTML += '<span class="duty-name">' + student.name + '</span>';
+          if (i < count - 1) cellHTML += '<span style="color:var(--text-muted);font-size:11px">·</span>';
+        } else {
+          cellHTML += '<span class="duty-empty">待安排</span>';
+          if (i < count - 1) cellHTML += '<span style="color:var(--text-muted);font-size:11px">·</span>';
+        }
+      }
+      return '<td><div class="duty-cell' + (entries.length ? ' assigned' : '') + '" onclick="dutyCellClick(\'' + day + '\',\'' + area + '\')">' + cellHTML + '</div></td>';
     }).join('');
-    return `<tr><td style="font-weight:600;text-align:center;background:rgba(0,180,216,0.04)">${weekPrefix}${day}</td>${cells}</tr>`;
+    return '<tr><td style="font-weight:600;text-align:center;background:rgba(0,180,216,0.04)">' + weekPrefix + day + '</td>' + cells + '</tr>';
   }).join('');
 }
 
-function dutyCellClick(day, area, studentId){
-  document.getElementById('studentSelectTitle').textContent = `值日安排 - ${day} ${area}`;
-  const dropdown = document.getElementById('studentSelectDropdown');
+function dutyCellClick(day, area){
+  var week = state.duty.currentWeek;
+  var entries = state.duty.schedule.filter(function(s){return s.day===day && s.area===area && (s.week||0)===week;});
+  var assignedNames = entries.map(function(e){
+    var s = state.students.find(function(x){return x.id===e.studentId;});
+    return s ? s.name : "?";
+  }).join("\u3001") || "(空)";
+  document.getElementById("studentSelectTitle").textContent = "值日安排 - " + day + " " + area;
+  var dropdown = document.getElementById("studentSelectDropdown");
   dropdown.innerHTML = '<option value="">请选择学生...</option>' +
-    state.students.map(s=>`<option value="${s.id}" ${s.id===studentId?'selected':''}>${s.name} (${s.credit}分)</option>`).join('');
-  document.getElementById('studentSelectRemove').style.display = studentId ? '' : 'none';
-  const modal = document.getElementById('studentSelectModal');
-  modal.dataset.context = 'duty';
+    state.students.map(function(s){return '<option value="' + s.id + '">' + s.name + ' (' + s.credit + '分)</option>';}).join('');
+  document.getElementById("studentSelectRemove").style.display = "none";
+  var modal = document.getElementById("studentSelectModal");
+  modal.dataset.context = "duty";
   modal.dataset.day = day;
   modal.dataset.area = area;
-  openModal('studentSelectModal');
+  openModal("studentSelectModal");
 }
 
 function switchWeek(week, btn){
@@ -3329,27 +3394,29 @@ function autoDuty(){
     showToast('请先添加学生','error');
     return;
   }
-  const week = state.duty.currentWeek;
-  state.duty.schedule = state.duty.schedule.filter(s=>s.week !== week);
-  // Rotate students through all positions
-  const students = [...state.students];
-  // Shuffle for variety
-  for(let i = students.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [students[i], students[j]] = [students[j], students[i]];
+  var week = state.duty.currentWeek;
+  state.duty.schedule = state.duty.schedule.filter(function(s){return s.week !== week;});
+  var students = state.students.slice();
+  // Fisher-Yates shuffle
+  for(var i = students.length - 1; i > 0; i--){
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = students[i]; students[i] = students[j]; students[j] = tmp;
   }
-  let idx = 0;
-  dutyDays.forEach(day=>{
-    dutyAreas.forEach(area=>{
-      const student = students[idx % students.length];
-      state.duty.schedule.push({ day, area, studentId: student.id, week });
-      idx++;
+  var idx = 0;
+  dutyDays.forEach(function(day){
+    dutyAreas.forEach(function(area){
+      var count = dutyAreaCounts[area] || 1;
+      for(var k = 0; k < count; k++){
+        var student = students[idx % students.length];
+        state.duty.schedule.push({ day: day, area: area, studentId: student.id, week: week });
+        idx++;
+      }
     });
   });
   saveData();
   renderDuty();
   renderDutyToday();
-  showToast('已自动排班','success');
+  showToast('已自动排班（教室4人/天，公共区4人/天）','success');
 }
 
 function clearDuty(){
@@ -4033,7 +4100,7 @@ function clearData(){
   state.scheduleImage = null;
   state.committee = { banzhang:null, fubanzhang:null, xuexi:null, shenghuo:null, tiyu:null };
   state.seating = { cols:8, rows:5, seats:[] };
-  state.duty = { currentWeek:0, schedule:[] };
+  state.duty = { currentWeek:0, schedule:[], waterDuty:[], waterUsedIds:[], waterRound:1 };
   saveData();
   renderAll();
   showToast('数据已清空','info');
@@ -4952,6 +5019,78 @@ function renderTodo(){
   const tr = document.getElementById('todoRate'); if(tr) tr.textContent = rate + '%';
 }
 
+
+
+// ==================== 饮水机值日 ====================
+function renderWaterDuty(){
+  var list = document.getElementById('dutyWaterList');
+  var info = document.getElementById('dutyWaterInfo');
+  if(!list) return;
+  var water = state.duty.waterDuty || [];
+  if(water.length === 0){
+    list.innerHTML = '<div class="duty-water-empty">点击「自动排值日」分配饮水机值日同学</div>';
+    if(info) info.innerHTML = '';
+    return;
+  }
+  var students = water.map(function(sid){
+    var s = state.students.find(function(x){return x.id === sid;});
+    return s ? s.name : '?';
+  });
+  var html = students.map(function(name, i){
+    return '<div class="duty-water-student"><span class="ws-num">' + (i+1) + '</span>' + name + '</div>';
+  }).join('');
+  list.innerHTML = html;
+  // Show round info
+  var round = state.duty.waterRound || 1;
+  var total = state.students.length;
+  var used = (state.duty.waterUsedIds || []).length;
+  if(info){
+    info.innerHTML = '第 ' + round + ' 轮 · 已轮值 ' + used + '/' + total + ' 人' +
+      (used >= total ? ' <span class="round-tag">已全部轮完，进入下一轮</span>' : '');
+  }
+}
+
+function autoWaterDuty(){
+  if(state.students.length === 0){
+    showToast('请先添加学生','error');
+    return;
+  }
+  var count = 3; // 默认3人
+  if(state.students.length <= 2) count = 2;
+  else if(state.students.length <= 4) count = state.students.length;
+  // 从未使用过的学生中选取
+  var usedIds = state.duty.waterUsedIds || [];
+  var available = state.students.filter(function(s){return usedIds.indexOf(s.id) === -1;});
+  // 如果不够，开始新一轮
+  if(available.length < count){
+    // 开新一轮
+    state.duty.waterRound = (state.duty.waterRound || 1) + 1;
+    usedIds = [];
+    available = state.students.slice();
+    showToast('全班已轮完一遍，开始第' + state.duty.waterRound + '轮','info');
+  }
+  // 随机选取 count 人
+  for(var i = available.length - 1; i > 0; i--){
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = available[i]; available[i] = available[j]; available[j] = tmp;
+  }
+  var selected = available.slice(0, count);
+  var selectedIds = selected.map(function(s){return s.id;});
+  state.duty.waterDuty = selectedIds;
+  state.duty.waterUsedIds = usedIds.concat(selectedIds);
+  state.duty.waterRound = state.duty.waterRound || 1;
+  saveData();
+  renderWaterDuty();
+  showToast('已分配 ' + count + ' 名饮水机值日同学','success');
+}
+
+function clearWaterDuty(){
+  if(!confirm('确认清空饮水机值日安排？')) return;
+  state.duty.waterDuty = [];
+  saveData();
+  renderWaterDuty();
+  showToast('已清空饮水机值日','info');
+}
 
 </script>
 <!-- Mobile Tab Bar -->
