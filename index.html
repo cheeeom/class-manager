@@ -268,6 +268,8 @@ body::before{
 .motto-banner:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,119,182,0.35)}
 .motto-banner .motto-quote{font-size:28px;font-weight:700;font-family:Georgia,serif;opacity:0.5;line-height:1}
 .motto-banner .motto-text{font-size:17px;font-weight:600;letter-spacing:1px;text-align:center}
+.motto-banner .motto-class-name{font-size:20px;font-weight:800;letter-spacing:1px;white-space:nowrap}
+.motto-banner .motto-divider{font-size:18px;opacity:0.4;margin:0 4px}
 .motto-banner .motto-edit{position:absolute;right:14px;bottom:8px;font-size:10px;opacity:0;transition:opacity .2s;background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:8px}
 .motto-banner:hover .motto-edit{opacity:1}
 
@@ -1296,7 +1298,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.2.0</div>
+      <div class="login-version">v2.2.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1386,7 +1388,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.2.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.2.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -1407,6 +1409,8 @@ tbody tr.highlight{
       <div class="page active" id="page-dashboard">
         <!-- 班级口号横幅 -->
         <div class="motto-banner stagger" style="animation-delay:0s" onclick="editMotto()" title="点击修改班级口号">
+          <span class="motto-class-name" id="dashClassName"></span>
+          <span class="motto-divider">|</span>
           <span class="motto-quote">"</span>
           <span class="motto-text" id="mottoText">不积跬步，无以至千里；不积小流，无以成江海。</span>
           <span class="motto-quote">"</span>
@@ -2268,53 +2272,74 @@ function autoSyncFromCloud(){
 
 // Auto-push data.json to GitHub (debounced)
 function autoPushToCloud(){
-  if(!hasGHToken()) return; // No token, skip auto-push
+  if(!hasGHToken()) return;
   if(cloudSyncTimer) clearTimeout(cloudSyncTimer);
   cloudSyncTimer = setTimeout(function(){
+    var token = getGHToken();
     var data = localStorage.getItem(STORE_KEY) || '{}';
     var pretty;
     try{ pretty = JSON.stringify(JSON.parse(data), null, 2); }catch(e){ pretty = data; }
-    var base64 = btoa(unescape(encodeURIComponent(pretty)));
-    // GET current SHA first
-    var getXhr = new XMLHttpRequest();
-    getXhr.open('GET', 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH, true);
-    getXhr.setRequestHeader('Authorization', 'token ' + getGHToken());
-    getXhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
-    getXhr.onreadystatechange = function(){
-      if(getXhr.readyState !== 4) return;
-      var sha = null;
-      if(getXhr.status === 200){
-        try{ sha = JSON.parse(getXhr.responseText).sha; }catch(e){}
+    
+    // Use TextEncoder for Unicode-safe base64
+    var bytes = new TextEncoder().encode(pretty);
+    var binary = '';
+    for(var i=0;i<bytes.length;i++) binary += String.fromCharCode(bytes[i]);
+    var base64 = btoa(binary);
+    
+    var apiUrl = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH;
+    
+    console.log('[Sync] Starting push, data size:', pretty.length, 'chars, base64 size:', base64.length);
+    
+    // GET SHA first
+    fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': 'token ' + token,
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'cm'
       }
+    }).then(function(r){
+      if(!r.ok) throw new Error('GET SHA failed: ' + r.status);
+      return r.json();
+    }).then(function(json){
+      var sha = json.sha;
+      console.log('[Sync] Got SHA:', sha);
       // PUT updated content
-      var putXhr = new XMLHttpRequest();
-      putXhr.open('PUT', 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH, true);
-      putXhr.setRequestHeader('Authorization', 'token ' + getGHToken());
-      putXhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
-      putXhr.setRequestHeader('Content-Type', 'application/json');
-      putXhr.onreadystatechange = function(){
-        if(putXhr.readyState !== 4) return;
-        if(putXhr.status === 200 || putXhr.status === 201){
-          state.lastExport = new Date().toISOString();
-          state.exportedOpsCount = state.operations.length;
-          lastSyncTime = new Date().toISOString();
-          updateSyncStatus();
-          updateCloudSyncUI();
-          console.log('[Sync] Auto-pushed data.json to GitHub');
-        } else {
-          console.log('[Sync] Auto-push failed:', putXhr.status);
-        }
-      };
-      var body = JSON.stringify({
-        message: 'auto-sync: update data.json',
-        content: base64,
-        branch: GH_BRANCH,
-        sha: sha
+      return fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'token ' + token,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json',
+          'User-Agent': 'cm'
+        },
+        body: JSON.stringify({
+          message: 'auto-sync: update data.json',
+          content: base64,
+          branch: GH_BRANCH,
+          sha: sha
+        })
       });
-      putXhr.send(body);
-    };
-    getXhr.send();
-  }, 2000); // 2s debounce
+    }).then(function(r){
+      if(!r.ok) {
+        return r.text().then(function(t){
+          throw new Error('PUT failed: ' + r.status + ' ' + t.substring(0,200));
+        });
+      }
+      return r.json();
+    }).then(function(json){
+      console.log('[Sync] Pushed! Commit:', json.commit.sha);
+      state.lastExport = new Date().toISOString();
+      state.exportedOpsCount = state.operations.length;
+      lastSyncTime = new Date().toISOString();
+      updateSyncStatus();
+      updateCloudSyncUI();
+      showToast('数据已自动同步到云端','success');
+    }).catch(function(e){
+      console.error('[Sync] Push failed:', e.message);
+      showToast('云端同步失败: ' + e.message.substring(0,80), 'error');
+    });
+  }, 2000);
 }
 
 function configGHToken(){
@@ -2337,45 +2362,43 @@ function pushToCloud(){
     if(!token) return;
     setGHToken(token.trim());
   }
-  showToast("正在推送到 GitHub...","info");
+  showToast('正在推送到 GitHub...','info');
+  var token = getGHToken();
   var data = localStorage.getItem(STORE_KEY) || '{}';
   var pretty;
   try{ pretty = JSON.stringify(JSON.parse(data), null, 2); }catch(e){ pretty = data; }
-  var base64 = btoa(unescape(encodeURIComponent(pretty)));
-  var getXhr = new XMLHttpRequest();
-  getXhr.open('GET', 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH, true);
-  getXhr.setRequestHeader('Authorization', 'token ' + getGHToken());
-  getXhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
-  getXhr.onreadystatechange = function(){
-    if(getXhr.readyState !== 4) return;
-    var sha = null;
-    if(getXhr.status === 200){ try{ sha = JSON.parse(getXhr.responseText).sha; }catch(e){} }
-    var putXhr = new XMLHttpRequest();
-    putXhr.open('PUT', 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH, true);
-    putXhr.setRequestHeader('Authorization', 'token ' + getGHToken());
-    putXhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
-    putXhr.setRequestHeader('Content-Type', 'application/json');
-    putXhr.onreadystatechange = function(){
-      if(putXhr.readyState !== 4) return;
-      if(putXhr.status === 200 || putXhr.status === 201){
-        state.lastExport = new Date().toISOString();
-        state.exportedOpsCount = state.operations.length;
-        saveData();
-        updateSyncStatus();
-        updateCloudSyncUI();
-        showToast("数据已推送到 GitHub 云端!","success");
-      } else {
-        showToast("推送失败: HTTP " + putXhr.status,"error");
-      }
-    };
-    putXhr.send(JSON.stringify({
-      message: 'manual push: update data.json',
-      content: base64,
-      branch: GH_BRANCH,
-      sha: sha
-    }));
-  };
-  getXhr.send();
+  
+  var bytes = new TextEncoder().encode(pretty);
+  var binary = '';
+  for(var i=0;i<bytes.length;i++) binary += String.fromCharCode(bytes[i]);
+  var base64 = btoa(binary);
+  
+  var apiUrl = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH;
+  
+  fetch(apiUrl, {
+    method: 'GET',
+    headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'cm' }
+  }).then(function(r){ return r.json(); }).then(function(json){
+    var sha = json.sha;
+    return fetch(apiUrl, {
+      method: 'PUT',
+      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json', 'User-Agent': 'cm' },
+      body: JSON.stringify({ message: 'manual push: update data.json', content: base64, branch: GH_BRANCH, sha: sha })
+    });
+  }).then(function(r){
+    if(!r.ok) return r.text().then(function(t){ throw new Error(r.status + ' ' + t.substring(0,200)); });
+    return r.json();
+  }).then(function(json){
+    state.lastExport = new Date().toISOString();
+    state.exportedOpsCount = state.operations.length;
+    saveData();
+    updateSyncStatus();
+    updateCloudSyncUI();
+    showToast('数据已推送到 GitHub 云端!','success');
+  }).catch(function(e){
+    showToast('推送失败: ' + e.message.substring(0,80),'error');
+    console.error('[Sync] Manual push failed:', e.message);
+  });
 }
 
 function pullFromCloud(){
@@ -2551,6 +2574,7 @@ function renderClassBrand(){
       loginLogo.style.background = 'rgba(255,255,255,0.18)';
     }
   }
+var dcn=document.getElementById('dashClassName');if(dcn)dcn.textContent=state.className||'';
 }
 
 function openAvatarModal(){
