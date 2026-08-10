@@ -31,7 +31,7 @@
   "nextId": 3,
   "nextOpId": 1,
   "nextSid": 3,
-  "lastExport": "2026-08-10T18:49:32.915Z",
+  "lastExport": "2026-08-10T18:58:30.754Z",
   "lastImport": null,
   "committee": {
     "banzhang": null,
@@ -54,8 +54,23 @@
   },
   "exportedOpsCount": 0,
   "classMotto": "不积跬步，无以至千里",
-  "leaves": [],
-  "nextLeaveId": 1,
+  "leaves": [
+    {
+      "id": 1,
+      "studentId": 1,
+      "type": "sick",
+      "startDate": "2026-08-11",
+      "startPeriod": "am",
+      "endDate": "2026-08-12",
+      "endPeriod": "pm",
+      "duration": 2,
+      "reason": "病毒感染",
+      "status": "pending",
+      "createdAt": "2026-08-10T19:00:08.485Z",
+      "history": []
+    }
+  ],
+  "nextLeaveId": 2,
   "exams": [],
   "nextExamId": 1,
   "todos": [],
