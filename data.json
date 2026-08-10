@@ -59,5 +59,6 @@
   "exams": [],
   "nextExamId": 1,
   "todos": [],
-  "nextTodoId": 1
+  "nextTodoId": 1,
+  "hasSchedule": false
 }
