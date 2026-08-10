@@ -258,7 +258,7 @@ body::before{
   border-radius:16px;
   padding:18px 24px;
   margin-bottom:16px;
-  display:flex;align-items:center;justify-content:center;gap:10px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
   color:#fff;
   cursor:pointer;
   position:relative;
@@ -268,8 +268,8 @@ body::before{
 .motto-banner:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,119,182,0.35)}
 .motto-banner .motto-quote{font-size:28px;font-weight:700;font-family:Georgia,serif;opacity:0.5;line-height:1}
 .motto-banner .motto-text{font-size:17px;font-weight:600;letter-spacing:1px;text-align:center}
-.motto-banner .motto-class-name{font-size:20px;font-weight:800;letter-spacing:1px;white-space:nowrap}
-.motto-banner .motto-divider{font-size:18px;opacity:0.4;margin:0 4px}
+.motto-banner .motto-class-name{font-size:20px;font-weight:800;letter-spacing:2px;white-space:nowrap;margin-bottom:4px}
+.motto-banner .motto-divider{display:none}
 .motto-banner .motto-edit{position:absolute;right:14px;bottom:8px;font-size:10px;opacity:0;transition:opacity .2s;background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:8px}
 .motto-banner:hover .motto-edit{opacity:1}
 
@@ -1298,7 +1298,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.2.2</div>
+      <div class="login-version">v2.2.3</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1388,7 +1388,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.2.2 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.2.3 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2246,7 +2246,8 @@ function smartMergeData(localData,remoteData){
   if(!merged.className&&remoteData.className)merged.className=remoteData.className;
   if(!merged.classMotto&&remoteData.classMotto)merged.classMotto=remoteData.classMotto;
   if(!merged.classAvatar&&remoteData.classAvatar)merged.classAvatar=remoteData.classAvatar;
-  if(!merged.scheduleImage&&remoteData.scheduleImage)merged.scheduleImage=remoteData.scheduleImage;
+  // scheduleImage and classAvatar are NOT synced via data.json (too large)
+  // They stay in localStorage only
   // nextId series: max
   merged.nextId=Math.max(localData.nextId||1,remoteData.nextId||1);
   merged.nextOpId=Math.max(localData.nextOpId||1,remoteData.nextOpId||1);
@@ -2286,9 +2287,17 @@ function autoPushToCloud(){
   if(cloudSyncTimer) clearTimeout(cloudSyncTimer);
   cloudSyncTimer = setTimeout(function(){
     var token = getGHToken();
-    var data = localStorage.getItem(STORE_KEY) || '{}';
-    var pretty;
-    try{ pretty = JSON.stringify(JSON.parse(data), null, 2); }catch(e){ pretty = data; }
+    var raw = localStorage.getItem(STORE_KEY) || '{}';
+    var parsed;
+    try{ parsed = JSON.parse(raw); }catch(e){ parsed = {}; }
+    // Strip heavy base64 fields - they bloat data.json past GitHub limits
+    // scheduleImage and classAvatar stay in localStorage locally but don't sync via cloud
+    var lightData = {};
+    var syncFields = ['className','students','operations','reasons','nextId','nextOpId','nextSid',
+      'lastExport','lastImport','committee','seating','duty','exportedOpsCount',
+      'classMotto','leaves','nextLeaveId','exams','nextExamId','todos','nextTodoId'];
+    syncFields.forEach(function(f){ if(f in parsed) lightData[f] = parsed[f]; });
+    var pretty = JSON.stringify(lightData, null, 2);
     
     // Use TextEncoder for Unicode-safe base64
     var bytes = new TextEncoder().encode(pretty);
@@ -2298,44 +2307,24 @@ function autoPushToCloud(){
     
     var apiUrl = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH;
     
-    console.log('[Sync] Starting push, data size:', pretty.length, 'chars, base64 size:', base64.length);
+    console.log('[Sync] Starting push, data size:', pretty.length, 'chars (heavy fields excluded)');
     
-    // GET SHA first
     fetch(apiUrl, {
       method: 'GET',
-      headers: {
-        'Authorization': 'token ' + token,
-        'Accept': 'application/vnd.github.v3+json',
-        'User-Agent': 'cm'
-      }
+      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'cm' }
     }).then(function(r){
       if(!r.ok) throw new Error('GET SHA failed: ' + r.status);
       return r.json();
     }).then(function(json){
       var sha = json.sha;
       console.log('[Sync] Got SHA:', sha);
-      // PUT updated content
       return fetch(apiUrl, {
         method: 'PUT',
-        headers: {
-          'Authorization': 'token ' + token,
-          'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json',
-          'User-Agent': 'cm'
-        },
-        body: JSON.stringify({
-          message: 'auto-sync: update data.json',
-          content: base64,
-          branch: GH_BRANCH,
-          sha: sha
-        })
+        headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json', 'User-Agent': 'cm' },
+        body: JSON.stringify({ message: 'auto-sync: update data.json', content: base64, branch: GH_BRANCH, sha: sha })
       });
     }).then(function(r){
-      if(!r.ok) {
-        return r.text().then(function(t){
-          throw new Error('PUT failed: ' + r.status + ' ' + t.substring(0,200));
-        });
-      }
+      if(!r.ok) { return r.text().then(function(t){ throw new Error('PUT failed: ' + r.status + ' ' + t.substring(0,200)); }); }
       return r.json();
     }).then(function(json){
       console.log('[Sync] Pushed! Commit:', json.commit.sha);
@@ -2374,11 +2363,15 @@ function pushToCloud(){
   }
   showToast('正在推送到 GitHub...','info');
   var token = getGHToken();
-  var data = localStorage.getItem(STORE_KEY) || '{}';
-  var pretty;
-  try{ pretty = JSON.stringify(JSON.parse(data), null, 2); }catch(e){ pretty = data; }
-  
-  var bytes = new TextEncoder().encode(pretty);
+  var raw = localStorage.getItem(STORE_KEY) || '{}';
+    var parsed;
+    try{ parsed = JSON.parse(raw); }catch(e){ parsed = {}; }
+    var lightData = {};
+    var syncFields = ['className','students','operations','reasons','nextId','nextOpId','nextSid','lastExport','lastImport','committee','seating','duty','exportedOpsCount','classMotto','leaves','nextLeaveId','exams','nextExamId','todos','nextTodoId'];
+    syncFields.forEach(function(f){ if(f in parsed) lightData[f] = parsed[f]; });
+    var pretty = JSON.stringify(lightData, null, 2);
+    
+    var bytes = new TextEncoder().encode(pretty);;
   var binary = '';
   for(var i=0;i<bytes.length;i++) binary += String.fromCharCode(bytes[i]);
   var base64 = btoa(binary);
