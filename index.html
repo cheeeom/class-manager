@@ -1298,7 +1298,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.2.5</div>
+      <div class="login-version">v2.2.6</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1388,7 +1388,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.2.5 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.2.6 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -1421,8 +1421,8 @@ tbody tr.highlight{
           <div id="scheduleImageWrap">
             <div class="schedule-empty" onclick="triggerSchedulePaste()">
               <div class="icon">📅</div>
-              <div class="text">双击或粘贴课程表图片</div>
-              <div class="hint">支持 Ctrl+V 直接粘贴图片</div>
+              <div class="text">点击上传课程表图片</div>
+              <div class="hint">支持选择图片文件，也可 Ctrl+V 粘贴</div>
             </div>
           </div>
         </div>
@@ -2364,13 +2364,15 @@ function pushScheduleImage(base64Data){
 }
 
 function pullScheduleImage(){
-  var url = "https://cheeeom.github.io/class-manager/schedule-img.txt";
+  var url = "https://cheeeom.github.io/class-manager/schedule-img.txt?t=" + Date.now();
   console.log("[Sync] Pulling schedule image from cloud");
   fetch(url, { cache: "no-store" })
     .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
     .then(function(base64){
-      if(!base64 || base64.length < 10){ console.log("[Sync] No schedule image on cloud"); return; }
-      var dataUri = "data:image/png;base64," + base64;
+      if(!base64 || base64.length < 100){ console.log("[Sync] No schedule image on cloud (too small:", base64 ? base64.length : 0, ")"); return; }
+      // Validate base64: must be valid base64 characters only
+      if(!/^[A-Za-z0-9+\/\s]+=*$/.test(base64.trim())){ console.log("[Sync] Schedule image data is not valid base64, skipping"); return; }
+      var dataUri = "data:image/png;base64," + base64.trim();
       state.scheduleImage = dataUri;
       var raw = localStorage.getItem(STORE_KEY) || "{}";
       // Re-render if currently on dashboard
@@ -2698,8 +2700,8 @@ function renderScheduleImage(){
     wrap.innerHTML = `
       <div class="schedule-empty" onclick="triggerSchedulePaste()">
         <div class="icon">📷</div>
-        <div class="text">点击或粘贴课程表图片</div>
-        <div class="hint">支持 Ctrl+V 直接粘贴图片</div>
+        <div class="text">点击上传课程表图片</div>
+        <div class="hint">支持选择图片文件，也可 Ctrl+V 粘贴</div>
       </div>`;
   }
 }
@@ -2715,7 +2717,24 @@ function viewScheduleFullscreen(){
 }
 
 function triggerSchedulePaste(){
-  showToast('请按 Ctrl+V 粘贴课程表图片','info');
+  // Open file picker for both mobile and desktop
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    if(file.size > 2*1024*1024){ showToast('图片不能超过2MB','error'); return; }
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      state.scheduleImage = ev.target.result;
+      saveData();
+      renderScheduleImage();
+      showToast('课程表图片已上传','success');
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
 }
 
 function deleteScheduleImage(){
