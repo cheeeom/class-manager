@@ -60,5 +60,5 @@
   "nextExamId": 1,
   "todos": [],
   "nextTodoId": 1,
-  "hasSchedule": true
+  "hasSchedule": false
 }
