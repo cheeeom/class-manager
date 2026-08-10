@@ -1,21 +1,6 @@
 {
-  "className": "26级幼保2班",
-  "students": [
-    {
-      "id": 1,
-      "sid": "S0001",
-      "name": "张明轩",
-      "credit": 12,
-      "tags": []
-    },
-    {
-      "id": 2,
-      "sid": "S0002",
-      "name": "李思涵",
-      "credit": 15,
-      "tags": []
-    }
-  ],
+  "className": "高二（3）班",
+  "students": [],
   "operations": [],
   "reasons": [
     "课堂回答",
@@ -28,12 +13,11 @@
     "竞赛获奖",
     "其他"
   ],
-  "nextId": 3,
+  "nextId": 1,
   "nextOpId": 1,
-  "nextSid": 3,
-  "lastExport": "2026-08-10T05:13:57.289Z",
+  "nextSid": 1,
+  "lastExport": null,
   "lastImport": null,
-  "scheduleImage": null,
   "committee": {
     "banzhang": null,
     "fubanzhang": null,
@@ -54,8 +38,7 @@
     "waterRound": 1
   },
   "exportedOpsCount": 0,
-  "classAvatar": null,
-  "classMotto": "不积跬步，无以至千里",
+  "classMotto": "测试口号",
   "leaves": [],
   "nextLeaveId": 1,
   "exams": [],
