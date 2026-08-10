@@ -1298,7 +1298,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.2.6</div>
+      <div class="login-version">v2.2.7</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1388,7 +1388,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.2.6 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.2.7 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2367,22 +2367,21 @@ function pullScheduleImage(){
   var url = "https://cheeeom.github.io/class-manager/schedule-img.txt?t=" + Date.now();
   console.log("[Sync] Pulling schedule image from cloud");
   fetch(url, { cache: "no-store" })
-    .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
-    .then(function(base64){
-      if(!base64 || base64.length < 100){ console.log("[Sync] No schedule image on cloud (too small:", base64 ? base64.length : 0, ")"); return; }
-      // Validate base64: must be valid base64 characters only
-      if(!/^[A-Za-z0-9+\/\s]+=*$/.test(base64.trim())){ console.log("[Sync] Schedule image data is not valid base64, skipping"); return; }
-      var dataUri = "data:image/png;base64," + base64.trim();
-      state.scheduleImage = dataUri;
-      var raw = localStorage.getItem(STORE_KEY) || "{}";
-      // Re-render if currently on dashboard
-      var activePage = document.querySelector(".nav-item.active");
-      if(activePage && activePage.dataset.page === "dashboard"){ renderScheduleImage(); }
-      var parsed; try{ parsed = JSON.parse(raw); }catch(e){ parsed = {}; }
-      parsed.scheduleImage = dataUri;
-      localStorage.setItem(STORE_KEY, JSON.stringify(parsed));
-      renderScheduleImage();
-      console.log("[Sync] Schedule image loaded from cloud:", base64.length, "chars");
+    .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.blob(); })
+    .then(function(blob){
+      if(blob.size < 100){ console.log("[Sync] No schedule image on cloud (too small:", blob.size, ")"); return; }
+      var reader = new FileReader();
+      reader.onload = function(ev){
+        var dataUri = ev.target.result; // data:image/png;base64,...
+        state.scheduleImage = dataUri;
+        var raw = localStorage.getItem(STORE_KEY) || "{}";
+        var parsed; try{ parsed = JSON.parse(raw); }catch(e){ parsed = {}; }
+        parsed.scheduleImage = dataUri;
+        localStorage.setItem(STORE_KEY, JSON.stringify(parsed));
+        renderScheduleImage();
+        console.log("[Sync] Schedule image loaded from cloud:", blob.size, "bytes");
+      };
+      reader.readAsDataURL(blob);
     })
     .catch(function(e){
       console.log("[Sync] Schedule image pull failed:", e.message);
