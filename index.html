@@ -1296,7 +1296,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.1.5</div>
+      <div class="login-version">v2.2.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1386,7 +1386,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.1.5 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.2.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -1800,6 +1800,10 @@ tbody tr.highlight{
             <button class="btn btn-outline" onclick="pullFromCloud()">⬇️ 从云端拉取数据</button>
           </div>
           <div id="cloudSyncInfo" style="margin-top:8px"></div>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-secondary)">
+            <button class="btn btn-outline" style="font-size:12px;padding:4px 12px" onclick="configGHToken()">配置 GitHub Token</button>
+            <span id="ghTokenStatus"></span>
+          </div>
         </div>
         <div class="settings-section">
           <h3>🔒 修改登录密码</h3>
@@ -2036,6 +2040,15 @@ tbody tr.highlight{
 <script>
 /* ==================== Data Layer ==================== */
 const STORE_KEY = 'classManagerData';
+// GitHub auto-sync config
+const GH_OWNER = 'cheeeom';
+const GH_REPO = 'class-manager';
+const GH_BRANCH = 'main';
+const GH_DATA_PATH = 'data.json';
+let cloudSyncTimer = null;
+function getGHToken(){ return localStorage.getItem('gh_sync_token') || ''; }
+function setGHToken(t){ localStorage.setItem('gh_sync_token', t); }
+function hasGHToken(){ return !!getGHToken(); }
 const defaultReasons = ['课堂回答','作业优秀','考试进步','纪律违规','迟到','卫生值日','活动参与','竞赛获奖','其他'];
 const presetTags = ['寝室长','班委','课代表','特长生','需关注'];
 const tagColorMap = {
@@ -2143,6 +2156,8 @@ function saveData(){
     todos: state.todos,
     nextTodoId: state.nextTodoId
   }));
+
+  autoPushToCloud();
 }
 
 
@@ -2251,15 +2266,116 @@ function autoSyncFromCloud(){
     .catch(function(e){console.log("[Sync] No cloud data or fetch failed:",e.message);return false;});
 }
 
+// Auto-push data.json to GitHub (debounced)
+function autoPushToCloud(){
+  if(!hasGHToken()) return; // No token, skip auto-push
+  if(cloudSyncTimer) clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(function(){
+    var data = localStorage.getItem(STORE_KEY) || '{}';
+    var pretty;
+    try{ pretty = JSON.stringify(JSON.parse(data), null, 2); }catch(e){ pretty = data; }
+    var base64 = btoa(unescape(encodeURIComponent(pretty)));
+    // GET current SHA first
+    var getXhr = new XMLHttpRequest();
+    getXhr.open('GET', 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH, true);
+    getXhr.setRequestHeader('Authorization', 'token ' + getGHToken());
+    getXhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+    getXhr.onreadystatechange = function(){
+      if(getXhr.readyState !== 4) return;
+      var sha = null;
+      if(getXhr.status === 200){
+        try{ sha = JSON.parse(getXhr.responseText).sha; }catch(e){}
+      }
+      // PUT updated content
+      var putXhr = new XMLHttpRequest();
+      putXhr.open('PUT', 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH, true);
+      putXhr.setRequestHeader('Authorization', 'token ' + getGHToken());
+      putXhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+      putXhr.setRequestHeader('Content-Type', 'application/json');
+      putXhr.onreadystatechange = function(){
+        if(putXhr.readyState !== 4) return;
+        if(putXhr.status === 200 || putXhr.status === 201){
+          state.lastExport = new Date().toISOString();
+          state.exportedOpsCount = state.operations.length;
+          lastSyncTime = new Date().toISOString();
+          updateSyncStatus();
+          updateCloudSyncUI();
+          console.log('[Sync] Auto-pushed data.json to GitHub');
+        } else {
+          console.log('[Sync] Auto-push failed:', putXhr.status);
+        }
+      };
+      var body = JSON.stringify({
+        message: 'auto-sync: update data.json',
+        content: base64,
+        branch: GH_BRANCH,
+        sha: sha
+      });
+      putXhr.send(body);
+    };
+    getXhr.send();
+  }, 2000); // 2s debounce
+}
+
+function configGHToken(){
+  var current = hasGHToken() ? '(已配置)' : '(未配置)';
+  var token = prompt('GitHub Token ' + current + '\n输入新 token 替换，留空清除：');
+  if(token === null) return;
+  if(token.trim() === ''){
+    localStorage.removeItem('gh_sync_token');
+    showToast('Token 已清除','info');
+  } else {
+    setGHToken(token.trim());
+    showToast('Token 已保存','success');
+  }
+  updateCloudSyncUI();
+}
+
 function pushToCloud(){
-  var data=localStorage.getItem(STORE_KEY)||'{}';
+  if(!hasGHToken()){
+    var token = prompt('请输入 GitHub Token（只需输入一次，将保存在本地）：');
+    if(!token) return;
+    setGHToken(token.trim());
+  }
+  showToast("正在推送到 GitHub...","info");
+  var data = localStorage.getItem(STORE_KEY) || '{}';
   var pretty;
-  try{pretty=JSON.stringify(JSON.parse(data),null,2);}catch(e){pretty=data;}
-  var blob=new Blob([pretty],{type:"application/json"});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement("a");a.href=url;a.download="data.json";a.click();URL.revokeObjectURL(url);
-  state.lastExport=new Date().toISOString();state.exportedOpsCount=state.operations.length;saveData();updateSyncStatus();updateCloudSyncUI();
-  showToast("data.json 已下载，请放到 index.html 同目录或提交到 Git 仓库","success");
+  try{ pretty = JSON.stringify(JSON.parse(data), null, 2); }catch(e){ pretty = data; }
+  var base64 = btoa(unescape(encodeURIComponent(pretty)));
+  var getXhr = new XMLHttpRequest();
+  getXhr.open('GET', 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH, true);
+  getXhr.setRequestHeader('Authorization', 'token ' + getGHToken());
+  getXhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+  getXhr.onreadystatechange = function(){
+    if(getXhr.readyState !== 4) return;
+    var sha = null;
+    if(getXhr.status === 200){ try{ sha = JSON.parse(getXhr.responseText).sha; }catch(e){} }
+    var putXhr = new XMLHttpRequest();
+    putXhr.open('PUT', 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH, true);
+    putXhr.setRequestHeader('Authorization', 'token ' + getGHToken());
+    putXhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+    putXhr.setRequestHeader('Content-Type', 'application/json');
+    putXhr.onreadystatechange = function(){
+      if(putXhr.readyState !== 4) return;
+      if(putXhr.status === 200 || putXhr.status === 201){
+        state.lastExport = new Date().toISOString();
+        state.exportedOpsCount = state.operations.length;
+        saveData();
+        updateSyncStatus();
+        updateCloudSyncUI();
+        showToast("数据已推送到 GitHub 云端!","success");
+      } else {
+        showToast("推送失败: HTTP " + putXhr.status,"error");
+      }
+    };
+    putXhr.send(JSON.stringify({
+      message: 'manual push: update data.json',
+      content: base64,
+      branch: GH_BRANCH,
+      sha: sha
+    }));
+  };
+  getXhr.send();
 }
 
 function pullFromCloud(){
@@ -2282,21 +2398,26 @@ function pullFromCloud(){
 }
 
 function updateCloudSyncUI(){
-  var el=document.getElementById("cloudSyncInfo");if(!el)return;
-  var ls=state.students.length,lo=state.operations.length;
-  var html="<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px\">";
-  html+="<div style=\"background:rgba(0,180,216,0.06);border-radius:10px;padding:10px\"><div style=\"font-size:11px;color:var(--text-muted);margin-bottom:4px\">📱 本地数据</div><div style=\"font-size:14px;font-weight:600\">"+ls+" 学生</div><div style=\"font-size:12px;color:var(--text-secondary)\">"+lo+" 条操作</div></div>";
-  if(cloudDataInfo){
-    html+="<div style=\"background:rgba(6,214,160,0.06);border-radius:10px;padding:10px\"><div style=\"font-size:11px;color:var(--text-muted);margin-bottom:4px\">☁️ 云端数据</div><div style=\"font-size:14px;font-weight:600\">"+cloudDataInfo.students+" 学生</div><div style=\"font-size:12px;color:var(--text-secondary)\">"+cloudDataInfo.operations+" 条操作</div></div>";
-  }else{
-    html+="<div style=\"background:rgba(154,165,177,0.06);border-radius:10px;padding:10px\"><div style=\"font-size:11px;color:var(--text-muted);margin-bottom:4px\">☁️ 云端数据</div><div style=\"font-size:13px;color:var(--text-muted)\">未检测</div></div>";
+  var el = document.getElementById("cloudSyncInfo");if(!el)return;
+  var ls = state.students.length, lo = state.operations.length;
+  var ll = (state.leaves||[]).length, lt = (state.todos||[]).length;
+  var html = '<div style="font-size:13px;color:var(--text-secondary);line-height:1.6">';
+  html += '本地数据：' + ls + ' 学生 / ' + lo + ' 操作 / ' + ll + ' 请假 / ' + lt + ' 待办<br>';
+  if(cloudDataInfo && cloudDataInfo.students !== undefined){
+    html += '云端数据：' + cloudDataInfo.students + ' 学生 / ' + cloudDataInfo.operations + ' 操作<br>';
   }
-  html+="</div>";
-  if(lastSyncTime){var d=new Date(lastSyncTime);html+="<div style=\"font-size:12px;color:var(--text-muted);margin-bottom:8px\">🕐 最后同步："+d.toLocaleString("zh-CN")+"</div>";}
-  html+="<div style=\"font-size:12px;color:var(--text-muted);line-height:1.6;margin-top:8px;padding:8px 10px;background:rgba(255,209,102,0.08);border-radius:8px\">";
-  html+="💡 <b>使用方法：</b><br>1. 点击「推送数据到云端」下载 data.json<br>2. 将 data.json 放到 index.html 同目录<br>3. 提交到 Git 仓库或通过 HTTP 服务访问<br>4. 在其他设备打开网页自动合并数据<br>⚠️ file:// 协议无法 fetch，需通过 HTTP 服务或 GitHub Pages";
-  html+="</div>";
-  el.innerHTML=html;
+  if(lastSyncTime){
+    var t = new Date(lastSyncTime).toLocaleString('zh-CN');
+    html += '最后同步：' + t + '<br>';
+  }
+  if(hasGHToken()){
+    html += '<span style="color:var(--primary)">自动同步已开启</span>（修改后 2 秒自动推送）';
+  } else {
+    html += '<span style="color:var(--text-secondary)">自动同步未配置</span>（需配置 GitHub Token）';
+  }
+  html += '</div>';
+  el.innerHTML = html;
+  var ts = document.getElementById('ghTokenStatus');if(ts)ts.textContent = hasGHToken() ? '(已配置)' : '(未配置)';
 }
 
 function genSid(){
