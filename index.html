@@ -268,8 +268,8 @@ body::before{
 .motto-banner:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,119,182,0.35)}
 .motto-banner .motto-quote{font-size:28px;font-weight:700;font-family:Georgia,serif;opacity:0.5;line-height:1}
 .motto-banner .motto-text{font-size:17px;font-weight:600;letter-spacing:1px;text-align:center}
-.motto-banner .motto-class-name{font-size:20px;font-weight:800;letter-spacing:2px;white-space:nowrap;margin-bottom:4px}
-.motto-banner .motto-divider{display:none}
+
+
 .motto-banner .motto-edit{position:absolute;right:14px;bottom:8px;font-size:10px;opacity:0;transition:opacity .2s;background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:8px}
 .motto-banner:hover .motto-edit{opacity:1}
 
@@ -1058,7 +1058,7 @@ tbody tr.highlight{
   .exam-stat{padding:6px 10px}
   .grade-table{min-width:500px;font-size:12px}
   .detail-panel{width:100vw !important}
-  .motto-banner{font-size:13px;padding:8px 12px}
+  .motto-banner{font-size:13px;padding:10px 14px;margin-bottom:10px}
   .toast{max-width:90vw}
   .nav-divider{display:none}
 }
@@ -1298,7 +1298,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.2.4</div>
+      <div class="login-version">v2.2.5</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1388,7 +1388,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.2.4 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.2.5 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -1409,11 +1409,7 @@ tbody tr.highlight{
       <div class="page active" id="page-dashboard">
         <!-- 班级口号横幅 -->
         <div class="motto-banner stagger" style="animation-delay:0s" onclick="editMotto()" title="点击修改班级口号">
-          <span class="motto-class-name" id="dashClassName"></span>
-          <span class="motto-divider">|</span>
-          <span class="motto-quote">"</span>
           <span class="motto-text" id="mottoText">不积跬步，无以至千里；不积小流，无以成江海。</span>
-          <span class="motto-quote">"</span>
           <span class="motto-edit">✏️ 点击编辑</span>
         </div>
 
@@ -2272,7 +2268,7 @@ function autoSyncFromCloud(){
       cloudDataInfo={students:remoteData.students.length,operations:(remoteData.operations||[]).length,leaves:(remoteData.leaves||[]).length,todos:(remoteData.todos||[]).length,lastExport:remoteData.lastExport||null};
       var localCount=(localData.students||[]).length;
       if(localCount===0){localStorage.setItem(STORE_KEY,JSON.stringify(remoteData));loadData();renderAll();
-  renderWaterDuty();if(remoteData.hasSchedule) pullScheduleImage();lastSyncTime=new Date().toISOString();console.log("[Sync] Local empty, loaded cloud data");return true;}
+  renderWaterDuty();if(remoteData.hasSchedule) pullScheduleImage();else renderScheduleImage();lastSyncTime=new Date().toISOString();console.log("[Sync] Local empty, loaded cloud data");return true;}
       if(localCount===remoteData.students.length&&JSON.stringify(localData)===JSON.stringify(remoteData)){console.log("[Sync] Data identical");return true;}
       var merged=smartMergeData(localData,remoteData);
       localStorage.setItem(STORE_KEY,JSON.stringify(merged));
@@ -2377,13 +2373,23 @@ function pullScheduleImage(){
       var dataUri = "data:image/png;base64," + base64;
       state.scheduleImage = dataUri;
       var raw = localStorage.getItem(STORE_KEY) || "{}";
+      // Re-render if currently on dashboard
+      var activePage = document.querySelector(".nav-item.active");
+      if(activePage && activePage.dataset.page === "dashboard"){ renderScheduleImage(); }
       var parsed; try{ parsed = JSON.parse(raw); }catch(e){ parsed = {}; }
       parsed.scheduleImage = dataUri;
       localStorage.setItem(STORE_KEY, JSON.stringify(parsed));
       renderScheduleImage();
       console.log("[Sync] Schedule image loaded from cloud:", base64.length, "chars");
     })
-    .catch(function(e){ console.log("[Sync] Schedule image pull failed:", e.message); });
+    .catch(function(e){
+      console.log("[Sync] Schedule image pull failed:", e.message);
+      // Fall back to localStorage cache if available
+      var raw = localStorage.getItem(STORE_KEY);
+      if(raw){
+        try{ var p = JSON.parse(raw); if(p.scheduleImage){ state.scheduleImage = p.scheduleImage; renderScheduleImage(); } }catch(e){}
+      }
+    });
 }
 
 function configGHToken(){
@@ -2624,7 +2630,7 @@ function renderClassBrand(){
       loginLogo.style.background = 'rgba(255,255,255,0.18)';
     }
   }
-var dcn=document.getElementById('dashClassName');if(dcn)dcn.textContent=state.className||'';
+
 }
 
 function openAvatarModal(){
@@ -2677,6 +2683,7 @@ function removeClassAvatar(){
 
 function renderScheduleImage(){
   const wrap = document.getElementById('scheduleImageWrap');
+  if(!wrap) return;
   if(state.scheduleImage){
     wrap.innerHTML = `
       <div class="schedule-image-wrap">
