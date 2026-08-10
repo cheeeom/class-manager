@@ -31,7 +31,7 @@
   "nextId": 3,
   "nextOpId": 1,
   "nextSid": 3,
-  "lastExport": "2026-08-10T18:37:28.473Z",
+  "lastExport": "2026-08-10T18:48:42.019Z",
   "lastImport": null,
   "committee": {
     "banzhang": null,
@@ -60,5 +60,5 @@
   "nextExamId": 1,
   "todos": [],
   "nextTodoId": 1,
-  "hasSchedule": false
+  "hasSchedule": true
 }
