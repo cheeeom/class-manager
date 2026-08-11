@@ -297,7 +297,7 @@
   "nextId": 21,
   "nextOpId": 20,
   "nextSid": 3,
-  "lastExport": "2026-08-11T16:59:56.885Z",
+  "lastExport": "2026-08-11T17:03:53.128Z",
   "lastImport": null,
   "committee": {
     "banzhang": null,
@@ -630,7 +630,7 @@
     ],
     "waterRound": 2
   },
-  "exportedOpsCount": 17,
+  "exportedOpsCount": 19,
   "classMotto": "不积跬步，无以至千里",
   "leaves": [
     {
@@ -646,48 +646,6 @@
       "status": "pending",
       "createdAt": "2026-08-10T19:00:08.485Z",
       "history": []
-    },
-    {
-      "id": 2,
-      "studentId": 5,
-      "type": "sick",
-      "startDate": "2026-08-08",
-      "startPeriod": "am",
-      "endDate": "2026-08-08",
-      "endPeriod": "pm",
-      "duration": 1,
-      "reason": "1",
-      "status": "returned",
-      "createdAt": "2026-08-08T04:41:38.292Z",
-      "history": [
-        {
-          "action": "return",
-          "date": "2026-08-08",
-          "at": "2026-08-08T04:46:27.093Z"
-        }
-      ],
-      "returnDate": "2026-08-08"
-    },
-    {
-      "id": 3,
-      "studentId": 7,
-      "type": "sick",
-      "startDate": "2026-08-08",
-      "startPeriod": "am",
-      "endDate": "2026-08-08",
-      "endPeriod": "am",
-      "duration": 0.5,
-      "reason": "2",
-      "status": "returned",
-      "createdAt": "2026-08-08T04:42:11.628Z",
-      "history": [
-        {
-          "action": "return",
-          "date": "2026-08-08",
-          "at": "2026-08-08T04:46:26.046Z"
-        }
-      ],
-      "returnDate": "2026-08-08"
     }
   ],
   "nextLeaveId": 4,
