@@ -1467,7 +1467,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.3.5</div>
+      <div class="login-version">v2.3.6</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1557,7 +1557,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.3.5 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.3.6 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -1976,7 +1976,9 @@ tbody tr.highlight{
           <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px">
             <button class="btn btn-primary" onclick="pushToCloud()">⬆️ 推送数据到云端</button>
             <button class="btn btn-outline" onclick="pullFromCloud()">⬇️ 从云端拉取数据</button>
+            <button class="btn" onclick="restoreFromCloud()" style="background:var(--danger);color:#fff;margin-left:8px">🔄 从云端恢复（覆盖本地）</button>
           </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:4px">⚠️「恢复」会用云端数据完全替换本地，本地未推送的数据将丢失</p>
           <div id="cloudSyncInfo" style="margin-top:8px"></div>
           <div style="margin-top:8px;font-size:12px;color:var(--text-secondary)">
             <button class="btn btn-outline" style="font-size:12px;padding:4px 12px" onclick="configGHToken()">配置 GitHub Token</button>
@@ -2420,8 +2422,7 @@ function smartMergeData(localData,remoteData){
   if(!merged.className&&remoteData.className)merged.className=remoteData.className;
   if(!merged.classMotto&&remoteData.classMotto)merged.classMotto=remoteData.classMotto;
   if(!merged.classAvatar&&remoteData.classAvatar)merged.classAvatar=remoteData.classAvatar;
-  // scheduleImage and classAvatar are NOT synced via data.json (too large)
-  // They stay in localStorage only
+  // scheduleImage and classAvatar are synced via data.json (compressed)
   // nextId series: max
   merged.nextId=Math.max(localData.nextId||1,remoteData.nextId||1);
   merged.nextOpId=Math.max(localData.nextOpId||1,remoteData.nextOpId||1);
@@ -2617,6 +2618,31 @@ function pullFromCloud(){
     })
     .catch(function(e){showToast("拉取失败："+e.message+"（file:// 不支持 fetch，需 HTTP 服务或 GitHub Pages）","error");});
 }
+
+function restoreFromCloud(){
+  if(!confirm('确认从云端恢复？\n\n此操作会用云端数据完全替换本地数据。\n本地存在但云端没有的数据（如测试数据）将被清除。')) return;
+  if(!confirm('再次确认：本地数据将被完全覆盖，不可撤销！')) return;
+  fetch(getDataJsonUrl() + '?t=' + Date.now(), {cache:'no-store'})
+    .then(r => r.json())
+    .then(data => {
+      if(!data || !data.students){ showToast('云端数据为空','error'); return; }
+      // Completely replace local data
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+      loadData();
+      renderAll();
+      renderScheduleImage();
+      renderClassBrand();
+      renderSettings();
+      state.lastSyncTime = new Date().toISOString();
+      showToast('已从云端恢复 ' + (data.students||[]).length + ' 名学生数据','success');
+      console.log('[Sync] Restored from cloud:', (data.students||[]).length, 'students');
+    })
+    .catch(e => {
+      showToast('云端恢复失败：' + e.message, 'error');
+      console.log('[Sync] Restore failed:', e);
+    });
+}
+
 
 function updateCloudSyncUI(){
   var el = document.getElementById("cloudSyncInfo");if(!el)return;
