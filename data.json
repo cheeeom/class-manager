@@ -71,8 +71,20 @@
     }
   ],
   "nextLeaveId": 2,
-  "exams": [],
-  "nextExamId": 1,
+  "exams": [
+    {
+      "id": 1,
+      "name": "开学考试",
+      "date": "2026-08-31",
+      "subjects": [
+        "语文",
+        "数学",
+        "英语"
+      ],
+      "scores": {}
+    }
+  ],
+  "nextExamId": 2,
   "todos": [],
   "nextTodoId": 1,
   "hasSchedule": true
