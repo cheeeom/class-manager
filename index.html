@@ -747,6 +747,175 @@ tbody tr.highlight{
 .tag .tag-close:hover{opacity:1}
 
 /* ==================== Analytics ==================== */
+/* Analytics Tabs */
+.analytics-tabs{
+  display:flex;
+  gap:0;
+  margin-bottom:16px;
+  border-bottom:2px solid var(--border);
+}
+.analytics-tab{
+  padding:10px 20px;
+  font-size:14px;
+  font-weight:600;
+  color:var(--text-secondary);
+  cursor:pointer;
+  border-bottom:2px solid transparent;
+  margin-bottom:-2px;
+  transition:all .2s;
+  user-select:none;
+}
+.analytics-tab:hover{color:var(--primary);}
+.analytics-tab.active{
+  color:var(--primary);
+  border-bottom-color:var(--primary);
+}
+/* Grade analysis cards */
+.grade-analytics-empty{
+  text-align:center;
+  padding:48px 20px;
+  color:var(--text-muted);
+}
+.grade-analytics-empty .icon{font-size:48px;margin-bottom:12px;}
+.grade-exam-selector{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin-bottom:16px;
+  flex-wrap:wrap;
+}
+.grade-exam-selector select{
+  padding:8px 14px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  font-size:14px;
+  background:#fff;
+  min-width:200px;
+}
+.grade-stat-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;
+  margin-bottom:16px;
+}
+.grade-stat-card{
+  background:var(--card-bg);
+  border-radius:12px;
+  padding:14px 18px;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow-card);
+  text-align:center;
+}
+.grade-stat-card .label{font-size:12px;color:var(--text-muted);margin-bottom:4px;}
+.grade-stat-card .value{font-size:22px;font-weight:700;color:var(--primary-darker);}
+.grade-stat-card.highlight .value{color:var(--primary);}
+.grade-subject-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 0;
+  border-bottom:1px solid var(--border);
+}
+.grade-subject-row:last-child{border-bottom:none;}
+.grade-subject-name{
+  width:80px;
+  font-size:13px;
+  font-weight:600;
+  color:var(--text-secondary);
+  flex-shrink:0;
+}
+.grade-subject-bar-wrap{
+  flex:1;
+  height:24px;
+  background:rgba(0,180,216,0.06);
+  border-radius:6px;
+  overflow:hidden;
+  position:relative;
+}
+.grade-subject-bar{
+  height:100%;
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  padding-right:8px;
+  font-size:12px;
+  font-weight:600;
+  color:#fff;
+  transition:width .6s ease;
+}
+.grade-subject-avg{
+  width:60px;
+  text-align:right;
+  font-size:13px;
+  font-weight:700;
+  color:var(--primary-darker);
+  flex-shrink:0;
+}
+.grade-rank-list{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.grade-rank-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 12px;
+  border-radius:8px;
+  background:rgba(0,180,216,0.03);
+}
+.grade-rank-num{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:13px;
+  font-weight:700;
+  color:#fff;
+  flex-shrink:0;
+}
+.grade-rank-num.r1{background:#FFD166;color:#333;}
+.grade-rank-num.r2{background:#C0C0C0;}
+.grade-rank-num.r3{background:#CD7F32;}
+.grade-rank-num.other{background:var(--primary);opacity:.6;}
+.grade-rank-name{flex:1;font-size:13px;font-weight:500;}
+.grade-rank-score{font-size:14px;font-weight:700;color:var(--primary-darker);}
+.grade-comparison-chart{
+  display:flex;
+  align-items:flex-end;
+  gap:6px;
+  height:180px;
+  padding:20px 0 10px;
+  overflow-x:auto;
+}
+.grade-comparison-bar{
+  min-width:32px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+  flex:1;
+}
+.grade-comparison-bar-fill{
+  width:100%;
+  border-radius:4px 4px 0 0;
+  min-height:4px;
+  transition:height .6s ease;
+  position:relative;
+}
+.grade-comparison-bar-label{
+  font-size:10px;
+  color:var(--text-muted);
+  text-align:center;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:50px;
+}
+
 .analytics-grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
@@ -1298,7 +1467,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.2.7</div>
+      <div class="login-version">v2.3.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1388,7 +1557,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.2.7 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.3.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -1657,25 +1826,34 @@ tbody tr.highlight{
 
       <!-- Analytics Page -->
       <div class="page" id="page-analytics">
-        <div class="analytics-grid" id="analyticsSummary"></div>
-        <div class="chart-card">
-          <div class="section-title"><span class="dot"></span>学分区间分布</div>
-          <canvas id="rangeChart" height="200"></canvas>
+        <div class="analytics-tabs">
+          <div class="analytics-tab active" id="tab-credit" onclick="switchAnalyticsTab('credit')">📊 学分分析</div>
+          <div class="analytics-tab" id="tab-grade" onclick="switchAnalyticsTab('grade')">📝 成绩分析</div>
         </div>
-        <div class="dash-grid">
+        <div id="analyticsCreditPanel">
+          <div class="analytics-grid" id="analyticsSummary"></div>
           <div class="chart-card">
-            <div class="section-title"><span class="dot"></span>分数段占比</div>
-            <canvas id="pieChart" height="200"></canvas>
-            <div class="pie-legend" id="pieLegend"></div>
+            <div class="section-title"><span class="dot"></span>学分区间分布</div>
+            <canvas id="rangeChart" height="200"></canvas>
+          </div>
+          <div class="dash-grid">
+            <div class="chart-card">
+              <div class="section-title"><span class="dot"></span>分数段占比</div>
+              <canvas id="pieChart" height="200"></canvas>
+              <div class="pie-legend" id="pieLegend"></div>
+            </div>
+            <div class="chart-card">
+              <div class="section-title"><span class="dot"></span>进步/退步最大</div>
+              <div class="progress-list" id="progressList"></div>
+            </div>
           </div>
           <div class="chart-card">
-            <div class="section-title"><span class="dot"></span>进步/退步最大</div>
-            <div class="progress-list" id="progressList"></div>
+            <div class="section-title"><span class="dot"></span>学分趋势（近7天）</div>
+            <canvas id="trendChart" height="200"></canvas>
           </div>
         </div>
-        <div class="chart-card">
-          <div class="section-title"><span class="dot"></span>学分趋势（近7天）</div>
-          <canvas id="trendChart" height="200"></canvas>
+        <div id="analyticsGradePanel" style="display:none">
+          <div id="gradeAnalyticsContent"></div>
         </div>
       </div>
 
@@ -3877,7 +4055,184 @@ function confirmBatchCredit(){
 }
 
 /* ==================== Analytics ==================== */
+let currentAnalyticsTab = 'credit';
+function switchAnalyticsTab(tab){
+  currentAnalyticsTab = tab;
+  document.getElementById('tab-credit').classList.toggle('active', tab === 'credit');
+  document.getElementById('tab-grade').classList.toggle('active', tab === 'grade');
+  document.getElementById('analyticsCreditPanel').style.display = tab === 'credit' ? '' : 'none';
+  document.getElementById('analyticsGradePanel').style.display = tab === 'grade' ? '' : 'none';
+  if(tab === 'grade') renderGradeAnalytics();
+}
+
+function renderGradeAnalytics(){
+  const container = document.getElementById('gradeAnalyticsContent');
+  if(!container) return;
+  if(state.exams.length === 0){
+    container.innerHTML = '<div class="grade-analytics-empty"><div class="icon">📊</div><div class="text">暂无考试数据</div><div style="margin-top:12px"><button class="btn btn-primary btn-sm" onclick="navigateTo(\'grades\')">去创建考试</button></div></div>';
+    return;
+  }
+
+  // Exam selector
+  let selectorHtml = '<div class="grade-exam-selector"><span style="font-size:13px;color:var(--text-secondary)">选择考试：</span><select id="gradeAnalyticsExamSelect" onchange="renderGradeAnalyticsDetail()">';
+  state.exams.forEach((ex, i) => {
+    selectorHtml += '<option value="' + ex.id + '"' + (i === 0 ? ' selected' : '') + '>' + ex.name + ' (' + ex.date + ')</option>';
+  });
+  selectorHtml += '</select></div>';
+
+  container.innerHTML = selectorHtml + '<div id="gradeAnalyticsDetail"></div>';
+  renderGradeAnalyticsDetail();
+}
+
+function renderGradeAnalyticsDetail(){
+  const select = document.getElementById('gradeAnalyticsExamSelect');
+  if(!select) return;
+  const examId = parseInt(select.value);
+  const exam = state.exams.find(e => e.id === examId);
+  if(!exam) return;
+
+  const detail = document.getElementById('gradeAnalyticsDetail');
+  if(!detail) return;
+
+  // Calculate results
+  const results = state.students.map(s => {
+    const sc = exam.scores[s.id] || {};
+    const total = exam.subjects.reduce((sum, subj) => sum + (sc[subj] || 0), 0);
+    return {stu: s, scores: sc, total: total};
+  }).filter(r => Object.keys(r.scores).length > 0);
+
+  if(results.length === 0){
+    detail.innerHTML = '<div class="empty-state" style="padding:40px"><div class="icon">📝</div><div class="text">该考试暂无成绩数据</div><div style="margin-top:8px"><button class="btn btn-outline btn-sm" onclick="navigateTo(\'grades\')">去导入成绩</button></div></div>';
+    return;
+  }
+
+  results.sort((a, b) => b.total - a.total);
+
+  // Overall stats
+  const totals = results.map(r => r.total);
+  const avgTotal = totals.reduce((a, b) => a + b, 0) / totals.length;
+  const maxTotal = Math.max(...totals);
+  const minTotal = Math.min(...totals);
+  const passCount = results.filter(r => r.total / exam.subjects.length >= 60).length;
+  const passRate = (passCount / results.length * 100).toFixed(0);
+  const excellentCount = results.filter(r => r.total / exam.subjects.length >= 85).length;
+  const excellentRate = (excellentCount / results.length * 100).toFixed(0);
+
+  // Subject analysis
+  const subjectStats = exam.subjects.map(subj => {
+    const scores = results.map(r => r.scores[subj]).filter(v => v !== undefined && v !== null);
+    if(scores.length === 0) return {subj, avg: 0, max: 0, min: 0, passRate: 0, count: 0};
+    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+    const max = Math.max(...scores);
+    const min = Math.min(...scores);
+    const pass = scores.filter(s => s >= 60).length;
+    return {
+      subj, avg, max, min,
+      passRate: (pass / scores.length * 100),
+      count: scores.length
+    };
+  });
+
+  // Score distribution (total score buckets)
+  const maxPossible = exam.subjects.length * 100;
+  const buckets = [
+    {label: '0-40%', min: 0, max: maxPossible * 0.4, color: '#EF476F'},
+    {label: '40-60%', min: maxPossible * 0.4, max: maxPossible * 0.6, color: '#FFD166'},
+    {label: '60-75%', min: maxPossible * 0.6, max: maxPossible * 0.75, color: '#00B4D8'},
+    {label: '75-85%', min: maxPossible * 0.75, max: maxPossible * 0.85, color: '#06D6A0'},
+    {label: '85%+', min: maxPossible * 0.85, max: maxPossible + 1, color: '#7209B7'}
+  ];
+  buckets.forEach(b => b.count = results.filter(r => r.total >= b.min && r.total < b.max).length);
+
+  // Build HTML
+  let html = '';
+
+  // Stats grid
+  html += '<div class="grade-stat-grid">';
+  html += '<div class="grade-stat-card highlight"><div class="label">参考人数</div><div class="value">' + results.length + '</div></div>';
+  html += '<div class="grade-stat-card"><div class="label">总分均分</div><div class="value">' + avgTotal.toFixed(1) + '</div></div>';
+  html += '<div class="grade-stat-card"><div class="label">最高分</div><div class="value">' + maxTotal + '</div></div>';
+  html += '<div class="grade-stat-card"><div class="label">最低分</div><div class="value">' + minTotal + '</div></div>';
+  html += '<div class="grade-stat-card"><div class="label">及格率</div><div class="value">' + passRate + '%</div></div>';
+  html += '<div class="grade-stat-card"><div class="label">优秀率</div><div class="value">' + excellentRate + '%</div></div>';
+  html += '</div>';
+
+  // Subject analysis (bar chart)
+  html += '<div class="chart-card"><div class="section-title"><span class="dot"></span>各科均分对比</div>';
+  html += '<div style="padding:8px 0">';
+  const maxAvg = Math.max(...subjectStats.map(s => s.avg), 1);
+  subjectStats.forEach(s => {
+    const barWidth = (s.avg / 100 * 100).toFixed(0);
+    const barColor = s.avg >= 85 ? '#06D6A0' : s.avg >= 70 ? '#00B4D8' : s.avg >= 60 ? '#FFD166' : '#EF476F';
+    html += '<div class="grade-subject-row">';
+    html += '<div class="grade-subject-name">' + s.subj + '</div>';
+    html += '<div class="grade-subject-bar-wrap"><div class="grade-subject-bar" style="width:' + barWidth + '%;background:' + barColor + '">' + (s.avg >= 10 ? s.avg.toFixed(1) : '') + '</div></div>';
+    html += '<div class="grade-subject-avg">' + s.avg.toFixed(1) + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  // Subject detail table
+  html += '<div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--text-muted)">';
+  subjectStats.forEach(s => {
+    html += '<span>' + s.subj + ': 最高' + s.max + ' / 最低' + s.min + ' / 及格率' + s.passRate.toFixed(0) + '%</span>';
+  });
+  html += '</div></div>';
+
+  // Score distribution
+  html += '<div class="chart-card"><div class="section-title"><span class="dot"></span>总分分布</div>';
+  html += '<div class="grade-comparison-chart">';
+  const maxBuckCount = Math.max(...buckets.map(b => b.count), 1);
+  buckets.forEach(b => {
+    const barH = (b.count / maxBuckCount * 120).toFixed(0);
+    html += '<div class="grade-comparison-bar">';
+    html += '<div style="font-size:12px;font-weight:600;color:var(--text-secondary)">' + b.count + '</div>';
+    html += '<div class="grade-comparison-bar-fill" style="height:' + barH + 'px;background:' + b.color + '"></div>';
+    html += '<div class="grade-comparison-bar-label">' + b.label + '</div>';
+    html += '</div>';
+  });
+  html += '</div></div>';
+
+  // Top 10 ranking
+  html += '<div class="chart-card"><div class="section-title"><span class="dot"></span>成绩排名（前10）</div>';
+  html += '<div class="grade-rank-list">';
+  results.slice(0, 10).forEach((r, idx) => {
+    const rankClass = idx === 0 ? 'r1' : idx === 1 ? 'r2' : idx === 2 ? 'r3' : 'other';
+    const subjectDetail = exam.subjects.map(subj => {
+      const v = r.scores[subj];
+      return subj + ': ' + (v !== undefined ? v : '—');
+    }).join(' · ');
+    html += '<div class="grade-rank-item">';
+    html += '<div class="grade-rank-num ' + rankClass + '">' + (idx + 1) + '</div>';
+    html += '<div class="grade-rank-name">' + r.stu.name + '<div style="font-size:11px;color:var(--text-muted)">' + subjectDetail + '</div></div>';
+    html += '<div class="grade-rank-score">' + r.total + '</div>';
+    html += '</div>';
+  });
+  html += '</div></div>';
+
+  // Bottom 5 (need attention)
+  if(results.length > 10){
+    html += '<div class="chart-card"><div class="section-title"><span class="dot"></span>需关注学生（后5名）</div>';
+    html += '<div class="grade-rank-list">';
+    results.slice(-5).reverse().forEach((r, idx) => {
+      const realRank = results.length - idx;
+      const subjectDetail = exam.subjects.map(subj => {
+        const v = r.scores[subj];
+        return subj + ': ' + (v !== undefined ? v : '—');
+      }).join(' · ');
+      html += '<div class="grade-rank-item" style="background:rgba(239,71,111,0.04)">';
+      html += '<div class="grade-rank-num other" style="background:#EF476F;opacity:.7">' + realRank + '</div>';
+      html += '<div class="grade-rank-name">' + r.stu.name + '<div style="font-size:11px;color:var(--text-muted)">' + subjectDetail + '</div></div>';
+      html += '<div class="grade-rank-score" style="color:#EF476F">' + r.total + '</div>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  detail.innerHTML = html;
+}
+
 function renderAnalytics(){
+  if(currentAnalyticsTab === 'grade'){ renderGradeAnalytics(); return; }
   const students = state.students;
   if(students.length === 0){
     document.getElementById('analyticsSummary').innerHTML = '<div class="empty-state"><div class="icon">📈</div><div class="text">暂无数据</div></div>';
