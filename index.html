@@ -1467,7 +1467,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.3.2</div>
+      <div class="login-version">v2.3.3</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1557,7 +1557,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.3.2 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.3.3 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2452,7 +2452,8 @@ function autoSyncFromCloud(){
     renderWaterDuty();
     if(remoteData.hasSchedule && !state.scheduleImage) pullScheduleImage();
     else renderScheduleImage();
-    lastSyncTime=new Date().toISOString();console.log("[Sync] Local empty, loaded cloud data");return true;
+    if(remoteData.hasAvatar){ pullAvatarImage(); }
+        lastSyncTime=new Date().toISOString();console.log("[Sync] Local empty, loaded cloud data");return true;
   }
       if(localCount===remoteData.students.length&&JSON.stringify(localData)===JSON.stringify(remoteData)){console.log("[Sync] Data identical");return true;}
       var merged=smartMergeData(localData,remoteData);
@@ -2466,6 +2467,7 @@ function autoSyncFromCloud(){
       renderAll();
       if(remoteData.hasSchedule && !state.scheduleImage) pullScheduleImage();
       else if(!state.scheduleImage) renderScheduleImage();
+      if(remoteData.hasAvatar && !state.classAvatar) pullAvatarImage();
       lastSyncTime=new Date().toISOString();console.log("[Sync] Data merged");return true;
     })
     .catch(function(e){console.log("[Sync] No cloud data or fetch failed:",e.message);return false;});
@@ -2488,6 +2490,8 @@ function autoPushToCloud(){
       'classMotto','leaves','nextLeaveId','exams','nextExamId','todos','nextTodoId'];
     syncFields.forEach(function(f){ if(f in parsed) lightData[f] = parsed[f]; });
     lightData.hasSchedule = !!parsed.scheduleImage;
+    lightData.hasAvatar = !!parsed.classAvatar;
+    lightData.hasAvatar = !!parsed.classAvatar;
     var pretty = JSON.stringify(lightData, null, 2);
     
     // Use TextEncoder for Unicode-safe base64
@@ -2525,6 +2529,7 @@ function autoPushToCloud(){
       updateSyncStatus();
       updateCloudSyncUI();
       if(state.scheduleImage){ pushScheduleImage(state.scheduleImage); } else { pushScheduleImage(null); }
+      if(state.classAvatar){ pushAvatarImage(state.classAvatar); } else { pushAvatarImage(null); }
       showToast('数据已自动同步到云端','success');
     }).catch(function(e){
       console.error('[Sync] Push failed:', e.message);
@@ -2553,6 +2558,83 @@ function pushScheduleImage(base64Data){
     }).then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
     .then(function(json){ console.log("[Sync] Schedule image uploaded:", json.content.size, "bytes"); })
     .catch(function(e){ console.log("[Sync] Schedule image upload failed:", e.message); });
+}
+
+function pushAvatarImage(dataUri){
+  var token = getGHToken();
+  if(!token) return;
+  var GH_AVATAR_PATH = 'avatar-img.txt';
+  var apiUrl = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_AVATAR_PATH;
+  
+  if(!dataUri){
+    // Delete avatar from cloud
+    fetch(apiUrl, {
+      method: 'GET',
+      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'cm' }
+    }).then(function(r){ return r.json(); }).then(function(json){
+      if(json.sha){
+        return fetch(apiUrl, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json', 'User-Agent': 'cm' },
+          body: JSON.stringify({ message: 'auto-sync: delete avatar-img.txt', sha: json.sha, branch: GH_BRANCH })
+        });
+      }
+    }).then(function(){ console.log('[Sync] Avatar deleted from cloud'); })
+    .catch(function(e){ console.log('[Sync] Avatar delete failed:', e.message); });
+    return;
+  }
+  
+  // Upload avatar as raw base64 (GitHub Content API stores it as binary)
+  var base64 = dataUri.split(',')[1];
+  if(!base64){ console.log('[Sync] No base64 in avatar dataUri'); return; }
+  
+  fetch(apiUrl, {
+    method: 'GET',
+    headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'cm' }
+  }).then(function(r){ return r.json(); }).then(function(json){
+    var body = { message: 'auto-sync: update avatar-img.txt', content: base64, branch: GH_BRANCH };
+    if(json.sha) body.sha = json.sha;
+    return fetch(apiUrl, {
+      method: 'PUT',
+      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json', 'User-Agent': 'cm' },
+      body: JSON.stringify(body)
+    });
+  }).then(function(r){
+    if(!r.ok) return r.text().then(function(t){ throw new Error('PUT avatar failed: ' + r.status); });
+    return r.json();
+  }).then(function(json){
+    console.log('[Sync] Avatar pushed! Commit:', json.commit.sha);
+  }).catch(function(e){ console.error('[Sync] Avatar push failed:', e.message); });
+}
+
+function pullAvatarImage(){
+  var url = 'https://cheeeom.github.io/class-manager/avatar-img.txt?t=' + Date.now();
+  fetch(url, { cache: 'no-store' })
+    .then(function(r){
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      return r.blob();
+    })
+    .then(function(blob){
+      if(blob.size < 10) throw new Error('Avatar too small: ' + blob.size);
+      var reader = new FileReader();
+      reader.onload = function(ev){
+        var dataUri = ev.target.result;
+        state.classAvatar = dataUri;
+        _cachedClassAvatar = dataUri;
+        // Save to localStorage
+        try{
+          var raw = localStorage.getItem(STORE_KEY);
+          var parsed = raw ? JSON.parse(raw) : {};
+          parsed.classAvatar = dataUri;
+          localStorage.setItem(STORE_KEY, JSON.stringify(parsed));
+        }catch(e){}
+        renderClassBrand();
+        renderSettings();
+        console.log('[Sync] Avatar loaded from cloud:', blob.size, 'bytes');
+      };
+      reader.readAsDataURL(blob);
+    })
+    .catch(function(e){ console.log('[Sync] No avatar on cloud:', e.message); });
 }
 
 function pullScheduleImage(){
@@ -2665,6 +2747,7 @@ function pullFromCloud(){
       loadData();renderAll();
       state.lastImport=new Date().toISOString();saveData();lastSyncTime=new Date().toISOString();updateSyncStatus();updateCloudSyncUI();
       if(remoteData.hasSchedule) pullScheduleImage();
+      if(remoteData.hasAvatar) pullAvatarImage();
       showToast("云端数据已合并：本地 "+localCount+" 人 + 云端 "+remoteCount+" 人 → 合并后 "+merged.students.length+" 人","success");
     })
     .catch(function(e){showToast("拉取失败："+e.message+"（file:// 不支持 fetch，需 HTTP 服务或 GitHub Pages）","error");});
@@ -2838,6 +2921,7 @@ function openAvatarModal(){
     const reader = new FileReader();
     reader.onload = function(ev){
       state.classAvatar = ev.target.result;
+      _cachedClassAvatar = ev.target.result;
       saveData();
       renderClassBrand();
       showToast('班级头像已更新','success');
@@ -2869,6 +2953,7 @@ function saveMottoFromSettings(){
 function removeClassAvatar(){
   if(!confirm('确认移除班级头像？')) return;
   state.classAvatar = null;
+  _cachedClassAvatar = null;
   saveData();
   renderClassBrand();
   showToast('已移除班级头像','info');
