@@ -1467,7 +1467,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.3.1</div>
+      <div class="login-version">v2.3.2</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1557,7 +1557,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.3.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.3.2 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2446,19 +2446,26 @@ function autoSyncFromCloud(){
       cloudDataInfo={students:remoteData.students.length,operations:(remoteData.operations||[]).length,leaves:(remoteData.leaves||[]).length,todos:(remoteData.todos||[]).length,lastExport:remoteData.lastExport||null};
       var localCount=(localData.students||[]).length;
       if(localCount===0){
+    var savedSched0 = state.scheduleImage;
     localStorage.setItem(STORE_KEY,JSON.stringify(remoteData));loadData();
+    if(savedSched0 && !state.scheduleImage) state.scheduleImage = savedSched0;
     renderWaterDuty();
-    if(remoteData.hasSchedule){ pullScheduleImage(); }
-    else { renderScheduleImage(); }
+    if(remoteData.hasSchedule && !state.scheduleImage) pullScheduleImage();
+    else renderScheduleImage();
     lastSyncTime=new Date().toISOString();console.log("[Sync] Local empty, loaded cloud data");return true;
   }
       if(localCount===remoteData.students.length&&JSON.stringify(localData)===JSON.stringify(remoteData)){console.log("[Sync] Data identical");return true;}
       var merged=smartMergeData(localData,remoteData);
-      // Preserve local scheduleImage - it's not synced via data.json
-      if(localData.scheduleImage) merged.scheduleImage = localData.scheduleImage;
+      // CRITICAL: scheduleImage is NOT in data.json. Preserve it from localStorage.
+      var savedSchedule = localData.scheduleImage || (state.scheduleImage);
+      if(savedSchedule) merged.scheduleImage = savedSchedule;
       localStorage.setItem(STORE_KEY,JSON.stringify(merged));
-      loadData();renderAll();
+      loadData();
+      // Restore scheduleImage in case loadData cleared it
+      if(savedSchedule && !state.scheduleImage) state.scheduleImage = savedSchedule;
+      renderAll();
       if(remoteData.hasSchedule && !state.scheduleImage) pullScheduleImage();
+      else if(!state.scheduleImage) renderScheduleImage();
       lastSyncTime=new Date().toISOString();console.log("[Sync] Data merged");return true;
     })
     .catch(function(e){console.log("[Sync] No cloud data or fetch failed:",e.message);return false;});
@@ -2562,6 +2569,7 @@ function pullScheduleImage(){
         var raw = localStorage.getItem(STORE_KEY) || "{}";
         var parsed; try{ parsed = JSON.parse(raw); }catch(e){ parsed = {}; }
         parsed.scheduleImage = dataUri;
+        _cachedScheduleImage = dataUri;
         localStorage.setItem(STORE_KEY, JSON.stringify(parsed));
         renderScheduleImage();
         console.log("[Sync] Schedule image loaded from cloud:", blob.size, "bytes");
@@ -2867,12 +2875,18 @@ function removeClassAvatar(){
 }
 
 
+var _cachedScheduleImage = null;
 function renderScheduleImage(){
   const wrap = document.getElementById('scheduleImageWrap');
   if(!wrap) return;
-  // Fallback: try localStorage if state.scheduleImage is null
+  // Multi-layer fallback: state -> cache -> localStorage
   if(!state.scheduleImage){
-    try{var raw=localStorage.getItem(STORE_KEY);if(raw){var p=JSON.parse(raw);if(p.scheduleImage)state.scheduleImage=p.scheduleImage;}}catch(e){}
+    if(_cachedScheduleImage){ state.scheduleImage = _cachedScheduleImage; }
+    else {
+      try{var raw=localStorage.getItem(STORE_KEY);if(raw){var p=JSON.parse(raw);if(p.scheduleImage){state.scheduleImage=p.scheduleImage;_cachedScheduleImage=p.scheduleImage;}}}catch(e){}
+    }
+  } else {
+    _cachedScheduleImage = state.scheduleImage;
   }
   if(state.scheduleImage){
     wrap.innerHTML = `
