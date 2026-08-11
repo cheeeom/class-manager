@@ -1,21 +1,6 @@
 {
-  "className": "26级幼保2班",
-  "students": [
-    {
-      "id": 1,
-      "sid": "S0001",
-      "name": "张明轩",
-      "credit": 12,
-      "tags": []
-    },
-    {
-      "id": 2,
-      "sid": "S0002",
-      "name": "李思涵",
-      "credit": 15,
-      "tags": []
-    }
-  ],
+  "className": "高一（1）班",
+  "students": [],
   "operations": [],
   "reasons": [
     "课堂回答",
@@ -28,10 +13,10 @@
     "竞赛获奖",
     "其他"
   ],
-  "nextId": 3,
+  "nextId": 1,
   "nextOpId": 1,
-  "nextSid": 3,
-  "lastExport": "2026-08-11T16:50:09.823Z",
+  "nextSid": 1,
+  "lastExport": null,
   "lastImport": null,
   "committee": {
     "banzhang": null,
@@ -53,24 +38,12 @@
     "waterRound": 1
   },
   "exportedOpsCount": 0,
-  "classMotto": "不积跬步，无以至千里",
+  "classMotto": "不积跬步，无以至千里；不积小流，无以成江海。",
   "leaves": [],
-  "nextLeaveId": 2,
-  "exams": [
-    {
-      "id": 1,
-      "name": "开学考试",
-      "date": "2026-08-31",
-      "subjects": [
-        "语文",
-        "数学",
-        "英语"
-      ],
-      "scores": {}
-    }
-  ],
-  "nextExamId": 2,
+  "nextLeaveId": 1,
+  "exams": [],
+  "nextExamId": 1,
   "todos": [],
   "nextTodoId": 1,
-  "hasSchedule": true
+  "hasSchedule": false
 }
