@@ -1467,7 +1467,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.3.6</div>
+      <div class="login-version">v2.3.7</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1557,7 +1557,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.3.6 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.3.7 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2455,15 +2455,17 @@ function autoSyncFromCloud(){
     renderClassBrand();
     lastSyncTime=new Date().toISOString();console.log("[Sync] Local empty, loaded cloud data");return true;
   }
-      if(localCount===remoteData.students.length&&JSON.stringify(localData)===JSON.stringify(remoteData)){console.log("[Sync] Data identical");return true;}
+      // Always merge - even if data looks identical, images might differ
+      // smartMergeData will handle the dedup
       var merged=smartMergeData(localData,remoteData);
-      // CRITICAL: scheduleImage is NOT in data.json. Preserve it from localStorage.
-      var savedSchedule = localData.scheduleImage || (state.scheduleImage);
-      if(savedSchedule) merged.scheduleImage = savedSchedule;
+      // Images are now in data.json (compressed). Use cloud version if local is empty.
+      if(!merged.scheduleImage && remoteData.scheduleImage) merged.scheduleImage = remoteData.scheduleImage;
+      if(!merged.classAvatar && remoteData.classAvatar) merged.classAvatar = remoteData.classAvatar;
+      // If local has newer images (just uploaded), keep local
+      if(state.scheduleImage && !remoteData.scheduleImage) merged.scheduleImage = state.scheduleImage;
+      if(state.classAvatar && !remoteData.classAvatar) merged.classAvatar = state.classAvatar;
       localStorage.setItem(STORE_KEY,JSON.stringify(merged));
       loadData();
-      // Restore scheduleImage in case loadData cleared it
-      if(savedSchedule && !state.scheduleImage) state.scheduleImage = savedSchedule;
       renderAll();
       renderScheduleImage();
       renderClassBrand();
@@ -2774,8 +2776,15 @@ function renderClassBrand(){
   // 侧边栏头像
   const icon = document.getElementById('classAvatarIcon');
   if(icon){
-    if(state.classAvatar){
-      icon.innerHTML = `<img src="${state.classAvatar}" alt="班级头像" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;
+    var avSrc = state.classAvatar || icon.dataset.avatarSrc || _cachedClassAvatar;
+    if(!avSrc){
+      try{var raw=localStorage.getItem(STORE_KEY);if(raw){var p=JSON.parse(raw);if(p.classAvatar) avSrc=p.classAvatar;}}catch(e){}
+    }
+    if(avSrc){
+      state.classAvatar = avSrc;
+      _cachedClassAvatar = avSrc;
+      icon.dataset.avatarSrc = avSrc;
+      icon.innerHTML = '<img src="' + avSrc + '" alt="班级头像" style="width:100%;height:100%;object-fit:cover;border-radius:12px">';
       icon.style.background = 'transparent';
       icon.style.boxShadow = '0 4px 12px rgba(0,180,216,0.3)';
     }else{
@@ -2814,11 +2823,20 @@ function openAvatarModal(){
       compressImage(ev.target.result, 400, 0.7, function(compressed){
         state.classAvatar = compressed;
         _cachedClassAvatar = compressed;
+        var icon = document.getElementById('classAvatarIcon');
+        if(icon) icon.dataset.avatarSrc = compressed;
         saveData();
         renderClassBrand();
-        renderSettings();
+        // Directly update settings preview without full re-render
+        var prev = document.getElementById('settingsAvatarPreview');
+        if(prev){
+          prev.innerHTML = '<img src="' + compressed + '" style="width:100%;height:100%;object-fit:cover;border-radius:12px">';
+          prev.style.background = 'transparent';
+        }
+        var rmBtn = document.getElementById('removeAvatarBtn');
+        if(rmBtn) rmBtn.style.display = '';
+        showToast('班级头像已更新','success');
       });
-      showToast('班级头像已更新','success');
     };
     reader.readAsDataURL(file);
   };
@@ -2892,16 +2910,17 @@ function renderScheduleImage(){
     _cachedScheduleImage = src;
     wrap.dataset.scheduleSrc = src;
   }
-  var html = state.scheduleImage
-    ? '<div class="schedule-image-wrap"><img src="' + state.scheduleImage + '" alt="\u8bfe\u7a0b\u8868" ondblclick="viewScheduleFullscreen()" style="cursor:zoom-in"><div class="schedule-actions"><button class="btn-sm change" onclick="triggerSchedulePaste()">\u66f4\u6362</button><button class="btn-sm danger" onclick="deleteScheduleImage()">\u5220\u9664</button></div><div class="schedule-hint">\u53cc\u51fb\u56fe\u7247\u53ef\u653e\u5927\u67e5\u770b</div></div>'
+  var html = src
+    ? '<div class="schedule-image-wrap"><img src="' + src + '" alt="\u8bfe\u7a0b\u8868" ondblclick="viewScheduleFullscreen()" style="cursor:zoom-in"><div class="schedule-actions"><button class="btn-sm change" onclick="triggerSchedulePaste()">\u66f4\u6362</button><button class="btn-sm danger" onclick="deleteScheduleImage()">\u5220\u9664</button></div><div class="schedule-hint">\u53cc\u51fb\u56fe\u7247\u53ef\u653e\u5927\u67e5\u770b</div></div>'
     : '<div class="schedule-empty" onclick="triggerSchedulePaste()"><div class="icon">\ud83d\udcf7</div><div class="text">\u70b9\u51fb\u4e0a\u4f20\u8bfe\u7a0b\u8868\u56fe\u7247</div><div class="hint">\u652f\u6301\u9009\u62e9\u56fe\u7247\u6587\u4ef6\uff0c\u4e5f\u53ef Ctrl+V \u7c98\u8d34</div></div>';
   wrap.innerHTML = html;
-  if(state.scheduleImage){
+  if(src){
     var img = wrap.querySelector('img');
     if(img){
       img.onerror = function(){
         console.log('[Schedule] Image onerror, retrying...');
         if(_cachedScheduleImage){ img.src = _cachedScheduleImage; }
+        else if(wrap.dataset.scheduleSrc){ img.src = wrap.dataset.scheduleSrc; }
       };
     }
   }
