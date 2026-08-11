@@ -1467,7 +1467,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.3.3</div>
+      <div class="login-version">v2.3.4</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1557,7 +1557,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.3.3 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.3.4 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2956,6 +2956,7 @@ function removeClassAvatar(){
   _cachedClassAvatar = null;
   saveData();
   renderClassBrand();
+  renderSettings();
   showToast('已移除班级头像','info');
 }
 
@@ -2964,7 +2965,6 @@ var _cachedScheduleImage = null;
 function renderScheduleImage(){
   const wrap = document.getElementById('scheduleImageWrap');
   if(!wrap) return;
-  // Multi-layer fallback: state -> cache -> localStorage
   if(!state.scheduleImage){
     if(_cachedScheduleImage){ state.scheduleImage = _cachedScheduleImage; }
     else {
@@ -2973,23 +2973,18 @@ function renderScheduleImage(){
   } else {
     _cachedScheduleImage = state.scheduleImage;
   }
+  var html = state.scheduleImage
+    ? '<div class="schedule-image-wrap"><img src="' + state.scheduleImage + '" alt="\u8bfe\u7a0b\u8868" ondblclick="viewScheduleFullscreen()" style="cursor:zoom-in"><div class="schedule-actions"><button class="btn-sm change" onclick="triggerSchedulePaste()">\u66f4\u6362</button><button class="btn-sm danger" onclick="deleteScheduleImage()">\u5220\u9664</button></div><div class="schedule-hint">\u53cc\u51fb\u56fe\u7247\u53ef\u653e\u5927\u67e5\u770b</div></div>'
+    : '<div class="schedule-empty" onclick="triggerSchedulePaste()"><div class="icon">\ud83d\udcf7</div><div class="text">\u70b9\u51fb\u4e0a\u4f20\u8bfe\u7a0b\u8868\u56fe\u7247</div><div class="hint">\u652f\u6301\u9009\u62e9\u56fe\u7247\u6587\u4ef6\uff0c\u4e5f\u53ef Ctrl+V \u7c98\u8d34</div></div>';
+  wrap.innerHTML = html;
   if(state.scheduleImage){
-    wrap.innerHTML = `
-      <div class="schedule-image-wrap">
-        <img src="${state.scheduleImage}" alt="课程表" ondblclick="viewScheduleFullscreen()" style="cursor:zoom-in">
-        <div class="schedule-actions">
-          <button class="btn-sm change" onclick="triggerSchedulePaste()">更换</button>
-          <button class="btn-sm danger" onclick="deleteScheduleImage()">删除</button>
-        </div>
-        <div class="schedule-hint">双击图片可放大查看</div>
-      </div>`;
-  } else {
-    wrap.innerHTML = `
-      <div class="schedule-empty" onclick="triggerSchedulePaste()">
-        <div class="icon">📷</div>
-        <div class="text">点击上传课程表图片</div>
-        <div class="hint">支持选择图片文件，也可 Ctrl+V 粘贴</div>
-      </div>`;
+    var img = wrap.querySelector('img');
+    if(img){
+      img.onerror = function(){
+        console.log('[Schedule] Image onerror, retrying...');
+        if(_cachedScheduleImage){ img.src = _cachedScheduleImage; }
+      };
+    }
   }
 }
 
