@@ -31,7 +31,7 @@
   "nextId": 3,
   "nextOpId": 1,
   "nextSid": 3,
-  "lastExport": "2026-08-11T17:00:07.272Z",
+  "lastExport": "2026-08-11T17:19:34.352Z",
   "lastImport": null,
   "committee": {
     "banzhang": null,
@@ -73,5 +73,5 @@
   "todos": [],
   "nextTodoId": 1,
   "hasSchedule": true,
-  "hasAvatar": false
+  "hasAvatar": true
 }
