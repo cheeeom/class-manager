@@ -73,5 +73,5 @@
   "todos": [],
   "nextTodoId": 1,
   "hasSchedule": true,
-  "hasAvatar": true
+  "hasAvatar": false
 }
