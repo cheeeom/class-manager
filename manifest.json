@@ -1,0 +1,17 @@
+{
+  "name": "班主任工作台",
+  "short_name": "班主任工作台",
+  "description": "班级管理 · 学分 · 值日 · 座次 · 成绩 · 请假一站式工作台",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F0FBFD",
+  "theme_color": "#00B4D8",
+  "icons": [
+    { "src": "icon_192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon_512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon_512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
