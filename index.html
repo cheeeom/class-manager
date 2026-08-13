@@ -2,8 +2,14 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>班主任工作台</title>
+<meta name="theme-color" content="#00B4D8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="班主任工作台">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon_192.png">
 <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACnUlEQVR4nO1bTWsUQRCtGusvePDoyduiAZFEIZBrPHrw22AMQTwHPCSHkKNHEQ1R8SPBPxBvoghGSVCRnPQX7K9IlWRnN+5Mena7eseZ7Z5+MDD0zPbUe1v1qmegEbZ/gwICfgBtbyRgDoV0UcwDxSBgCY28iQNqBRAICz0+aCOAQLg4lg2U84CQyRtFoCEeEDwI5EiAJilxlAXUzYAmkc+IQLEEeOhCyAvI2Q3AXwvq3xHwPxPwFTLxPD3RG7oEVQKHQuD3eecu4CXk/MvcgI4P+eYBcuGVShDcnRt4P7mUgCxOAa5/hTqA3+6kMUy+trpvWIcnVw84FMH44Kc7TvOpnn3/IgBMAewvmmPYuW29tKGyTTANzgx88sV+ngeX3INQcKIqu4CJ1InpRzcOPi9tlfognQAMXqI//VvrmXGZ3gT8dL0BbbDVR7wL/HgNZOaddTskbxdCBvIdsAB+uFqfCdYOJR/y1gOKoORDZWYAvv/TfSvJQmbP3KtsTn0GCJSFoqBsSJQmnloA+f8eYENilCzJTlRjBowFogmySi+KJshNN0EOzAS1AqDP7wIGaPlQXAlyWBkwlh5QKaIAotKLogdw00tAAhMgvgyJSi+KJcDxkxhokSxsGsd54yZUhaIYtKAySyCZf1t4jV/cKnW+skBVdYHk7hvjOA64VgWobg+Q0ye36oyBgusCSlAUgJudAUlHAIeDH+61XX87Tge5GBAv/2inJ/4vohCvPLOuAV75mRLPIVmbOAUelwDapkuyeu4Y0c7YGKSy44GjdwHPTZRc6jhZaXUygdf22777AOLlx71zv/9KPTIbJnoDTREBw/0kpgTlTKwJWTBw21zoIlhtnOy/MRQh1FtnQ8qGkTZPQ24CX8Sw3j7/F65APbp/N6vZAAAAAElFTkSuQmCC">
 <style>
 /* ==================== Reset & Base ==================== */
@@ -1467,7 +1473,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.3.8</div>
+      <div class="login-version">v2.3.9</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1557,7 +1563,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.3.8 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.3.9 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2218,6 +2224,13 @@ tbody tr.highlight{
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
+/* ==================== PWA ==================== */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  });
+}
+
 /* ==================== Data Layer ==================== */
 const STORE_KEY = 'classManagerData';
 // GitHub auto-sync config
@@ -5088,6 +5101,55 @@ document.addEventListener('keydown', (e) => {
     closeDetailPanel();
   }
 });
+
+/* ==================== PWA 安装提示 ==================== */
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (localStorage.getItem('pwa_dismissed')) return;
+  showPwaInstallTip();
+});
+function showPwaInstallTip(){
+  if(document.getElementById('pwaTip')) return;
+  var tip = document.createElement('div');
+  tip.id = 'pwaTip';
+  tip.innerHTML = '<span>📲 可将工作台添加到手机桌面</span><button id="pwaInstallBtn">安装</button><button id="pwaDismissBtn">✕</button>';
+  tip.style.cssText = 'position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#0077B6;color:#fff;padding:10px 14px;border-radius:20px;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:9999;display:flex;align-items:center;gap:10px;font-size:13px;max-width:92vw;';
+  document.body.appendChild(tip);
+  document.getElementById('pwaInstallBtn').addEventListener('click', async () => {
+    if(deferredPrompt){
+      deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      tip.remove();
+    }
+  });
+  document.getElementById('pwaDismissBtn').addEventListener('click', () => {
+    localStorage.setItem('pwa_dismissed', '1');
+    tip.remove();
+  });
+}
+// iOS Safari 提示（不支持 beforeinstallprompt）
+function isIOS(){
+  return /iphone|ipad|ipod/i.test(navigator.userAgent);
+}
+if(isIOS() && !navigator.standalone && !localStorage.getItem('pwa_ios_dismissed')){
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      if(document.getElementById('pwaTip')) return;
+      var tip = document.createElement('div');
+      tip.id = 'pwaTip';
+      tip.innerHTML = '<span>📲 点分享按钮，选择「添加到主屏幕」</span><button id="pwaDismissBtn">知道了</button>';
+      tip.style.cssText = 'position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#0077B6;color:#fff;padding:10px 14px;border-radius:20px;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:9999;display:flex;align-items:center;gap:10px;font-size:13px;max-width:92vw;';
+      document.body.appendChild(tip);
+      document.getElementById('pwaDismissBtn').addEventListener('click', () => {
+        localStorage.setItem('pwa_ios_dismissed', '1');
+        tip.remove();
+      });
+    }, 2000);
+  });
+}
 
 
 
