@@ -2928,11 +2928,11 @@ function compressImage(dataUri, maxWidth, quality, callback){
     canvas.width = w; canvas.height = h2;
     var ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0, w, h2);
-    // PNG with transparency? check first pixel alpha
-    var isPng = dataUri.indexOf('image/png') >= 0;
-    var mime = isPng ? 'image/png' : 'image/jpeg';
-    var q = isPng ? undefined : (quality || 0.7);
-    var result = q !== undefined ? canvas.toDataURL(mime, q) : canvas.toDataURL(mime);
+    // Always use JPEG for lossy compression (PNG screenshots would stay huge as lossless base64)
+    // This keeps data.json small so PWA/mobile loads fast.
+    var mime = 'image/jpeg';
+    var q = quality || 0.7;
+    var result = canvas.toDataURL(mime, q);
     // If compressed is larger than original, keep original
     if(result.length > dataUri.length) result = dataUri;
     callback(result);
