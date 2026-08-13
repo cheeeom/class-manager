@@ -1,5 +1,5 @@
 /* Service Worker - 班主任工作台 PWA */
-const CACHE_NAME = 'class-manager-v2.3.9';
+const CACHE_NAME = 'class-manager-v2.3.11';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -33,11 +33,25 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // 跳过非 GET 请求和跨域请求
+  // 跳过非 GET 请求
   if (event.request.method !== 'GET') return;
 
   // 云同步 API（GitHub）不缓存，走网络
   if (url.hostname === 'api.github.com' || url.hostname === 'raw.githubusercontent.com') {
+    return;
+  }
+
+  // 导航请求（index.html）：网络优先，保证新版本代码立即生效
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
     return;
   }
 
