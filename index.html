@@ -2943,6 +2943,19 @@ function compressImage(dataUri, maxWidth, quality, callback){
 
 var _cachedScheduleImage = null;
 var _cachedClassAvatar;
+function _scheduleBase64ToBlobUrl(dataUri){
+  try{
+    var parts = dataUri.split(',');
+    var mime = (parts[0].match(/:(.*?);/) || [])[1] || 'image/jpeg';
+    var bstr = atob(parts[1]);
+    var n = bstr.length;
+    var u8 = new Uint8Array(n);
+    for(var i=0;i<n;i++) u8[i] = bstr.charCodeAt(i);
+    return URL.createObjectURL(new Blob([u8], {type:mime}));
+  }catch(e){
+    return null;
+  }
+}
 function renderScheduleImage(){
   var wrap = document.getElementById('scheduleImageWrap');
   if(!wrap){
@@ -2972,17 +2985,24 @@ function renderScheduleImage(){
     state.scheduleImage = src;
     if(typeof _cachedScheduleImage !== 'undefined') _cachedScheduleImage = src;
     wrap.dataset.scheduleSrc = src;
-    wrap.innerHTML = '<div class="schedule-image-wrap"><img src="' + src + '" alt="课程表" ondblclick="viewScheduleFullscreen()" style="cursor:zoom-in"><div class="schedule-actions"><button class="btn-sm change" onclick="triggerSchedulePaste()">更换</button><button class="btn-sm danger" onclick="deleteScheduleImage()">删除</button></div><div class="schedule-hint">双击图片可放大查看</div></div>';
+    // 幂等：已渲染同一张图则跳过，避免移动端重复解码大 base64 导致偶发空白
+    var existing = wrap.querySelector('img');
+    if(existing && existing.getAttribute('data-src') === src) return;
+    // 用 Blob URL 渲染（移动端 Safari 对超大 data URI 偶发解码失败），失败回退 base64
+    var blobUrl = _scheduleBase64ToBlobUrl(src);
+    var finalSrc = blobUrl || src;
+    var html = '<div class="schedule-image-wrap"><img src="' + finalSrc + '" data-src="' + src + '" alt="课程表" style="cursor:zoom-in"><div class="schedule-actions"><button class="btn-sm change" onclick="triggerSchedulePaste()">更换</button><button class="btn-sm danger" onclick="deleteScheduleImage()">删除</button></div><div class="schedule-hint">双击图片可放大查看</div></div>';
+    wrap.innerHTML = html;
     var img = wrap.querySelector('img');
     if(img){
+      img.ondblclick = function(){ viewScheduleFullscreen(); };
       img.onerror = function(){
-        console.log('[Schedule] img onerror');
-        // Try DOM cache first, then localStorage
-        var retry = wrap.dataset.scheduleSrc || (typeof _cachedScheduleImage !== 'undefined' ? _cachedScheduleImage : '');
-        if(retry && retry !== img.src){ img.src = retry; }
+        console.log('[Schedule] img onerror, fallback to base64');
+        if(img.src !== src){ img.src = src; }
       };
     }
   } else {
+    if(wrap.querySelector('.schedule-empty')) return;
     wrap.innerHTML = '<div class="schedule-empty" onclick="triggerSchedulePaste()"><div class="icon">📷</div><div class="text">点击上传课程表图片</div><div class="hint">支持选择图片文件，也可 Ctrl+V 粘贴</div></div>';
   }
 }
