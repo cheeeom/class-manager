@@ -1473,7 +1473,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.3.11</div>
+      <div class="login-version">v2.3.12</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1563,7 +1563,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.3.11 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.3.12 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2435,7 +2435,10 @@ function smartMergeData(localData,remoteData){
   if(!merged.className&&remoteData.className)merged.className=remoteData.className;
   if(!merged.classMotto&&remoteData.classMotto)merged.classMotto=remoteData.classMotto;
   if(!merged.classAvatar&&remoteData.classAvatar)merged.classAvatar=remoteData.classAvatar;
-  // scheduleImage and classAvatar are synced via data.json (compressed)
+  // scheduleImage and classAvatar are synced via data.json (compressed);
+  // prefer smaller version to avoid legacy uncompressed image re-bloating data.json
+  if(remoteData.scheduleImage && (!localData.scheduleImage || (String(localData.scheduleImage).length > 400000 && String(remoteData.scheduleImage).length < String(localData.scheduleImage).length))) merged.scheduleImage = remoteData.scheduleImage;
+  if(remoteData.classAvatar && (!localData.classAvatar || (String(localData.classAvatar).length > 150000 && String(remoteData.classAvatar).length < String(localData.classAvatar).length))) merged.classAvatar = remoteData.classAvatar;
   // nextId series: max
   merged.nextId=Math.max(localData.nextId||1,remoteData.nextId||1);
   merged.nextOpId=Math.max(localData.nextOpId||1,remoteData.nextOpId||1);
@@ -2482,12 +2485,22 @@ function autoSyncFromCloud(){
       // Always merge
       var merged = smartMergeData(localData, remoteData);
       
-      // Handle images: cloud takes priority if local is empty, local takes priority if local has newer
-      if(!merged.scheduleImage && remoteData.scheduleImage) merged.scheduleImage = remoteData.scheduleImage;
-      if(!merged.classAvatar && remoteData.classAvatar) merged.classAvatar = remoteData.classAvatar;
-      // Keep local images if they exist (user just uploaded)
-      if(state.scheduleImage) merged.scheduleImage = state.scheduleImage;
-      if(state.classAvatar) merged.classAvatar = state.classAvatar;
+      // Handle images: prefer smaller (compressed) version to avoid re-bloating data.json
+      // If local image is huge (legacy uncompressed) and cloud has a smaller one, use cloud's
+      var locSched = state.scheduleImage || '';
+      var rmtSched = remoteData.scheduleImage || '';
+      if(rmtSched && (!locSched || (locSched.length > 400000 && rmtSched.length < locSched.length))){
+        merged.scheduleImage = rmtSched;
+      } else if(locSched){
+        merged.scheduleImage = locSched;
+      }
+      var locAv = state.classAvatar || '';
+      var rmtAv = remoteData.classAvatar || '';
+      if(rmtAv && (!locAv || (locAv.length > 150000 && rmtAv.length < locAv.length))){
+        merged.classAvatar = rmtAv;
+      } else if(locAv){
+        merged.classAvatar = locAv;
+      }
       
       localStorage.setItem(STORE_KEY, JSON.stringify(merged));
       loadData();
@@ -5080,6 +5093,16 @@ if(sessionStorage.getItem(SESSION_KEY) !== '1'){
   document.getElementById('loginOverlay').classList.add('hidden');
 }
 loadData();
+// Auto-compress legacy oversized schedule image on load (prevents data.json re-bloat)
+if(state.scheduleImage && state.scheduleImage.length > 400000){
+  compressImage(state.scheduleImage, 1600, 0.7, function(compressed){
+    if(compressed && compressed.length < state.scheduleImage.length){
+      state.scheduleImage = compressed;
+      _cachedScheduleImage = compressed;
+      saveData();
+    }
+  });
+}
 renderClassBrand();
 renderAll();
 // Auto sync from cloud on page load
