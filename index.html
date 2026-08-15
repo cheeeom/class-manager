@@ -1185,6 +1185,80 @@ tbody tr.highlight{
   
   .login-tip{display:none}
   .login-divider{margin:10px 0}
+/* ==================== 通知模块 ==================== */
+#noticeTabs{position:relative;display:flex;gap:4px;margin-bottom:16px;border-bottom:2px solid var(--border);padding-bottom:0}
+#noticeTabs .tab{padding:10px 16px;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .2s}
+#noticeTabs .tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.noticeFillInput:focus{outline:none;border-color:var(--primary)!important;box-shadow:0 0 0 2px rgba(0,180,216,0.15)}
+@media(max-width:768px){
+  /* Mobile: hide sidebar, use bottom tab bar */
+  .sidebar{display:none !important}
+  .main{margin-left:0}
+  .content{padding:12px 12px 80px 12px}
+  .topbar{padding:0 12px;height:52px;padding-top:env(safe-area-inset-top,0px);margin-top:env(safe-area-inset-top,0px)}
+  .topbar h1{font-size:17px}
+  .topbar .btn-icon{height:32px;font-size:14px;padding:0 6px}
+  .topbar .btn-icon .icon-label{display:none}
+  .mobile-tabbar{display:flex;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);z-index:100;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -2px 12px rgba(0,180,216,0.06);padding-top:4px}
+  .mobile-tabbar::-webkit-scrollbar{display:none}
+  .mobile-tab{flex:1 0 auto;min-width:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;cursor:pointer;color:var(--text-muted);font-size:10px;transition:all .2s;white-space:nowrap;gap:2px}
+  .mobile-tab .tab-icon{font-size:20px;line-height:1}
+  .mobile-tab .tab-label{font-size:10px;line-height:1}
+  .mobile-tab.active{color:var(--primary-dark);font-weight:600}
+  .mobile-tab.active .tab-icon{transform:scale(1.15)}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .stat-card{padding:12px}
+  .stat-value{font-size:24px}
+  .committee-grid{grid-template-columns:1fr}
+  .seating-grid{grid-template-columns:repeat(4,1fr) !important}
+  .dash-grid{grid-template-columns:1fr !important}
+  .card{padding:14px;border-radius:12px}
+  .table-wrap,.data-table-container{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .data-table{min-width:400px}
+  .search-box,.search-input,input[type="text"],input[type="number"],input[type="password"],select{min-height:44px;font-size:15px}
+  .btn{min-height:40px;padding:8px 14px}
+  .btn-sm{min-height:36px}
+  .btn-icon{min-width:36px;min-height:36px}
+  .modal{width:94vw;max-width:94vw;max-height:90vh;overflow-y:auto}
+  .modal-body{padding:14px}
+  .login-card{flex-direction:column;width:92vw;min-height:auto;max-width:420px}
+  .login-left{flex:none;padding:28px 24px 20px}
+  .login-title{font-size:22px}
+  .login-right{padding:24px 20px 20px;gap:10px}
+  .login-pwd-display{height:48px;font-size:18px}
+  .login-keypad{gap:8px}
+  .key{height:46px;font-size:18px}
+  .login-version{position:static;margin-top:12px;text-align:center}
+  .login-logo{width:48px;height:48px;font-size:22px;margin-bottom:14px}
+  .login-divider{margin:14px 0}
+  .login-tip{font-size:12px;padding:8px 12px}
+  .student-grid{grid-template-columns:1fr !important}
+  .student-card{padding:12px}
+  .credit-table{min-width:500px}
+  .todo-item{padding:10px 8px}
+  .todo-actions{flex-shrink:0}
+  .search-row{flex-direction:column;gap:8px}
+  .search-row>*{width:100%}
+  .tag-list{gap:6px}
+  .tag{font-size:12px;padding:4px 10px}
+  .settings-section{padding:14px}
+  .settings-section h3{font-size:15px}
+  .chart-container{height:220px}
+  .leave-card{padding:12px 14px}
+  .leave-meta{gap:8px;font-size:12px}
+  .exam-card{padding:14px}
+  .exam-stats{gap:8px}
+  .exam-stat{padding:6px 10px}
+  .grade-table{min-width:500px;font-size:12px}
+  .detail-panel{width:100vw !important}
+  .motto-banner{font-size:13px;padding:10px 14px;margin-bottom:10px}
+  .toast{max-width:90vw}
+  .nav-divider{display:none}
+}
+.fade-in{animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+
 }
 @media(max-width:768px){
   /* Mobile: hide sidebar, use bottom tab bar */
@@ -1505,7 +1579,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.4.1</div>
+      <div class="login-version">v2.5.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1583,6 +1657,9 @@ tbody tr.highlight{
       <div class="nav-item" data-page="todo">
         <span class="nav-icon">✅</span><span>待办提醒</span>
       </div>
+      <div class="nav-item" data-page="notices">
+        <span class="nav-icon">📢</span><span>通知</span>
+      </div>
       <div class="nav-divider"></div>
       <div class="nav-item" data-page="credits">
         <span class="nav-icon">📝</span><span>学分记录</span>
@@ -1595,7 +1672,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.4.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.5.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -1949,7 +2026,29 @@ tbody tr.highlight{
       </div>
 
       <!-- Settings Page -->
-      <div class="page" id="page-settings">
+      <div class="page" id="page-notices">
+        <div class="tabs" id="noticeTabs">
+          <div class="tab active" data-ntab="library" onclick="switchNoticeTab('library')">📋 模板库</div>
+          <div class="tab" data-ntab="history" onclick="switchNoticeTab('history')">🕘 历史记录</div>
+          <div class="tab-indicator"></div>
+        </div>
+
+        <!-- 模板库 -->
+        <div id="ntab-library">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+            <div style="display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch" id="noticeCats"></div>
+            <button class="btn btn-primary btn-sm" onclick="openNoticeEditor()">+ 新建模板</button>
+          </div>
+          <div id="noticeTplList"></div>
+        </div>
+
+        <!-- 历史记录 -->
+        <div id="ntab-history" style="display:none">
+          <div style="margin-bottom:12px;font-size:13px;color:var(--text-muted)">已生成的通知文案存档，可再次复制或删除</div>
+          <div id="noticeHistoryList"></div>
+        </div>
+      </div>
+        <div class="page" id="page-settings">
 
         <div class="settings-section">
           <h3>班级名称</h3>
@@ -2224,6 +2323,86 @@ tbody tr.highlight{
   </div>
 </div>
 
+<!-- Modal: Notice Editor -->
+<div class="modal-overlay" id="noticeEditorModal">
+  <div class="modal" style="max-width:860px;width:94vw">
+    <h3 id="noticeEditorTitle">编辑通知模板</h3>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>模板标题</label>
+        <input type="text" id="noticeTplTitle" placeholder="如：学生请假条" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px">
+      </div>
+      <div class="form-group">
+        <label>分类</label>
+        <select id="noticeTplCat" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px"></select>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+        <span style="font-size:12px;color:var(--text-muted);align-self:center">变量：</span>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{班级}')">{班级}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{姓名}')">{姓名}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{家长姓名}')">{家长姓名}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{联系电话}')">{联系电话}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{日期}')">{日期}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{时间}')">{时间}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{地点}')">{地点}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{请假事由}')">{请假事由}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{时长}')">{时长}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{开始时间}')">{开始时间}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{结束时间}')">{结束时间}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{节日名称}')">{节日名称}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{活动名称}')">{活动名称}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{考试名称}')">{考试名称}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{班主任姓名}')">{班主任姓名}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{天数}')">{天数}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{星期}')">{星期}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{返校日期}')">{返校日期}</button>
+        <button type="button" class="btn btn-outline btn-sm" style="font-size:12px;padding:3px 10px" onclick="insertVar('{物品清单}')">{物品清单}</button>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:260px;position:relative">
+          <label>内容（支持变量）</label>
+          <textarea id="noticeTplContent" rows="14" placeholder="尊敬的老师：您好！我是{班级}班学生{姓名}，因{请假事由}…" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px;line-height:1.8;resize:vertical;font-family:inherit"></textarea>
+          <div id="noticeVarSuggest" style="position:absolute;display:none;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:999;max-height:220px;overflow-y:auto;min-width:180px"></div>
+        </div>
+        <div style="flex:1;min-width:260px">
+          <label>实时预览</label>
+          <div id="noticeTplPreview" style="width:100%;min-height:320px;padding:12px;border:1px dashed var(--border);border-radius:10px;font-size:13px;line-height:1.9;background:rgba(0,180,216,0.02);white-space:pre-wrap;color:var(--text-secondary)"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <span id="noticeUnfilled" style="font-size:12px;color:var(--danger);flex:1;text-align:left"></span>
+      <button class="btn btn-outline" onclick="closeModal('noticeEditorModal')">取消</button>
+      <button class="btn btn-primary" id="noticeSaveBtn" onclick="saveNoticeTemplate()">保存模板</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Notice Fill & Generate -->
+<div class="modal-overlay" id="noticeFillModal">
+  <div class="modal" style="max-width:860px;width:94vw">
+    <h3 id="noticeFillTitle">生成通知</h3>
+    <div class="modal-body">
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:260px">
+          <label>填写变量</label>
+          <div id="noticeFillVars" style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto;padding-right:4px"></div>
+        </div>
+        <div style="flex:1;min-width:260px">
+          <label>生成预览</label>
+          <div id="noticeFillPreview" style="width:100%;min-height:340px;padding:12px;border:1px dashed var(--border);border-radius:10px;font-size:13px;line-height:1.9;background:rgba(0,180,216,0.02);white-space:pre-wrap;color:var(--text-secondary)"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('noticeFillModal')">取消</button>
+      <button class="btn btn-outline" onclick="noticeCopyText()">📋 复制文本</button>
+      <button class="btn btn-outline" onclick="noticeGenImage()">🖼️ 生成图片</button>
+      <button class="btn btn-primary" onclick="noticeSaveHistory()">💾 存入历史</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Student Select (for committee, seating, duty) -->
 <div class="modal-overlay" id="studentSelectModal">
   <div class="modal">
@@ -2331,7 +2510,8 @@ let state = {
   exams: [],
   nextExamId: 1,
   todos: [],
-  nextTodoId: 1
+  nextTodoId: 1,
+  notices: { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 }
 };
 
 function loadData(){
@@ -2362,6 +2542,7 @@ function loadData(){
       state.nextExamId = d.nextExamId || 1;
       state.todos = d.todos || [];
       state.nextTodoId = d.nextTodoId || 1;
+      if(d.notices) state.notices = d.notices;
     }catch(e){ console.error('Load failed',e); }
   }
 }
@@ -2389,7 +2570,8 @@ function saveData(){
     exams: state.exams,
     nextExamId: state.nextExamId,
     todos: state.todos,
-    nextTodoId: state.nextTodoId
+    nextTodoId: state.nextTodoId,
+    notices: state.notices
   }));
 
   autoPushToCloud();
@@ -2450,6 +2632,14 @@ function smartMergeData(localData,remoteData){
     var emap={};(localData.exams||[]).forEach(function(e){emap[e.id]=e;});
     remoteData.exams.forEach(function(re){if(!emap[re.id])emap[re.id]=re;});
     merged.exams=Object.keys(emap).map(function(k){return emap[k];});
+  // notices: keep newer (by updatedAt)
+  if(remoteData.notices){
+    if(!merged.notices) merged.notices = remoteData.notices;
+    else{
+      var lt2=merged.notices.updatedAt||0;var rt2=remoteData.notices.updatedAt||0;
+      if(rt2>lt2) merged.notices = remoteData.notices;
+    }
+  }
   }
   // reasons: union
   if(remoteData.reasons&&Array.isArray(remoteData.reasons)){
@@ -2779,7 +2969,8 @@ const pageTitles = {
   dashboard:'工作台首页', students:'学生管理', committee:'班委管理',
   seating:'座次表', duty:'值日排表', credits:'学分记录',
   analytics:'数据分析', settings:'设置',
-  attendance:'请假管理', grades:'成绩管理', todo:'待办提醒'
+  attendance:'请假管理', grades:'成绩管理', todo:'待办提醒',
+  notices:'通知'
 };
 
 document.querySelectorAll('.nav-item').forEach(item=>{
@@ -2805,7 +2996,8 @@ function navigateTo(page){
   if(page==='todo') renderTodo();
   if(page==='credits') renderCreditsPage();
   if(page==='analytics') renderAnalytics();
-  if(page==='settings') renderSettings();
+    if(page==='notices') renderNotices();
+if(page==='settings') renderSettings();
   // Highlight in more drawer if active page is in drawer
   document.querySelectorAll('.more-item').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
   // Close more drawer when navigating to a drawer item
@@ -6006,6 +6198,545 @@ function clearWaterDuty(){
   showToast('已清空饮水机值日','info');
 }
 
+
+var NOTICE_CATS = ['请假','放假','安全','考试','活动','家长会','常规','自定义'];
+
+function builtinNotices(){
+  return [
+    {id:'nb-leave1', builtin:true, category:'请假', title:'学生请假条（正式版）', content:'尊敬的老师：\n您好！我是{班级}班学生{姓名}，因{请假事由}，需要请假{时长}（{开始时间}至{结束时间}），期间已与家长确认，望您批准。\n\n请假人：{姓名}\n家长签名：{家长姓名}\n联系电话：{联系电话}\n日期：{日期}'},
+    {id:'nb-leave2', builtin:true, category:'请假', title:'家长群请假（简洁版）', content:'各位家长好！\n{姓名}同学因{请假事由}，需请假{时长}（{开始时间}至{结束时间}），请知悉。\n如孩子身体不适，请及时就医并注意休息。\n\n{班级}班 班主任\n{日期}'},
+    {id:'nb-holiday1', builtin:true, category:'放假', title:'节假日放假通知', content:'各位家长：\n根据上级安排，{节日名称}放假安排如下：\n放假时间：{开始时间}至{结束时间}\n返校时间：{结束时间}次日（具体以通知为准）\n\n温馨提示：\n1. 假期请注意孩子出行安全；\n2. 合理安排学习与休息；\n3. 返校时带齐学习用品。\n\n{班级}班 班主任\n{日期}'},
+    {id:'nb-holiday2', builtin:true, category:'放假', title:'调休补课通知', content:'各位家长：\n因{节日名称}调休，本周上课安排调整如下：\n· 本周六（{日期}）正常上课（补课）；\n· 请提醒孩子按课表带好课本和作业。\n\n感谢您的配合！\n{班级}班 班主任'},
+    {id:'nb-safe1', builtin:true, category:'安全', title:'防溺水安全教育（六不四知）', content:'各位家长：\n近期气温升高，溺水事故进入高发期，请务必加强对孩子的防溺水安全教育：\n\n【六不】\n1. 不私自下水游泳；\n2. 不擅自与他人结伴游泳；\n3. 不在无家长带领的情况下游泳；\n4. 不到无安全设施、无救援人员的水域游泳；\n5. 不到不熟悉的水域游泳；\n6. 不盲目下水施救。\n\n【四知】孩子外出时，家长要知去向、知同伴、知归时、知内容。\n\n如遇紧急情况，请拨打：110（报警）、120（急救）、119（火警）。\n\n{班级}班 班主任\n{日期}'},
+    {id:'nb-safe2', builtin:true, category:'安全', title:'交通安全提醒', content:'各位家长：\n为保障孩子上下学交通安全，请配合做好以下事项：\n1. 接送孩子时规范停车，即停即走；\n2. 教育孩子遵守交通规则，过马路走斑马线；\n3. 未满12周岁不得骑自行车上路，未满16周岁不得骑电动车；\n4. 不乘坐超载、无证车辆。\n\n安全无小事，警钟须长鸣。\n{班级}班 班主任\n{日期}'},
+    {id:'nb-safe3', builtin:true, category:'安全', title:'极端天气停课通知', content:'各位家长：\n根据气象部门预警，{时间}我市将出现{请假事由}（极端天气），为确保学生安全，现通知如下：\n· 停课安排：{开始时间}至{结束时间}\n· 请家长做好孩子的居家监护，非必要不外出；\n· 复课时间另行通知，请关注班级群消息。\n\n安全第一，感谢理解！\n{班级}班 班主任\n{日期}'},
+    {id:'nb-exam1', builtin:true, category:'考试', title:'考试安排通知', content:'各位家长：\n{考试名称}将于{开始时间}至{结束时间}进行，具体安排如下：\n· 考试科目与时间详见孩子带回的考试安排表；\n· 请督促孩子提前复习、规律作息；\n· 考试当天请按时到校，带齐文具（2B铅笔、黑色签字笔等）。\n\n预祝孩子们取得好成绩！\n{班级}班 班主任\n{日期}'},
+    {id:'nb-exam2', builtin:true, category:'考试', title:'成绩查询通知', content:'各位家长：\n{考试名称}成绩已出，查询方式如下：\n· 查询时间：{时间}\n· 查询方式：私信班主任或登录班级平台查看\n\n温馨提示：分数是阶段学习的反馈，请理性看待，多关注孩子的学习过程与进步，多鼓励、少责备。如对成绩有疑问，欢迎与老师沟通。\n\n{班级}班 班主任\n{日期}'},
+    {id:'nb-other1', builtin:true, category:'家长会', title:'家长会邀请函', content:'尊敬的{家长姓名}家长：\n您好！\n为了加强家校沟通，共同促进孩子成长，我校定于{时间}在{地点}召开家长会，诚挚邀请您参加。\n\n会议议程：\n1. 班级整体情况介绍；\n2. 学科学习情况交流；\n3. 安全教育与家校共育建议；\n4. 个别交流。\n\n请您提前安排好时间，准时出席。如有特殊情况无法参加，请提前告知班主任。\n\n{班级}班 班主任：{班主任姓名}\n{日期}'},
+    {id:'nb-other2', builtin:true, category:'活动', title:'班级活动通知', content:'各位家长：\n为丰富孩子们的校园生活，班级将于{时间}在{地点}举办{活动名称}活动，现将有关事项通知如下：\n1. 请家长协助孩子做好活动准备；\n2. 活动当天请按时到校；\n3. 如孩子身体不适，请提前请假。\n\n期待孩子们的精彩表现！\n{班级}班 班主任\n{日期}'},
+    {id:'nb-other3', builtin:true, category:'常规', title:'开学报到通知', content:'各位家长：\n新学期即将开始，现将报到安排通知如下：\n· 报到时间：{时间}\n· 报到地点：{地点}\n· 携带物品：暑假作业、学习用品、{班级}班报到材料\n\n请提前调整好孩子的作息，以饱满的精神迎接新学期！\n\n{班级}班 班主任\n{日期}'}
+  ];
+}
+
+function ensureNotices(){
+  if(!state.notices || typeof state.notices !== 'object'){
+    state.notices = {templates:builtinNotices(), history:[], draft:'', updatedAt:Date.now()};
+  }else{
+    if(!Array.isArray(state.notices.templates)) state.notices.templates = builtinNotices();
+    if(!Array.isArray(state.notices.history)) state.notices.history = [];
+    if(typeof state.notices.draft !== 'string') state.notices.draft = '';
+    state.notices.updatedAt = Date.now();
+  }
+}
+
+var _noticeCat = '全部';
+var _noticeEditId = null;
+var _noticeFillTpl = null;
+var _noticeFillVars = {};
+
+function renderNotices(){
+  ensureNotices();
+  renderNoticeCats();
+  renderNoticeTplList();
+  renderNoticeHistory();
+}
+
+function switchNoticeTab(tab){
+  document.querySelectorAll('#noticeTabs .tab').forEach(function(t){t.classList.toggle('active', t.dataset.ntab===tab);});
+  document.getElementById('ntab-library').style.display = (tab==='library')?'':'none';
+  document.getElementById('ntab-history').style.display = (tab==='history')?'':'none';
+}
+
+function renderNoticeCats(){
+  var el = document.getElementById('noticeCats');
+  var cats = ['全部'].concat(NOTICE_CATS);
+  el.innerHTML = cats.map(function(c){
+    return '<button class="btn btn-sm ' + (c===_noticeCat?'btn-primary':'btn-outline') + '" style="font-size:12px;padding:3px 12px" onclick="setNoticeCat(\'' + c + '\')">' + c + '</button>';
+  }).join('');
+}
+
+function setNoticeCat(c){ _noticeCat = c; renderNoticeCats(); renderNoticeTplList(); }
+
+function renderNoticeTplList(){
+  ensureNotices();
+  var list = state.notices.templates;
+  if(_noticeCat!=='全部') list = list.filter(function(t){return t.category===_noticeCat;});
+  var el = document.getElementById('noticeTplList');
+  if(!list.length){ el.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);font-size:13px">该分类下暂无模板</div>'; return; }
+  el.innerHTML = list.map(function(t){
+    var preview = fillNoticeVars(t.content, {班级:state.className||'XX', 日期:todayStr()});
+    return '<div class="card" style="margin-bottom:10px;padding:14px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">' +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="font-weight:600;font-size:14px;margin-bottom:4px">' + escapeHtml(t.title) +
+            (t.builtin?' <span style="font-size:11px;color:var(--text-muted);font-weight:400">内置</span>':'') +
+            ' <span style="font-size:11px;color:var(--primary);background:rgba(0,180,216,0.08);padding:1px 8px;border-radius:10px">' + escapeHtml(t.category) + '</span></div>' +
+          '<div style="font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(preview.replace(/\n/g,' ').slice(0,60)) + '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:6px;flex-shrink:0">' +
+          '<button class="btn btn-primary btn-sm" style="font-size:12px;padding:4px 10px" onclick="openNoticeFill(\'' + t.id + '\')">使用</button>' +
+          (t.builtin?'<button class="btn btn-outline btn-sm" style="font-size:12px;padding:4px 10px" onclick="openNoticeEditor(\'' + t.id + '\')">复制编辑</button>':'<button class="btn btn-outline btn-sm" style="font-size:12px;padding:4px 10px" onclick="openNoticeEditor(\'' + t.id + '\')">编辑</button>') +
+          (t.builtin?'':'<button class="btn btn-outline btn-sm" style="font-size:12px;padding:4px 10px;color:var(--danger)" onclick="deleteNoticeTpl(\'' + t.id + '\')">删除</button>') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function openNoticeEditor(tplId){
+  ensureNotices();
+  _noticeEditId = tplId || null;
+  var tpl = null;
+  if(tplId) tpl = state.notices.templates.find(function(t){return t.id===tplId;});
+  // 内建模板只读：编辑时复制为自定义副本
+  if(tpl && tpl.builtin){
+    var copy = JSON.parse(JSON.stringify(tpl));
+    copy.id = 'nt' + Date.now();
+    copy.builtin = false;
+    copy.title = tpl.title + '（副本）';
+    state.notices.templates.push(copy);
+    _noticeEditId = copy.id;
+    tpl = copy;
+    showToast('已复制为自定义模板，可自由修改','info');
+  }
+  document.getElementById('noticeEditorTitle').textContent = tpl ? '编辑模板' : '新建模板';
+  document.getElementById('noticeTplTitle').value = tpl ? tpl.title : '';
+  var catSel = document.getElementById('noticeTplCat');
+  catSel.innerHTML = NOTICE_CATS.map(function(c){return '<option value="' + c + '"' + (tpl&&tpl.category===c?' selected':'') + '>' + c + '</option>';}).join('');
+  document.getElementById('noticeTplContent').value = tpl ? tpl.content : '';
+  document.getElementById('noticeSaveBtn').textContent = tpl ? '保存修改' : '保存模板';
+  // 新建时恢复草稿
+  if(!tpl && state.notices.draft){
+    document.getElementById('noticeTplContent').value = state.notices.draft;
+    if(state.notices.draftTitle) document.getElementById('noticeTplTitle').value = state.notices.draftTitle;
+  }
+  openModal('noticeEditorModal');
+  updateNoticePreview();
+}
+
+function saveNoticeDraft(){
+  ensureNotices();
+  state.notices.draft = document.getElementById('noticeTplContent').value;
+  state.notices.draftTitle = document.getElementById('noticeTplTitle').value;
+  state.notices.updatedAt = Date.now();
+  saveData();
+}
+
+function insertVar(v){
+  var ta = document.getElementById('noticeTplContent');
+  var s = ta.selectionStart || ta.value.length, e = ta.selectionEnd || ta.value.length;
+  ta.value = ta.value.slice(0,s) + v + ta.value.slice(e);
+  ta.focus();
+  var pos = s + v.length;
+  ta.setSelectionRange(pos, pos);
+  updateNoticePreview();
+}
+
+function updateNoticePreview(){
+  var val = document.getElementById('noticeTplContent').value;
+  var vars = extractVars(val);
+  var sample = {};
+  vars.forEach(function(v){ sample[v] = '【' + v.replace(/[{}]/g,'') + '】'; });
+  sample['班级'] = state.className || 'XX班';
+  sample['日期'] = todayStr();
+  var html = escapeHtml(fillNoticeVars(val, sample)).replace(/【(.*?)】/g, '<span style="color:var(--primary);background:rgba(0,180,216,0.1);border-radius:4px;padding:0 3px">【$1】</span>');
+  document.getElementById('noticeTplPreview').innerHTML = html;
+}
+
+var _noticeDraftTimer = null;
+var _noticeVarList = ['班级','姓名','家长姓名','联系电话','日期','时间','地点','请假事由','时长','开始时间','结束时间','节日名称','活动名称','考试名称','班主任姓名','天数','返校日期','星期','调休原因','科目列表','查询方式','活动内容','注意事项','物品清单','金额','截止日期','学生姓名'];
+
+document.addEventListener('input', function(e){
+  if(e.target && e.target.id==='noticeTplContent'){
+    updateNoticePreview();
+    clearTimeout(_noticeDraftTimer);
+    _noticeDraftTimer = setTimeout(saveNoticeDraft, 500);
+    maybeShowVarSuggest(e.target);
+  }
+  if(e.target && e.target.id==='noticeTplTitle'){
+    clearTimeout(_noticeDraftTimer);
+    _noticeDraftTimer = setTimeout(saveNoticeDraft, 500);
+  }
+});
+
+document.addEventListener('keydown', function(e){
+  if(e.target && e.target.id==='noticeTplContent'){
+    if(e.key === 'Escape'){ hideVarSuggest(); return; }
+    if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+      var sug = document.getElementById('noticeVarSuggest');
+      if(sug && sug.style.display !== 'none'){ e.preventDefault(); moveVarSuggest(e.key==='ArrowDown'?1:-1); return; }
+    }
+    if(e.key === 'Enter' || e.key === 'Tab'){
+      var sug = document.getElementById('noticeVarSuggest');
+      if(sug && sug.style.display !== 'none' && sug.dataset.active){ e.preventDefault(); pickVarSuggest(); return; }
+    }
+    if(e.key === 'Backspace'){ setTimeout(function(){ maybeShowVarSuggest(e.target); }, 0); }
+  }
+});
+
+document.addEventListener('click', function(e){
+  if(e.target && e.target.id !== 'noticeVarSuggest' && !e.target.closest('#noticeVarSuggest')) hideVarSuggest();
+});
+
+function maybeShowVarSuggest(ta){
+  var sug = document.getElementById('noticeVarSuggest');
+  if(!sug) return;
+  var pos = ta.selectionStart || ta.value.length;
+  // 找光标前最近的 { 或 未闭合的 {xxx
+  var before = ta.value.slice(0, pos);
+  var m = before.match(/\{([^{}]*)$/);
+  if(!m){ hideVarSuggest(); return; }
+  var partial = m[1];
+  var matches = _noticeVarList.filter(function(v){ return v.indexOf(partial) >= 0; });
+  if(!matches.length){ hideVarSuggest(); return; }
+  // 计算浮层位置：在 textarea 光标附近
+  var rect = ta.getBoundingClientRect();
+  var lineH = 26; // 估算行高
+  var lineCount = before.split('\n').length;
+  var col = before.length - before.lastIndexOf('\n') - 1;
+  sug.innerHTML = matches.map(function(v, i){
+    return '<div class="var-sug-item" data-v="' + v + '" style="padding:8px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid rgba(0,180,216,0.06)' + (i===0?';background:rgba(0,180,216,0.08)':'') + '" onmouseover="this.style.background=\'rgba(0,180,216,0.12)\'" onmouseout="this.style.background=\'\'" onclick="pickVarSuggest(\'' + v + '\')">{' + v + '}</div>';
+  }).join('');
+  sug.dataset.active = matches[0];
+  sug.style.display = 'block';
+  // 定位到输入框下方
+  var taRect = ta.getBoundingClientRect();
+  var top = Math.min(lineCount * lineH + 8, taRect.height - 40);
+  var left = Math.min(col * 14, taRect.width - 200);
+  sug.style.top = top + 'px';
+  sug.style.left = Math.max(0, left) + 'px';
+}
+
+function moveVarSuggest(dir){
+  var sug = document.getElementById('noticeVarSuggest');
+  if(!sug) return;
+  var items = sug.querySelectorAll('.var-sug-item');
+  var idx = -1;
+  items.forEach(function(it, i){ if(it.dataset.v === sug.dataset.active) idx = i; });
+  idx = (idx + dir + items.length) % items.length;
+  items.forEach(function(it, i){ it.style.background = (i===idx)?'rgba(0,180,216,0.12)':''; });
+  sug.dataset.active = items[idx].dataset.v;
+}
+
+function pickVarSuggest(v){
+  var sug = document.getElementById('noticeVarSuggest');
+  var ta = document.getElementById('noticeTplContent');
+  if(!ta) return;
+  var vname = v || sug.dataset.active;
+  if(!vname){ hideVarSuggest(); return; }
+  var pos = ta.selectionStart || ta.value.length;
+  var before = ta.value.slice(0, pos);
+  var m = before.match(/\{([^{}]*)$/);
+  var start = m ? pos - m[0].length : pos;
+  ta.value = ta.value.slice(0, start) + '{' + vname + '}' + ta.value.slice(pos);
+  ta.focus();
+  var newPos = start + vname.length + 2;
+  ta.setSelectionRange(newPos, newPos);
+  hideVarSuggest();
+  updateNoticePreview();
+  clearTimeout(_noticeDraftTimer);
+  _noticeDraftTimer = setTimeout(saveNoticeDraft, 500);
+}
+
+function hideVarSuggest(){
+  var sug = document.getElementById('noticeVarSuggest');
+  if(sug){ sug.style.display = 'none'; sug.dataset.active = ''; }
+}
+
+function saveNoticeTemplate(){
+  ensureNotices();
+  var title = document.getElementById('noticeTplTitle').value.trim();
+  var content = document.getElementById('noticeTplContent').value.trim();
+  var cat = document.getElementById('noticeTplCat').value;
+  if(!title){ showToast('请填写模板标题','error'); return; }
+  if(!content){ showToast('请填写模板内容','error'); return; }
+  if(_noticeEditId){
+    var tpl = state.notices.templates.find(function(t){return t.id===_noticeEditId;});
+    if(tpl){ tpl.title = title; tpl.content = content; tpl.category = cat; if(tpl.builtin) tpl.builtin = false; }
+    showToast('模板已更新','success');
+  }else{
+    state.notices.templates.push({id:'nt'+Date.now(), builtin:false, category:cat, title:title, content:content});
+    showToast('模板已保存','success');
+  }
+  touchNotices();
+  state.notices.draft = '';
+  state.notices.draftTitle = '';
+  closeModal('noticeEditorModal');
+  renderNoticeTplList();
+}
+
+function deleteNoticeTpl(id){
+  if(!confirm('确认删除该模板？')) return;
+  ensureNotices();
+  state.notices.templates = state.notices.templates.filter(function(t){return t.id!==id;});
+  touchNotices();
+  renderNoticeTplList();
+  showToast('模板已删除','info');
+}
+
+function extractVars(text){
+  var set = {};
+  var re = /\{([^{}]+)\}/g, m;
+  while((m = re.exec(text))) set[m[1]] = true;
+  return Object.keys(set);
+}
+
+function fillNoticeVars(text, vars){
+  return text.replace(/\{([^{}]+)\}/g, function(_,k){ return (vars && vars[k]!==undefined) ? vars[k] : '{'+k+'}'; });
+}
+
+function todayStr(){
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function openNoticeFill(tplId){
+  ensureNotices();
+  var tpl = state.notices.templates.find(function(t){return t.id===tplId;});
+  if(!tpl) return;
+  _noticeFillTpl = tpl;
+  _noticeFillVars = {};
+  document.getElementById('noticeFillTitle').textContent = '生成通知：' + tpl.title;
+  var vars = extractVars(tpl.content);
+  var auto = {};
+  if(vars.indexOf('班级')>=0) auto['班级'] = state.className || '';
+  if(vars.indexOf('日期')>=0) auto['日期'] = todayStr();
+  _noticeFillVars = auto;
+  var wrap = document.getElementById('noticeFillVars');
+  wrap.innerHTML = vars.map(function(v){
+    var val = auto[v]!==undefined ? auto[v] : '';
+    return '<div><label style="font-size:12px;color:var(--text-secondary)">{' + escapeHtml(v) + '}</label>' +
+      '<input type="text" class="noticeFillInput" data-var="' + escapeHtml(v) + '" value="' + escapeHtml(val) + '" placeholder="填写' + escapeHtml(v) + '" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px"></div>';
+  }).join('');
+  openModal('noticeFillModal');
+  updateNoticeFillPreview();
+}
+
+document.addEventListener('input', function(e){
+  if(e.target && e.target.classList && e.target.classList.contains('noticeFillInput')){
+    _noticeFillVars[e.target.dataset.var] = e.target.value;
+    updateNoticeFillPreview();
+  }
+});
+
+function updateNoticeFillPreview(){
+  if(!_noticeFillTpl) return;
+  var html = escapeHtml(fillNoticeVars(_noticeFillTpl.content, _noticeFillVars)).replace(/\{[^{}]+\}/g, '<span style="color:var(--danger)">$&（未填）</span>');
+  document.getElementById('noticeFillPreview').innerHTML = html;
+}
+
+function noticeCurrentText(){
+  if(!_noticeFillTpl) return '';
+  return fillNoticeVars(_noticeFillTpl.content, _noticeFillVars);
+}
+
+function copyToClipboard(text){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    return navigator.clipboard.writeText(text).then(function(){return true;}).catch(function(){ return legacyCopy(text); });
+  }
+  return Promise.resolve(legacyCopy(text));
+}
+
+function legacyCopy(text){
+  try{
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  }catch(e){ return false; }
+}
+
+function noticeCopyText(){
+  var text = noticeCurrentText();
+  var unfilled = text.match(/\{[^{}]+\}/g);
+  if(unfilled){ showToast('还有未填写的变量：' + unfilled.join(' '),'error'); return; }
+  copyToClipboard(text).then(function(ok){
+    if(ok){ showToast('已复制到剪贴板','success'); noticeSaveHistory(true); }
+    else showToast('复制失败，请手动选择复制','error');
+  });
+}
+
+function noticeGenImage(){
+  var text = noticeCurrentText();
+  var unfilled = text.match(/\{[^{}]+\}/g);
+  if(unfilled){ showToast('还有未填写的变量：' + unfilled.join(' '),'error'); return; }
+  var lines = text.split('\n');
+  var cw = 1080;
+  var title = _noticeFillTpl ? _noticeFillTpl.title : '通知';
+  var ctx = null, canvas = null;
+  try{
+    canvas = document.createElement('canvas');
+    canvas.width = cw;
+    // estimate height: 40px line, padding
+    var estH = 260 + lines.length * 40 + 80;
+    canvas.height = estH;
+    ctx = canvas.getContext('2d');
+  }catch(e){ showToast('当前浏览器不支持生成图片','error'); return; }
+  // 白色圆角卡片背景
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,cw,estH);
+  // 顶部主题色标题条
+  var grad = ctx.createLinearGradient(0,0,cw,0);
+  grad.addColorStop(0,'#00b4d8'); grad.addColorStop(1,'#0090b0');
+  ctx.fillStyle = grad; ctx.fillRect(0,0,cw,10);
+  // 班级头像（如有）
+  var avatar = state.classAvatar || '';
+  var avatarY = 46;
+  if(avatar){
+    try{
+      var img = new Image();
+      img.src = avatar;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(70, 70, 34, 0, Math.PI*2);
+      ctx.clip();
+      ctx.fillStyle = '#00b4d8'; ctx.fillRect(36,36,68,68);
+      ctx.drawImage(img, 36, 36, 68, 68);
+      ctx.restore();
+      avatarY = 46;
+    }catch(e){ avatarY = 46; }
+  }
+  // 标题居中加粗
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 44px "Microsoft YaHei", sans-serif';
+  ctx.textBaseline = 'top';
+  ctx.textAlign = 'center';
+  var tw = ctx.measureText(title).width;
+  ctx.fillText(title, cw/2, 56);
+  // 标题下划线
+  ctx.strokeStyle = '#00b4d8'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(cw/2 - tw/2, 116); ctx.lineTo(cw/2 + tw/2, 116); ctx.stroke();
+  ctx.textAlign = 'left';
+  // 班级信息（标题右侧小字）
+  ctx.font = '20px "Microsoft YaHei", sans-serif';
+  ctx.fillStyle = '#64748b';
+  ctx.fillText((state.className||'') + ' · ' + todayStr(), 60, 136);
+  ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(60, 178); ctx.lineTo(cw-60, 178); ctx.stroke();
+  // 正文 1.6 倍行距，自动换行
+  ctx.font = '28px "Microsoft YaHei", sans-serif';
+  ctx.fillStyle = '#334155';
+  var y = 210;
+  var maxW = cw - 120;
+  lines.forEach(function(line){
+    // 空行
+    if(!line.trim()){ y += 28; return; }
+    // 落款右对齐（以“班”结尾的短行）
+    var isSign = /(班|老师|敬礼|日期|家长|签名|电话)$/.test(line.trim()) && line.trim().length <= 18;
+    if(isSign){
+      ctx.textAlign = 'right';
+      ctx.fillText(line.trim(), cw-60, y);
+      ctx.textAlign = 'left';
+      y += 40;
+      return;
+    }
+    // 自动换行
+    var words = line.split('');
+    var cur = '';
+    for(var i=0;i<words.length;i++){
+      var test = cur + words[i];
+      if(ctx.measureText(test).width > maxW && cur){
+        ctx.fillText(cur, 60, y);
+        y += 40;
+        cur = words[i];
+      }else{
+        cur = test;
+      }
+    }
+    if(cur){ ctx.fillText(cur, 60, y); y += 40; }
+  });
+  // 底部小字
+  ctx.font = '18px "Microsoft YaHei", sans-serif';
+  ctx.fillStyle = '#94a3b8';
+  ctx.textAlign = 'center';
+  ctx.fillText('—— 班主任工作台 · 通知 ——', cw/2, estH - 30);
+  ctx.textAlign = 'left';
+  var img = canvas.toDataURL('image/png');
+  var a = document.createElement('a');
+  a.href = img;
+  a.download = (state.className||'班级') + '_' + todayStr() + '_通知.png';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  noticeSaveHistory(true, img);
+  showToast('图片已生成并下载','success');
+}
+
+function noticeSaveHistory(silent, image){
+  if(!_noticeFillTpl) return;
+  ensureNotices();
+  var text = noticeCurrentText();
+  var unfilled = text.match(/\{[^{}]+\}/g);
+  if(unfilled){ if(!silent) showToast('还有未填写的变量：' + unfilled.join(' '),'error'); return; }
+  var rec = {id:'nh'+Date.now(), tplTitle:_noticeFillTpl.title, content:text, createdAt:Date.now()};
+  if(image && image.length < 900000) rec.image = image; // 超过 ~1.2MB 不存图只存文本
+  state.notices.history.unshift(rec);
+  touchNotices();
+  renderNoticeHistory();
+  if(!silent) showToast('已存入历史记录','success');
+}
+
+function renderNoticeHistory(){
+  ensureNotices();
+  var el = document.getElementById('noticeHistoryList');
+  var h = state.notices.history;
+  if(!h.length){ el.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);font-size:13px">暂无历史记录，生成通知后自动保存</div>'; return; }
+  el.innerHTML = h.map(function(r){
+    var d = new Date(r.createdAt);
+    var ds = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    var imgHtml = r.image ? '<div style="margin-top:10px"><img src="' + r.image + '" style="max-width:220px;max-height:160px;border-radius:8px;border:1px solid var(--border);cursor:pointer" onclick="window.open(this.src)" title="点击查看大图"></div>' : '';
+    return '<div class="card" style="margin-bottom:10px;padding:14px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">' +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="font-weight:600;font-size:14px;margin-bottom:4px">' + escapeHtml(r.tplTitle) + ' <span style="font-size:11px;color:var(--text-muted);font-weight:400">' + ds + '</span>' +
+          (r.image?' <span style="font-size:11px;color:#16a34a;background:rgba(22,163,74,0.08);padding:1px 8px;border-radius:10px">含图片</span>':'') + '</div>' +
+          '<div style="font-size:12px;color:var(--text-secondary);white-space:pre-wrap;line-height:1.7;max-height:80px;overflow:hidden">' + escapeHtml(r.content.slice(0,120)) + (r.content.length>120?'…':'') + '</div>' +
+          imgHtml +
+        '</div>' +
+        '<div style="display:flex;gap:6px;flex-shrink:0">' +
+          '<button class="btn btn-outline btn-sm" style="font-size:12px;padding:4px 10px" onclick="copyHistory(\'' + r.id + '\')">复制</button>' +
+          (r.image?'<button class="btn btn-outline btn-sm" style="font-size:12px;padding:4px 10px" onclick="downloadHistoryImage(\'' + r.id + '\')">存图</button>':'') +
+          '<button class="btn btn-outline btn-sm" style="font-size:12px;padding:4px 10px;color:var(--danger)" onclick="deleteNoticeHistory(\'' + r.id + '\')">删除</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function downloadHistoryImage(id){
+  ensureNotices();
+  var r = state.notices.history.find(function(x){return x.id===id;});
+  if(!r || !r.image) return;
+  var a = document.createElement('a');
+  a.href = r.image;
+  a.download = (state.className||'班级') + '_' + todayStr() + '_通知.png';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+function copyHistory(id){
+  ensureNotices();
+  var r = state.notices.history.find(function(x){return x.id===id;});
+  if(!r) return;
+  copyToClipboard(r.content).then(function(ok){ showToast(ok?'已复制到剪贴板':'复制失败','success'); });
+}
+
+function deleteNoticeHistory(id){
+  if(!confirm('确认删除该条历史记录？')) return;
+  ensureNotices();
+  state.notices.history = state.notices.history.filter(function(x){return x.id!==id;});
+  touchNotices();
+  renderNoticeHistory();
+  showToast('已删除','info');
+}
+
+function touchNotices(){
+  ensureNotices();
+  state.notices.updatedAt = Date.now();
+  saveData();
+}
+
+
 </script>
 <!-- Mobile Tab Bar -->
 <nav class="mobile-tabbar" id="mobileTabbar">
@@ -6026,7 +6757,8 @@ function clearWaterDuty(){
     <div class="more-item" data-page="duty" onclick="navigateTo('duty')"><span class="more-icon">🧹</span><span>值日</span></div>
     <div class="more-item" data-page="attendance" onclick="navigateTo('attendance')"><span class="more-icon">📨</span><span>请假</span></div>
     <div class="more-item" data-page="grades" onclick="navigateTo('grades')"><span class="more-icon">📊</span><span>成绩</span></div>
-    <div class="more-item" data-page="analytics" onclick="navigateTo('analytics')"><span class="more-icon">📈</span><span>分析</span></div>
+    <div class="more-item" data-page="notices" onclick="navigateTo('notices')"><span class="more-icon">📢</span><span>通知</span></div>
+<div class="more-item" data-page="analytics" onclick="navigateTo('analytics')"><span class="more-icon">📈</span><span>分析</span></div>
   </div>
 </div>
 </body>
