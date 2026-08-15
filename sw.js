@@ -1,5 +1,5 @@
-﻿/* Service Worker - 鐝富浠诲伐浣滃彴 PWA */
-const CACHE_NAME = 'class-manager-v2.3.12';
+/* Service Worker - 班主任工作台 PWA */
+const CACHE_NAME = 'class-manager-v2.4.0';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -9,7 +9,7 @@ const CORE_ASSETS = [
   './data.json'
 ];
 
-// 瀹夎锛氶缂撳瓨鏍稿績璧勬簮
+// 安装：预缓存核心资源
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS))
@@ -17,7 +17,8 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// 婵€娲伙細娓呯悊鏃х紦瀛?self.addEventListener('activate', (event) => {
+// 激活：清理旧缓存
+self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
@@ -28,19 +29,19 @@ self.addEventListener('install', (event) => {
   self.clients.claim();
 });
 
-// 鎷︽埅璇锋眰
+// 拦截请求
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // 璺宠繃闈?GET 璇锋眰
+  // 跳过非 GET 请求
   if (event.request.method !== 'GET') return;
 
-  // 浜戝悓姝?API锛圙itHub锛変笉缂撳瓨锛岃蛋缃戠粶
+  // 云同步 API（GitHub）不缓存，走网络
   if (url.hostname === 'api.github.com' || url.hostname === 'raw.githubusercontent.com') {
     return;
   }
 
-  // 瀵艰埅璇锋眰锛坕ndex.html锛夛細缃戠粶浼樺厛锛屼繚璇佹柊鐗堟湰浠ｇ爜绔嬪嵆鐢熸晥
+  // 导航请求（index.html）：网络优先，保证新版本代码立即生效
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
@@ -54,7 +55,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // data.json 涓庡浘鐗囧悓姝ユ枃浠讹細缃戠粶浼樺厛锛屽け璐ュ洖閫€缂撳瓨
+  // data.json 与图片同步文件：网络优先，失败回退缓存
   if (url.pathname.endsWith('data.json') || url.pathname.endsWith('.txt')) {
     event.respondWith(
       fetch(event.request)
@@ -68,7 +69,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 闈欐€佽祫婧愶細缂撳瓨浼樺厛锛屽悗鍙版洿鏂?  event.respondWith(
+  // 静态资源：缓存优先，后台更新
+  event.respondWith(
     caches.match(event.request).then((cached) => {
       const fetchPromise = fetch(event.request)
         .then((response) => {
