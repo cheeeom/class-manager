@@ -43,6 +43,51 @@
   --orange:#FB8500;
   --red:#E63946;
 }
+/* ==================== Dark Mode ==================== */
+html.dark{
+  --primary:#00B4D8;
+  --primary-light:#48CAE4;
+  --primary-lighter:#90E0EF;
+  --primary-dark:#4CC9F0;
+  --primary-darker:#90E0EF;
+  --bg:#0F172A;
+  --card-bg:#1E293B;
+  --text:#E2E8F0;
+  --text-secondary:#94A3B8;
+  --text-muted:#64748B;
+  --border:#334155;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+  --shadow-hover:0 8px 32px rgba(0,0,0,0.5);
+  --shadow-card:0 2px 12px rgba(0,0,0,0.3);
+  --gold:#FBBF24;
+  --silver:#94A3B8;
+  --bronze:#D97706;
+}
+html.dark body{background:var(--bg);color:var(--text)}
+html.dark .topbar{background:rgba(15,23,42,0.85)}
+html.dark .nav-item:hover{background:rgba(255,255,255,0.06)}
+html.dark .nav-item.active{background:linear-gradient(135deg,rgba(0,180,216,0.25),rgba(72,202,228,0.15))}
+html.dark .mobile-tabbar{background:rgba(15,23,42,0.92)}
+html.dark .more-drawer{background:#1E293B}
+html.dark .modal{background:var(--card-bg)}
+html.dark .modal-header{border-color:var(--border)}
+html.dark .modal-footer{border-color:var(--border)}
+html.dark .login-left{background:linear-gradient(160deg,#0c4a6e 0%,#0369a1 55%,#0891b2 100%)}
+html.dark input[type="text"],html.dark input[type="number"],html.dark input[type="password"],html.dark select,html.dark textarea{
+  background:var(--bg);color:var(--text);border-color:var(--border)
+}
+html.dark input::placeholder,html.dark textarea::placeholder{color:var(--text-muted)}
+html.dark .table-striped tbody tr:nth-child(odd){background:rgba(255,255,255,0.03)}
+html.dark th{background:rgba(0,180,216,0.12)}
+html.dark .btn{background:var(--card-bg);border-color:var(--border);color:var(--text)}
+html.dark .btn-outline{background:transparent;color:var(--text)}
+html.dark .btn-outline:hover{border-color:var(--primary-light);color:var(--primary-light)}
+html.dark .btn-primary{background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff}
+html.dark .tag{background:rgba(255,255,255,0.08)}
+html.dark .empty-state{color:var(--text-muted)}
+html.dark .pwa-banner{background:#1E293B}
+html.dark .toast{background:rgba(15,23,42,0.95);border:1px solid var(--border)}
+
 html,body{height:100%}
 body{
   font-family:-apple-system,'Segoe UI','Microsoft YaHei',sans-serif;
@@ -1346,6 +1391,64 @@ tbody tr.highlight{
 .fade-in{animation:fadeIn .5s ease}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
+
+
+
+/* ==================== Honors Module ==================== */
+.honor-card{position:relative;overflow:hidden;transition:transform .2s, box-shadow .2s}
+.honor-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
+.honor-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),#FFE08A)}
+.honor-card.hl-2::before{background:linear-gradient(90deg,#94A3B8,#CBD5E1)}
+.honor-card.hl-3::before{background:linear-gradient(90deg,#D97706,#F59E0B)}
+.honor-card.hl-4::before{background:linear-gradient(90deg,#C084FC,#E9D5FF)}
+.honor-card.hl-5::before{background:linear-gradient(90deg,#F59E0B,#FFD166)}
+.honor-level{font-size:12px;font-weight:700;padding:2px 10px;border-radius:6px;background:rgba(255,215,0,0.15);color:#B45309}
+.honor-level.hl-2{background:rgba(148,163,184,0.15);color:#475569}
+.honor-level.hl-3{background:rgba(217,119,6,0.15);color:#B45309}
+.honor-level.hl-4{background:rgba(192,132,252,0.15);color:#7C3AED}
+.honor-level.hl-5{background:rgba(245,158,11,0.18);color:#D97706}
+.honor-scope{font-size:12px;font-weight:600;padding:2px 10px;border-radius:6px}
+.honor-scope.team{background:rgba(0,180,216,0.12);color:var(--primary-dark)}
+.honor-scope.person{background:rgba(6,214,160,0.12);color:var(--success)}
+html.dark .honor-level{color:#FBBF24}
+html.dark .honor-level.hl-2{color:#94A3B8}
+html.dark .honor-level.hl-3{color:#F59E0B}
+html.dark .honor-level.hl-4{color:#C084FC}
+html.dark .honor-level.hl-5{color:#FBBF24}
+
+/* ==================== Work Logs Module ==================== */
+.wl-card{transition:transform .2s}
+.wl-card:hover{transform:translateY(-2px)}
+.wl-cat{font-size:12px;font-weight:600;padding:2px 10px;border-radius:6px}
+.wl-cat.blue{background:rgba(0,180,216,0.12);color:var(--primary-dark)}
+.wl-cat.purple{background:rgba(114,9,183,0.12);color:var(--purple)}
+.wl-cat.green{background:rgba(6,214,160,0.12);color:var(--success)}
+.wl-cat.orange{background:rgba(251,133,0,0.12);color:var(--orange)}
+.wl-cat.gray{background:rgba(100,116,139,0.12);color:var(--text-muted)}
+
+/* ==================== Profiles Module ==================== */
+.profile-list-item{display:flex;align-items:center;gap:8px;padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .2s}
+.profile-list-item:hover{background:rgba(0,180,216,0.05)}
+.profile-list-item.active{background:rgba(0,180,216,0.1);border-left:3px solid var(--primary)}
+.profile-info{background:rgba(0,180,216,0.04);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.profile-info span{display:block;font-size:12px;color:var(--text-muted);margin-bottom:4px}
+.profile-info b{font-size:14px;font-weight:600;word-break:break-all}
+.profile-timeline{display:flex;flex-direction:column;gap:10px}
+.tl-item{display:flex;gap:10px;align-items:flex-start}
+.tl-badge{flex-shrink:0;font-size:12px;font-weight:600;padding:3px 10px;border-radius:6px;margin-top:2px}
+.tl-badge.tl-talk{background:rgba(0,180,216,0.12);color:var(--primary-dark)}
+.tl-badge.tl-praise{background:rgba(6,214,160,0.12);color:var(--success)}
+.tl-badge.tl-critic{background:rgba(239,71,111,0.12);color:var(--danger)}
+.tl-badge.tl-contact{background:rgba(251,133,0,0.12);color:var(--orange)}
+.tl-badge.tl-other{background:rgba(100,116,139,0.12);color:var(--text-muted)}
+.tl-body{flex:1;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px}
+html.dark .profile-list-item.active{background:rgba(0,180,216,0.2)}
+html.dark .tl-body{background:var(--bg)}
+@media(max-width:768px){
+  #profileLayout{grid-template-columns:1fr !important}
+  #profileList{max-height:200px}
+}
+
 /* ==================== Login Page ==================== */
 .login-overlay{
   position:fixed;top:0;left:0;right:0;bottom:0;
@@ -1579,7 +1682,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.5.0</div>
+      <div class="login-version">v2.6.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1638,7 +1741,10 @@ tbody tr.highlight{
       <div class="nav-item" data-page="students">
         <span class="nav-icon">👥</span><span>学生管理</span>
       </div>
-      <div class="nav-item" data-page="committee">
+      <div class="nav-item" data-page="profiles">
+        <span class="nav-icon">📁</span><span>学生档案</span>
+      </div>
+            <div class="nav-item" data-page="committee">
         <span class="nav-icon">📋</span><span>班委管理</span>
       </div>
       <div class="nav-item" data-page="seating">
@@ -1657,12 +1763,18 @@ tbody tr.highlight{
       <div class="nav-item" data-page="todo">
         <span class="nav-icon">✅</span><span>待办提醒</span>
       </div>
+      <div class="nav-item" data-page="worklogs">
+        <span class="nav-icon">📋</span><span>工作留痕</span>
+      </div>
       <div class="nav-item" data-page="notices">
         <span class="nav-icon">📢</span><span>通知</span>
       </div>
       <div class="nav-divider"></div>
       <div class="nav-item" data-page="credits">
         <span class="nav-icon">📝</span><span>学分记录</span>
+      </div>
+      <div class="nav-item" data-page="honors">
+        <span class="nav-icon">🏆</span><span>荣誉墙</span>
       </div>
       <div class="nav-item" data-page="analytics">
         <span class="nav-icon">📈</span><span>数据分析</span>
@@ -1672,7 +1784,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.5.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.6.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2026,7 +2138,59 @@ tbody tr.highlight{
       </div>
 
       <!-- Settings Page -->
-      <div class="page" id="page-notices">
+      
+      <!-- ==================== Profiles Page ==================== -->
+      <div class="page" id="page-profiles">
+        <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+          <h2 style="margin:0;font-size:20px">📁 学生档案</h2>
+          <div style="flex:1;min-width:200px">
+            <input type="text" id="profileSearch" placeholder="搜索学生姓名/学号..." oninput="renderProfileList()" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--card-bg);color:var(--text)">
+          </div>
+          <span id="profileCount" style="font-size:13px;color:var(--text-muted)"></span>
+        </div>
+        <div style="display:grid;grid-template-columns:240px 1fr;gap:16px" id="profileLayout">
+          <div class="card" style="padding:0;overflow:hidden;max-height:calc(100vh - 220px);display:flex;flex-direction:column">
+            <div style="padding:12px 14px;font-weight:600;font-size:14px;border-bottom:1px solid var(--border)">学生列表</div>
+            <div id="profileList" style="overflow-y:auto;flex:1"></div>
+          </div>
+          <div class="card" id="profileDetail" style="padding:20px">
+            <div style="text-align:center;color:var(--text-muted);padding:60px 20px">
+              <div style="font-size:40px;margin-bottom:12px">📁</div>
+              <div>从左侧选择一名学生查看/编辑档案</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== Work Logs Page ==================== -->
+      <div class="page" id="page-worklogs">
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+          <h2 style="margin:0;font-size:20px">📋 工作留痕</h2>
+          <div style="flex:1;min-width:180px">
+            <input type="date" id="wlDate" onchange="renderWorkLogs()" style="padding:8px 12px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--card-bg);color:var(--text)">
+          </div>
+          <div id="wlCats" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+          <button class="btn btn-primary" onclick="openWorkLogAdd()">＋ 记录工作</button>
+        </div>
+        <div class="card" style="padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <span id="wlStats" style="font-size:14px;font-weight:600"></span>
+          <button class="btn btn-outline btn-sm" onclick="copyMonthLogs()">📋 复制本月日志</button>
+          <button class="btn btn-outline btn-sm" onclick="exportMonthLogs()">📥 导出本月</button>
+        </div>
+        <div id="wlList" style="display:flex;flex-direction:column;gap:12px"></div>
+      </div>
+
+      <!-- ==================== Honors Page ==================== -->
+      <div class="page" id="page-honors">
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+          <h2 style="margin:0;font-size:20px">🏆 荣誉墙</h2>
+          <div id="honorLevels" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+          <button class="btn btn-primary" onclick="openHonorAdd()">＋ 添加荣誉</button>
+        </div>
+        <div class="card" style="padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap" id="honorStats"></div>
+        <div id="honorList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px"></div>
+      </div>
+<div class="page" id="page-notices">
         <div class="tabs" id="noticeTabs">
           <div class="tab active" data-ntab="library" onclick="switchNoticeTab('library')">📋 模板库</div>
           <div class="tab" data-ntab="history" onclick="switchNoticeTab('history')">🕘 历史记录</div>
@@ -2096,7 +2260,17 @@ tbody tr.highlight{
             <button class="btn btn-primary btn-sm" onclick="saveSeatLayout()">应用</button>
           </div>
         </div>
+        
         <div class="settings-section">
+          <h3>🌙 暗夜模式</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-sm" id="themeSystemBtn" onclick="setTheme('system')">🖥 跟随系统</button>
+            <button class="btn btn-sm" id="themeLightBtn" onclick="setTheme('light')">☀️ 亮色</button>
+            <button class="btn btn-sm" id="themeDarkBtn" onclick="setTheme('dark')">🌙 暗色</button>
+          </div>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">跟随系统：自动根据设备系统外观切换</div>
+        </div>
+<div class="settings-section">
           <h3>数据管理</h3>
           <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
             <button class="btn btn-outline" onclick="exportData()">💾 导出数据</button>
@@ -2511,6 +2685,10 @@ let state = {
   nextExamId: 1,
   todos: [],
   nextTodoId: 1,
+  workLogs: [],
+  nextWorkLogId: 1,
+  honors: [],
+  nextHonorId: 1,
   notices: { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 }
 };
 
@@ -2541,6 +2719,10 @@ function loadData(){
       state.exams = d.exams || [];
       state.nextExamId = d.nextExamId || 1;
       state.todos = d.todos || [];
+      state.workLogs = d.workLogs || [];
+      state.nextWorkLogId = d.nextWorkLogId || 1;
+      state.honors = d.honors || [];
+      state.nextHonorId = d.nextHonorId || 1;
       state.nextTodoId = d.nextTodoId || 1;
       if(d.notices) state.notices = d.notices;
     }catch(e){ console.error('Load failed',e); }
@@ -2570,6 +2752,10 @@ function saveData(){
     exams: state.exams,
     nextExamId: state.nextExamId,
     todos: state.todos,
+    workLogs: state.workLogs,
+    nextWorkLogId: state.nextWorkLogId,
+    honors: state.honors,
+    nextHonorId: state.nextHonorId,
     nextTodoId: state.nextTodoId,
     notices: state.notices
   }));
@@ -2632,7 +2818,23 @@ function smartMergeData(localData,remoteData){
     var emap={};(localData.exams||[]).forEach(function(e){emap[e.id]=e;});
     remoteData.exams.forEach(function(re){if(!emap[re.id])emap[re.id]=re;});
     merged.exams=Object.keys(emap).map(function(k){return emap[k];});
-  // notices: keep newer (by updatedAt)
+  
+      
+      // honors: union by id
+      if(remoteData.honors && remoteData.honors.length){
+        var hIds = {}; (merged.honors||[]).forEach(function(h){ hIds[h.id] = true; });
+        merged.honors = merged.honors || [];
+        remoteData.honors.forEach(function(h){ if(!hIds[h.id]) merged.honors.push(h); });
+      }
+// workLogs: union by id
+      if(remoteData.workLogs && remoteData.workLogs.length){
+        var localIds = {}; (merged.workLogs||[]).forEach(function(w){ localIds[w.id] = true; });
+        merged.workLogs = merged.workLogs || [];
+        remoteData.workLogs.forEach(function(w){
+          if(!localIds[w.id]) merged.workLogs.push(w);
+        });
+      }
+// notices: keep newer (by updatedAt)
   if(remoteData.notices){
     if(!merged.notices) merged.notices = remoteData.notices;
     else{
@@ -2967,10 +3169,10 @@ function loadSampleData(){
 /* ==================== Navigation ==================== */
 const pageTitles = {
   dashboard:'工作台首页', students:'学生管理', committee:'班委管理',
-  seating:'座次表', duty:'值日排表', credits:'学分记录',
+  seating:'座次表', duty:'值日排表', credits:'学分记录', honors:'荣誉墙',
   analytics:'数据分析', settings:'设置',
   attendance:'请假管理', grades:'成绩管理', todo:'待办提醒',
-  notices:'通知'
+  notices:'通知', profiles:'学生档案', worklogs:'工作留痕'
 };
 
 document.querySelectorAll('.nav-item').forEach(item=>{
@@ -2997,6 +3199,9 @@ function navigateTo(page){
   if(page==='credits') renderCreditsPage();
   if(page==='analytics') renderAnalytics();
     if(page==='notices') renderNotices();
+  if(page==='profiles') renderProfiles();
+  if(page==='worklogs') renderWorkLogs();
+  if(page==='honors') renderHonors();
 if(page==='settings') renderSettings();
   // Highlight in more drawer if active page is in drawer
   document.querySelectorAll('.more-item').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
@@ -4932,6 +5137,432 @@ function drawTrendChart(){
 }
 
 /* ==================== Settings ==================== */
+
+/* ==================== Dark Mode ==================== */
+function applyTheme(mode){
+  const dark = mode === 'dark' || (mode === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.classList.toggle('dark', dark);
+  // 同步按钮高亮
+  ['system','light','dark'].forEach(m=>{
+    const btn = document.getElementById('theme'+m.charAt(0).toUpperCase()+m.slice(1)+'Btn');
+    if(btn) btn.classList.toggle('btn-primary', mode===m);
+  });
+}
+function setTheme(mode){
+  localStorage.setItem('cm_theme', mode);
+  applyTheme(mode);
+  showToast('已切换为' + (mode==='dark'?'暗色':mode==='light'?'亮色':'跟随系统'),'success');
+}
+function initTheme(){
+  const saved = localStorage.getItem('cm_theme') || 'system';
+  applyTheme(saved);
+  if(window.matchMedia){
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = ()=>{ if((localStorage.getItem('cm_theme')||'system')==='system') applyTheme('system'); };
+    if(mq.addEventListener) mq.addEventListener('change', handler);
+    else if(mq.addListener) mq.addListener(handler);
+  }
+}
+initTheme();
+
+
+/* ==================== Student Profiles ==================== */
+var _profileSelectedId = null;
+function ensureProfile(s){
+  if(!s.profile){
+    s.profile = { gender:'', birth:'', guardian:'', phone:'', address:'', notes:'', timeline:[] };
+  }
+  if(!s.profile.timeline) s.profile.timeline = [];
+  return s.profile;
+}
+function renderProfiles(){
+  renderProfileList();
+  if(_profileSelectedId !== null){
+    const s = state.students.find(x=>x.id===_profileSelectedId);
+    if(s) renderProfileDetail(s);
+  }
+}
+function renderProfileList(){
+  const kw = (document.getElementById('profileSearch')?.value || '').toLowerCase().trim();
+  const list = state.students.filter(s => !kw || s.name.toLowerCase().includes(kw) || s.sid.toLowerCase().includes(kw));
+  const el = document.getElementById('profileList');
+  const count = document.getElementById('profileCount');
+  if(count) count.textContent = `共 ${list.length} 人`;
+  if(list.length === 0){
+    el.innerHTML = '<div style="padding:30px 14px;text-align:center;color:var(--text-muted);font-size:13px">暂无学生<br><br><button class="btn btn-primary btn-sm" onclick="navigateTo(\'students\')">去添加学生</button></div>';
+    return;
+  }
+  el.innerHTML = list.map(s=>{
+    const p = s.profile || {};
+    const tlCount = (p.timeline||[]).length;
+    const selected = s.id === _profileSelectedId ? 'active' : '';
+    return `<div class="profile-list-item ${selected}" data-id="${s.id}" onclick="selectProfile(${s.id})">
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:14px">${s.name}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${s.sid} · 学分 ${s.credit}${tlCount ? ' · 记录 ' + tlCount + ' 条' : ''}</div>
+      </div>
+      <div style="font-size:16px">📁</div>
+    </div>`;
+  }).join('');
+}
+function selectProfile(id){
+  _profileSelectedId = id;
+  renderProfileList();
+  const s = state.students.find(x=>x.id===id);
+  if(s) renderProfileDetail(s);
+}
+function renderProfileDetail(s){
+  const p = ensureProfile(s);
+  const el = document.getElementById('profileDetail');
+  const tl = p.timeline.slice().sort((a,b)=>b.date.localeCompare(a.date) || b.id-a.id);
+  const tlHtml = tl.length === 0
+    ? '<div style="color:var(--text-muted);font-size:13px;padding:16px 0">暂无成长记录，点击「添加记录」开始记录</div>'
+    : tl.map(t=>{
+        const typeCls = 'tl-' + t.type;
+        const typeName = {talk:'谈心', praise:'表扬', critic:'批评', contact:'联系家长', other:'其他'}[t.type] || '其他';
+        return `<div class="tl-item">
+          <div class="tl-badge ${typeCls}">${typeName}</div>
+          <div class="tl-body">
+            <div style="font-size:12px;color:var(--text-muted)">${t.date}</div>
+            <div style="margin-top:4px;font-size:14px;white-space:pre-wrap">${escapeHtml(t.content)}</div>
+            <div style="margin-top:6px"><button class="btn btn-danger btn-sm" style="padding:2px 10px;font-size:12px" onclick="deleteProfileTimeline(${s.id},${t.id})">删除</button></div>
+          </div>
+        </div>`;
+      }).join('');
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:700">${s.name.charAt(0)}</div>
+      <div style="flex:1">
+        <div style="font-size:18px;font-weight:700">${s.name}</div>
+        <div style="font-size:13px;color:var(--text-muted)">${s.sid} · 当前学分 <span class="score-badge ${s.credit<10?'low':s.credit<25?'mid':'high'}">${s.credit}</span></div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openProfileEdit(${s.id})">✏️ 编辑资料</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px">
+      <div class="profile-info"><span>性别</span><b>${p.gender || '—'}</b></div>
+      <div class="profile-info"><span>出生日期</span><b>${p.birth || '—'}</b></div>
+      <div class="profile-info"><span>监护人</span><b>${p.guardian || '—'}</b></div>
+      <div class="profile-info"><span>联系电话</span><b>${p.phone || '—'}</b></div>
+      <div class="profile-info" style="grid-column:1/-1"><span>家庭住址</span><b>${p.address || '—'}</b></div>
+      <div class="profile-info" style="grid-column:1/-1"><span>备注</span><b>${p.notes ? escapeHtml(p.notes) : '—'}</b></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <h3 style="margin:0;font-size:16px">🌱 成长记录（${tl.length}）</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="openTimelineAdd(${s.id},'talk')">💬 谈心</button>
+        <button class="btn btn-outline btn-sm" onclick="openTimelineAdd(${s.id},'praise')">👍 表扬</button>
+        <button class="btn btn-outline btn-sm" onclick="openTimelineAdd(${s.id},'critic')">⚠️ 批评</button>
+        <button class="btn btn-outline btn-sm" onclick="openTimelineAdd(${s.id},'contact')">📞 联系家长</button>
+        <button class="btn btn-outline btn-sm" onclick="openTimelineAdd(${s.id},'other')">📝 其他</button>
+      </div>
+    </div>
+    <div class="profile-timeline">${tlHtml}</div>`;
+}
+function openProfileEdit(id){
+  const s = state.students.find(x=>x.id===id);
+  if(!s) return;
+  const p = ensureProfile(s);
+  openModal('profileEditModal');
+  document.getElementById('profileEditTitle').textContent = '编辑档案 - ' + s.name;
+  document.getElementById('pGender').value = p.gender || '';
+  document.getElementById('pBirth').value = p.birth || '';
+  document.getElementById('pGuardian').value = p.guardian || '';
+  document.getElementById('pPhone').value = p.phone || '';
+  document.getElementById('pAddress').value = p.address || '';
+  document.getElementById('pNotes').value = p.notes || '';
+  document.getElementById('profileEditId').value = id;
+}
+function saveProfileEdit(){
+  const id = parseInt(document.getElementById('profileEditId').value);
+  const s = state.students.find(x=>x.id===id);
+  if(!s) return;
+  const p = ensureProfile(s);
+  p.gender = document.getElementById('pGender').value.trim();
+  p.birth = document.getElementById('pBirth').value.trim();
+  p.guardian = document.getElementById('pGuardian').value.trim();
+  p.phone = document.getElementById('pPhone').value.trim();
+  p.address = document.getElementById('pAddress').value.trim();
+  p.notes = document.getElementById('pNotes').value.trim();
+  saveData();
+  closeModal('profileEditModal');
+  renderProfileDetail(s);
+  showToast('档案已保存','success');
+}
+function openTimelineAdd(id, type){
+  openModal('timelineModal');
+  document.getElementById('timelineId').value = id;
+  document.getElementById('timelineType').value = type;
+  const typeName = {talk:'谈心', praise:'表扬', critic:'批评', contact:'联系家长', other:'其他'}[type] || '其他';
+  document.getElementById('timelineTypeLabel').textContent = typeName;
+  document.getElementById('timelineDate').value = todayStr();
+  document.getElementById('timelineContent').value = '';
+  document.getElementById('timelineContent').focus();
+}
+function saveTimeline(){
+  const id = parseInt(document.getElementById('timelineId').value);
+  const s = state.students.find(x=>x.id===id);
+  if(!s) return;
+  const p = ensureProfile(s);
+  const type = document.getElementById('timelineType').value;
+  const date = document.getElementById('timelineDate').value || todayStr();
+  const content = document.getElementById('timelineContent').value.trim();
+  if(!content){ showToast('请输入记录内容','error'); return; }
+  p.timeline.push({ id: Date.now(), date, type, content });
+  saveData();
+  closeModal('timelineModal');
+  renderProfileDetail(s);
+  showToast('记录已添加','success');
+}
+function deleteProfileTimeline(sid, tid){
+  const s = state.students.find(x=>x.id===sid);
+  if(!s) return;
+  const p = ensureProfile(s);
+  p.timeline = p.timeline.filter(t=>t.id!==tid);
+  saveData();
+  renderProfileDetail(s);
+  showToast('记录已删除','success');
+}
+
+
+/* ==================== Work Logs ==================== */
+var WL_CATS = ['常规','班会','谈话','活动','事务','其他'];
+var _wlCat = '全部';
+function todayStr(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function renderWorkLogs(){
+  const dateEl = document.getElementById('wlDate');
+  if(dateEl && !dateEl.value) dateEl.value = todayStr();
+  const catsEl = document.getElementById('wlCats');
+  if(catsEl){
+    catsEl.innerHTML = ['全部'].concat(WL_CATS).map(c=>{
+      return `<button class="btn btn-sm ${c===_wlCat?'btn-primary':''}" onclick="setWlCat('${c}')">${c}</button>`;
+    }).join('');
+  }
+  const date = dateEl ? dateEl.value : todayStr();
+  const month = date.slice(0,7);
+  const kw = (document.getElementById('wlSearch')?.value||'').toLowerCase();
+  let list = state.workLogs.filter(w=>{
+    if(w.date !== date) return false;
+    if(_wlCat !== '全部' && w.category !== _wlCat) return false;
+    if(kw && !(w.title||'').toLowerCase().includes(kw) && !(w.content||'').toLowerCase().includes(kw)) return false;
+    return true;
+  }).sort((a,b)=>b.date.localeCompare(a.date) || b.id-a.id);
+  const monthList = state.workLogs.filter(w=>w.date.startsWith(month));
+  const stats = document.getElementById('wlStats');
+  if(stats) stats.textContent = `📅 ${date} · ${list.length} 条 | 本月 ${month} 共 ${monthList.length} 条`;
+  const el = document.getElementById('wlList');
+  if(list.length === 0){
+    el.innerHTML = '<div class="card" style="padding:40px;text-align:center;color:var(--text-muted)"><div style="font-size:36px;margin-bottom:10px">📋</div><div>这一天还没有工作记录<br><br><button class="btn btn-primary" onclick="openWorkLogAdd()">＋ 记录今天的工作</button></div></div>';
+    return;
+  }
+  el.innerHTML = list.map(w=>{
+    const catColor = {常规:'blue',班会:'purple',谈话:'green',活动:'orange',事务:'gray',其他:'gray'}[w.category]||'gray';
+    return `<div class="card wl-card">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="wl-cat ${catColor}">${w.category}</span>
+            <b style="font-size:15px">${escapeHtml(w.title)}</b>
+            <span style="font-size:12px;color:var(--text-muted)">${w.date}</span>
+          </div>
+          ${w.content ? `<div style="margin-top:8px;font-size:14px;color:var(--text-secondary);white-space:pre-wrap">${escapeHtml(w.content)}</div>` : ''}
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn btn-sm" onclick="openWorkLogEdit(${w.id})">✏️</button>
+          <button class="btn btn-sm" style="color:var(--danger)" onclick="deleteWorkLog(${w.id})">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function setWlCat(c){ _wlCat = c; renderWorkLogs(); }
+function openWorkLogAdd(){
+  openModal('workLogModal');
+  document.getElementById('wlModalTitle').textContent = '记录工作';
+  document.getElementById('wlId').value = '';
+  document.getElementById('wlTitle').value = '';
+  document.getElementById('wlCat').value = '常规';
+  document.getElementById('wlContent').value = '';
+  document.getElementById('wlModalDate').value = todayStr();
+}
+function openWorkLogEdit(id){
+  const w = state.workLogs.find(x=>x.id===id);
+  if(!w) return;
+  openModal('workLogModal');
+  document.getElementById('wlModalTitle').textContent = '编辑工作记录';
+  document.getElementById('wlId').value = w.id;
+  document.getElementById('wlTitle').value = w.title || '';
+  document.getElementById('wlCat').value = w.category || '常规';
+  document.getElementById('wlContent').value = w.content || '';
+  document.getElementById('wlModalDate').value = w.date || todayStr();
+}
+function saveWorkLog(){
+  const id = parseInt(document.getElementById('wlId').value) || 0;
+  const title = document.getElementById('wlTitle').value.trim();
+  if(!title){ showToast('请输入工作标题','error'); return; }
+  const date = document.getElementById('wlModalDate').value || todayStr();
+  const category = document.getElementById('wlCat').value;
+  const content = document.getElementById('wlContent').value.trim();
+  if(id){
+    const w = state.workLogs.find(x=>x.id===id);
+    if(w){ w.title=title; w.date=date; w.category=category; w.content=content; }
+  } else {
+    state.workLogs.push({ id: state.nextWorkLogId++, title, date, category, content });
+  }
+  saveData();
+  closeModal('workLogModal');
+  renderWorkLogs();
+  showToast('已保存','success');
+}
+function deleteWorkLog(id){
+  if(!confirm('确定删除这条记录？')) return;
+  state.workLogs = state.workLogs.filter(w=>w.id!==id);
+  saveData();
+  renderWorkLogs();
+  showToast('已删除','success');
+}
+function copyMonthLogs(){
+  const date = document.getElementById('wlDate').value || todayStr();
+  const month = date.slice(0,7);
+  const list = state.workLogs.filter(w=>w.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date)||a.id-b.id);
+  if(list.length === 0){ showToast('本月暂无记录','error'); return; }
+  let txt = `【${month} 工作留痕台账】\n\n`;
+  let cur = '';
+  list.forEach(w=>{
+    if(w.date !== cur){ cur = w.date; txt += `\n📅 ${cur}\n`; }
+    txt += `【${w.category}】${w.title}\n`;
+    if(w.content) txt += w.content + '\n';
+  });
+  copyToClipboard(txt);
+  showToast('已复制到剪贴板','success');
+}
+function exportMonthLogs(){
+  const date = document.getElementById('wlDate').value || todayStr();
+  const month = date.slice(0,7);
+  const list = state.workLogs.filter(w=>w.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date)||a.id-b.id);
+  if(list.length === 0){ showToast('本月暂无记录','error'); return; }
+  let txt = `【${month} 工作留痕台账】\n`;
+  list.forEach(w=>{ txt += `\n[${w.date}] ${w.title} (${w.category})\n${w.content||''}\n`; });
+  const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `工作留痕_${month}.txt`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('已导出','success');
+}
+
+
+/* ==================== Honors Wall ==================== */
+var HONOR_LEVELS = ['校级','区级','市级','省级','国家级'];
+var HONOR_SCOPES = ['集体','个人'];
+var _honorLevel = '全部';
+function renderHonors(){
+  const levelsEl = document.getElementById('honorLevels');
+  if(levelsEl){
+    levelsEl.innerHTML = ['全部'].concat(HONOR_LEVELS).map(l=>{
+      return `<button class="btn btn-sm ${l===_honorLevel?'btn-primary':''}" onclick="setHonorLevel('${l}')">${l}</button>`;
+    }).join('');
+  }
+  const list = state.honors.filter(h=>_honorLevel==='全部' || h.level===_honorLevel)
+    .sort((a,b)=>b.date.localeCompare(a.date) || b.id-a.id);
+  const stats = document.getElementById('honorStats');
+  if(stats){
+    const total = state.honors.length;
+    const team = state.honors.filter(h=>h.scope==='集体').length;
+    const personal = state.honors.filter(h=>h.scope==='个人').length;
+    const levelRank = {校级:1,区级:2,市级:3,省级:4,国家级:5};
+    let maxLv = '—';
+    if(total){ maxLv = state.honors.reduce((a,b)=> levelRank[b.level] > levelRank[a.level] ? b : a).level; }
+    stats.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">🏆</span><div><div style="font-size:20px;font-weight:700">${total}</div><div style="font-size:12px;color:var(--text-muted)">总荣誉</div></div></div>
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:24px">👥</span><div><div style="font-size:20px;font-weight:700">${team}</div><div style="font-size:12px;color:var(--text-muted)">集体荣誉</div></div></div>
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:24px">🌟</span><div><div style="font-size:20px;font-weight:700">${personal}</div><div style="font-size:12px;color:var(--text-muted)">个人荣誉</div></div></div>
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:24px">👑</span><div><div style="font-size:20px;font-weight:700">${maxLv}</div><div style="font-size:12px;color:var(--text-muted)">最高等级</div></div></div>`;
+  }
+  const el = document.getElementById('honorList');
+  if(list.length === 0){
+    el.innerHTML = '<div class="card" style="grid-column:1/-1;padding:50px;text-align:center;color:var(--text-muted)"><div style="font-size:40px;margin-bottom:10px">🏆</div><div>还没有荣誉记录，快来添加第一份荣誉吧！<br><br><button class="btn btn-primary" onclick="openHonorAdd()">＋ 添加荣誉</button></div></div>';
+    return;
+  }
+  el.innerHTML = list.map(h=>{
+    const lvCls = 'hl-' + ({校级:1,区级:2,市级:3,省级:4,国家级:5}[h.level]||1);
+    const personsHtml = (h.scope==='个人' && h.persons && h.persons.length)
+      ? `<div style="margin-top:8px;font-size:12px;color:var(--text-secondary)">🎖 ${escapeHtml(h.persons.join('、'))}</div>` : '';
+    return `<div class="card honor-card ${lvCls}">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="honor-level ${lvCls}">${h.level}</span>
+        <span class="honor-scope ${h.scope==='集体'?'team':'person'}">${h.scope}</span>
+      </div>
+      <div style="font-size:16px;font-weight:700;margin-top:10px;line-height:1.4">${escapeHtml(h.title)}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:6px">📅 ${h.date || '—'}</div>
+      ${personsHtml}
+      ${h.desc ? `<div style="margin-top:8px;font-size:13px;color:var(--text-secondary);line-height:1.5">${escapeHtml(h.desc)}</div>` : ''}
+      <div style="display:flex;gap:6px;margin-top:12px;justify-content:flex-end">
+        <button class="btn btn-sm" onclick="openHonorEdit(${h.id})">✏️</button>
+        <button class="btn btn-sm" style="color:var(--danger)" onclick="deleteHonor(${h.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function setHonorLevel(l){ _honorLevel = l; renderHonors(); }
+function openHonorAdd(){
+  openModal('honorModal');
+  document.getElementById('honorModalTitle').textContent = '添加荣誉';
+  document.getElementById('honorId').value = '';
+  document.getElementById('honorTitle').value = '';
+  document.getElementById('honorDate').value = todayStr();
+  document.getElementById('honorScope').value = '集体';
+  document.getElementById('honorLevel').value = '校级';
+  document.getElementById('honorPersons').value = '';
+  document.getElementById('honorDesc').value = '';
+  document.getElementById('honorPersonsWrap').style.display = 'none';
+}
+function openHonorEdit(id){
+  const h = state.honors.find(x=>x.id===id);
+  if(!h) return;
+  openModal('honorModal');
+  document.getElementById('honorModalTitle').textContent = '编辑荣誉';
+  document.getElementById('honorId').value = h.id;
+  document.getElementById('honorTitle').value = h.title || '';
+  document.getElementById('honorDate').value = h.date || todayStr();
+  document.getElementById('honorScope').value = h.scope || '集体';
+  document.getElementById('honorLevel').value = h.level || '校级';
+  document.getElementById('honorPersons').value = (h.persons||[]).join('、');
+  document.getElementById('honorDesc').value = h.desc || '';
+  document.getElementById('honorPersonsWrap').style.display = h.scope==='个人' ? '' : 'none';
+}
+function toggleHonorPersons(){
+  const scope = document.getElementById('honorScope').value;
+  document.getElementById('honorPersonsWrap').style.display = scope==='个人' ? '' : 'none';
+}
+function saveHonor(){
+  const id = parseInt(document.getElementById('honorId').value) || 0;
+  const title = document.getElementById('honorTitle').value.trim();
+  if(!title){ showToast('请输入荣誉名称','error'); return; }
+  const date = document.getElementById('honorDate').value || todayStr();
+  const scope = document.getElementById('honorScope').value;
+  const level = document.getElementById('honorLevel').value;
+  const persons = document.getElementById('honorPersons').value.split(/[、,，\s]+/).filter(Boolean);
+  const desc = document.getElementById('honorDesc').value.trim();
+  if(id){
+    const h = state.honors.find(x=>x.id===id);
+    if(h){ Object.assign(h, {title,date,scope,level,persons,desc}); }
+  } else {
+    state.honors.push({ id: state.nextHonorId++, title, date, scope, level, persons, desc });
+  }
+  saveData();
+  closeModal('honorModal');
+  renderHonors();
+  showToast('已保存','success');
+}
+function deleteHonor(id){
+  if(!confirm('确定删除这份荣誉？')) return;
+  state.honors = state.honors.filter(h=>h.id!==id);
+  saveData();
+  renderHonors();
+  showToast('已删除','success');
+}
+
 function renderSettings(){
   document.getElementById('classNameInput').value = state.className;
   document.getElementById('sidebarClassName').textContent = state.className;
@@ -6485,10 +7116,7 @@ function fillNoticeVars(text, vars){
   return text.replace(/\{([^{}]+)\}/g, function(_,k){ return (vars && vars[k]!==undefined) ? vars[k] : '{'+k+'}'; });
 }
 
-function todayStr(){
-  var d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
+
 
 function openNoticeFill(tplId){
   ensureNotices();
@@ -6752,6 +7380,10 @@ function touchNotices(){
 <div class="more-drawer" id="moreDrawer">
   <div class="more-drawer-title">全部功能</div>
   <div class="more-grid" id="moreGrid">
+    
+    <div class="more-item" data-page="profiles" onclick="navigateTo('profiles')"><span class="more-icon">📁</span><span>档案</span></div>
+<div class="more-item" data-page="worklogs" onclick="navigateTo('worklogs')"><span class="more-icon">📋</span><span>留痕</span></div>
+<div class="more-item" data-page="honors" onclick="navigateTo('honors')"><span class="more-icon">🏆</span><span>荣誉</span></div>
     <div class="more-item" data-page="committee" onclick="navigateTo('committee')"><span class="more-icon">📋</span><span>班委</span></div>
     <div class="more-item" data-page="seating" onclick="navigateTo('seating')"><span class="more-icon">💺</span><span>座次</span></div>
     <div class="more-item" data-page="duty" onclick="navigateTo('duty')"><span class="more-icon">🧹</span><span>值日</span></div>
@@ -6759,6 +7391,114 @@ function touchNotices(){
     <div class="more-item" data-page="grades" onclick="navigateTo('grades')"><span class="more-icon">📊</span><span>成绩</span></div>
     <div class="more-item" data-page="notices" onclick="navigateTo('notices')"><span class="more-icon">📢</span><span>通知</span></div>
 <div class="more-item" data-page="analytics" onclick="navigateTo('analytics')"><span class="more-icon">📈</span><span>分析</span></div>
+  </div>
+</div>
+
+<!-- Modal: Profile Edit -->
+<div class="modal-overlay" id="profileEditModal" onclick="if(event.target===this)closeModal('profileEditModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="profileEditTitle">编辑档案</h3>
+      <button class="modal-close" onclick="closeModal('profileEditModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="profileEditId">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-group"><label>性别</label>
+          <select id="pGender" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text)">
+            <option value="">未设置</option><option>男</option><option>女</option>
+          </select>
+        </div>
+        <div class="form-group"><label>出生日期</label><input type="date" id="pBirth" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text)"></div>
+        <div class="form-group"><label>监护人</label><input type="text" id="pGuardian" placeholder="家长姓名" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text)"></div>
+        <div class="form-group"><label>联系电话</label><input type="text" id="pPhone" placeholder="手机号" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text)"></div>
+      </div>
+      <div class="form-group"><label>家庭住址</label><input type="text" id="pAddress" placeholder="家庭住址" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text)"></div>
+      <div class="form-group"><label>备注</label><textarea id="pNotes" rows="3" placeholder="其他备注信息..." style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text);resize:vertical"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('profileEditModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveProfileEdit()">保存</button>
+    </div>
+  </div>
+</div>
+<!-- Modal: Timeline Add -->
+<div class="modal-overlay" id="timelineModal" onclick="if(event.target===this)closeModal('timelineModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>添加成长记录 - <span id="timelineTypeLabel">谈心</span></h3>
+      <button class="modal-close" onclick="closeModal('timelineModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="timelineId">
+      <input type="hidden" id="timelineType">
+      <div class="form-group"><label>日期</label><input type="date" id="timelineDate" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text)"></div>
+      <div class="form-group"><label>内容</label><textarea id="timelineContent" rows="4" placeholder="记录这次谈心/表扬/批评的具体内容..." style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text);resize:vertical"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('timelineModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveTimeline()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Work Log -->
+<div class="modal-overlay" id="workLogModal" onclick="if(event.target===this)closeModal('workLogModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="wlModalTitle">记录工作</h3>
+      <button class="modal-close" onclick="closeModal('workLogModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="wlId">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-group"><label>日期</label><input type="date" id="wlModalDate" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text)"></div>
+        <div class="form-group"><label>分类</label>
+          <select id="wlCat" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text)">
+            <option>常规</option><option>班会</option><option>谈话</option><option>活动</option><option>事务</option><option>其他</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>标题</label><input type="text" id="wlTitle" placeholder="今天做了什么？" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text)"></div>
+      <div class="form-group"><label>详情（可选）</label><textarea id="wlContent" rows="4" placeholder="记录细节..." style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text);resize:vertical"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('workLogModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveWorkLog()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Honor -->
+<div class="modal-overlay" id="honorModal" onclick="if(event.target===this)closeModal('honorModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="honorModalTitle">添加荣誉</h3>
+      <button class="modal-close" onclick="closeModal('honorModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="honorId">
+      <div class="form-group"><label>荣誉名称</label><input type="text" id="honorTitle" placeholder="如：校运会团体第一名" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text)"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div class="form-group"><label>日期</label><input type="date" id="honorDate" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text)"></div>
+        <div class="form-group"><label>类型</label>
+          <select id="honorScope" onchange="toggleHonorPersons()" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text)">
+            <option>集体</option><option>个人</option>
+          </select>
+        </div>
+        <div class="form-group"><label>等级</label>
+          <select id="honorLevel" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text)">
+            <option>校级</option><option>区级</option><option>市级</option><option>省级</option><option>国家级</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" id="honorPersonsWrap" style="display:none"><label>获奖学生（用、或空格分隔）</label><input type="text" id="honorPersons" placeholder="张三、李四、王五" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text)"></div>
+      <div class="form-group"><label>备注（可选）</label><textarea id="honorDesc" rows="3" placeholder="补充说明..." style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text);resize:vertical"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('honorModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveHonor()">保存</button>
+    </div>
   </div>
 </div>
 </body>
