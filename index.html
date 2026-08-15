@@ -23,8 +23,8 @@
   --bg:#F0FBFD;
   --card-bg:#FFFFFF;
   --text:#1A1A2E;
-  --text-secondary:#5A6C7D;
-  --text-muted:#9AA5B1;
+  --text-secondary:#475569;
+  --text-muted:#64748B;
   --border:#E0F4F8;
   --success:#06D6A0;
   --warning:#FFD166;
@@ -48,6 +48,7 @@ body{
   font-family:-apple-system,'Segoe UI','Microsoft YaHei',sans-serif;
   background:var(--bg);
   color:var(--text);
+  line-height:1.6;
   overflow:hidden;
   position:relative;
 }
@@ -88,6 +89,19 @@ body::before{
 ::-webkit-scrollbar-thumb{background:var(--primary-lighter);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--primary-light)}
 
+/* ==================== Accessibility ==================== */
+/* 键盘焦点可见性：所有可交互元素必须有可见焦点指示 */
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid rgba(0,180,216,0.6);
+  outline-offset:2px;
+  border-radius:6px;
+}
+/* 触摸目标最小尺寸：44x44（桌面 36px 可接受，移动端 44px） */
+@media (pointer:coarse){
+  .view-all-link,.view-all{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+  .nav-item{min-height:44px}
+}
+
 /* ==================== Layout ==================== */
 .app{display:flex;height:100vh;position:relative;z-index:1}
 
@@ -114,7 +128,7 @@ body::before{
   box-shadow:0 4px 12px rgba(0,180,216,0.3);
 }
 .sidebar-logo .logo-text{font-size:18px;font-weight:700;color:var(--text)}
-.sidebar-logo .logo-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+.sidebar-logo .logo-sub{font-size:12px;color:var(--text-muted);margin-top:2px}
 
 .nav{flex:1;padding:8px 12px;overflow-y:auto}
 .nav-item{
@@ -135,7 +149,7 @@ body::before{
 .nav-item:hover .nav-icon{transform:scale(1.2) rotate(-5deg)}
 .nav-item.active{
   background:linear-gradient(135deg,rgba(0,180,216,0.12),rgba(72,202,228,0.08));
-  color:var(--primary-dark);
+  color:var(--primary-darker);
   font-weight:600;
 }
 .nav-item.active::before{
@@ -153,7 +167,7 @@ body::before{
 }
 .nav-divider{height:1px;background:var(--border);margin:8px 16px}
 
-.sidebar-footer{padding:12px 20px;font-size:11px;color:var(--text-muted);text-align:center}
+.sidebar-footer{padding:12px 20px;font-size:12px;color:var(--text-muted);text-align:center}
 
 /* ==================== Main ==================== */
 .main{
@@ -276,7 +290,7 @@ body::before{
 .motto-banner .motto-text{font-size:17px;font-weight:600;letter-spacing:1px;text-align:center}
 
 
-.motto-banner .motto-edit{position:absolute;right:14px;bottom:8px;font-size:10px;opacity:0;transition:opacity .2s;background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:8px}
+.motto-banner .motto-edit{position:absolute;right:14px;bottom:8px;font-size:12px;opacity:0;transition:opacity .2s;background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:8px}
 .motto-banner:hover .motto-edit{opacity:1}
 
 .schedule-card{
@@ -396,7 +410,7 @@ body::before{
   border:2px solid #fff;
   box-shadow:0 0 0 2px var(--primary-lighter);
 }
-.timeline-item .tl-time{font-size:11px;color:var(--text-muted)}
+.timeline-item .tl-time{font-size:12px;color:var(--text-muted)}
 .timeline-item .tl-text{color:var(--text-secondary);margin-top:2px}
 .timeline-item .tl-text strong{color:var(--text)}
 
@@ -1156,8 +1170,8 @@ tbody tr.highlight{
 }
 @media(max-width:480px){
   .stat-grid{grid-template-columns:1fr 1fr !important}
-  .mobile-tab{min-width:52px}
-  .mobile-tab .tab-label{font-size:9px}
+  .mobile-tab{min-width:0}
+  .mobile-tab .tab-label{font-size:10px}
   .content{padding:10px 10px 76px 10px}
   .card{padding:12px;border-radius:10px}
   .topbar h1{font-size:16px}
@@ -1181,13 +1195,31 @@ tbody tr.highlight{
   .topbar h1{font-size:17px}
   .topbar .btn-icon{height:32px;font-size:14px;padding:0 6px}
   .topbar .btn-icon .icon-label{display:none}
-  .mobile-tabbar{display:flex;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);z-index:100;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -2px 12px rgba(0,180,216,0.06);padding-top:4px}
+  .mobile-tabbar{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-top:1px solid var(--border);box-shadow:0 -4px 24px rgba(0,0,0,0.06);padding:0 0 env(safe-area-inset-bottom,0px)}
   .mobile-tabbar::-webkit-scrollbar{display:none}
-  .mobile-tab{flex:1 0 auto;min-width:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;cursor:pointer;color:var(--text-muted);font-size:10px;transition:all .2s;white-space:nowrap;gap:2px}
-  .mobile-tab .tab-icon{font-size:20px;line-height:1}
-  .mobile-tab .tab-label{font-size:10px;line-height:1}
+  .mobile-tab{flex:1;min-width:0;height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:var(--text-muted);font-size:11px;-webkit-tap-highlight-color:transparent;position:relative;transition:color .2s}
+  .mobile-tab .tab-icon{font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;width:40px;height:28px;border-radius:10px;transition:transform .2s,background .2s}
+  .mobile-tab .tab-label{font-size:11px;line-height:1;font-weight:400;transition:all .2s}
   .mobile-tab.active{color:var(--primary-dark);font-weight:600}
-  .mobile-tab.active .tab-icon{transform:scale(1.15)}
+  .mobile-tab.active .tab-icon{transform:translateY(-1px) scale(1.1);background:rgba(0,180,216,0.12)}
+  .mobile-tab.more-tab{flex:1;min-width:0;height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:var(--text-muted);font-size:11px;-webkit-tap-highlight-color:transparent;position:relative;transition:color .2s}
+  .mobile-tab.more-tab .tab-icon{font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;width:40px;height:28px;border-radius:10px;transition:transform .2s,background .2s}
+  .mobile-tab.more-tab.active{color:var(--primary-dark);font-weight:600}
+  .mobile-tab.more-tab.active .tab-icon{transform:translateY(-1px) scale(1.1);background:rgba(0,180,216,0.12)}
+  .mobile-tabbar.hidden-tab{display:none !important}
+  .mobile-tabbar .mobile-tab.hidden{display:none !important}
+  /* More drawer */
+  .more-drawer{position:fixed;bottom:0;left:0;right:0;z-index:110;background:#fff;border-top:1px solid var(--border);border-radius:16px 16px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,0.12);padding:16px 12px calc(16px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .25s cubic-bezier(.4,0,.2,1);max-height:70vh;overflow-y:auto}
+  .more-drawer.open{transform:translateY(0)}
+  .more-drawer-mask{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:109;opacity:0;pointer-events:none;transition:opacity .25s}
+  .more-drawer-mask.open{opacity:1;pointer-events:auto}
+  .more-drawer-title{font-size:14px;font-weight:700;color:var(--text);text-align:center;padding:4px 0 12px}
+  .more-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .more-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px 6px;border-radius:12px;background:var(--bg);border:1px solid var(--border);cursor:pointer;color:var(--text-secondary);font-size:12px;transition:all .2s;min-height:72px}
+  .more-item:active{transform:scale(0.96)}
+  .more-item .more-icon{font-size:24px;line-height:1}
+  .more-item.active{color:var(--primary-dark);font-weight:600;border-color:var(--primary);background:rgba(0,180,216,0.08)}
+  .more-item:hover{background:rgba(0,180,216,0.06)}
   .stat-grid{grid-template-columns:1fr 1fr}
   .stat-card{padding:12px}
   .stat-value{font-size:24px}
@@ -1473,7 +1505,7 @@ tbody tr.highlight{
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.3.12</div>
+      <div class="login-version">v2.4.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1563,7 +1595,7 @@ tbody tr.highlight{
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.3.12 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.4.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -1634,14 +1666,14 @@ tbody tr.highlight{
           <div class="card stagger" style="animation-delay:.4s">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
               <div class="section-title" style="margin-bottom:0"><span class="dot"></span>待办提醒</div>
-              <a href="javascript:void(0)" onclick="navigateTo('todo')" style="font-size:12px;color:var(--primary);text-decoration:none">全部 ›</a>
+              <a href="javascript:void(0)" onclick="navigateTo('todo')" class="view-all-link" style="font-size:12px;color:var(--primary);text-decoration:none;padding:10px 8px">全部 ›</a>
             </div>
             <div id="dashTodoList"></div>
           </div>
           <div class="card stagger" style="animation-delay:.45s">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
               <div class="section-title" style="margin-bottom:0"><span class="dot"></span>最近考试</div>
-              <a href="javascript:void(0)" onclick="navigateTo('grades')" style="font-size:12px;color:var(--primary);text-decoration:none">全部 ›</a>
+              <a href="javascript:void(0)" onclick="navigateTo('grades')" class="view-all-link" style="font-size:12px;color:var(--primary);text-decoration:none;padding:10px 8px">全部 ›</a>
             </div>
             <div id="dashExamList"></div>
           </div>
@@ -2757,6 +2789,10 @@ document.querySelectorAll('.nav-item').forEach(item=>{
 function navigateTo(page){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
   document.querySelectorAll('.mobile-tab').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
+  // Highlight more button when current page is inside the drawer
+  const moreBtn = document.getElementById('moreTabBtn');
+  const inDrawer = document.querySelectorAll('.more-item[data-page="'+page+'"]').length > 0;
+  if(moreBtn) moreBtn.classList.toggle('active', inDrawer);
   document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active', p.id==='page-'+page));
   document.getElementById('pageTitle').textContent = pageTitles[page] || '';
   if(page==='dashboard') renderDashboard();
@@ -2770,8 +2806,47 @@ function navigateTo(page){
   if(page==='credits') renderCreditsPage();
   if(page==='analytics') renderAnalytics();
   if(page==='settings') renderSettings();
+  // Highlight in more drawer if active page is in drawer
+  document.querySelectorAll('.more-item').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
+  // Close more drawer when navigating to a drawer item
+  if(document.querySelectorAll('.more-item').length && document.querySelector('.more-item[data-page="'+page+'"]')){
+    closeMoreDrawer();
+  }
   var mt=document.querySelector('.mobile-tab.active');
   if(mt)mt.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+}
+
+/* ==================== More Drawer ==================== */
+function setMoreDrawer(open){
+  const d=document.getElementById('moreDrawer');
+  const m=document.getElementById('moreMask');
+  d.classList.toggle('open', open);
+  m.classList.toggle('open', open);
+  // PWA tip 与抽屉互斥：打开时隐藏，关闭时恢复
+  const tip = document.getElementById('pwaTip');
+  if(tip){
+    if(open){ tip.dataset.prevDisplay = tip.style.display || ''; tip.style.display = 'none'; }
+    else { tip.style.display = tip.dataset.prevDisplay || 'flex'; }
+  }
+  if(open){
+    // Highlight the more button if current page is inside the drawer
+    const activePage = document.querySelector('.mobile-tab.active')?.dataset.page;
+    const moreBtn = document.getElementById('moreTabBtn');
+    if(moreBtn && activePage){
+      const inDrawer = document.querySelectorAll('.more-item[data-page="'+activePage+'"]').length > 0;
+      moreBtn.classList.toggle('active', inDrawer);
+    }
+  }
+}
+function toggleMoreDrawer(){
+  const d=document.getElementById('moreDrawer');
+  setMoreDrawer(!d.classList.contains('open'));
+}
+function closeMoreDrawer(){
+  setMoreDrawer(false);
+}
+function closeMoreDrawer(){
+  setMoreDrawer(false);
 }
 
 /* ==================== Toast ==================== */
@@ -5160,6 +5235,9 @@ function showPwaInstallTip(){
   tip.innerHTML = '<span>📲 可将工作台添加到手机桌面</span><button id="pwaInstallBtn">安装</button><button id="pwaDismissBtn">✕</button>';
   tip.style.cssText = 'position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#0077B6;color:#fff;padding:10px 14px;border-radius:20px;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:9999;display:flex;align-items:center;gap:10px;font-size:13px;max-width:92vw;';
   document.body.appendChild(tip);
+  var style = document.createElement('style');
+  style.textContent = '#pwaInstallBtn{background:#00B4D8;color:#fff;border:none;padding:6px 14px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;min-height:36px;transition:all .3s}#pwaInstallBtn:hover{background:#0096C7;transform:translateY(-1px)}#pwaDismissBtn{background:transparent;color:rgba(255,255,255,.8);border:none;font-size:14px;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;min-width:32px;min-height:32px}#pwaDismissBtn:hover{background:rgba(255,255,255,.15)}';
+  document.head.appendChild(style);
   document.getElementById('pwaInstallBtn').addEventListener('click', async () => {
     if(deferredPrompt){
       deferredPrompt.prompt();
@@ -5933,15 +6011,23 @@ function clearWaterDuty(){
 <nav class="mobile-tabbar" id="mobileTabbar">
   <div class="mobile-tab active" data-page="dashboard" onclick="navigateTo('dashboard')"><span class="tab-icon">🏠</span><span class="tab-label">首页</span></div>
   <div class="mobile-tab" data-page="students" onclick="navigateTo('students')"><span class="tab-icon">👥</span><span class="tab-label">学生</span></div>
-  <div class="mobile-tab" data-page="credits" onclick="navigateTo('credits')"><span class="tab-icon">📝</span><span class="tab-label">学分</span></div>
-  <div class="mobile-tab" data-page="attendance" onclick="navigateTo('attendance')"><span class="tab-icon">📨</span><span class="tab-label">请假</span></div>
-  <div class="mobile-tab" data-page="grades" onclick="navigateTo('grades')"><span class="tab-icon">📊</span><span class="tab-label">成绩</span></div>
   <div class="mobile-tab" data-page="todo" onclick="navigateTo('todo')"><span class="tab-icon">✅</span><span class="tab-label">待办</span></div>
-  <div class="mobile-tab" data-page="committee" onclick="navigateTo('committee')"><span class="tab-icon">📋</span><span class="tab-label">班委</span></div>
-  <div class="mobile-tab" data-page="seating" onclick="navigateTo('seating')"><span class="tab-icon">💺</span><span class="tab-label">座次</span></div>
-  <div class="mobile-tab" data-page="duty" onclick="navigateTo('duty')"><span class="tab-icon">🧹</span><span class="tab-label">值日</span></div>
-  <div class="mobile-tab" data-page="analytics" onclick="navigateTo('analytics')"><span class="tab-icon">📈</span><span class="tab-label">分析</span></div>
+  <div class="mobile-tab" data-page="credits" onclick="navigateTo('credits')"><span class="tab-icon">📝</span><span class="tab-label">学分</span></div>
   <div class="mobile-tab" data-page="settings" onclick="navigateTo('settings')"><span class="tab-icon">⚙️</span><span class="tab-label">设置</span></div>
+  <div class="mobile-tab more-tab" id="moreTabBtn" onclick="toggleMoreDrawer()"><span class="tab-icon">📱</span><span class="tab-label">更多</span></div>
 </nav>
+<!-- More Drawer -->
+<div class="more-drawer-mask" id="moreMask" onclick="toggleMoreDrawer()"></div>
+<div class="more-drawer" id="moreDrawer">
+  <div class="more-drawer-title">全部功能</div>
+  <div class="more-grid" id="moreGrid">
+    <div class="more-item" data-page="committee" onclick="navigateTo('committee')"><span class="more-icon">📋</span><span>班委</span></div>
+    <div class="more-item" data-page="seating" onclick="navigateTo('seating')"><span class="more-icon">💺</span><span>座次</span></div>
+    <div class="more-item" data-page="duty" onclick="navigateTo('duty')"><span class="more-icon">🧹</span><span>值日</span></div>
+    <div class="more-item" data-page="attendance" onclick="navigateTo('attendance')"><span class="more-icon">📨</span><span>请假</span></div>
+    <div class="more-item" data-page="grades" onclick="navigateTo('grades')"><span class="more-icon">📊</span><span>成绩</span></div>
+    <div class="more-item" data-page="analytics" onclick="navigateTo('analytics')"><span class="more-icon">📈</span><span>分析</span></div>
+  </div>
+</div>
 </body>
 </html>
