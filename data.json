@@ -683,27 +683,6 @@
       "returnDate": "2026-08-08"
     },
     {
-      "id": 3,
-      "studentId": 7,
-      "type": "sick",
-      "startDate": "2026-08-08",
-      "startPeriod": "am",
-      "endDate": "2026-08-08",
-      "endPeriod": "am",
-      "duration": 0.5,
-      "reason": "2",
-      "status": "returned",
-      "createdAt": "2026-08-08T04:42:11.628Z",
-      "history": [
-        {
-          "action": "return",
-          "date": "2026-08-08",
-          "at": "2026-08-08T04:46:26.046Z"
-        }
-      ],
-      "returnDate": "2026-08-08"
-    },
-    {
       "id": 4,
       "studentId": 1,
       "type": "sick",
