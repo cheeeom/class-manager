@@ -6,7 +6,23 @@
       "sid": "S0001",
       "name": "张明轩",
       "credit": 12,
-      "tags": []
+      "tags": [],
+      "profile": {
+        "gender": "",
+        "birth": "",
+        "guardian": "",
+        "phone": "",
+        "address": "",
+        "notes": "",
+        "timeline": [
+          {
+            "id": 1786847643089,
+            "date": "2026-08-16",
+            "type": "praise",
+            "content": "考试进步"
+          }
+        ]
+      }
     },
     {
       "id": 2,
