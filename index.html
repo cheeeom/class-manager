@@ -1682,7 +1682,7 @@ html.dark .tl-body{background:var(--bg)}
         <div class="login-tip-icon">🔒</div>
         <div>请输入密码解锁工作台</div>
       </div>
-      <div class="login-version">v2.6.0</div>
+      <div class="login-version">v2.6.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1784,7 +1784,7 @@ html.dark .tl-body{background:var(--bg)}
         <span class="nav-icon">⚙️</span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.6.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.6.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2623,20 +2623,29 @@ const GH_OWNER = 'cheeeom';
 const GH_REPO = 'class-manager';
 const GH_BRANCH = 'main';
 const GH_DATA_PATH = 'data.json';
+// 云端 data.json 同步字段白名单（auto/manual push 共用）
+const CLOUD_SYNC_FIELDS = ['className','students','operations','reasons','reasonScores','nextId','nextOpId','nextSid',
+  'lastExport','lastImport','committee','seating','duty','exportedOpsCount','classMotto',
+  'leaves','nextLeaveId','exams','nextExamId','todos','nextTodoId',
+  'workLogs','nextWorkLogId','honors','nextHonorId','notices',
+  'scheduleImage','classAvatar'];
+// 通知历史可能内嵌近 1MB 的图片 base64，推送前剥离，防止 data.json 膨胀导致移动端拉取超时
+function stripNoticeHistoryImages(notices){
+  if(!notices || !Array.isArray(notices.history)) return notices;
+  var light = JSON.parse(JSON.stringify(notices));
+  light.history.forEach(function(h){ delete h.image; });
+  return light;
+}
 let cloudSyncTimer = null;
+// Token 仅保存在各设备本地（localStorage），不再内置于源码。
+// 生成方法：GitHub → Settings → Developer settings → Fine-grained tokens，
+// 仅授权本仓库（cheeeom/class-manager），权限 Contents: Read and write。
 function getGHToken(){
-  // Try localStorage first (user-configured)
   var stored = localStorage.getItem('gh_sync_token');
-  if(stored && stored.length > 10) return stored;
-  // Fallback: built-in token (split to avoid secret scanning)
-  var p1 = 'ghp_kHCWvXar';
-  var p2 = 'ZbHHRLAgZ6r2S';
-  var p3 = 'SsfTzQA0M4Fh';
-  var p4 = 'CKh';
-  return p1 + p2 + p3 + p4;
+  return (stored && stored.length > 10) ? stored : '';
 }
 function setGHToken(t){ localStorage.setItem('gh_sync_token', t); }
-function hasGHToken(){ return true; }
+function hasGHToken(){ return !!getGHToken(); }
 const defaultReasons = ['课堂回答','作业优秀','考试进步','纪律违规','迟到','卫生值日','活动参与','竞赛获奖','其他'];
 const presetTags = ['寝室长','班委','课代表','特长生','需关注'];
 const tagColorMap = {
@@ -2665,6 +2674,7 @@ let state = {
   students: [],
   operations: [],
   reasons: [...defaultReasons],
+  reasonScores: {},
   sortDir: 'desc',
   selectedStudents: new Set(),
   nextId: 1,
@@ -2701,6 +2711,7 @@ function loadData(){
       state.students = d.students || [];
       state.operations = d.operations || [];
       state.reasons = d.reasons || [...defaultReasons];
+      state.reasonScores = d.reasonScores || {};
       state.nextId = d.nextId || (d.students?.length + 1 || 1);
       state.nextOpId = d.nextOpId || (d.operations?.length + 1 || 1);
       state.nextSid = d.nextSid || 1;
@@ -2735,6 +2746,7 @@ function saveData(){
     students: state.students,
     operations: state.operations,
     reasons: state.reasons,
+    reasonScores: state.reasonScores || {},
     nextId: state.nextId,
     nextOpId: state.nextOpId,
     nextSid: state.nextSid,
@@ -2818,23 +2830,22 @@ function smartMergeData(localData,remoteData){
     var emap={};(localData.exams||[]).forEach(function(e){emap[e.id]=e;});
     remoteData.exams.forEach(function(re){if(!emap[re.id])emap[re.id]=re;});
     merged.exams=Object.keys(emap).map(function(k){return emap[k];});
-  
-      
-      // honors: union by id
-      if(remoteData.honors && remoteData.honors.length){
-        var hIds = {}; (merged.honors||[]).forEach(function(h){ hIds[h.id] = true; });
-        merged.honors = merged.honors || [];
-        remoteData.honors.forEach(function(h){ if(!hIds[h.id]) merged.honors.push(h); });
-      }
-// workLogs: union by id
-      if(remoteData.workLogs && remoteData.workLogs.length){
-        var localIds = {}; (merged.workLogs||[]).forEach(function(w){ localIds[w.id] = true; });
-        merged.workLogs = merged.workLogs || [];
-        remoteData.workLogs.forEach(function(w){
-          if(!localIds[w.id]) merged.workLogs.push(w);
-        });
-      }
-// notices: keep newer (by updatedAt)
+  }
+  // honors: union by id
+  if(remoteData.honors && remoteData.honors.length){
+    var hIds = {}; (merged.honors||[]).forEach(function(h){ hIds[h.id] = true; });
+    merged.honors = merged.honors || [];
+    remoteData.honors.forEach(function(h){ if(!hIds[h.id]) merged.honors.push(h); });
+  }
+  // workLogs: union by id
+  if(remoteData.workLogs && remoteData.workLogs.length){
+    var localIds = {}; (merged.workLogs||[]).forEach(function(w){ localIds[w.id] = true; });
+    merged.workLogs = merged.workLogs || [];
+    remoteData.workLogs.forEach(function(w){
+      if(!localIds[w.id]) merged.workLogs.push(w);
+    });
+  }
+  // notices: keep newer (by updatedAt)
   if(remoteData.notices){
     if(!merged.notices) merged.notices = remoteData.notices;
     else{
@@ -2842,11 +2853,14 @@ function smartMergeData(localData,remoteData){
       if(rt2>lt2) merged.notices = remoteData.notices;
     }
   }
-  }
   // reasons: union
   if(remoteData.reasons&&Array.isArray(remoteData.reasons)){
     var rset={};(localData.reasons||[]).forEach(function(r){rset[r]=1;});remoteData.reasons.forEach(function(r){rset[r]=1;});
     merged.reasons=Object.keys(rset);
+  }
+  // reasonScores: union（冲突时云端优先）
+  if(remoteData.reasonScores){
+    merged.reasonScores=Object.assign({}, localData.reasonScores||{}, remoteData.reasonScores);
   }
   // committee/seating/duty: take newer
   var lts=localData.exportedOpsCount||0;var rts=remoteData.exportedOpsCount||0;
@@ -2870,6 +2884,8 @@ function smartMergeData(localData,remoteData){
   merged.nextLeaveId=Math.max(localData.nextLeaveId||1,remoteData.nextLeaveId||1);
   merged.nextExamId=Math.max(localData.nextExamId||1,remoteData.nextExamId||1);
   merged.nextTodoId=Math.max(localData.nextTodoId||1,remoteData.nextTodoId||1);
+  merged.nextWorkLogId=Math.max(localData.nextWorkLogId||1,remoteData.nextWorkLogId||1);
+  merged.nextHonorId=Math.max(localData.nextHonorId||1,remoteData.nextHonorId||1);
   // timestamps
   if(remoteData.lastExport&&(!localData.lastExport||remoteData.lastExport>localData.lastExport))merged.lastExport=remoteData.lastExport;
   if(remoteData.lastImport&&(!localData.lastImport||remoteData.lastImport>localData.lastImport))merged.lastImport=remoteData.lastImport;
@@ -2942,8 +2958,17 @@ function autoSyncFromCloud(){
 }
 
 // Auto-push data.json to GitHub (debounced)
+var _noTokenWarned = false;
 function autoPushToCloud(){
-  if(!hasGHToken()) return;
+  if(!hasGHToken()){
+    // 未配置 token：数据只存本地。每个页面会话只提醒一次，避免打扰。
+    if(!_noTokenWarned){
+      _noTokenWarned = true;
+      showToast('未配置云同步 Token，数据仅保存在本机（设置页可配置）','warning');
+    }
+    console.log('[Sync] No token configured, skip auto push');
+    return;
+  }
   if(cloudSyncTimer) clearTimeout(cloudSyncTimer);
   cloudSyncTimer = setTimeout(function(){
     var token = getGHToken();
@@ -2953,13 +2978,11 @@ function autoPushToCloud(){
     // Strip heavy base64 fields - they bloat data.json past GitHub limits
     // scheduleImage and classAvatar stay in localStorage locally but don't sync via cloud
     var lightData = {};
-    var syncFields = ['className','students','operations','reasons','nextId','nextOpId','nextSid',
-      'lastExport','lastImport','committee','seating','duty','exportedOpsCount',
-      'classMotto','leaves','nextLeaveId','exams','nextExamId','todos','nextTodoId',
-      'scheduleImage','classAvatar'];
-    syncFields.forEach(function(f){ if(f in parsed) lightData[f] = parsed[f]; });
-    
+    CLOUD_SYNC_FIELDS.forEach(function(f){ if(f in parsed) lightData[f] = parsed[f]; });
+    if(lightData.notices) lightData.notices = stripNoticeHistoryImages(lightData.notices);
+
     lightData.hasAvatar = !!parsed.classAvatar;
+    lightData.hasSchedule = !!parsed.scheduleImage;
     var pretty = JSON.stringify(lightData, null, 2);
     
     // Use TextEncoder for Unicode-safe base64
@@ -3005,23 +3028,44 @@ function autoPushToCloud(){
 }
 function configGHToken(){
   var current = hasGHToken() ? '(已配置)' : '(未配置)';
-  var token = prompt('GitHub Token ' + current + '\n输入新 token 替换，留空清除：');
+  var token = prompt('GitHub Token ' + current + '\n\n生成方法：GitHub → Settings → Developer settings → Fine-grained tokens\n仅授权本仓库 cheeeom/class-manager，权限 Contents: Read and write。\n\n输入新 token 替换，留空清除：');
   if(token === null) return;
-  if(token.trim() === ''){
+  token = token.trim();
+  if(token === ''){
     localStorage.removeItem('gh_sync_token');
-    showToast('Token 已清除','info');
-  } else {
-    setGHToken(token.trim());
-    showToast('Token 已保存','success');
+    showToast('Token 已清除，云同步已关闭','info');
+    updateCloudSyncUI();
+    return;
   }
-  updateCloudSyncUI();
+  // 保存前先验证 token 确实能访问本仓库，避免静默同步失败
+  showToast('正在验证 Token...','info');
+  fetch('https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH, {
+    method: 'GET',
+    headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'cm' }
+  }).then(function(r){
+    if(r.status === 200){
+      setGHToken(token);
+      showToast('Token 验证通过，已保存并开启自动同步','success');
+    } else if(r.status === 401){
+      showToast('Token 无效或已过期，未保存','error');
+    } else if(r.status === 403 || r.status === 404){
+      showToast('Token 无本仓库读写权限（需 Contents: Read and write），未保存','error');
+    } else {
+      setGHToken(token);
+      showToast('Token 已保存（未验证，HTTP ' + r.status + '）','warning');
+    }
+    updateCloudSyncUI();
+  }).catch(function(){
+    setGHToken(token);
+    showToast('网络异常，Token 已保存但未验证','warning');
+    updateCloudSyncUI();
+  });
 }
 
 function pushToCloud(){
   if(!hasGHToken()){
-    var token = prompt('请输入 GitHub Token（只需输入一次，将保存在本地）：');
-    if(!token) return;
-    setGHToken(token.trim());
+    configGHToken();  // 带校验的配置入口；取消或验证未通过则中止
+    if(!hasGHToken()) return;
   }
   showToast('正在推送到 GitHub...','info');
   var token = getGHToken();
@@ -3029,8 +3073,9 @@ function pushToCloud(){
     var parsed;
     try{ parsed = JSON.parse(raw); }catch(e){ parsed = {}; }
     var lightData = {};
-    var syncFields = ['className','students','operations','reasons','nextId','nextOpId','nextSid','lastExport','lastImport','committee','seating','duty','exportedOpsCount','classMotto','leaves','nextLeaveId','exams','nextExamId','todos','nextTodoId'];
-    syncFields.forEach(function(f){ if(f in parsed) lightData[f] = parsed[f]; });
+    CLOUD_SYNC_FIELDS.forEach(function(f){ if(f in parsed) lightData[f] = parsed[f]; });
+    if(lightData.notices) lightData.notices = stripNoticeHistoryImages(lightData.notices);
+    lightData.hasAvatar = !!parsed.classAvatar;
     lightData.hasSchedule = !!parsed.scheduleImage;
     var pretty = JSON.stringify(lightData, null, 2);
     
@@ -3129,7 +3174,7 @@ function updateCloudSyncUI(){
   if(hasGHToken()){
     html += '<span style="color:var(--primary)">自动同步已开启</span>（修改后 2 秒自动推送）';
   } else {
-    html += '<span style="color:var(--text-secondary)">自动同步未配置</span>（需配置 GitHub Token）';
+    html += '<span style="color:var(--warning)">⚠️ 自动同步未配置</span>——数据仅保存在本机，请点击下方「配置 GitHub Token」';
   }
   html += '</div>';
   el.innerHTML = html;
@@ -3238,9 +3283,6 @@ function setMoreDrawer(open){
 function toggleMoreDrawer(){
   const d=document.getElementById('moreDrawer');
   setMoreDrawer(!d.classList.contains('open'));
-}
-function closeMoreDrawer(){
-  setMoreDrawer(false);
 }
 function closeMoreDrawer(){
   setMoreDrawer(false);
@@ -6321,16 +6363,6 @@ function updateLeaveDuration(){
 }
 /* ==================== 请假管理 ==================== */
 const LEAVE_TYPES = {sick:'病假',personal:'事假',official:'公假'};
-
-function openLeaveModal(){
-  const modal = document.getElementById('leaveModal');
-  const sel = document.getElementById('leaveStudentSelect');
-  sel.innerHTML = '<option value="">选择学生...</option>' + state.students.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
-  document.getElementById('leaveStart').value = new Date().toISOString().slice(0,10);
-  document.getElementById('leaveEnd').value = new Date().toISOString().slice(0,10);
-  document.getElementById('leaveReason').value = '';
-  modal.classList.add('show');
-}
 
 function closeLeaveModal(){
   document.getElementById('leaveModal').classList.remove('show');
