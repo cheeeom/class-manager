@@ -3,6 +3,7 @@
 > 面向后续开发者（人类或 AI 助手）的项目全景认知与接手指南。
 > 行号以 **v2.6.0（commit `9a5f341`）** 为准，代码变动后会漂移；定位代码时优先搜小节注释（形如 `/* ==================== XXX ==================== */`）。
 >
+> **更新记录：2026-08-29 v2.7.0** —— 全站美术风格重塑为「纸墨·新中式」（详见第 9.5 节设计系统）：朱砂主色替换青色、宋体标题、登录页重做（墨色面板/印章/竖排文字）、Canvas 图表改五彩颜料色；顺带修复暗色模式侧栏不变暗的老 bug（.sidebar 原为硬编码浅色渐变）。
 > **更新记录：2026-08-29 v2.6.1** —— 修复云同步字段缺口（workLogs/honors/notices/reasonScores 上云）、smartMergeData 嵌套 bug、请假弹窗重复定义、closeMoreDrawer 重复、reasonScores 持久化；**移除源码内置 GitHub Token**（改为纯 localStorage 配置 + 保存前 API 验证 + 未配置提醒）；sw.js CACHE_NAME → v2.6.1；README 全面更新（详见第 8 节）。
 
 ---
@@ -140,6 +141,31 @@ tags：`v2.5.0`、`v2.6.0`。v2.6.0 之后全部为 auto-sync 数据提交。
 10. 学生档案的 `profile` 随 students 同步（无独立问题），但档案里的成长记录删除无确认弹窗。
 
 ## 9. 风格与约定
+
+### 9.5 设计系统「纸墨·新中式」（v2.7.0 起生效，改动 UI 必读）
+
+**设计语言**：宣纸暖白底 + 浓墨文字 + 朱砂红主色 + 五彩颜料辅助色（胭脂/琥珀/青花蓝/石绿/青莲）。标题用宋体族（`--font-display`：Noto Serif SC → 思源宋体 → STZhongsong → SimSun），正文用现代黑体栈（`--font-body`：MiSans → HarmonyOS Sans SC → PingFang SC → Microsoft YaHei）。**零网络字体依赖**，全部系统字体栈。
+
+**核心令牌**（定义于 `:root` / `html.dark`，改色只动这里）：
+
+| 令牌 | 亮色 | 暗色（玄墨） | 用途 |
+|---|---|---|---|
+| `--primary` | `#A63A2B` 朱砂 | `#CE6B52` | 主色：激活态/高亮/主按钮 |
+| `--bg` / `--card-bg` | `#F6F2E9` / `#FFFDF7` | `#191613` / `#23201A` | 宣纸底 / 纸白卡 |
+| `--text` / `--text-secondary` / `--text-muted` | `#2B2B33` / `#5C574F` / `#8C8577` | `#EAE4D6` / `#B3AA98` / `#7E776A` | 浓墨/次墨/淡墨 |
+| `--border` | `#E6DECD` 纸纹线 | `#3A352C` | 边框 |
+| `--success` / `--warning` / `--danger` | `#2F7D5B` / `#C08A2D` / `#B42318` | 同族提亮 | 石绿/琥珀/胭脂 |
+| `--gold` / `--silver` / `--bronze` | `#C9A227` / `#9BA0A3` / `#A97142` | 提亮版 | 奖牌金银铜 |
+
+**图表固定色板**（Canvas 内硬编码，改主题需同步）：五彩系列 `#A63A2B`(朱砂) `#3B6E8F`(青花) `#B97C24`(赭金) `#2F7D5B`(石绿) `#6B5B95`(青莲) `#8C6242`(赭石)，各配浅色渐变搭档；坐标轴文字 `#A0988C`；饼图中心文字需按 `document.documentElement.classList.contains('dark')` 切换墨/纸色。
+
+**签名元素**：登录页 = 玄墨左板（窗棂线性纹 + 印章 logo + 竖排「厚德博学 · 敬业爱生」+ 旋转「印」字落款）+ 宣纸右板；密码点为旋转 45° 的菱形；`.section-title .dot` 为旋转小方块（印章点）；body::before 为暖色纤维网格纸纹（静态，无动画）。
+
+**图标系统（墨线 SVG，v2.7.0 起）**：结构性位置的图标全部使用内联 SVG symbol 库（`<body>` 开头的隐藏 `<svg>` defs，id 前缀 `i-`，如 `i-dash/i-students/i-profile/i-badge/i-note/i-seat/i-duty/i-leave/i-grades/i-todo/i-horn/i-pen/i-honor/i-trend/i-gear/i-more/i-refresh/i-export/i-import/i-trash/i-clip/i-pin/i-search`），用法 `<svg class="ic"><use href="#i-xxx"/></svg>`，描边 1.7 / round cap，`stroke:currentColor` 自动随主题变色。尺寸：默认 18px，`ic-sm` 15px（表格操作/顶栏），导航 19px、tabbar 21px。**新增图标时在 defs 里加 symbol 即可，不要引入图标字体或外部图片**（破坏零依赖/离线）。emoji 仅保留在：说明性空状态插画、带文字的按钮前缀（如「📋 批量操作」）。
+
+**注意**：JS Canvas 内的颜色不认 CSS 变量，改令牌时必须同步改 JS 里的硬编码色值（搜 `#A63A2B` 等可定位全部图表色）；CSS 里不应再出现旧青色系（#00B4D8 等）或硬编码浅色背景——暗色模式依赖令牌翻转（曾因 .sidebar 硬编码浅色渐变导致暗色侧栏不变暗的 bug）。
+
+**移动端适配（v2.7.0 整改）**：① 历史遗留的结构 bug 已修——480px 媒体块曾未闭合，把通知模块全局样式、`.fade-in` 动画和一份重复的 768px 块全部吞进作用域（通知页选项卡在桌面端曾因此无样式）；现结构为 480 块独立闭合、通知模块全局生效。② **登录页移动端规则集中在基础登录样式之后的独立媒体块**（搜「登录页移动端」）——历史上它们写在基础样式之前，同权重被后者层叠覆盖成死规则（印章 ::after 关不掉、卡片宽度失效都源于此）；新增登录移动端规则请放到该块。③ 小屏隐藏 `.login-vertical` 与 `.login-left::after`；底部栏/抽屉/顶栏玻璃底色用暖纸色（rgba(255,253,247,*)/var(--card-bg)）。
 
 - 中文 UI、中文注释；emoji 广泛用作图标。
 - 渲染模式：每页一个 `renderXxx()`，直接 innerHTML 模板字符串；onclick 内联绑定全局函数。
