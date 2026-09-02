@@ -1652,7 +1652,7 @@ html.dark .tl-body{background:var(--bg)}
 .cc-title{font-family:var(--font-display)}
 .exam-name{font-family:var(--font-display)}
 
-/* ==================== 墨线图标系统（v2.7.1） ==================== */
+/* ==================== 墨线图标系统（v2.8.0） ==================== */
 svg.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;display:inline-block;vertical-align:-3px}
 svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .nav-icon svg.ic{width:19px;height:19px}
@@ -1704,7 +1704,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.7.0</div>
+      <div class="login-version">v2.8.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1806,7 +1806,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.7.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.8.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2313,10 +2313,16 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           </div>
           <p style="font-size:12px;color:var(--text-muted);margin-top:4px">⚠️「恢复」会用云端数据完全替换本地，本地未推送的数据将丢失</p>
           <div id="cloudSyncInfo" style="margin-top:8px"></div>
-          <div style="margin-top:8px;font-size:12px;color:var(--text-secondary)">
+          <div style="margin-top:8px;font-size:12px;color:var(--text-secondary);display:flex;gap:10px;flex-wrap:wrap;align-items:center">
             <button class="btn btn-outline" style="font-size:12px;padding:4px 12px" onclick="configGHToken()">配置 GitHub Token</button>
             <span id="ghTokenStatus"></span>
+            <button class="btn btn-outline" style="font-size:12px;padding:4px 12px" onclick="configSyncPwd()">🔒 配置同步口令</button>
+            <span id="syncPwdStatus"></span>
           </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.6">
+            本仓库是公开的，未加密时 data.json 任何人可下载（含学生姓名与家长电话）。<br>
+            开启同步口令后，上传的是 AES-256 密文，公开也无所谓；每台设备须设成完全相同的口令。
+          </p>
         </div>
         <div class="settings-section">
           <h3>🔒 修改登录密码</h3>
@@ -2658,6 +2664,234 @@ function stripNoticeHistoryImages(notices){
   light.history.forEach(function(h){ delete h.image; });
   return light;
 }
+
+/* ==================== 云同步加密（v2.8.0） ==================== */
+// 背景：仓库是 public 的，Pages 站点也公开，data.json 对全世界可读（含学生姓名与家长手机号）。
+// 转私有仓库并不能解决（Free 账户不支持私有仓库 Pages，且 Pages 站点本身始终公开），
+// 因此唯一根本解是「先加密再上云」：公开仓库里只剩密文，泄露也无意义。
+// 信封格式：{ enc:1, alg, salt, iv, data }。salt/iv 明文存放是标准做法，安全性完全取决于口令强度。
+const SYNC_PWD_KEY = 'cm_sync_pwd';
+const SYNC_SALT_KEY = 'cm_sync_salt';
+const PBKDF2_ROUNDS = 250000;
+let lastCloudSalt = null;   // 拉取时从云端信封记下，保证多设备 salt 一致
+
+function getSyncPwd(){ return localStorage.getItem(SYNC_PWD_KEY) || ''; }
+function setSyncPwd(p){ localStorage.setItem(SYNC_PWD_KEY, p); }
+function hasSyncPwd(){ return getSyncPwd().length > 0; }
+function cryptoOK(){ return !!(window.crypto && window.crypto.subtle && window.crypto.subtle.deriveKey); }
+
+function _b64enc(buf){
+  var b = new Uint8Array(buf), s = '';
+  for(var i=0;i<b.length;i++) s += String.fromCharCode(b[i]);
+  return btoa(s);
+}
+function _b64dec(str){
+  var bin = atob(str), b = new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++) b[i] = bin.charCodeAt(i);
+  return b;
+}
+function _getSalt(){
+  if(lastCloudSalt) return _b64dec(lastCloudSalt);
+  var s = localStorage.getItem(SYNC_SALT_KEY);
+  if(s) return _b64dec(s);
+  var fresh = crypto.getRandomValues(new Uint8Array(16));
+  localStorage.setItem(SYNC_SALT_KEY, _b64enc(fresh));
+  return fresh;
+}
+function _deriveKey(pwd, salt){
+  return crypto.subtle.importKey('raw', new TextEncoder().encode(pwd), 'PBKDF2', false, ['deriveKey'])
+    .then(function(baseKey){
+      return crypto.subtle.deriveKey(
+        { name:'PBKDF2', salt:salt, iterations:PBKDF2_ROUNDS, hash:'SHA-256' },
+        baseKey, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']
+      );
+    });
+}
+// 明文对象 → 加密信封。无口令或不支持 Web Crypto 时原样返回明文（保持向后兼容）。
+function encryptForCloud(plainObj){
+  if(!hasSyncPwd() || !cryptoOK()) return Promise.resolve(plainObj);
+  var salt = _getSalt();
+  var iv = crypto.getRandomValues(new Uint8Array(12));
+  var plainBytes = new TextEncoder().encode(JSON.stringify(plainObj));
+  return _deriveKey(getSyncPwd(), salt)
+    .then(function(key){ return crypto.subtle.encrypt({name:'AES-GCM', iv:iv}, key, plainBytes); })
+    .then(function(ct){
+      return { enc:1, alg:'PBKDF2-SHA256(' + PBKDF2_ROUNDS + ')/AES-GCM-256',
+               salt:_b64enc(salt), iv:_b64enc(iv), data:_b64enc(ct), updatedAt:new Date().toISOString() };
+    });
+}
+// 加密信封 → 明文对象。未加密数据原样返回。
+function decryptFromCloud(env){
+  if(!env || env.enc !== 1) return Promise.resolve(env);
+  if(env.salt) lastCloudSalt = env.salt;
+  if(!hasSyncPwd()) return Promise.reject(new Error('云端数据已加密，请先配置同步口令'));
+  if(!cryptoOK()) return Promise.reject(new Error('当前环境不支持 Web Crypto，无法解密（请通过 https 打开）'));
+  return _deriveKey(getSyncPwd(), _b64dec(env.salt))
+    .then(function(key){ return crypto.subtle.decrypt({name:'AES-GCM', iv:_b64dec(env.iv)}, key, _b64dec(env.data)); })
+    .then(function(pt){ return JSON.parse(new TextDecoder().decode(pt)); })
+    .catch(function(){ return Promise.reject(new Error('解密失败：同步口令不正确')); });
+}
+function configSyncPwd(){
+  var cur = hasSyncPwd() ? '（已配置）' : '（未配置 —— 数据正以明文存放在公开仓库，任何人可查看）';
+  var p = prompt(
+    '云同步加密口令 ' + cur + '\n\n' +
+    '作用：数据会用这个口令加密后再上传到 GitHub，公开仓库里只剩密文，\n' +
+    '别人拿到也无法查看学生姓名和家长电话。\n\n' +
+    '要求：\n' +
+    '· 建议 12 位以上，混合字母与数字\n' +
+    '· 不要用 6 位登录密码（纯数字仅百万种组合，可被暴力破解）\n' +
+    '· 每台设备必须设成完全相同的口令，否则无法互通\n' +
+    '· 口令不上传、无法找回，忘记只能清空重来\n\n' +
+    '输入新口令（留空则关闭加密）：');
+  if(p === null) return;
+  p = p.trim();
+  if(p === ''){
+    if(!confirm('关闭加密后，数据将以明文存放在公开仓库，任何人都能看到学生姓名和家长电话。\n\n确认关闭？')) return;
+    localStorage.removeItem(SYNC_PWD_KEY);
+    showToast('已关闭云同步加密，数据将以明文上传','warning');
+    updateCloudSyncUI();
+    return;
+  }
+  if(p.length < 8){ showToast('口令太短：至少 8 位，建议 12 位以上','error'); return; }
+  if(!cryptoOK()){ showToast('当前环境不支持 Web Crypto，无法启用加密（请通过 https 打开）','error'); return; }
+  var again = prompt('请再次输入口令以确认：');
+  if(again === null) return;
+  if(again.trim() !== p){ showToast('两次输入不一致，未保存','error'); return; }
+  setSyncPwd(p);
+  showToast('加密口令已保存。请在其他设备设置完全相同的口令，否则无法互通。','success');
+  updateCloudSyncUI();
+}
+// 推送前安全闸门：防止空/残缺的本地数据覆盖云端（v2.8.0 修复 P0 竞态）
+// 返回 Promise<{ok, msg, resync, remote}>；remote 为解密后的云端明文，供推送前合并使用
+function checkPushSafety(remoteJson){
+  var remote = null;
+  try{
+    if(remoteJson && remoteJson.content){
+      var bin = atob(String(remoteJson.content).replace(/\s/g,''));
+      var bytes = new Uint8Array(bin.length);
+      for(var i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+      remote = JSON.parse(new TextDecoder().decode(bytes));
+    }
+  }catch(e){ return Promise.resolve({ok:true}); }
+  if(!remote) return Promise.resolve({ok:true});
+  var localCount = (state.students || []).length;
+  if(remote.enc === 1){
+    // 云端已加密：本机没口令就推送，会用明文覆盖密文 —— 必须拦
+    if(!hasSyncPwd()){
+      return Promise.resolve({ok:false, msg:'云端数据已加密，但本机未配置同步口令，已阻止推送以免覆盖'});
+    }
+    return decryptFromCloud(remote).then(function(pt){
+      var rc = (pt.students || []).length;
+      if(localCount === 0 && rc > 0){
+        return {ok:false, msg:'检测到本机为空、云端有 ' + rc + ' 名学生，已阻止推送并改从云端恢复', resync:true};
+      }
+      return {ok:true, remote:pt};
+    }).catch(function(){
+      // 解不开说明口令与其他设备不一致，此时推送会用错误密钥加密并覆盖云端
+      return {ok:false, msg:'云端数据无法解密（口令与其他设备不一致？），已阻止推送以免覆盖'};
+    });
+  }
+  var rc2 = (remote.students || []).length;
+  if(localCount === 0 && rc2 > 0){
+    return Promise.resolve({ok:false, msg:'检测到本机为空、云端有 ' + rc2 + ' 名学生，已阻止推送并改从云端恢复', resync:true});
+  }
+  return Promise.resolve({ok:true, remote:remote});
+}
+// 统一的推送实现（auto / manual 共用）
+// 流程：GET(拿 sha 与云端内容) → checkPushSafety 闸门 → 与云端合并 → 加密 → PUT
+function doPushToCloud(message){
+  var token = getGHToken();
+  var apiUrl = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH;
+  var baseHeaders = { 'Authorization':'token ' + token, 'Accept':'application/vnd.github.v3+json', 'User-Agent':'cm' };
+  return fetch(apiUrl, { method:'GET', headers: baseHeaders })
+    .then(function(r){
+      // 404 = 云端还没有 data.json（历史清理后的首次推送，或仓库刚重建）。
+      // 此时 sha 为 undefined，PUT 不带 sha 即创建文件。
+      if(r.status === 404) return null;
+      if(!r.ok) throw new Error('GET SHA failed: ' + r.status);
+      return r.json();
+    })
+    .then(function(json){
+      var sha = json ? json.sha : undefined;
+      return checkPushSafety(json).then(function(chk){
+        if(!chk.ok){
+          if(chk.resync){
+            // 本机为空、云端有数据：先从云端恢复，本次推送放弃（避免覆盖）
+            return autoSyncFromCloud().then(function(){ throw new Error(chk.msg); });
+          }
+          throw new Error(chk.msg);
+        }
+        return { sha: sha, remote: chk.remote || null };
+      });
+    })
+    .then(function(ctx){
+      var raw = localStorage.getItem(STORE_KEY) || '{}';
+      var parsed;
+      try{ parsed = JSON.parse(raw); }catch(e){ parsed = {}; }
+      // 推送前与云端合并：防止本机落后的数据把其他设备的新增内容顶掉
+      if(ctx.remote && ctx.remote.students){
+        try{ parsed = smartMergeData(parsed, ctx.remote); }catch(e){ console.warn('[Sync] pre-push merge failed:', e); }
+      }
+      return encryptForCloud(buildCloudPayload(parsed)).then(function(payload){
+        var pretty = JSON.stringify(payload, null, 2);
+        var bytes = new TextEncoder().encode(pretty);
+        var binary = '';
+        for(var i=0;i<bytes.length;i++) binary += String.fromCharCode(bytes[i]);
+        console.log('[Sync] Pushing', pretty.length, 'chars', payload && payload.enc ? '(encrypted)' : '(PLAINTEXT!)');
+        return fetch(apiUrl, {
+          method:'PUT',
+          headers: Object.assign({}, baseHeaders, { 'Content-Type':'application/json' }),
+          body: JSON.stringify({ message: message, content: btoa(binary), branch: GH_BRANCH, sha: ctx.sha })
+        });
+      });
+    });
+}
+// 统一的云端数据落地逻辑（解密后与明文走同一条路）
+function applyCloudData(remoteData){
+  var localRaw = localStorage.getItem(STORE_KEY);
+  var localData = localRaw ? JSON.parse(localRaw) : {};
+  var localCount = (localData.students || []).length;
+  cloudDataInfo = {
+    students: (remoteData.students || []).length,
+    operations: (remoteData.operations || []).length,
+    leaves: (remoteData.leaves || []).length,
+    todos: (remoteData.todos || []).length,
+    lastExport: remoteData.lastExport || null
+  };
+  if(localCount === 0){
+    localStorage.setItem(STORE_KEY, JSON.stringify(remoteData));
+    loadData();
+    renderWaterDuty(); renderScheduleImage(); renderClassBrand(); renderAll();
+    lastSyncTime = new Date().toISOString();
+    console.log('[Sync] Local empty, loaded cloud data:', (remoteData.students||[]).length, 'students');
+    return true;
+  }
+  var merged = smartMergeData(localData, remoteData);
+  var locSched = state.scheduleImage || '', rmtSched = remoteData.scheduleImage || '';
+  if(rmtSched && (!locSched || (locSched.length > 400000 && rmtSched.length < locSched.length))){
+    merged.scheduleImage = rmtSched;
+  } else if(locSched){ merged.scheduleImage = locSched; }
+  var locAv = state.classAvatar || '', rmtAv = remoteData.classAvatar || '';
+  if(rmtAv && (!locAv || (locAv.length > 150000 && rmtAv.length < locAv.length))){
+    merged.classAvatar = rmtAv;
+  } else if(locAv){ merged.classAvatar = locAv; }
+  localStorage.setItem(STORE_KEY, JSON.stringify(merged));
+  loadData();
+  renderAll(); renderScheduleImage(); renderClassBrand();
+  lastSyncTime = new Date().toISOString();
+  console.log('[Sync] Merged cloud data:', (merged.students||[]).length, 'students');
+  return true;
+}
+// 构造推送到云端的明文负载（auto/manual push 共用）
+function buildCloudPayload(parsed){
+  var lightData = {};
+  CLOUD_SYNC_FIELDS.forEach(function(f){ if(f in parsed) lightData[f] = parsed[f]; });
+  if(lightData.notices) lightData.notices = stripNoticeHistoryImages(lightData.notices);
+  lightData.hasAvatar = !!parsed.classAvatar;
+  lightData.hasSchedule = !!parsed.scheduleImage;
+  return lightData;
+}
+
 let cloudSyncTimer = null;
 // Token 仅保存在各设备本地（localStorage），不再内置于源码。
 // 生成方法：GitHub → Settings → Developer settings → Fine-grained tokens，
@@ -2915,72 +3149,36 @@ function smartMergeData(localData,remoteData){
   return merged;
 }
 
+// 同步锁：拉取进行中禁止推送。P0 竞态的根因就是异步拉取未完成时，
+// 空的本地数据被 saveData() 触发的 autoPushToCloud 抢先推上去覆盖了云端。
+let syncInProgress = false;
 function autoSyncFromCloud(){
+  if(syncInProgress) return Promise.resolve(false);
+  syncInProgress = true;
   return fetch(getDataJsonUrl() + '?t=' + Date.now(), {cache: 'no-store'})
     .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(env){ return decryptFromCloud(env); })   // 未加密的旧数据原样通过
     .then(function(remoteData){
       if(!remoteData || !remoteData.students) return false;
-      var localRaw = localStorage.getItem(STORE_KEY);
-      var localData = localRaw ? JSON.parse(localRaw) : {};
-      var localCount = (localData.students || []).length;
-      
-      cloudDataInfo = {
-        students: remoteData.students.length,
-        operations: (remoteData.operations || []).length,
-        leaves: (remoteData.leaves || []).length,
-        todos: (remoteData.todos || []).length,
-        lastExport: remoteData.lastExport || null
-      };
-      
-      if(localCount === 0){
-        // Local empty - use cloud data directly
-        localStorage.setItem(STORE_KEY, JSON.stringify(remoteData));
-        loadData();
-        renderWaterDuty();
-        renderScheduleImage();
-        renderClassBrand();
-        lastSyncTime = new Date().toISOString();
-        console.log('[Sync] Local empty, loaded cloud data:', (remoteData.students||[]).length, 'students');
-        return true;
-      }
-      
-      // Always merge
-      var merged = smartMergeData(localData, remoteData);
-      
-      // Handle images: prefer smaller (compressed) version to avoid re-bloating data.json
-      // If local image is huge (legacy uncompressed) and cloud has a smaller one, use cloud's
-      var locSched = state.scheduleImage || '';
-      var rmtSched = remoteData.scheduleImage || '';
-      if(rmtSched && (!locSched || (locSched.length > 400000 && rmtSched.length < locSched.length))){
-        merged.scheduleImage = rmtSched;
-      } else if(locSched){
-        merged.scheduleImage = locSched;
-      }
-      var locAv = state.classAvatar || '';
-      var rmtAv = remoteData.classAvatar || '';
-      if(rmtAv && (!locAv || (locAv.length > 150000 && rmtAv.length < locAv.length))){
-        merged.classAvatar = rmtAv;
-      } else if(locAv){
-        merged.classAvatar = locAv;
-      }
-      
-      localStorage.setItem(STORE_KEY, JSON.stringify(merged));
-      loadData();
-      renderAll();
-      renderScheduleImage();
-      renderClassBrand();
-      lastSyncTime = new Date().toISOString();
-      console.log('[Sync] Merged cloud data:', (merged.students||[]).length, 'students');
-      return true;
+      return applyCloudData(remoteData);
     })
     .catch(function(e){
       console.log('[Sync] Fetch failed:', e.message);
+      // 解密类错误要让用户看见，否则会一直静默失败
+      if(e && /加密|口令|Web Crypto/.test(e.message)) showToast(e.message, 'error');
       return false;
+    })
+    .then(function(v){
+      syncInProgress = false;
+      // 拉取期间被推迟的推送，等合并完成后再补上（此时本地已含云端内容，不会覆盖）
+      if(_pushPending){ _pushPending = false; autoPushToCloud(); }
+      return v;
     });
 }
 
 // Auto-push data.json to GitHub (debounced)
 var _noTokenWarned = false;
+var _pushPending = false;   // 拉取进行中被推迟的推送
 function autoPushToCloud(){
   if(!hasGHToken()){
     // 未配置 token：数据只存本地。每个页面会话只提醒一次，避免打扰。
@@ -2993,59 +3191,31 @@ function autoPushToCloud(){
   }
   if(cloudSyncTimer) clearTimeout(cloudSyncTimer);
   cloudSyncTimer = setTimeout(function(){
-    var token = getGHToken();
-    var raw = localStorage.getItem(STORE_KEY) || '{}';
-    var parsed;
-    try{ parsed = JSON.parse(raw); }catch(e){ parsed = {}; }
-    // Strip heavy base64 fields - they bloat data.json past GitHub limits
-    // scheduleImage and classAvatar stay in localStorage locally but don't sync via cloud
-    var lightData = {};
-    CLOUD_SYNC_FIELDS.forEach(function(f){ if(f in parsed) lightData[f] = parsed[f]; });
-    if(lightData.notices) lightData.notices = stripNoticeHistoryImages(lightData.notices);
-
-    lightData.hasAvatar = !!parsed.classAvatar;
-    lightData.hasSchedule = !!parsed.scheduleImage;
-    var pretty = JSON.stringify(lightData, null, 2);
-    
-    // Use TextEncoder for Unicode-safe base64
-    var bytes = new TextEncoder().encode(pretty);
-    var binary = '';
-    for(var i=0;i<bytes.length;i++) binary += String.fromCharCode(bytes[i]);
-    var base64 = btoa(binary);
-    
-    var apiUrl = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH;
-    
-    console.log('[Sync] Starting push, data size:', pretty.length, 'chars (heavy fields excluded)');
-    
-    fetch(apiUrl, {
-      method: 'GET',
-      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'cm' }
-    }).then(function(r){
-      if(!r.ok) throw new Error('GET SHA failed: ' + r.status);
-      return r.json();
-    }).then(function(json){
-      var sha = json.sha;
-      console.log('[Sync] Got SHA:', sha);
-      return fetch(apiUrl, {
-        method: 'PUT',
-        headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json', 'User-Agent': 'cm' },
-        body: JSON.stringify({ message: 'auto-sync: update data.json', content: base64, branch: GH_BRANCH, sha: sha })
+    // 拉取进行中时不抢推 —— 这是历史上「空本地覆盖云端」的直接成因
+    if(syncInProgress){
+      console.log('[Sync] Pull in progress, defer auto push');
+      _pushPending = true;
+      return;
+    }
+    doPushToCloud('auto-sync: update data.json')
+      .then(function(r){
+        if(!r.ok) return r.text().then(function(t){ throw new Error('PUT failed: ' + r.status + ' ' + t.substring(0,200)); });
+        return r.json();
+      })
+      .then(function(json){
+        console.log('[Sync] Pushed! Commit:', json.commit.sha);
+        state.lastExport = new Date().toISOString();
+        state.exportedOpsCount = state.operations.length;
+        lastSyncTime = new Date().toISOString();
+        updateSyncStatus();
+        updateCloudSyncUI();
+        showToast('数据已自动同步到云端','success');
+      })
+      .catch(function(e){
+        console.error('[Sync] Push failed:', e.message);
+        showToast('云端同步失败: ' + e.message.substring(0,80), 'error');
+        updateCloudSyncUI();
       });
-    }).then(function(r){
-      if(!r.ok) { return r.text().then(function(t){ throw new Error('PUT failed: ' + r.status + ' ' + t.substring(0,200)); }); }
-      return r.json();
-    }).then(function(json){
-      console.log('[Sync] Pushed! Commit:', json.commit.sha);
-      state.lastExport = new Date().toISOString();
-      state.exportedOpsCount = state.operations.length;
-      lastSyncTime = new Date().toISOString();
-      updateSyncStatus();
-      updateCloudSyncUI();
-      showToast('数据已自动同步到云端','success');
-    }).catch(function(e){
-      console.error('[Sync] Push failed:', e.message);
-      showToast('云端同步失败: ' + e.message.substring(0,80), 'error');
-    });
   }, 2000);
 }
 function configGHToken(){
@@ -3090,67 +3260,43 @@ function pushToCloud(){
     if(!hasGHToken()) return;
   }
   showToast('正在推送到 GitHub...','info');
-  var token = getGHToken();
-  var raw = localStorage.getItem(STORE_KEY) || '{}';
-    var parsed;
-    try{ parsed = JSON.parse(raw); }catch(e){ parsed = {}; }
-    var lightData = {};
-    CLOUD_SYNC_FIELDS.forEach(function(f){ if(f in parsed) lightData[f] = parsed[f]; });
-    if(lightData.notices) lightData.notices = stripNoticeHistoryImages(lightData.notices);
-    lightData.hasAvatar = !!parsed.classAvatar;
-    lightData.hasSchedule = !!parsed.scheduleImage;
-    var pretty = JSON.stringify(lightData, null, 2);
-    
-    var bytes = new TextEncoder().encode(pretty);;
-  var binary = '';
-  for(var i=0;i<bytes.length;i++) binary += String.fromCharCode(bytes[i]);
-  var base64 = btoa(binary);
-  
-  var apiUrl = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH;
-  
-  fetch(apiUrl, {
-    method: 'GET',
-    headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'cm' }
-  }).then(function(r){ return r.json(); }).then(function(json){
-    var sha = json.sha;
-    return fetch(apiUrl, {
-      method: 'PUT',
-      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json', 'User-Agent': 'cm' },
-      body: JSON.stringify({ message: 'manual push: update data.json', content: base64, branch: GH_BRANCH, sha: sha })
+  doPushToCloud('manual push: update data.json')
+    .then(function(r){
+      if(!r.ok) return r.text().then(function(t){ throw new Error(r.status + ' ' + t.substring(0,200)); });
+      return r.json();
+    })
+    .then(function(json){
+      state.lastExport = new Date().toISOString();
+      state.exportedOpsCount = state.operations.length;
+      saveData();
+      updateSyncStatus();
+      updateCloudSyncUI();
+      showToast('数据已推送到 GitHub 云端!','success');
+    })
+    .catch(function(e){
+      showToast('推送失败: ' + e.message.substring(0,80),'error');
+      console.error('[Sync] Manual push failed:', e.message);
     });
-  }).then(function(r){
-    if(!r.ok) return r.text().then(function(t){ throw new Error(r.status + ' ' + t.substring(0,200)); });
-    return r.json();
-  }).then(function(json){
-    state.lastExport = new Date().toISOString();
-    state.exportedOpsCount = state.operations.length;
-    saveData();
-    updateSyncStatus();
-    updateCloudSyncUI();
-    showToast('数据已推送到 GitHub 云端!','success');
-  }).catch(function(e){
-    showToast('推送失败: ' + e.message.substring(0,80),'error');
-    console.error('[Sync] Manual push failed:', e.message);
-  });
 }
 
 function pullFromCloud(){
   showToast("正在从云端拉取数据...","info");
-  fetch(getDataJsonUrl(),{cache:"no-store"})
-    .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
+  fetch(getDataJsonUrl() + '?t=' + Date.now(), {cache:"no-store"})
+    .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+    .then(function(env){ return decryptFromCloud(env); })
     .then(function(remoteData){
       if(!remoteData||!remoteData.students){showToast("云端数据格式错误","error");return;}
       var localRaw=localStorage.getItem(STORE_KEY);
       var localData=localRaw?JSON.parse(localRaw):{};
       var localCount=(localData.students||[]).length;
-      var remoteCount=remoteData.students.length;
+      var remoteCount=(remoteData.students||[]).length;
       var merged=smartMergeData(localData,remoteData);
       localStorage.setItem(STORE_KEY,JSON.stringify(merged));
       loadData();renderAll();
       state.lastImport=new Date().toISOString();saveData();lastSyncTime=new Date().toISOString();updateSyncStatus();updateCloudSyncUI();
       renderScheduleImage();
       renderClassBrand();
-      showToast("云端数据已合并：本地 "+localCount+" 人 + 云端 "+remoteCount+" 人 → 合并后 "+merged.students.length+" 人","success");
+      showToast("云端数据已合并：本地 "+localCount+" 人 + 云端 "+remoteCount+" 人 → 合并后 "+(merged.students||[]).length+" 人","success");
     })
     .catch(function(e){showToast("拉取失败："+e.message+"（file:// 不支持 fetch，需 HTTP 服务或 GitHub Pages）","error");});
 }
@@ -3159,7 +3305,8 @@ function restoreFromCloud(){
   if(!confirm('确认从云端恢复？\n\n此操作会用云端数据完全替换本地数据。\n本地存在但云端没有的数据（如测试数据）将被清除。')) return;
   if(!confirm('再次确认：本地数据将被完全覆盖，不可撤销！')) return;
   fetch(getDataJsonUrl() + '?t=' + Date.now(), {cache:'no-store'})
-    .then(r => r.json())
+    .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(env){ return decryptFromCloud(env); })
     .then(data => {
       if(!data || !data.students){ showToast('云端数据为空','error'); return; }
       // Completely replace local data
@@ -3194,13 +3341,20 @@ function updateCloudSyncUI(){
     html += '最后同步：' + t + '<br>';
   }
   if(hasGHToken()){
-    html += '<span style="color:var(--primary)">自动同步已开启</span>（修改后 2 秒自动推送）';
+    html += '<span style="color:var(--primary)">自动同步已开启</span>（修改后 2 秒自动推送）<br>';
   } else {
-    html += '<span style="color:var(--warning)">⚠️ 自动同步未配置</span>——数据仅保存在本机，请点击下方「配置 GitHub Token」';
+    html += '<span style="color:var(--warning)">⚠️ 自动同步未配置</span>——数据仅保存在本机，请点击下方「配置 GitHub Token」<br>';
+  }
+  if(hasSyncPwd()){
+    html += '<span style="color:var(--primary)">🔒 云同步加密已开启</span>——上传到公开仓库的是 AES-256 密文';
+  } else {
+    html += '<span style="color:var(--danger)">🔓 云同步未加密</span>——数据以明文存放在公开仓库，任何人可下载查看';
   }
   html += '</div>';
   el.innerHTML = html;
   var ts = document.getElementById('ghTokenStatus');if(ts)ts.textContent = hasGHToken() ? '(已配置)' : '(未配置)';
+  var ps = document.getElementById('syncPwdStatus');
+  if(ps) ps.textContent = hasSyncPwd() ? '(已加密)' : '(未加密)';
 }
 
 function genSid(){
