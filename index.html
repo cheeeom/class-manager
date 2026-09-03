@@ -1704,7 +1704,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.8.0</div>
+      <div class="login-version">v2.8.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1806,7 +1806,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.8.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.8.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3470,7 +3470,11 @@ function showToast(msg, type='info'){
   const t = document.createElement('div');
   t.className = 'toast '+type;
   const icons = {success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
-  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  // 纯文本渲染：toast 内容常含学生姓名等用户输入，用 textContent 一次性杜绝注入。
+  // （v2.8.1 修复：原 innerHTML 拼接，姓名里带标签即可执行）
+  const ic = document.createElement('span'); ic.textContent = icons[type]||'ℹ️';
+  const bd = document.createElement('span'); bd.textContent = msg;
+  t.appendChild(ic); t.appendChild(bd);
   c.appendChild(t);
   setTimeout(()=>t.remove(), 3000);
 }
@@ -3522,7 +3526,7 @@ function renderClassBrand(){
       state.classAvatar = avSrc;
       if(typeof _cachedClassAvatar !== 'undefined') _cachedClassAvatar = avSrc;
       icon.dataset.avatarSrc = avSrc;
-      icon.innerHTML = '<img src="' + avSrc + '" alt="班级头像" style="width:100%;height:100%;object-fit:cover;border-radius:12px">';
+      icon.innerHTML = '<img src="' + escapeHtml(avSrc) + '" alt="班级头像" style="width:100%;height:100%;object-fit:cover;border-radius:12px">';
       icon.style.background = 'transparent';
       icon.style.boxShadow = '0 4px 12px rgba(166,58,43,0.3)';
     } else {
@@ -3539,7 +3543,7 @@ function renderClassBrand(){
   var loginLogo = document.getElementById('loginLogo');
   if(loginLogo){
     if(state.classAvatar){
-      loginLogo.innerHTML = '<img src="' + state.classAvatar + '" alt="Logo" style="width:100%;height:100%;object-fit:cover;border-radius:20px">';
+      loginLogo.innerHTML = '<img src="' + escapeHtml(state.classAvatar) + '" alt="Logo" style="width:100%;height:100%;object-fit:cover;border-radius:20px">';
       loginLogo.style.background = 'transparent';
     } else {
       loginLogo.innerHTML = '';
@@ -3568,7 +3572,7 @@ function openAvatarModal(){
         // Directly update settings preview WITHOUT re-rendering entire settings page
         var prev = document.getElementById('settingsAvatarPreview');
         if(prev){
-          prev.innerHTML = '<img src="' + compressed + '" style="width:100%;height:100%;object-fit:cover;border-radius:12px">';
+          prev.innerHTML = '<img src="' + escapeHtml(compressed) + '" style="width:100%;height:100%;object-fit:cover;border-radius:12px">';
           prev.style.background = 'transparent';
         }
         var rmBtn = document.getElementById('removeAvatarBtn');
@@ -3815,15 +3819,15 @@ function renderDashboard(){
   countUp(document.getElementById('statAvg'), Math.round(avg));
   countUp(document.getElementById('statMax'), max);
   countUp(document.getElementById('statMin'), min);
-  document.getElementById('statMaxName').innerHTML = maxStu ? `<span class="name-tag" title="${maxStu.name}">${maxStu.name}</span>` : '—';
-  document.getElementById('statMinName').innerHTML = minStu ? `<span class="name-tag" title="${minStu.name}">${minStu.name}</span>` : '—';
+  document.getElementById('statMaxName').innerHTML = maxStu ? `<span class="name-tag" title="${escapeHtml(maxStu.name)}">${escapeHtml(maxStu.name)}</span>` : '—';
+  document.getElementById('statMinName').innerHTML = minStu ? `<span class="name-tag" title="${escapeHtml(minStu.name)}">${escapeHtml(minStu.name)}</span>` : '—';
 
   const sorted = [...students].sort((a,b)=>b.credit - a.credit).slice(0,5);
   const crowns = ['👑','🥈','🥉','',''];
   document.getElementById('top5List').innerHTML = sorted.map((s,i)=>`
     <div class="top5-item rank-${i+1}">
       <div class="rank">${i+1}</div>
-      <div class="name">${s.name}</div>
+      <div class="name">${escapeHtml(s.name)}</div>
       ${i<3?`<span class="crown">${crowns[i]}</span>`:''}
       <div class="score">${s.credit}</div>
     </div>
@@ -4027,12 +4031,12 @@ function renderTable(){
     const cls = s.credit < 10 ? 'low' : s.credit < 25 ? 'mid' : 'high';
     const checked = state.selectedStudents.has(s.id) ? 'checked' : '';
     const tagsHtml = (s.tags && s.tags.length > 0)
-      ? `<span class="student-tags">${s.tags.map(t=>`<span class="stag ${getTagClass(t)}">${t}</span>`).join('')}</span>`
+      ? `<span class="student-tags">${s.tags.map(t=>`<span class="stag ${escapeAttr(getTagClass(t))}">${escapeHtml(t)}</span>`).join('')}</span>`
       : '';
     return `<tr data-id="${s.id}" ${checked?'class="highlight"':''}>
       <td class="checkbox-cell"><input type="checkbox" ${checked} onchange="toggleSelect(${s.id}, this.checked)"></td>
-      <td style="cursor:pointer" onclick="openDetailPanel(${s.id})">${s.name}${tagsHtml}</td>
-      <td style="color:var(--text-muted)">${s.sid}</td>
+      <td style="cursor:pointer" onclick="openDetailPanel(${s.id})">${escapeHtml(s.name)}${tagsHtml}</td>
+      <td style="color:var(--text-muted)">${escapeHtml(s.sid)}</td>
       <td><span class="score-badge ${cls}">${s.credit}</span></td>
       <td>
         <div class="quick-btns">
@@ -4142,19 +4146,26 @@ function previewImport(){
     area.innerHTML = '<div style="color:var(--danger);font-size:13px">未解析到有效数据</div>';
     return;
   }
+  // ⚠️ 原来把 JSON.stringify(preview) 直接拼进 onclick 属性，靠 replace 引号勉强防注入，
+  //    但姓名里出现反斜杠/引号组合仍可能破坏解析。改为暂存到模块级变量，onclick 不传数据。
+  _importPreview = preview;
   area.innerHTML = `
     <div class="preview-list">
-      ${preview.map(p=>`<div class="preview-item"><span>${p.name} (${p.sid})</span><span>初始学分: ${p.credit}</span></div>`).join('')}
+      ${preview.map(p=>`<div class="preview-item"><span>${escapeHtml(p.name)} (${escapeHtml(p.sid)})</span><span>初始学分: ${escapeHtml(p.credit)}</span></div>`).join('')}
     </div>
-    <button class="btn btn-primary" onclick="confirmImport(${JSON.stringify(preview).replace(/"/g,'&quot;')})">确认导入 ${preview.length} 名学生</button>
+    <button class="btn btn-primary" onclick="confirmImport()">确认导入 ${preview.length} 名学生</button>
   `;
 }
 
-function confirmImport(preview){
+let _importPreview = null;   // 导入预览暂存，避免把数据拼进 onclick 属性
+function confirmImport(){
+  const preview = _importPreview;
+  if(!preview || !preview.length) return;
   preview.forEach(p => {
     state.students.push({ id: state.nextId++, sid: p.sid, name: p.name, credit: p.credit, tags:[] });
   });
   saveData();
+  _importPreview = null;
   document.getElementById('importTextarea').value = '';
   document.getElementById('importPreview').innerHTML = '';
   document.querySelector('#studentTabs .tab[data-tab="list"]').click();
@@ -4170,14 +4181,18 @@ function openDetailPanel(id){
   const ops = state.operations.filter(o=>o.studentId===id).slice(0,20);
   const cls = s.credit < 10 ? 'low' : s.credit < 25 ? 'mid' : 'high';
   const tags = s.tags || [];
-  const tagsHtml = tags.map(t=>`<span class="stag ${getTagClass(t)}">${t}<span class="remove-x" onclick="removeStudentTag(${id},'${t}')">✕</span></span>`).join('');
-  const presetHtml = presetTags.map(t=>{
+  // ⚠️ 标签内容由用户自由输入（addCustomTag），绝不能拼进 onclick 的字符串字面量——
+  //    单引号属性上下文可被 ') 闭合后注入。统一改传索引（v2.8.1 修复）。
+  const tagsHtml = tags.map((t,i)=>`<span class="stag ${escapeAttr(getTagClass(t))}">${escapeHtml(t)}<span class="remove-x" onclick="removeStudentTag(${id},${i})">✕</span></span>`).join('');
+  // 同样传索引而非字面量：presetTags 目前是硬编码常量，但保持与 removeStudentTag 一致，
+  // 将来若改成动态数据不会重新引入注入。
+  const presetHtml = presetTags.map((t,i)=>{
     const active = tags.includes(t) ? 'active' : '';
-    return `<button class="preset-btn ${active}" onclick="toggleStudentTag(${id},'${t}')">${t}</button>`;
+    return `<button class="preset-btn ${active}" onclick="toggleStudentTag(${id},${i})">${escapeHtml(t)}</button>`;
   }).join('');
 
   document.getElementById('detailBody').innerHTML = `
-    <div class="info-row"><span class="label">学号</span><span class="value">${s.sid}</span></div>
+    <div class="info-row"><span class="label">学号</span><span class="value">${escapeHtml(s.sid)}</span></div>
     <div class="info-row"><span class="label">当前学分</span><span class="value"><span class="score-badge ${cls}">${s.credit}</span></span></div>
     <div class="info-row"><span class="label">排名</span><span class="value">${getRank(id)}</span></div>
     <div class="tag-editor">
@@ -4217,7 +4232,9 @@ function getRank(id){
   return idx >= 0 ? `第${idx+1}名` : '—';
 }
 
-function toggleStudentTag(id, tag){
+function toggleStudentTag(id, tagIdx){
+  const tag = presetTags[tagIdx];
+  if(tag === undefined) return;
   const s = state.students.find(st=>st.id===id);
   if(!s) return;
   if(!s.tags) s.tags = [];
@@ -4229,10 +4246,10 @@ function toggleStudentTag(id, tag){
   renderTable();
 }
 
-function removeStudentTag(id, tag){
+function removeStudentTag(id, tagIdx){
   const s = state.students.find(st=>st.id===id);
   if(!s || !s.tags) return;
-  s.tags = s.tags.filter(t=>t!==tag);
+  s.tags = s.tags.filter((_,i)=>i!==tagIdx);
   saveData();
   openDetailPanel(id);
   renderTable();
@@ -4266,11 +4283,11 @@ function renderCommittee(){
     return `<div class="committee-card stagger" style="animation-delay:${idx*0.06}s">
       <div class="top-bar ${cfg.color}"></div>
       <div class="cc-body">
-        <div class="cc-avatar ${isEmpty?'empty':''}">${initial}</div>
-        <div class="cc-title">${cfg.title}</div>
-        <div class="cc-role ${cfg.color}">${cfg.count}</div>
-        <div class="cc-name ${isEmpty?'empty':''}">${name}</div>
-        <div class="cc-desc">${cfg.desc}</div>
+        <div class="cc-avatar ${isEmpty?'empty':''}">${escapeHtml(initial)}</div>
+        <div class="cc-title">${escapeHtml(cfg.title)}</div>
+        <div class="cc-role ${cfg.color}">${escapeHtml(cfg.count)}</div>
+        <div class="cc-name ${isEmpty?'empty':''}">${escapeHtml(name)}</div>
+        <div class="cc-desc">${escapeHtml(cfg.desc)}</div>
         <div class="cc-actions">
           <button class="btn btn-primary btn-sm" onclick="openCommitteeSelect('${cfg.key}', ${studentId||'null'})">${isEmpty?'任命':'任免'}</button>
         </div>
@@ -4284,7 +4301,7 @@ function openCommitteeSelect(key, currentId){
   document.getElementById('studentSelectTitle').textContent = `任命${title}`;
   const dropdown = document.getElementById('studentSelectDropdown');
   dropdown.innerHTML = '<option value="">请选择学生...</option>' +
-    state.students.map(s=>`<option value="${s.id}" ${s.id===currentId?'selected':''}>${s.name} (${s.credit}分)</option>`).join('');
+    state.students.map(s=>`<option value="${escapeHtml(s.id)}" ${s.id===currentId?'selected':''}>${escapeHtml(s.name)} (${escapeHtml(s.credit)}分)</option>`).join('');
   document.getElementById('studentSelectRemove').style.display = currentId ? '' : 'none';
   document.getElementById('studentSelectModal').dataset.context = 'committee';
   document.getElementById('studentSelectModal').dataset.key = key;
@@ -4429,7 +4446,7 @@ function renderSeating(){
             <button onclick="event.stopPropagation();seatClick(${r},${c},${seat.studentId})" title="更换">🔄</button>
             <button onclick="event.stopPropagation();removeSeat(${r},${c})" title="移除">✕</button>
           </div>
-          <div class="seat-name">${student.name}</div>
+          <div class="seat-name">${escapeHtml(student.name)}</div>
           <div class="seat-num">R${r+1}C${c+1}</div>
         </div>`;
       } else {
@@ -4458,7 +4475,7 @@ function seatClick(row, col, studentId){
   const occupiedIds = state.seating.seats.map(s=>s.studentId);
   dropdown.innerHTML = '<option value="">请选择学生...</option>' +
     state.students.filter(s=>!occupiedIds.includes(s.id) || s.id===studentId)
-    .map(s=>`<option value="${s.id}" ${s.id===studentId?'selected':''}>${s.name} (${s.credit}分)</option>`).join('');
+    .map(s=>`<option value="${escapeHtml(s.id)}" ${s.id===studentId?'selected':''}>${escapeHtml(s.name)} (${escapeHtml(s.credit)}分)</option>`).join('');
   document.getElementById('studentSelectRemove').style.display = studentId ? '' : 'none';
   const modal = document.getElementById('studentSelectModal');
   modal.dataset.context = 'seating';
@@ -4628,7 +4645,7 @@ function dutyCellClick(day, area){
   document.getElementById("studentSelectTitle").textContent = "值日安排 - " + day + " " + area;
   var dropdown = document.getElementById("studentSelectDropdown");
   dropdown.innerHTML = '<option value="">请选择学生...</option>' +
-    state.students.map(function(s){return '<option value="' + s.id + '">' + s.name + ' (' + s.credit + '分)</option>';}).join('');
+    state.students.map(function(s){return '<option value="' + escapeHtml(s.id) + '">' + escapeHtml(s.name) + ' (' + escapeHtml(s.credit) + '分)</option>';}).join('');
   document.getElementById("studentSelectRemove").style.display = "none";
   var modal = document.getElementById("studentSelectModal");
   modal.dataset.context = "duty";
@@ -4692,7 +4709,7 @@ function renderReasonSelects(){
     if(!el) return;
     const val = el.value;
     el.innerHTML = '<option value="">原因（必选）</option>' +
-      state.reasons.map(r=>`<option value="${r}">${r}</option>`).join('');
+      state.reasons.map(r=>`<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
     el.value = val;
   });
 }
@@ -4914,7 +4931,7 @@ function renderGradeAnalytics(){
   // Exam selector
   let selectorHtml = '<div class="grade-exam-selector"><span style="font-size:13px;color:var(--text-secondary)">选择考试：</span><select id="gradeAnalyticsExamSelect" onchange="renderGradeAnalyticsDetail()">';
   state.exams.forEach((ex, i) => {
-    selectorHtml += '<option value="' + ex.id + '"' + (i === 0 ? ' selected' : '') + '>' + ex.name + ' (' + ex.date + ')</option>';
+    selectorHtml += '<option value="' + escapeHtml(ex.id) + '"' + (i === 0 ? ' selected' : '') + '>' + escapeHtml(ex.name) + ' (' + escapeHtml(ex.date) + ')</option>';
   });
   selectorHtml += '</select></div>';
 
@@ -5217,7 +5234,7 @@ function drawPieChart(credits){
     ctx.textAlign = 'center';
     ctx.fillText('暂无数据', cx, cy + 4);
     document.getElementById('pieLegend').innerHTML = segments.map(s =>
-      `<div class="pie-legend-item"><div class="dot" style="background:${s.color}"></div>${s.label}: 0人</div>`
+      `<div class="pie-legend-item"><div class="dot" style="background:${escapeAttr(s.color)}"></div>${escapeHtml(s.label)}: 0人</div>`
     ).join('');
     return;
   }
@@ -5247,7 +5264,7 @@ function drawPieChart(credits){
   ctx.fillText('总人数', cx, cy + 20);
 
   document.getElementById('pieLegend').innerHTML = segments.map(s =>
-    `<div class="pie-legend-item"><div class="dot" style="background:${s.color}"></div>${s.label}: <b>${s.count}</b>人</div>`
+    `<div class="pie-legend-item"><div class="dot" style="background:${escapeAttr(s.color)}"></div>${escapeHtml(s.label)}: <b>${escapeHtml(s.count)}</b>人</div>`
   ).join('');
 }
 
@@ -5268,8 +5285,8 @@ function renderProgressList(){
   list.innerHTML = changes.slice(0,10).map(c => `
     <div class="progress-item">
       <span class="arrow ${c.net > 0 ? 'up' : 'down'}">${c.net > 0 ? '↑' : '↓'}</span>
-      <span style="flex:1">${c.name}</span>
-      <span style="font-weight:600;color:${c.net > 0 ? 'var(--success)' : 'var(--danger)'}">${c.net > 0 ? '+' : ''}${c.net}</span>
+      <span style="flex:1">${escapeHtml(c.name)}</span>
+      <span style="font-weight:600;color:${c.net > 0 ? 'var(--success)' : 'var(--danger)'}">${c.net > 0 ? '+' : ''}${escapeHtml(c.net)}</span>
       <span style="color:var(--text-muted);font-size:11px">${c.opCount}次操作</span>
     </div>
   `).join('');
@@ -5416,8 +5433,8 @@ function renderProfileList(){
     const selected = s.id === _profileSelectedId ? 'active' : '';
     return `<div class="profile-list-item ${selected}" data-id="${s.id}" onclick="selectProfile(${s.id})">
       <div style="flex:1;min-width:0">
-        <div style="font-weight:600;font-size:14px">${s.name}</div>
-        <div style="font-size:12px;color:var(--text-muted)">${s.sid} · 学分 ${s.credit}${tlCount ? ' · 记录 ' + tlCount + ' 条' : ''}</div>
+        <div style="font-weight:600;font-size:14px">${escapeHtml(s.name)}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${escapeHtml(s.sid)} · 学分 ${escapeHtml(s.credit)}${tlCount ? ' · 记录 ' + tlCount + ' 条' : ''}</div>
       </div>
       <div style="font-size:16px">📁</div>
     </div>`;
@@ -5439,9 +5456,9 @@ function renderProfileDetail(s){
         const typeCls = 'tl-' + t.type;
         const typeName = {talk:'谈心', praise:'表扬', critic:'批评', contact:'联系家长', other:'其他'}[t.type] || '其他';
         return `<div class="tl-item">
-          <div class="tl-badge ${typeCls}">${typeName}</div>
+          <div class="tl-badge ${escapeAttr(typeCls)}">${escapeHtml(typeName)}</div>
           <div class="tl-body">
-            <div style="font-size:12px;color:var(--text-muted)">${t.date}</div>
+            <div style="font-size:12px;color:var(--text-muted)">${escapeHtml(t.date)}</div>
             <div style="margin-top:4px;font-size:14px;white-space:pre-wrap">${escapeHtml(t.content)}</div>
             <div style="margin-top:6px"><button class="btn btn-danger btn-sm" style="padding:2px 10px;font-size:12px" onclick="deleteProfileTimeline(${s.id},${t.id})">删除</button></div>
           </div>
@@ -5449,19 +5466,19 @@ function renderProfileDetail(s){
       }).join('');
   el.innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:700">${s.name.charAt(0)}</div>
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:700">${escapeHtml(s.name.charAt(0))}</div>
       <div style="flex:1">
-        <div style="font-size:18px;font-weight:700">${s.name}</div>
-        <div style="font-size:13px;color:var(--text-muted)">${s.sid} · 当前学分 <span class="score-badge ${s.credit<10?'low':s.credit<25?'mid':'high'}">${s.credit}</span></div>
+        <div style="font-size:18px;font-weight:700">${escapeHtml(s.name)}</div>
+        <div style="font-size:13px;color:var(--text-muted)">${escapeHtml(s.sid)} · 当前学分 <span class="score-badge ${s.credit<10?'low':s.credit<25?'mid':'high'}">${escapeHtml(s.credit)}</span></div>
       </div>
       <button class="btn btn-primary btn-sm" onclick="openProfileEdit(${s.id})">✏️ 编辑资料</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px">
-      <div class="profile-info"><span>性别</span><b>${p.gender || '—'}</b></div>
-      <div class="profile-info"><span>出生日期</span><b>${p.birth || '—'}</b></div>
-      <div class="profile-info"><span>监护人</span><b>${p.guardian || '—'}</b></div>
-      <div class="profile-info"><span>联系电话</span><b>${p.phone || '—'}</b></div>
-      <div class="profile-info" style="grid-column:1/-1"><span>家庭住址</span><b>${p.address || '—'}</b></div>
+      <div class="profile-info"><span>性别</span><b>${escapeHtml(p.gender || '—')}</b></div>
+      <div class="profile-info"><span>出生日期</span><b>${escapeHtml(p.birth || '—')}</b></div>
+      <div class="profile-info"><span>监护人</span><b>${escapeHtml(p.guardian || '—')}</b></div>
+      <div class="profile-info"><span>联系电话</span><b>${escapeHtml(p.phone || '—')}</b></div>
+      <div class="profile-info" style="grid-column:1/-1"><span>家庭住址</span><b>${escapeHtml(p.address || '—')}</b></div>
       <div class="profile-info" style="grid-column:1/-1"><span>备注</span><b>${p.notes ? escapeHtml(p.notes) : '—'}</b></div>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
@@ -5578,9 +5595,9 @@ function renderWorkLogs(){
       <div style="display:flex;align-items:flex-start;gap:10px">
         <div style="flex:1;min-width:0">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <span class="wl-cat ${catColor}">${w.category}</span>
+            <span class="wl-cat ${escapeAttr(catColor)}">${escapeHtml(w.category)}</span>
             <b style="font-size:15px">${escapeHtml(w.title)}</b>
-            <span style="font-size:12px;color:var(--text-muted)">${w.date}</span>
+            <span style="font-size:12px;color:var(--text-muted)">${escapeHtml(w.date)}</span>
           </div>
           ${w.content ? `<div style="margin-top:8px;font-size:14px;color:var(--text-secondary);white-space:pre-wrap">${escapeHtml(w.content)}</div>` : ''}
         </div>
@@ -5708,11 +5725,11 @@ function renderHonors(){
       ? `<div style="margin-top:8px;font-size:12px;color:var(--text-secondary)">🎖 ${escapeHtml(h.persons.join('、'))}</div>` : '';
     return `<div class="card honor-card ${lvCls}">
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span class="honor-level ${lvCls}">${h.level}</span>
-        <span class="honor-scope ${h.scope==='集体'?'team':'person'}">${h.scope}</span>
+        <span class="honor-level ${escapeAttr(lvCls)}">${escapeHtml(h.level)}</span>
+        <span class="honor-scope ${h.scope==='集体'?'team':'person'}">${escapeHtml(h.scope)}</span>
       </div>
       <div style="font-size:16px;font-weight:700;margin-top:10px;line-height:1.4">${escapeHtml(h.title)}</div>
-      <div style="font-size:12px;color:var(--text-muted);margin-top:6px">📅 ${h.date || '—'}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:6px">📅 ${escapeHtml(h.date || '—')}</div>
       ${personsHtml}
       ${h.desc ? `<div style="margin-top:8px;font-size:13px;color:var(--text-secondary);line-height:1.5">${escapeHtml(h.desc)}</div>` : ''}
       <div style="display:flex;gap:6px;margin-top:12px;justify-content:flex-end">
@@ -5792,7 +5809,7 @@ function renderSettings(){
   const removeBtn = document.getElementById('removeAvatarBtn');
   if(avatarPrev){
     if(state.classAvatar){
-      avatarPrev.innerHTML = '<img src="' + state.classAvatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:12px">';
+      avatarPrev.innerHTML = '<img src="' + escapeHtml(state.classAvatar) + '" style="width:100%;height:100%;object-fit:cover;border-radius:12px">';
       avatarPrev.style.background='transparent'; removeBtn.style.display='';
     } else {
       avatarPrev.innerHTML='班'; avatarPrev.style.background='linear-gradient(135deg,var(--primary),var(--primary-light))'; removeBtn.style.display='none';
@@ -6332,7 +6349,7 @@ function renderDashExam(){
     .sort(function(a,b){ return b.total - a.total; });
 
   if(results.length === 0){
-    container.innerHTML = '<div style="text-align:center;padding:16px 0;color:var(--text-muted);font-size:13px">' + exam.name + ' 尚未录入成绩</div>';
+    container.innerHTML = '<div style="text-align:center;padding:16px 0;color:var(--text-muted);font-size:13px">' + escapeHtml(exam.name) + ' 尚未录入成绩</div>';
     return;
   }
 
@@ -6412,10 +6429,24 @@ function renderDashTodo(){
   container.innerHTML = html;
 }
 
+/* 转义 HTML 特殊字符。
+   ⚠️ 必须显式转义引号：" 和 ' —— 早期用 textContent→innerHTML 的写法只转义 & < >，
+      放进 title="..." / value="..." / onclick="..." 这类属性上下文时照样能打穿。
+      （v2.8.1 修复：属性上下文注入）
+   返回的是可安全塞进 HTML 文本节点或双引号属性值的字符串。 */
 function escapeHtml(s){
-  const d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
+  if(s === null || s === undefined) return '';
+  return String(s)
+    .replace(/&/g,'&amp;')   // & 必须最先替换，否则会把后面的实体二次转义
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+/* 转义用于 class 等受限属性的值：只保留安全字符，其余丢弃。
+   用于 CLOUD/tag → class 名这类「值来自用户输入但字符集本应受限」的场景。 */
+function escapeAttr(s){
+  return escapeHtml(String(s === null || s === undefined ? '' : s).replace(/[^a-zA-Z0-9_\-一-龥 ]/g,''));
 }
 
 
@@ -6833,8 +6864,8 @@ function renderGrades(){
     return `<div class="exam-card">
       <div class="exam-header">
         <div>
-          <span class="exam-name">${exam.name}</span>
-          <span class="exam-date">${exam.date} · ${scoredCount}人已录入</span>
+          <span class="exam-name">${escapeHtml(exam.name)}</span>
+          <span class="exam-date">${escapeHtml(exam.date)} · ${escapeHtml(scoredCount)}人已录入</span>
         </div>
         <div style="display:flex;gap:6px">
           <button class="btn btn-outline btn-sm" onclick="exportExamGrades(${exam.id})">导出</button>
@@ -6935,13 +6966,13 @@ function renderTodo(){
     const priorityMap = {normal:'普通',important:'重要',urgent:'紧急'};
     list.innerHTML = sorted.map(t => {
       const isOverdue = !t.done && t.dueDate && t.dueDate < today;
-      const dueText = t.dueDate ? (isOverdue ? `<span class="todo-due-overdue">⚠️ ${t.dueDate} 已逾期</span>` : `截止 ${t.dueDate}`) : '';
+      const dueText = t.dueDate ? (isOverdue ? `<span class="todo-due-overdue">⚠️ ${escapeHtml(t.dueDate)} 已逾期</span>` : `截止 ${escapeHtml(t.dueDate)}`) : '';
       return `<div class="todo-item ${t.done?'done':''}">
         <div class="todo-check ${t.done?'checked':''}" onclick="toggleTodo(${t.id})">${t.done?'✓':''}</div>
         <div class="todo-content">
-          <div class="todo-text">${t.text}</div>
+          <div class="todo-text">${escapeHtml(t.text)}</div>
           <div class="todo-meta">
-            <span class="todo-priority ${t.priority}">${priorityMap[t.priority]||'普通'}</span>
+            <span class="todo-priority ${escapeAttr(t.priority)}">${escapeHtml(priorityMap[t.priority]||'普通')}</span>
             ${dueText ? '<span>'+dueText+'</span>' : ''}
             <span>${new Date(t.created).toLocaleDateString('zh-CN')}创建</span>
           </div>
@@ -7141,7 +7172,7 @@ function openNoticeEditor(tplId){
   document.getElementById('noticeEditorTitle').textContent = tpl ? '编辑模板' : '新建模板';
   document.getElementById('noticeTplTitle').value = tpl ? tpl.title : '';
   var catSel = document.getElementById('noticeTplCat');
-  catSel.innerHTML = NOTICE_CATS.map(function(c){return '<option value="' + c + '"' + (tpl&&tpl.category===c?' selected':'') + '>' + c + '</option>';}).join('');
+  catSel.innerHTML = NOTICE_CATS.map(function(c){return '<option value="' + escapeHtml(c) + '"' + (tpl&&tpl.category===c?' selected':'') + '>' + escapeHtml(c) + '</option>';}).join('');
   document.getElementById('noticeTplContent').value = tpl ? tpl.content : '';
   document.getElementById('noticeSaveBtn').textContent = tpl ? '保存修改' : '保存模板';
   // 新建时恢复草稿
