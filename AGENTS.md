@@ -359,7 +359,26 @@ for i in $(seq 1 25); do
 done
 ```
 
-**兜底**：`gh` CLI 已安装且已认证（`gh auth status` → cheeeom，`repo` 权限）。它走 `api.github.com`，不受 `github.com` 被墙影响。真推不上去时可用 `gh api` 调 Git Data API（建 blob → 建 tree → 建 commit → 更新 ref）完成提交。
+**兜底 —— `gh` CLI + Git Data API（2026-09-02 实测可用）**：`gh` 已安装且已认证（`gh auth status` → cheeeom，`repo` 权限），走 `api.github.com`，完全不受 `github.com` 被墙影响。脚本已写好：
+
+```bash
+cd D:/a/chee777/class-manager
+git add -A                                   # 修行尾时用 git add --renormalize .
+node ../scripts/cm-push-via-api.js "提交信息"
+```
+
+原理：`gh api` 拿远端 HEAD → 从**本地 git 索引**里逐个文件建 blob → 建 tree → 建 commit → PATCH ref。脚本会打印每个文件的字节数并核对「上传后的 blob sha 是否等于本地 blob sha」，不一致会标 ⚠️。
+
+**⚠️ 用这个脚本必须遵守两条，否则会出事（我 2026-09-02 全踩了一遍）：**
+
+1. **blob 必须按 Buffer 读，绝不能按 UTF-8 字符串读。** `execFileSync(..., {encoding:'utf8'})` 会把 PNG/ICO 的无效字节替换成 `U+FFFD`，体积膨胀约 1.8 倍，图标直接损坏（线上 PWA 图标和 favicon 当场全废，靠追加一个修复提交救回）。正确写法是省略 `encoding` 让 Node 返回 Buffer。
+
+2. **内容要取自 git 对象库（`git cat-file blob <index-sha>`），不是工作区文件。** 本机 `core.autocrlf=true`，工作区是 CRLF 而仓库历史是 LF。直接读工作区上传会把 CRLF 写进仓库，导致后续每次提交在 commit 对比时显示为整文件改动。git 索引里的 blob 已经是 LF 归一化后的，取它才对。
+
+**另外两个连带坑：**
+
+- 写完脚本后本地 HEAD 与远端会分叉（远端可能已被 auto-sync 推进）。同步姿势：`git fetch`（同样要重试）→ `git reset --hard <远端sha>`。**不要用 `git reset --hard origin/main`**，因为 `origin/main` 这个 ref 在本仓库里更新不生效（`.git/refs/remotes/origin/` 目录是空的，只有 `packed-refs` 里那一份），reset 会直接把你改好的工作区打回旧版本。用显式 sha。
+- shell 里 `git fetch ... | tail -2 && echo ok` 判断不了成败——`$?` 拿的是 `tail` 的退出码。要么别接管道，要么用 `PIPESTATUS[0]`。
 
 ### 10.3 data.json 是活数据，别在本地改完就 push
 
