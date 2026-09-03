@@ -124,3 +124,17 @@
 - [ ] 清理后抽查旧 commit 是否 404；并向 GitHub 官方提工单清除缓存视图
 
 **清理脚本已在副本上验证过，但仍然不可逆。** 执行前会自动再做一次 bundle 备份；force push 失败 40 次会自动回滚到备份状态，不会丢数据。
+
+### 2026-09-03（v2.8.1 XSS 加固上线）
+
+- [x] **修复属性上下文注入**：旧 `escapeHtml` 用 textContent→innerHTML，只转义 `& < >` 不转义引号，放进 `title=` / `value=` / `onclick=` 等属性上下文照样能打穿。改为显式转义 `& < > " '`（`&` 最先替换防二次转义）
+- [x] 新增 `escapeAttr`：class 等受限属性用白名单剥离危险字符
+- [x] `showToast` 改 textContent 渲染（toast 消息常含学生姓名）
+- [x] 标签删除/切换改传索引，标签字面量不再拼进 onclick（单引号属性可被 `')` 闭合注入）
+- [x] 导入预览暂存 `_importPreview` 模块变量，JSON 不再拼进 onclick 属性
+- [x] 表格/详情/榜五/待办/考试/班委/下拉等渲染点统一走 `escapeHtml`
+- [x] 新增 `_xss_test.js`：14 项断言（含结构断言防回退），与 `_crypto_test.js`/`_sync_test.js` 三套全绿
+- [x] 版本号升 v2.8.1（登录页 + 侧栏 + SW CACHE_NAME）
+- [x] **已上线并验证**：commit `b638a3e`，线上 login-version = v2.8.1、SW 缓存 = class-manager-v2.8.1
+- [x] 本轮推送全程 github.com 502，走 `cm-push-via-api.js` 兜底；顺带修复该脚本「未知参数不报错、被当成提交信息推送」的缺陷（`--help` 曾真的推了个 message 为 "--help" 的提交上去，已用 API 重写该提交信息）
+- [ ] **云端 data.json 仍为明文**：10:29 出现的 `manual push`/`auto-sync` 两个提交推送时口令尚未设（无口令降级明文）。历史清理继续阻塞在：设口令 → 推送变密文 → 跑 `scripts/cm-purge-history.sh`
