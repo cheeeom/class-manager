@@ -138,3 +138,16 @@
 - [x] **已上线并验证**：commit `b638a3e`，线上 login-version = v2.8.1、SW 缓存 = class-manager-v2.8.1
 - [x] 本轮推送全程 github.com 502，走 `cm-push-via-api.js` 兜底；顺带修复该脚本「未知参数不报错、被当成提交信息推送」的缺陷（`--help` 曾真的推了个 message 为 "--help" 的提交上去，已用 API 重写该提交信息）
 - [ ] **云端 data.json 仍为明文**：10:29 出现的 `manual push`/`auto-sync` 两个提交推送时口令尚未设（无口令降级明文）。历史清理继续阻塞在：设口令 → 推送变密文 → 跑 `scripts/cm-purge-history.sh`
+
+### 2026-09-03 晚（历史清理执行完毕，泄露止血）
+
+- [x] 前置确认：云端 HEAD data.json 为 `{enc:1, PBKDF2-SHA256(250k)/AES-GCM-256}` 密文，无明文键名
+- [x] **git filter-repo 两遍**：
+  ① 抹掉 data.json / avatar-img.txt / schedule-img.txt 全部历史（200 → 71 提交，108 份明文 data.json → 0）
+  ② `--replace-text` 清洗 AGENTS.md / _crypto_test.js / _sync_test.js 里的真实学生姓名（73 个姓名映射 + 裸名）与真实家长手机号 → 占位符（第二轮抓到的漏网之鱼）
+- [x] 终验：全历史 grep 真实姓名 / 真实手机号 **零残留**；data.json 全历史仅剩 1 个密文版本
+- [x] force push 上线（远端 HEAD `85727c2`），密文 data.json 原样放回，同步不断线
+- [x] 本地仓库重装：旧 .git 的 ref 存储有毛病（filter-repo 后 refs/heads 被清空、HEAD 变 unborn master），
+  改为全新 clone 后重做，旧目录留存于 `class-manager-broken-backup`
+- [ ] **待办：向 GitHub 提工单**（https://support.github.com/request）请求清除旧提交的缓存视图 / 服务端 GC——
+  旧 sha（如 40884bf6、以及更早全部 tip）目前仍可按 sha 直达，工单处理完泄露才彻底关闭
