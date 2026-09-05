@@ -1741,6 +1741,14 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .rp-chip.rp-reason b{color:var(--success);margin-left:2px}
 .rp-chip.rp-reason b.neg{color:var(--danger)}
 .rp-chip.rp-reason.rp-on b{color:#fff}
+/* 班委模式（v2.13.0）：白名单裁剪与标识 */
+.cm-hide{display:none!important}
+.cm-badge{display:block;font-size:12px;color:var(--primary);font-weight:600;margin-bottom:6px}
+#cmExitBtn{width:100%;margin-top:6px;padding:6px;border:1px solid var(--border);background:var(--card-bg);
+  border-radius:8px;font-size:12px;cursor:pointer;color:var(--text-secondary)}
+#cmExitBtn:hover{border-color:var(--danger);color:var(--danger)}
+.committee-entry{width:100%;margin-top:16px;padding:10px;font-size:13px}
+.committee-entry:hover{border-color:var(--primary);color:var(--primary)}
 </style>
 </head>
 <body>
@@ -1784,7 +1792,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.12.0</div>
+      <div class="login-version">v2.13.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1815,6 +1823,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <button class="key" onclick="loginKey('0')">0</button>
         <button class="key key-fn key-ok" onclick="loginSubmit()">确定</button>
       </div>
+      <button class="btn btn-outline btn-sm committee-entry" onclick="enterCommitteeMode()">👩‍💼 班委入口（免密码 · 仅学分/值日等协作功能）</button>
     </div>
   </div>
 </div>
@@ -1889,7 +1898,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.12.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.13.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -1898,10 +1907,10 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       <h1 id="pageTitle">工作台首页</h1>
       <div class="topbar-right">
         <button class="btn-icon" title="刷新数据" onclick="refreshData()"><svg class="ic ic-sm"><use href="#i-refresh"/></svg><span class="icon-label">刷新</span></button>
-        <button class="btn-icon" title="导出数据到文件" onclick="exportData()"><svg class="ic ic-sm"><use href="#i-export"/></svg><span class="icon-label">导出</span></button>
+        <button class="btn-icon" id="topExportBtn" title="导出数据到文件" onclick="exportData()"><svg class="ic ic-sm"><use href="#i-export"/></svg><span class="icon-label">导出</span></button>
         <span id="exportBadge" class="export-badge" style="display:none" title="有未导出的数据变更"></span>
-        <button class="btn-icon" title="从文件导入数据" onclick="importData()"><svg class="ic ic-sm"><use href="#i-import"/></svg><span class="icon-label">导入</span></button>
-        <button class="btn btn-primary btn-sm" onclick="openAddStudentModal()">+ 添加学生</button>
+        <button class="btn-icon" id="topImportBtn" title="从文件导入数据" onclick="importData()"><svg class="ic ic-sm"><use href="#i-import"/></svg><span class="icon-label">导入</span></button>
+        <button class="btn btn-primary btn-sm" id="topAddStudentBtn" onclick="openAddStudentModal()">+ 添加学生</button>
       </div>
     </header>
 
@@ -3749,6 +3758,11 @@ document.querySelectorAll('.nav-item').forEach(item=>{
 });
 
 function navigateTo(page){
+  // v2.13.0 班委模式白名单拦截（含 dashboard 动态卡片等间接跳转）
+  if(window.__cmRole === 'committee' && COMMITTEE_PAGES.indexOf(page) < 0){
+    showToast('班委模式仅开放：首页、学分、值日、座次、待办、荣誉','warning');
+    return;
+  }
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
   document.querySelectorAll('.mobile-tab').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
   // Highlight more button when current page is inside the drawer
@@ -4479,6 +4493,7 @@ function deleteStudent(id){
 
 /* ==================== Add Student Modal ==================== */
 function openAddStudentModal(){
+  if(window.__cmRole === 'committee'){ showToast('班委模式无权修改学生名单','warning'); return; }
   document.getElementById('addStudentName').value = '';
   document.getElementById('addStudentId').value = '';
   document.getElementById('addStudentCredit').value = '0';
@@ -7190,6 +7205,7 @@ function removeReason(idx){
 
 /* ==================== Data Export/Import/Clear ==================== */
 function exportData(){
+  if(window.__cmRole === 'committee'){ showToast('班委模式无权导出数据','warning'); return; }
   const data = localStorage.getItem(STORE_KEY) || '{}';
   let prettyData;
   try { prettyData = JSON.stringify(JSON.parse(data), null, 2); }
@@ -7212,6 +7228,7 @@ function exportData(){
 }
 
 function importData(){
+  if(window.__cmRole === 'committee'){ showToast('班委模式无权导入数据','warning'); return; }
   document.getElementById('importFileInput').click();
 }
 
@@ -7548,15 +7565,28 @@ function loginClear(){
   if(display) display.classList.remove('error');
 }
 
+/* v2.13.0 班委模式：登录页免密入口，白名单页面（学分/值日/座次/待办/荣誉/首页），
+   无学生档案/成绩/请假/通知/设置，无导入导出/添加学生。数据同步照常（班委的操作入云不丢）。 */
+const CM_ROLE_KEY = 'cm_role';
+const COMMITTEE_PAGES = ['dashboard','credits','duty','seating','todo','honors'];
+function isCommitteeMode(){ return sessionStorage.getItem(CM_ROLE_KEY) === 'committee'; }
+
+function enterApp(msg){
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.querySelector('.app').style.display = '';
+  renderClassBrand();
+  if(isCommitteeMode()) applyCommitteeRestrictions();
+  renderAll();
+  showToast(msg,'success');
+}
+
 function loginSubmit(){
   if(loginInput.length !== 6){ showToast('请输入6位数字密码','error'); return; }
   if(verifyLoginPwd(loginInput)){
     sessionStorage.setItem(SESSION_KEY, '1');
-    document.getElementById('loginOverlay').classList.add('hidden');
-    document.querySelector('.app').style.display = '';
+    sessionStorage.removeItem(CM_ROLE_KEY);
     loginInput = '';
-    renderClassBrand();
-    showToast('欢迎回来！','success');
+    enterApp('欢迎回来！');
   }else{
     const err = document.getElementById('loginErr');
     if(err) err.textContent = '密码错误，请重试';
@@ -7565,6 +7595,40 @@ function loginSubmit(){
     loginInput = '';
     renderPwdDots();
   }
+}
+
+function enterCommitteeMode(){
+  sessionStorage.setItem(CM_ROLE_KEY, 'committee');
+  sessionStorage.removeItem(SESSION_KEY);   // 班委模式不占用/不继承主账号登录态
+  enterApp('已进入班委模式');
+}
+
+function exitCommitteeMode(){
+  sessionStorage.removeItem(CM_ROLE_KEY);
+  location.reload();
+}
+
+function applyCommitteeRestrictions(){
+  document.body.classList.add('role-committee');
+  window.__cmRole = 'committee';
+  // 导航三套入口（侧栏/移动 tab/更多抽屉）按白名单裁剪
+  document.querySelectorAll('.nav-item, .mobile-tab, .more-item').forEach(function(n){
+    if(COMMITTEE_PAGES.indexOf(n.dataset.page) < 0) n.classList.add('cm-hide');
+  });
+  // 顶栏：导出/导入/添加学生（导出会把含家长信息的全量数据落文件，必须屏蔽）
+  ['topExportBtn','topImportBtn','topAddStudentBtn'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.classList.add('cm-hide');
+  });
+  // 侧栏底部：班委标识 + 退出
+  var foot = document.querySelector('.sidebar-footer');
+  if(foot){
+    foot.innerHTML = '<span class="cm-badge">👩‍💼 班委模式</span><button id="cmExitBtn" onclick="exitCommitteeMode()">退出班委模式</button>';
+  }
+  var sub = document.querySelector('.logo-sub');
+  if(sub) sub.textContent = '班委协作端';
+  // 当前若停在非白名单页，拉回首页
+  var active = document.querySelector('.nav-item.active');
+  if(active && COMMITTEE_PAGES.indexOf(active.dataset.page) < 0) navigateTo('dashboard');
 }
 
 function changeLoginPwd(){
@@ -7600,11 +7664,16 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ==================== Init ==================== */
-// 登录拦截：未解锁时显示登录页
+// 登录拦截：未解锁时显示登录页；班委模式免密直达（受限视图）
 if(sessionStorage.getItem(SESSION_KEY) !== '1'){
-  document.getElementById('loginOverlay').classList.remove('hidden');
-  document.querySelector('.app').style.display = 'none';
-  renderPwdDots();
+  if(isCommitteeMode()){
+    document.getElementById('loginOverlay').classList.add('hidden');
+    applyCommitteeRestrictions();
+  } else {
+    document.getElementById('loginOverlay').classList.remove('hidden');
+    document.querySelector('.app').style.display = 'none';
+    renderPwdDots();
+  }
 } else {
   document.getElementById('loginOverlay').classList.add('hidden');
 }
