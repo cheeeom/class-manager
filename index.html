@@ -1869,7 +1869,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.10.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.11.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -1996,7 +1996,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
                   <th class="checkbox-cell"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th>
                   <th>姓名</th>
                   <th>学号</th>
-                  <th>学分 <span class="sort-icon" id="sortIcon">↓</span></th>
+                  <th id="creditTh" class="th-sort" onclick="toggleSort()" title="点击按学分排序，再次点击恢复按序号">学分 <span class="sort-icon" id="sortIcon">⇅</span></th>
                   <th>快速操作</th>
                   <th>操作</th>
                 </tr>
@@ -2019,6 +2019,20 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             </div>
           </div>
           <div id="importPreview"></div>
+
+          <div class="import-area" style="margin-top:16px">
+            <h3 style="margin-bottom:8px">名单同步 <span style="font-size:12px;font-weight:normal;color:var(--text-muted)">（v2.11.0 · 按新名单对齐全班）</span></h3>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">
+              每行一条：<b>序号 姓名</b>（如 <code>1 白伊雯</code>，逗号/顿号/Tab 分隔均可）。<br>
+              按姓名匹配现有学生：<b>保留学分与标签</b>，仅更新学号；名单有而班级没有 → 新增；班级有而名单没有 → 移除（预览确认后执行）。
+            </p>
+            <textarea id="rosterTextarea" placeholder="1 白伊雯&#10;2 陈静雯&#10;3 陈欣怡"></textarea>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button class="btn btn-primary btn-sm" onclick="previewRosterSync()">预览同步</button>
+              <button class="btn btn-outline btn-sm" onclick="document.getElementById('rosterTextarea').value='';document.getElementById('rosterPreview').innerHTML=''">清空</button>
+            </div>
+          </div>
+          <div id="rosterPreview"></div>
         </div>
       </div>
 
@@ -4259,20 +4273,42 @@ function initStudentTabIndicator(){
   }
 }
 
+/* v2.11.0 排序：默认按序号；点「学分」列头切到按学分排序；再点恢复序号排序 */
+let sortMode = 'index';   // 'index' = 按序号（默认） | 'credit' = 按学分
 let sortDir = 'desc';
+function updateSortUi(){
+  const btn = document.getElementById('sortBtn');
+  const icon = document.getElementById('sortIcon');
+  const th = document.getElementById('creditTh');
+  if(!btn || !icon) return;
+  if(sortMode === 'credit'){
+    btn.textContent = `按学分 ${sortDir === 'desc' ? '↓' : '↑'}`;
+    icon.textContent = sortDir === 'desc' ? '↓' : '↑';
+    if(th) th.classList.add('sorted');
+  } else {
+    btn.textContent = '按序号 ↑';
+    icon.textContent = '⇅';
+    if(th) th.classList.remove('sorted');
+  }
+}
 function toggleSort(){
-  sortDir = sortDir === 'desc' ? 'asc' : 'desc';
-  document.getElementById('sortBtn').textContent = `按学分 ${sortDir === 'desc' ? '↓' : '↑'}`;
-  document.getElementById('sortIcon').textContent = sortDir === 'desc' ? '↓' : '↑';
+  if(sortMode === 'index'){ sortMode = 'credit'; sortDir = 'desc'; }  // 点学分 → 按学分降序
+  else { sortMode = 'index'; }                                        // 再点 → 恢复默认按序号
+  updateSortUi();
   renderTable();
 }
+updateSortUi();
 
 function renderTable(){
   const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
   let list = state.students.filter(s =>
     s.name.toLowerCase().includes(search) || s.sid.toLowerCase().includes(search)
   );
-  list.sort((a,b)=> sortDir === 'desc' ? b.credit - a.credit : a.credit - b.credit);
+  if(sortMode === 'credit'){
+    list.sort((a,b)=> sortDir === 'desc' ? b.credit - a.credit : a.credit - b.credit);
+  } else {
+    list.sort((a,b)=> String(a.sid).localeCompare(String(b.sid)));   // 默认：按学号（序号）升序
+  }
 
   const tbody = document.getElementById('studentTableBody');
   const count = document.getElementById('studentCount');
@@ -4433,6 +4469,122 @@ function confirmImport(){
   document.querySelector('#studentTabs .tab[data-tab="list"]').click();
   renderTable();
   showToast(`已导入 ${preview.length} 名学生`,'success');
+}
+
+/* ==================== 名单同步（v2.11.0：按新名单对齐全班，保留学分/标签） ==================== */
+
+/* 纯函数：解析名单行 → [{no, raw}]。支持 "1 白伊雯" / "1，白伊雯" / "1、白伊雯" / "1,白伊雯" / Tab 分隔 / 纯姓名 */
+function rosterParse(text){
+  return String(text).split('\n').map(l=>l.trim()).filter(Boolean).map(line=>{
+    let m = line.match(/^(\d{1,3})\s*[、,.，．]?\s*(\S.*)$/);
+    if(m) return { no: parseInt(m[1], 10), raw: m[2].trim() };
+    return { no: null, raw: line.replace(/[，,]\s*\d+\s*$/,'').trim() };
+  });
+}
+
+/* 纯函数：构建同步计划（不碰 DOM/state，便于回归测试）。
+   entries: rosterParse 的输出；students: 现有学生 [{id, sid, name, credit}]
+   匹配规则：先精确同名，再去掉「（xx）」备注后按基础名匹配；基础名对应多人且无法唯一确定 → 记入 conflicts 不动 */
+function rosterBuildPlan(entries, students){
+  const pad = n => String(n).padStart(3,'0');
+  const targetSid = no => '2026' + pad(no);
+  const base = n => String(n).replace(/[（(][^）)]*[)）]/g, '').trim();
+  const byName = {};
+  students.forEach(s => { (byName[s.name] = byName[s.name] || []).push(s); });
+  const used = {};
+  const conflicted = {};   // 同名无法自动区分的学生：既不更新也不移除，留待人工处理
+  const adds = [], updates = [], conflicts = [];
+  entries.forEach(e => {
+    const tSid = e.no != null ? targetSid(e.no) : null;
+    let cand = null;
+    const exact = (byName[e.raw] || []).find(s => !used[s.id]);
+    if(exact){ cand = exact; }
+    else {
+      const pool = (byName[base(e.raw)] || []).filter(s => !used[s.id]);
+      if(pool.length === 1){ cand = pool[0]; }
+      else if(pool.length > 1){
+        pool.forEach(s => { conflicted[s.id] = true; });
+        conflicts.push({ no: e.no, raw: e.raw, reason: `「${base(e.raw)}」同名 ${pool.length} 人，无法自动区分，请先在学生详情里改名区分后再同步` });
+        return;
+      }
+    }
+    if(cand){
+      used[cand.id] = true;
+      if(tSid && String(cand.sid) !== tSid) updates.push({ id: cand.id, name: cand.name, oldSid: cand.sid, newSid: tSid });
+    } else {
+      adds.push({ no: e.no, name: e.raw, sid: tSid || '' });
+    }
+  });
+  const removes = students.filter(s => !used[s.id] && !conflicted[s.id]).map(s => ({ id: s.id, name: s.name, sid: s.sid, credit: s.credit }));
+  return { adds, updates, removes, conflicts };
+}
+
+let _rosterPlan = null;   // 同步预览暂存（避免把数据拼进 onclick 属性）
+
+function previewRosterSync(){
+  const text = document.getElementById('rosterTextarea').value.trim();
+  if(!text){ showToast('请输入名单','error'); return; }
+  const entries = rosterParse(text);
+  if(entries.length === 0){ showToast('未解析到有效数据','error'); return; }
+  const plan = rosterBuildPlan(entries, state.students);
+  _rosterPlan = plan;
+
+  const sec = (title, arr, render, color) => arr.length === 0 ? '' :
+    `<div style="margin-bottom:10px"><div style="font-size:13px;font-weight:600;color:${color};margin-bottom:4px">${title}（${arr.length}）</div>
+     <div class="preview-list">${arr.map(render).join('')}</div></div>`;
+  const chip = s => `<span class="stag" style="margin-right:6px">${escapeHtml(s)}</span>`;
+
+  document.getElementById('rosterPreview').innerHTML = `
+    <div class="import-area">
+      <h3 style="margin-bottom:8px">同步预览</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px">
+        名单共 ${entries.length} 人 ｜ 将执行：<b style="color:var(--success)">新增 ${plan.adds.length}</b> ·
+        <b style="color:var(--danger)">移除 ${plan.removes.length}</b> ·
+        <b style="color:var(--primary)">学号更新 ${plan.updates.length}</b> · 保留 ${(entries.length - plan.adds.length - plan.conflicts.length)} 人（学分/标签不动）
+      </p>
+      ${sec('➕ 新增', plan.adds, a => `<div class="preview-item"><span>${escapeHtml(a.name)}</span><span>学号 ${escapeHtml(a.sid || '(自动)')}</span></div>`, 'var(--success)')}
+      ${sec('➖ 移除（学分累计保留在操作记录中）', plan.removes, r => `<div class="preview-item"><span>${escapeHtml(r.name)}</span><span>${escapeHtml(r.sid)} · ${r.credit} 分</span></div>`, 'var(--danger)')}
+      ${sec('🔁 学号更新', plan.updates, u => `<div class="preview-item"><span>${escapeHtml(u.name)}</span><span>${escapeHtml(u.oldSid)} → ${escapeHtml(u.newSid)}</span></div>`, 'var(--primary)')}
+      ${sec('⚠️ 需手动处理', plan.conflicts, c => `<div class="preview-item"><span>${escapeHtml(c.raw)}</span><span>${escapeHtml(c.reason)}</span></div>`, 'var(--warning)')}
+      ${(plan.adds.length || plan.removes.length || plan.updates.length)
+        ? `<button class="btn btn-primary" onclick="confirmRosterSync()">确认同步（+${plan.adds.length} / -${plan.removes.length} / 学号 ${plan.updates.length}）</button>`
+        : '<div style="font-size:13px;color:var(--success)">✅ 班级名单与输入名单已一致，无需同步</div>'}
+    </div>`;
+}
+
+function confirmRosterSync(){
+  const plan = _rosterPlan;
+  if(!plan) return;
+  const total = plan.adds.length + plan.removes.length + plan.updates.length;
+  if(total === 0){ showToast('名单已一致，无需同步','success'); return; }
+  if(!confirm(`确认同步名单？\n新增 ${plan.adds.length} 人、移除 ${plan.removes.length} 人、更新学号 ${plan.updates.length} 人。\n保留学生的学分与标签不受影响。`)) return;
+
+  // 1) 移除：清理班委任命 / 座位 / 值日排班 / 罚扫引用（值日队列由 dutyEnsureQueue 自动吸收）
+  plan.removes.forEach(r => {
+    state.students = state.students.filter(s => s.id !== r.id);
+    state.selectedStudents.delete(r.id);
+    for(const k in state.committee){ if(state.committee[k] === r.id) state.committee[k] = null; }
+    state.seating.seats = state.seating.seats.filter(x => x.studentId !== r.id);
+    state.duty.schedule = state.duty.schedule.filter(x => x.studentId !== r.id);
+    if(state.punishments) state.punishments = state.punishments.filter(x => x.studentId !== r.id);
+  });
+  // 2) 学号更新（保留学分/标签/档案）
+  plan.updates.forEach(u => {
+    const s = state.students.find(x => x.id === u.id);
+    if(s) s.sid = u.newSid;
+  });
+  // 3) 新增
+  plan.adds.forEach(a => {
+    state.students.push({ id: state.nextId++, sid: a.sid || genSid(), name: a.name, credit: 0, tags: [], profile: {} });
+  });
+  if(plan.removes.length) syncCommitteeTags();
+  saveData();
+  _rosterPlan = null;
+  document.getElementById('rosterTextarea').value = '';
+  document.getElementById('rosterPreview').innerHTML = '';
+  document.querySelector('#studentTabs .tab[data-tab="list"]').click();
+  renderStudents();
+  showToast(`同步完成：新增 ${plan.adds.length} · 移除 ${plan.removes.length} · 学号更新 ${plan.updates.length}`, 'success');
 }
 
 /* ==================== Detail Panel ==================== */
