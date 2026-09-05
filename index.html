@@ -1090,6 +1090,56 @@ tbody tr.highlight{
   background:linear-gradient(135deg,#E6DECD,#F6F2E9);
   color:var(--text-muted);
 }
+.committee-card .top-bar.teal{background:linear-gradient(90deg,#2E6E63,#6FA89C)}
+.committee-card .top-bar.pink{background:linear-gradient(90deg,#8C3A5B,#C07A96)}
+.committee-card .top-bar.indigo{background:linear-gradient(90deg,#3D4E7E,#7B8AB8)}
+.committee-card .cc-role.teal{background:rgba(46,110,99,0.1);color:#2E6E63}
+.committee-card .cc-role.pink{background:rgba(140,58,91,0.1);color:#8C3A5B}
+.committee-card .cc-role.indigo{background:rgba(61,78,126,0.1);color:#3D4E7E}
+
+/* ==================== Dorm（寝室管理，标签派生） ==================== */
+.dorm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.dorm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.dorm-card{
+  background:var(--card-bg);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px;
+  cursor:pointer;
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+.dorm-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.dorm-card .dc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.dorm-card .dc-no{font-size:16px;font-weight:700;color:var(--primary-dark)}
+.dorm-card .dc-count{font-size:12px;background:rgba(47,125,91,0.12);color:var(--success);padding:2px 10px;border-radius:999px;font-weight:600}
+.dorm-card .dc-leader{font-size:12px;color:var(--text-secondary);margin-bottom:8px}
+.dorm-card .dc-leader b{color:var(--primary-dark)}
+.dorm-card .dc-leader.none{color:var(--text-muted)}
+.dorm-card .dc-members{display:flex;flex-wrap:wrap;gap:4px}
+.dorm-card .dc-members span{
+  font-size:12px;background:var(--bg-secondary);color:var(--text-secondary);
+  padding:2px 8px;border-radius:6px;
+}
+.dorm-card.dayboarding{
+  grid-column:1 / -1;
+  border-left:4px solid var(--orange);
+  background:linear-gradient(90deg,rgba(185,106,31,0.06),var(--card-bg));
+}
+.dorm-card.dayboarding .dc-no{color:var(--orange)}
+.dorm-empty{color:var(--text-muted);font-size:13px;padding:24px 0;text-align:center}
+.dorm-filter{display:flex;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.dorm-filter div{padding:8px 18px;font-size:13px;cursor:pointer;color:var(--text-secondary);background:var(--card-bg)}
+.dorm-filter div.active{background:var(--primary);color:#fff;font-weight:600}
+.credit-badge{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;margin-left:6px;vertical-align:1px}
+.credit-badge.lv-good{background:rgba(47,125,91,0.12);color:var(--success)}
+.credit-badge.lv-fair{background:rgba(185,106,31,0.12);color:var(--orange)}
+.credit-badge.lv-mid{background:rgba(107,91,149,0.12);color:var(--purple)}
+.credit-badge.lv-bad{background:rgba(180,35,24,0.12);color:var(--red)}
+.member-row{display:flex;align-items:center;justify-content:space-between;padding:9px 4px;border-bottom:1px solid var(--border);font-size:14px}
+.member-row:last-child{border-bottom:none}
+.member-row .mr-name{font-weight:600}
+.member-row .mr-tag{font-size:11px;color:var(--orange);background:rgba(185,106,31,0.1);padding:1px 8px;border-radius:999px;margin-left:6px}
+.member-row .mr-actions{display:flex;gap:6px}
 
 /* ==================== Seating ==================== */
 .seating-toolbar{
@@ -1689,6 +1739,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4.5" width="14" height="16" rx="2"/><path d="M9 4.5V3h6v1.5"/><path d="M9 10h6M9 14h6M9 17.5h3.5"/></symbol>
 <symbol id="i-pin" viewBox="0 0 24 24"><path d="M9 3.5h6l-.7 6 3.2 3.5H6.5l3.2-3.5z"/><path d="M12 13v7.5"/></symbol>
 <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+<symbol id="i-dorm" viewBox="0 0 24 24"><path d="M3.5 12 7 6h10l3.5 6"/><path d="M5 12v7.5h14V12"/><path d="M8.5 19.5v-4h7v4"/><path d="M12 16V9.5"/></symbol>
 </svg>
 
 <!-- ==================== Login Page ==================== -->
@@ -1704,7 +1755,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.8.1</div>
+      <div class="login-version">v2.9.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1769,6 +1820,9 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <div class="nav-item" data-page="committee">
         <span class="nav-icon"><svg class="ic"><use href="#i-badge"/></svg></span><span>班委管理</span>
       </div>
+      <div class="nav-item" data-page="dorm">
+        <span class="nav-icon"><svg class="ic"><use href="#i-dorm"/></svg></span><span>寝室管理</span>
+      </div>
       <div class="nav-item" data-page="seating">
         <span class="nav-icon"><svg class="ic"><use href="#i-seat"/></svg></span><span>座次表</span>
       </div>
@@ -1806,7 +1860,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.8.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.9.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -1965,6 +2019,23 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="committee-grid" id="committeeGrid"></div>
       </div>
 
+      <!-- Dorm Page -->
+      <div class="page" id="page-dorm">
+        <div class="page-toolbar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:10px;flex-wrap:wrap">
+          <div class="section-title" style="margin:0"><span class="dot"></span>寝室管理</div>
+          <div class="dorm-filter" id="dormFilter">
+            <div class="active" data-g="all" onclick="setDormFilter('all')">全部</div>
+            <div data-g="男" onclick="setDormFilter('男')">男生</div>
+            <div data-g="女" onclick="setDormFilter('女')">女生</div>
+          </div>
+        </div>
+        <div class="dorm-stats" id="dormStats"></div>
+        <div class="dorm-grid" id="dormGrid"></div>
+        <div style="margin-top:14px;font-size:12px;color:var(--text-muted)">
+          寝室号与走读状态均由学生档案标签派生（标签即唯一数据源，改标签＝改寝室）；进入本页会自动把旧「X栋-X室-X床」格式去掉床号。
+        </div>
+      </div>
+
       <!-- Seating Page -->
       <div class="page" id="page-seating">
         <div class="seating-toolbar">
@@ -2058,12 +2129,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             </div>
             <input type="number" id="customCredit" placeholder="自定义" style="width:100px;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px" oninput="onCreditInputChange()">
             <button class="btn btn-primary btn-sm" id="customApplyBtn" onclick="customCreditApply()" disabled>应用</button>
-            <select id="creditReason" style="max-width:180px;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px" onchange="onCreditInputChange()">
+            <select id="creditReason" style="max-width:180px;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px" onchange="onCreditReasonChange()">
               <option value="">原因（必选）</option>
             </select>
           </div>
-          <div style="margin-top:8px">
+          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-outline btn-sm" onclick="undoLastOp()" id="undoBtn" disabled>↶ 撤销上一次</button>
+            <button class="btn btn-primary btn-sm" onclick="openMonthlySettle()">🗓️ 月度自动加分（制度对齐）</button>
           </div>
         </div>
 
@@ -2605,6 +2677,57 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
   </div>
 </div>
 
+<!-- Modal: Dorm Members（寝室成员管理） -->
+<div class="modal-overlay" id="dormMemberModal">
+  <div class="modal" style="max-width:520px;width:94vw">
+    <h3 id="dormMemberTitle">寝室成员</h3>
+    <div class="modal-body">
+      <div id="dormMemberList" style="max-height:300px;overflow-y:auto"></div>
+      <div id="dormMemberAddWrap" style="margin-top:14px;border-top:1px dashed var(--border);padding-top:12px">
+        <label>添加学生（仅同性别、未分配寝室且非走读）</label>
+        <select id="dormAddSelect" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px;margin-top:6px">
+          <option value="">请选择学生...</option>
+        </select>
+      </div>
+      <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">寝室号由学生档案标签决定；移出寝室＝移除该寝室号标签。</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('dormMemberModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: 走读生名单 -->
+<div class="modal-overlay" id="dayBoardingModal">
+  <div class="modal" style="max-width:520px;width:94vw">
+    <h3>走读生名单</h3>
+    <div class="modal-body">
+      <div id="dayBoardingList" style="max-height:360px;overflow-y:auto"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('dayBoardingModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: 月度自动结算预览 -->
+<div class="modal-overlay" id="monthlySettleModal">
+  <div class="modal" style="max-width:560px;width:94vw">
+    <h3>月度自动加分（制度对齐）</h3>
+    <div class="modal-body">
+      <div id="monthlySettleSummary" style="font-size:14px;line-height:1.9"></div>
+      <div id="monthlySettleList" style="margin-top:10px;max-height:260px;overflow-y:auto;font-size:13px;color:var(--text-secondary)"></div>
+      <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
+        规则源自《班级规章制度及学分奖惩管理制度》：月度无迟到/早退/旷课/违纪 +3；在任班委本月无违纪，额外 +3（班委履职）。每人每月只结算一次。
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('monthlySettleModal')">取消</button>
+      <button class="btn btn-primary" id="monthlySettleConfirmBtn" onclick="confirmMonthlySettle()">确认加分</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Student Select (for committee, seating, duty) -->
 <div class="modal-overlay" id="studentSelectModal">
   <div class="modal">
@@ -2902,7 +3025,31 @@ function getGHToken(){
 }
 function setGHToken(t){ localStorage.setItem('gh_sync_token', t); }
 function hasGHToken(){ return !!getGHToken(); }
-const defaultReasons = ['课堂回答','作业优秀','考试进步','纪律违规','迟到','卫生值日','活动参与','竞赛获奖','其他'];
+/* 加扣分原因：对齐《26级幼保2班班级规章制度及学分奖惩管理制度》第二、三章
+   正值＝加分项，负值＝违纪扣分项，数值直接取自制度原文 */
+const defaultReasons = [
+  '月度全勤','课堂表现积极','作业全月优秀','考试进步','班级活动参与','校级获奖','班级参赛',
+  '卫生优秀个人','有效检举','协助班级工作','检举属实',
+  '迟到早退','旷课','请假手续不全','课堂违纪','扰乱课堂顶撞老师','集会违纪',
+  '作业缺交迟交','作业抄袭考试作弊','值日偷懒卫生脏乱','损坏公物','宿舍违纪',
+  '同学冲突','欺凌造谣','虚假举报','其他'
+];
+const defaultReasonScores = {
+  '月度全勤':3, '课堂表现积极':1, '作业全月优秀':3, '考试进步':3, '班级活动参与':2,
+  '校级获奖':5, '班级参赛':3, '卫生优秀个人':2, '有效检举':2, '协助班级工作':2, '检举属实':2,
+  '迟到早退':-2, '旷课':-5, '请假手续不全':-4, '课堂违纪':-3, '扰乱课堂顶撞老师':-6, '集会违纪':-3,
+  '作业缺交迟交':-2, '作业抄袭考试作弊':-8, '值日偷懒卫生脏乱':-3, '损坏公物':-4, '宿舍违纪':-3,
+  '同学冲突':-5, '欺凌造谣':-6, '虚假举报':-5
+};
+/* 学分等级：制度第六章（≥100 优秀 / 90-100 合格 / 80-90 一般 / <80 不合格） */
+function creditLevel(credit){
+  var c = Number(credit);
+  if(isNaN(c)) return {label:'', cls:''};
+  if(c >= 100) return {label:'优秀', cls:'lv-good'};
+  if(c >= 90)  return {label:'合格', cls:'lv-fair'};
+  if(c >= 80)  return {label:'一般', cls:'lv-mid'};
+  return {label:'不合格', cls:'lv-bad'};
+}
 const presetTags = ['寝室长','班委','课代表','特长生','需关注'];
 const tagColorMap = {
   '寝室长':'stag-blue','班委':'stag-purple','课代表':'stag-green',
@@ -2912,18 +3059,29 @@ function getTagClass(tag){
   return tagColorMap[tag] || 'stag-gray';
 }
 
+/* 班委岗位：对齐《26级幼保2班班委岗位职责与竞选监督管理制度》第二章（常设 8 岗）
+   tag 为学生档案上自动打的岗位标签（任命即打、免职即摘，标签为唯一数据源） */
 const committeeConfig = [
-  {key:'banzhang', title:'班长', role:'班长', count:'1人', color:'blue',
-   desc:'全面负责班级日常事务，统筹各班委工作，主持班会，代表班级与老师沟通'},
-  {key:'fubanzhang', title:'副班长兼团支书', role:'副班长兼团支书', count:'1人', color:'purple',
-   desc:'协助班长处理事务，负责考勤记录、团务工作、纪律记录（副班长记录，班长裁定机制）'},
-  {key:'xuexi', title:'学习委员', role:'学习委员', count:'1人', color:'green',
-   desc:'负责收发作业、学习氛围建设、协助任课老师、学习互助小组'},
-  {key:'shenghuo', title:'生活委员', role:'生活委员', count:'1人', color:'orange',
-   desc:'负责班费管理、卫生值日安排、饮水搬运、教室及公共区域卫生监督'},
-  {key:'tiyu', title:'体育委员', role:'体育委员', count:'1人', color:'red',
-   desc:'负责早操集合、体育课组织、班级活动场地安排、运动会组织'}
+  {key:'banzhang', title:'班长', tag:'班长', count:'1人', color:'blue',
+   desc:'班级第一负责人：统筹班级全面工作，对接班主任与学校各部门，主持班会与班级会议，协调督促全体班委履职，定期汇报班级整体状况'},
+  {key:'fubanzhang', title:'副班长兼团支书', tag:'副班长', count:'1人', color:'purple',
+   desc:'协助班长管理日常事务，班长缺位时全权代行；兼任团支书负责团员统计、团课、评优推优；记录工作台账、整理班级与团务档案'},
+  {key:'jilv', title:'纪律委员', tag:'纪律委员', count:'1人', color:'red',
+   desc:'每日记录课堂考勤与迟到、早退、旷课、违纪台账，维护课堂、晚自习、集会秩序，每周汇总并公示违纪名单'},
+  {key:'xuexi', title:'学习委员', tag:'学习委员', count:'1人', color:'green',
+   desc:'对接各科任课老师，负责作业收发与缺交登记，组织学习互助、刷题打卡与考前复习，统计成绩协助培优补差'},
+  {key:'tiyu', title:'体育委员', tag:'体育委员', count:'1人', color:'orange',
+   desc:'负责早操、课间操、体育课整队考勤，组织运动会、体育比赛与体质测试，管理器材借用登记，组建参赛队伍'},
+  {key:'shenghuo', title:'生活委员', tag:'生活委员', count:'1人', color:'teal',
+   desc:'统筹教室卫生、值日排班与卫生检查，管理班费收纳登记公示、公物耗材保管，关注同学生活与宿舍问题'},
+  {key:'wenyi', title:'文艺委员', tag:'文艺委员', count:'1人', color:'pink',
+   desc:'结合幼保专业特色组织文艺汇演、才艺展示与班级文化布置，筹备文艺比赛展演，组织手工、歌舞、绘本实训'},
+  {key:'xinli', title:'心理委员', tag:'心理委员', count:'1人', color:'indigo',
+   desc:'关注同学心理状态与情绪变化，及时沟通安抚疏导，组织心理健康主题班会，建立关怀台账定期反馈'}
 ];
+const COMMITTEE_TAG = '班委';
+const COMMITTEE_POSITION_TAGS = committeeConfig.map(c=>c.tag);
+const DEFAULT_COMMITTEE = {banzhang:null, fubanzhang:null, jilv:null, xuexi:null, tiyu:null, shenghuo:null, wenyi:null, xinli:null};
 
 let state = {
   className: '高一（1）班',
@@ -2939,7 +3097,7 @@ let state = {
   lastExport: null,
   lastImport: null,
   scheduleImage: null,
-  committee: { banzhang:null, fubanzhang:null, xuexi:null, shenghuo:null, tiyu:null },
+  committee: Object.assign({}, DEFAULT_COMMITTEE),
   seating: { cols:8, rows:5, seats:[] },
   duty: { currentWeek:0, schedule:[], waterDuty:[], waterUsedIds:[], waterRound:1 },  // 值日排班
   exportedOpsCount: 0,  // 上次导出时的操作总数，用于计算未导出操作数
@@ -2966,8 +3124,11 @@ function loadData(){
       state.className = d.className || state.className;
       state.students = d.students || [];
       state.operations = d.operations || [];
-      state.reasons = d.reasons || [...defaultReasons];
-      state.reasonScores = d.reasonScores || {};
+      // 原因模板：保留老板自定义的原因，并补齐制度新增项（不删除已有项）
+      state.reasons = (d.reasons && d.reasons.length)
+        ? d.reasons.concat(defaultReasons.filter(function(r){ return d.reasons.indexOf(r) < 0; }))
+        : [...defaultReasons];
+      state.reasonScores = Object.assign({}, defaultReasonScores, d.reasonScores || {});
       state.nextId = d.nextId || (d.students?.length + 1 || 1);
       state.nextOpId = d.nextOpId || (d.operations?.length + 1 || 1);
       state.nextSid = d.nextSid || 1;
@@ -2975,7 +3136,8 @@ function loadData(){
       state.lastImport = d.lastImport || null;
       state.selectedStudents = new Set();
       state.scheduleImage = d.scheduleImage || null;
-      state.committee = d.committee || { banzhang:null, fubanzhang:null, xuexi:null, shenghuo:null, tiyu:null };
+      // 班委：旧数据可能只有 5 岗，补齐制度 8 岗的空键（已有任命原样保留）
+      state.committee = Object.assign({}, DEFAULT_COMMITTEE, d.committee || {});
       state.seating = d.seating || { cols:8, rows:5, seats:[] };
       state.duty = d.duty || { currentWeek:0, schedule:[], waterDuty:[], waterUsedIds:[], waterRound:1 };
       state.exportedOpsCount = d.exportedOpsCount || 0;
@@ -3125,6 +3287,10 @@ function smartMergeData(localData,remoteData){
     if(remoteData.seating)merged.seating=remoteData.seating;
     if(remoteData.duty)merged.duty=remoteData.duty;
   }
+  // committee: 按岗位键合并——本地已有任命不丢，远端补空位（v2.9.0 新增 3 岗时旧数据自动补齐）
+  var cm=Object.assign({}, DEFAULT_COMMITTEE, remoteData.committee||{});
+  Object.keys(localData.committee||{}).forEach(function(k){ if(localData.committee[k]) cm[k]=localData.committee[k]; });
+  merged.committee=cm;
   // simple fields
   if(!merged.className&&remoteData.className)merged.className=remoteData.className;
   if(!merged.classMotto&&remoteData.classMotto)merged.classMotto=remoteData.classMotto;
@@ -3389,7 +3555,7 @@ function loadSampleData(){
 
 /* ==================== Navigation ==================== */
 const pageTitles = {
-  dashboard:'工作台首页', students:'学生管理', committee:'班委管理',
+  dashboard:'工作台首页', students:'学生管理', committee:'班委管理', dorm:'寝室管理',
   seating:'座次表', duty:'值日排表', credits:'学分记录', honors:'荣誉墙',
   analytics:'数据分析', settings:'设置',
   attendance:'请假管理', grades:'成绩管理', todo:'待办提醒',
@@ -3412,6 +3578,7 @@ function navigateTo(page){
   if(page==='dashboard') renderDashboard();
   if(page==='students'){renderStudents();initStudentTabIndicator();}
   if(page==='committee') renderCommittee();
+  if(page==='dorm') renderDorm();
   if(page==='seating'){syncInlineSeatInputs();renderSeating();initSeatIndicator();}
   if(page==='duty'){renderDuty();renderDutyToday();renderWaterDuty();}
   if(page==='attendance') renderAttendance();
@@ -4098,6 +4265,7 @@ function deleteStudent(id){
   for(const k in state.committee){
     if(state.committee[k] === id) state.committee[k] = null;
   }
+  syncCommitteeTags();
   state.seating.seats = state.seating.seats.filter(s=>s.studentId !== id);
   state.duty.schedule = state.duty.schedule.filter(s=>s.studentId !== id);
   saveData();
@@ -4272,7 +4440,31 @@ function addCustomTag(id){
 }
 
 /* ==================== Committee ==================== */
+/* 标签同步核心：任命表 state.committee 是唯一真源，学生标签由其派生。
+   调用时机：任命 / 免职 / 删除学生 / 进入班委页（顺带校正历史脏数据）。
+   只清理班委相关标签（'班委'、8 个岗位标签、旧'团支书'），其余标签（寝室号/走读/寝室长…）原样保留。 */
+function syncCommitteeTags(){
+  if(!state.students) return false;
+  var changed = false;
+  state.students.forEach(function(s){
+    var posTags = committeeConfig.filter(function(c){ return state.committee[c.key] === s.id; }).map(function(c){ return c.tag; });
+    var kept = (s.tags||[]).filter(function(t){
+      return t !== COMMITTEE_TAG && t !== '团支书' && COMMITTEE_POSITION_TAGS.indexOf(t) < 0;
+    });
+    var next = kept.slice();
+    if(posTags.length){ next = next.concat(posTags); next.push(COMMITTEE_TAG); }
+    if(JSON.stringify(next) !== JSON.stringify(s.tags||[])){
+      s.tags = next;
+      s.updatedAt = Date.now();
+      changed = true;
+    }
+  });
+  return changed;
+}
+
 function renderCommittee(){
+  // 进页面先校正一次标签（旧数据'团支书'标签、岗位标签残留等一律归位）
+  if(syncCommitteeTags()) saveData();
   const grid = document.getElementById('committeeGrid');
   grid.innerHTML = committeeConfig.map((cfg,idx)=>{
     const studentId = state.committee[cfg.key];
@@ -4316,15 +4508,11 @@ function confirmStudentSelect(){
   if(ctx === 'committee'){
     const key = modal.dataset.key;
     state.committee[key] = studentId;
-    // Add '班委' tag to appointed student
-    const s = state.students.find(st=>st.id===studentId);
-    if(s){
-      if(!s.tags) s.tags = [];
-      if(!s.tags.includes('班委')) s.tags.push('班委');
-    }
+    syncCommitteeTags();
     saveData();
     renderCommittee();
-    showToast('班委已任命','success');
+    const posTitle = (committeeConfig.find(c=>c.key===key)||{}).title || '班委';
+    showToast(`已任命：${posTitle}`,'success');
   } else if(ctx === 'seating'){
     const row = parseInt(modal.dataset.row);
     const col = parseInt(modal.dataset.col);
@@ -4373,16 +4561,8 @@ function confirmStudentSelectRemove(){
   const ctx = modal.dataset.context;
   if(ctx === 'committee'){
     const key = modal.dataset.key;
-    const oldId = state.committee[key];
     state.committee[key] = null;
-    // Check if student still holds any committee position
-    const stillCommittee = Object.values(state.committee).some(v=>v===oldId);
-    if(!stillCommittee){
-      const s = state.students.find(st=>st.id===oldId);
-      if(s && s.tags){
-        s.tags = s.tags.filter(t=>t!=='班委');
-      }
-    }
+    syncCommitteeTags();
     saveData();
     renderCommittee();
     showToast('已免职','info');
@@ -4701,6 +4881,215 @@ function clearDuty(){
   showToast('已清空值日安排','info');
 }
 
+/* ==================== Dorm（寝室管理） ====================
+   设计原则（对齐小程序版）：不存第二份数据——寝室号/走读/寝室长全部由学生标签派生，
+   学生页改标签 ⇄ 寝室页立刻同步；床号不管理，旧「X栋-X室-X床」进页面自动去床号。 */
+const DAY_TAG = '走读';          // 走读生标签
+const LEADER_TAG = '寝室长';     // 寝室长标签
+const DORM_RE = /^\d+栋-?\d+室$/; // 寝室号标签格式：6栋-802室 / 6栋802室
+
+function normalizeDormTag(t){
+  if(typeof t !== 'string') return t;
+  // 旧格式「6栋-802室-7床」→ 去床号，只保留寝室号
+  if(/^\d+栋-?\d+室-\d+床$/.test(t)) return t.replace(/-\d+床$/, '');
+  if(/^\d+栋-?\d+室\d+床$/.test(t)) return t.replace(/\d+床$/, '');
+  return t;
+}
+
+function isDormTag(t){
+  return typeof t === 'string' && DORM_RE.test(normalizeDormTag(t));
+}
+
+function studentGender(s){
+  return (s && s.profile && s.profile.gender) ? String(s.profile.gender).trim() : '';
+}
+
+function dormNoOf(s){
+  var tags = (s && s.tags) || [];
+  for(var i=0;i<tags.length;i++){ if(isDormTag(tags[i])) return normalizeDormTag(tags[i]); }
+  return '';
+}
+
+function isDayBoarding(s){
+  return ((s && s.tags) || []).indexOf(DAY_TAG) >= 0;
+}
+
+/* 聚合寝室：返回 [{no, members:[{id,name,gender,leader}]}, ...]，按楼栋+房间号自然排序 */
+function buildDormMap(students){
+  var map = {};
+  (students||[]).forEach(function(s){
+    var no = dormNoOf(s);
+    if(!no) return;
+    if(!map[no]) map[no] = {no:no, members:[]};
+    map[no].members.push({
+      id: s.id,
+      name: s.name,
+      sid: s.sid || '',
+      gender: studentGender(s),
+      leader: ((s.tags)||[]).indexOf(LEADER_TAG) >= 0
+    });
+  });
+  var arr = Object.keys(map).map(function(k){ return map[k]; });
+  arr.sort(function(a,b){
+    var na = (a.no.match(/\d+/g)||[]).map(Number);
+    var nb = (b.no.match(/\d+/g)||[]).map(Number);
+    for(var i=0;i<Math.max(na.length,nb.length);i++){
+      var x = na[i]||0, y = nb[i]||0;
+      if(x !== y) return x - y;
+    }
+    return a.no.localeCompare(b.no, 'zh-Hans-CN');
+  });
+  arr.forEach(function(d){
+    d.members.sort(function(p,q){
+      return p.sid && q.sid ? String(p.sid).localeCompare(String(q.sid)) : p.name.localeCompare(q.name, 'zh-Hans-CN');
+    });
+  });
+  return arr;
+}
+
+var dormFilter = 'all';
+
+function setDormFilter(g){
+  dormFilter = g;
+  document.querySelectorAll('#dormFilter div').forEach(function(el){
+    el.classList.toggle('active', el.dataset.g === g);
+  });
+  renderDorm();
+}
+
+function renderDorm(){
+  // 1) 旧床号格式归一（只在发现变化时落盘一次）
+  var changed = false;
+  state.students.forEach(function(s){
+    if(!s.tags) return;
+    var next = s.tags.map(function(t){ return normalizeDormTag(t); });
+    if(JSON.stringify(next) !== JSON.stringify(s.tags)){ s.tags = next; s.updatedAt = Date.now(); changed = true; }
+  });
+  if(changed) saveData();
+
+  var dorms = buildDormMap(state.students).filter(function(d){
+    if(dormFilter === 'all') return true;
+    return d.members.some(function(m){ return m.gender === dormFilter; });
+  });
+  var resident = state.students.filter(function(s){ return !!dormNoOf(s); }).length;
+  var day = state.students.filter(isDayBoarding).length;
+
+  document.getElementById('dormStats').innerHTML =
+    '<div class="stat-card"><div class="stat-label">寝室数</div><div class="stat-value" style="color:var(--primary-dark)">' + dorms.length + '</div></div>' +
+    '<div class="stat-card"><div class="stat-label">住校生</div><div class="stat-value" style="color:var(--success)">' + resident + '</div></div>' +
+    '<div class="stat-card"><div class="stat-label">走读生</div><div class="stat-value" style="color:var(--orange)">' + day + '</div></div>';
+
+  var html = dorms.map(function(d){
+    var leader = d.members.filter(function(m){ return m.leader; })[0];
+    return '<div class="dorm-card" onclick="openDorm(\'' + escapeAttr(d.no) + '\')">' +
+      '<div class="dc-head"><span class="dc-no">' + escapeHtml(d.no) + '</span>' +
+      '<span class="dc-count">' + d.members.length + ' 人</span></div>' +
+      '<div class="dc-leader' + (leader ? '' : ' none') + '">寝室长：<b>' + (leader ? escapeHtml(leader.name) : '未设置') + '</b></div>' +
+      '<div class="dc-members">' + d.members.map(function(m){
+        return '<span>' + escapeHtml(m.name) + (m.leader ? ' ★' : '') + '</span>';
+      }).join('') + '</div>' +
+    '</div>';
+  }).join('');
+
+  if(day > 0){
+    html += '<div class="dorm-card dayboarding" onclick="openDayBoardingList()">' +
+      '<div class="dc-head"><span class="dc-no">走读生</span><span class="dc-count" style="background:rgba(185,106,31,0.12);color:var(--orange)">' + day + ' 人</span></div>' +
+      '<div class="dc-leader">点击查看走读生名单</div></div>';
+  }
+
+  document.getElementById('dormGrid').innerHTML = html ||
+    '<div class="dorm-empty">暂无寝室数据。可在「学生管理 → 标签」为学生添加寝室号标签（如 6栋-802室），或在寝室成员弹窗中直接添加。</div>';
+}
+
+function openDorm(no){
+  if(!/^\d+栋-?\d+室$/.test(no)) return;
+  var d = buildDormMap(state.students).filter(function(x){ return x.no === no; })[0];
+  if(!d) return;
+  document.getElementById('dormMemberTitle').textContent = no + ' · ' + d.members.length + ' 人';
+  document.getElementById('dormMemberList').innerHTML = d.members.map(function(m){
+    return '<div class="member-row">' +
+      '<span><span class="mr-name">' + escapeHtml(m.name) + '</span>' +
+      '<span style="font-size:12px;color:var(--text-muted);margin-left:6px">' + escapeHtml(m.sid) + (m.gender ? ' · ' + escapeHtml(m.gender) : '') + '</span>' +
+      (m.leader ? '<span class="mr-tag">寝室长</span>' : '') + '</span>' +
+      '<span class="mr-actions">' +
+        (m.leader ? '' : '<button class="btn btn-outline btn-sm" onclick="setDormLeader(' + m.id + ',\'' + escapeAttr(no) + '\')">设为寝室长</button>') +
+        '<button class="btn btn-outline btn-sm" onclick="removeDormMember(' + m.id + ',\'' + escapeAttr(no) + '\')">移出</button>' +
+      '</span></div>';
+  }).join('');
+
+  // 候选：同性别、无寝室号、非走读
+  var g = (d.members.filter(function(m){ return m.gender; })[0] || {}).gender || '';
+  var cands = state.students.filter(function(s){
+    if(dormNoOf(s) || isDayBoarding(s)) return false;
+    return !g || !studentGender(s) || studentGender(s) === g;
+  });
+  var sel = document.getElementById('dormAddSelect');
+  if(sel){
+    sel.innerHTML = '<option value="">请选择学生...</option>' + cands.map(function(s){
+      return '<option value="' + s.id + '">' + escapeHtml(s.name) + ' (' + (s.sid || s.id) + ')</option>';
+    }).join('');
+    sel.onchange = function(){ if(sel.value) addDormMember(parseInt(sel.value,10), no); };
+    sel.disabled = cands.length === 0;
+  }
+  openModal('dormMemberModal');
+}
+
+function setDormLeader(id, no){
+  var target = state.students.filter(function(s){ return s.id === id; })[0];
+  if(!target) return;
+  // 只清同寝室其他人的寝室长标签
+  state.students.forEach(function(s){
+    if(s.id === id) return;
+    if(dormNoOf(s) !== no) return;
+    if((s.tags||[]).indexOf(LEADER_TAG) >= 0){ s.tags = s.tags.filter(function(t){ return t !== LEADER_TAG; }); s.updatedAt = Date.now(); }
+  });
+  if(!target.tags) target.tags = [];
+  if(target.tags.indexOf(LEADER_TAG) < 0) target.tags.push(LEADER_TAG);
+  target.updatedAt = Date.now();
+  saveData();
+  renderDorm();
+  showToast('已设为 ' + no + ' 寝室长：' + target.name, 'success');
+  openDorm(no);
+}
+
+function removeDormMember(id, no){
+  var s = state.students.filter(function(x){ return x.id === id; })[0];
+  if(!s) return;
+  s.tags = (s.tags||[]).filter(function(t){ return normalizeDormTag(t) !== no; });
+  if((s.tags||[]).indexOf(LEADER_TAG) >= 0) s.tags = s.tags.filter(function(t){ return t !== LEADER_TAG; });
+  s.updatedAt = Date.now();
+  saveData();
+  renderDorm();
+  showToast('已移出 ' + no + '：' + s.name, 'info');
+  openDorm(no);
+}
+
+function addDormMember(id, no){
+  var s = state.students.filter(function(x){ return x.id === id; })[0];
+  if(!s) return;
+  var old = dormNoOf(s);
+  s.tags = (s.tags||[]).filter(function(t){ return !isDormTag(t) && t !== DAY_TAG; });
+  s.tags.push(no);
+  s.updatedAt = Date.now();
+  saveData();
+  renderDorm();
+  showToast(s.name + (old ? ' 已从 ' + old + ' 调至 ' : ' 已加入 ') + no, 'success');
+  openDorm(no);
+}
+
+function openDayBoardingList(){
+  var list = state.students.filter(isDayBoarding).sort(function(a,b){
+    return a.sid && b.sid ? String(a.sid).localeCompare(String(b.sid)) : a.name.localeCompare(b.name, 'zh-Hans-CN');
+  });
+  document.getElementById('dayBoardingList').innerHTML = list.map(function(s){
+    var phone = (s.profile && s.profile.phone) || '';
+    return '<div class="member-row"><span><span class="mr-name">' + escapeHtml(s.name) + '</span>' +
+      '<span style="font-size:12px;color:var(--text-muted);margin-left:6px">' + escapeHtml(s.sid || '') + '</span></span>' +
+      '<span style="font-size:13px;color:var(--text-secondary)">' + escapeHtml(phone) + '</span></div>';
+  }).join('') || '<div class="dorm-empty">暂无走读生</div>';
+  openModal('dayBoardingModal');
+}
+
 /* ==================== Credits Page ==================== */
 function renderReasonSelects(){
   const selects = ['creditReason','batchReason'];
@@ -4709,7 +5098,11 @@ function renderReasonSelects(){
     if(!el) return;
     const val = el.value;
     el.innerHTML = '<option value="">原因（必选）</option>' +
-      state.reasons.map(r=>`<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
+      state.reasons.map(function(r){
+        var sc = (state.reasonScores || {})[r];
+        var hint = (typeof sc === 'number' && sc !== 0) ? ' (' + (sc > 0 ? '+' : '') + sc + ')' : '';
+        return '<option value="' + escapeHtml(r) + '">' + escapeHtml(r + hint) + '</option>';
+      }).join('');
     el.value = val;
   });
 }
@@ -4744,8 +5137,10 @@ function filterCreditStudents(){
     return;
   }
   dd.innerHTML = list.map(function(s){
-    return '<div class="search-select-item" data-sid="'+s.id+'" data-name="'+s.name+'" style="padding:8px 12px;cursor:pointer;font-size:14px;border-radius:6px">'+
-      '<span style="font-weight:600">'+s.name+'</span> <span style="color:var(--text-muted);font-size:12px">(#'+s.sid+') · 学分 '+s.credit+'</span>'+
+    var lv = creditLevel(s.credit);
+    return '<div class="search-select-item" data-sid="'+s.id+'" data-name="'+escapeAttr(s.name)+'" style="padding:8px 12px;cursor:pointer;font-size:14px;border-radius:6px">'+
+      '<span style="font-weight:600">'+escapeHtml(s.name)+'</span> <span style="color:var(--text-muted);font-size:12px">(#'+escapeHtml(s.sid)+') · 学分 '+Number(s.credit)+'</span>'+
+      (lv.label ? '<span class="credit-badge '+lv.cls+'">'+lv.label+'</span>' : '') +
     '</div>';
   }).join('');
   dd.style.display = '';
@@ -4801,6 +5196,74 @@ function updateCreditBtnStates(){
 }
 function onCreditInputChange(){ updateCreditBtnStates(); }
 function onCreditInputSearch(){ filterCreditStudents(); updateCreditBtnStates(); }
+
+/* 选原因自动带出制度分值（可手改） */
+function onCreditReasonChange(){
+  var r = document.getElementById('creditReason').value;
+  var score = (state.reasonScores || {})[r];
+  var custom = document.getElementById('customCredit');
+  if(custom) custom.value = (typeof score === 'number' && score !== 0) ? score : '';
+  updateCreditBtnStates();
+}
+
+/* ==================== 月度自动加分（制度对齐，可预览可撤销） ====================
+   规则源自制度第二/三章：
+   · 月度全勤（本月无任何违纪扣分记录）→ +3
+   · 在任班委且本月无违纪 → 额外 +3（班委履职加分）
+   同一学生同月同原因只结算一次，重复点击不会叠加。 */
+function monthKeyOf(ts){
+  var d = new Date(ts);
+  return d.getFullYear() + '-' + (d.getMonth() + 1);
+}
+
+function monthlySettlePlan(nowTs){
+  nowTs = nowTs || Date.now();
+  var mk = monthKeyOf(nowTs);
+  var attend = [], bonus = [];
+  var settled = {}; // 已结算过的 (id+原因) 记录，防重复
+  (state.operations || []).forEach(function(op){
+    if(monthKeyOf(op.time) !== mk) return;
+    settled[op.studentId + '|' + op.reason] = true;
+  });
+  (state.students || []).forEach(function(s){
+    var hasViolation = (state.operations || []).some(function(op){
+      return op.studentId === s.id && op.amount < 0 && monthKeyOf(op.time) === mk;
+    });
+    if(hasViolation) return;
+    var isCommittee = Object.keys(state.committee || {}).some(function(k){ return state.committee[k] === s.id; });
+    if(!settled[s.id + '|月度全勤']) attend.push({id:s.id, name:s.name, amount:3, reason:'月度全勤'});
+    if(isCommittee && !settled[s.id + '|班委履职加分']) bonus.push({id:s.id, name:s.name, amount:3, reason:'班委履职加分'});
+  });
+  return {month:mk, attend:attend, bonus:bonus};
+}
+
+function openMonthlySettle(){
+  var plan = monthlySettlePlan();
+  if(plan.attend.length === 0 && plan.bonus.length === 0){
+    showToast('本月暂无符合自动加分条件的学生（或已结算）', 'info');
+    return;
+  }
+  document.getElementById('monthlySettleSummary').innerHTML =
+    '<div>结算月份：<b>' + escapeHtml(plan.month) + '</b></div>' +
+    '<div>月度全勤 <b>+3</b>：<b style="color:var(--success)">' + plan.attend.length + '</b> 人</div>' +
+    '<div>班委履职 <b>+3</b>（无违纪在任班委）：<b style="color:var(--primary-dark)">' + plan.bonus.length + '</b> 人</div>' +
+    '<div>合计加分：<b>' + (plan.attend.length + plan.bonus.length) * 3 + '</b> 分</div>';
+  document.getElementById('monthlySettleList').innerHTML =
+    (plan.attend.length ? '<div><b>月度全勤</b>：' + plan.attend.map(function(x){ return escapeHtml(x.name); }).join('、') + '</div>' : '') +
+    (plan.bonus.length ? '<div style="margin-top:6px"><b>班委履职</b>：' + plan.bonus.map(function(x){ return escapeHtml(x.name); }).join('、') + '</div>' : '');
+  var btn = document.getElementById('monthlySettleConfirmBtn');
+  if(btn) btn.disabled = false;
+  openModal('monthlySettleModal');
+}
+
+function confirmMonthlySettle(){
+  var plan = monthlySettlePlan();
+  var list = plan.attend.concat(plan.bonus);
+  if(list.length === 0){ showToast('没有可结算的记录', 'warning'); closeModal('monthlySettleModal'); return; }
+  list.forEach(function(item){ applyCredit(item.id, item.amount, item.reason); });
+  closeModal('monthlySettleModal');
+  showToast('月度结算完成：' + list.length + ' 条加分已入账', 'success');
+}
 
 function quickCredit(amount){
   var id = parseInt(_creditSelectedId) || 0;
@@ -7624,6 +8087,7 @@ function touchNotices(){
 <div class="more-item" data-page="worklogs" onclick="navigateTo('worklogs')"><span class="more-icon"><svg class="ic"><use href="#i-note"/></svg></span><span>留痕</span></div>
 <div class="more-item" data-page="honors" onclick="navigateTo('honors')"><span class="more-icon"><svg class="ic"><use href="#i-honor"/></svg></span><span>荣誉</span></div>
     <div class="more-item" data-page="committee" onclick="navigateTo('committee')"><span class="more-icon"><svg class="ic"><use href="#i-badge"/></svg></span><span>班委</span></div>
+    <div class="more-item" data-page="dorm" onclick="navigateTo('dorm')"><span class="more-icon"><svg class="ic"><use href="#i-dorm"/></svg></span><span>寝室</span></div>
     <div class="more-item" data-page="seating" onclick="navigateTo('seating')"><span class="more-icon"><svg class="ic"><use href="#i-seat"/></svg></span><span>座次</span></div>
     <div class="more-item" data-page="duty" onclick="navigateTo('duty')"><span class="more-icon"><svg class="ic"><use href="#i-duty"/></svg></span><span>值日</span></div>
     <div class="more-item" data-page="attendance" onclick="navigateTo('attendance')"><span class="more-icon"><svg class="ic"><use href="#i-leave"/></svg></span><span>请假</span></div>

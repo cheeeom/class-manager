@@ -49,6 +49,8 @@ global.GH_BRANCH = 'main'; global.GH_DATA_PATH = 'data.json';
 global.CLOUD_SYNC_FIELDS = ['className', 'students', 'operations', 'nextId', 'notices'];
 global.cloudDataInfo = null;
 global.lastSyncTime = null;
+// v2.9.0 起 smartMergeData 依赖班委默认 8 岗常量（测试的外部符号桩）
+global.DEFAULT_COMMITTEE = {banzhang:null, fubanzhang:null, jilv:null, xuexi:null, tiyu:null, shenghuo:null, wenyi:null, xinli:null};
 
 // mock fetch：记录请求，按场景返回
 let reqLog = [];
