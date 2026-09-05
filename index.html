@@ -1764,7 +1764,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.11.2</div>
+      <div class="login-version">v2.11.3</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1869,7 +1869,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.11.2 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.11.3 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2876,7 +2876,7 @@ const CLOUD_SYNC_FIELDS = ['className','students','operations','reasons','reason
   'lastExport','lastImport','committee','seating','duty','exportedOpsCount','classMotto',
   'leaves','nextLeaveId','exams','nextExamId','todos','nextTodoId',
   'workLogs','nextWorkLogId','honors','nextHonorId','notices',
-  'scheduleImage','classAvatar'];
+  'scheduleImage','classAvatar','wipeAt'];
 // 通知历史可能内嵌近 1MB 的图片 base64，推送前剥离，防止 data.json 膨胀导致移动端拉取超时
 function stripNoticeHistoryImages(notices){
   if(!notices || !Array.isArray(notices.history)) return notices;
@@ -3002,6 +3002,10 @@ function checkPushSafety(remoteJson){
     }
     return decryptFromCloud(remote).then(function(pt){
       var rc = (pt.students || []).length;
+      // v2.11.3：云端执行过重置（wipeAt 比本机新）→ 本机先对齐清空，禁止把旧数据推上去
+      if((pt.wipeAt || 0) > (state.wipeAt || 0)){
+        return {ok:false, msg:'云端已重置（数据被清空），本机将自动对齐清空', resync:true};
+      }
       if(localCount === 0 && rc > 0){
         return {ok:false, msg:'检测到本机为空、云端有 ' + rc + ' 名学生，已阻止推送并改从云端恢复', resync:true};
       }
@@ -3012,6 +3016,9 @@ function checkPushSafety(remoteJson){
     });
   }
   var rc2 = (remote.students || []).length;
+  if((remote.wipeAt || 0) > (state.wipeAt || 0)){
+    return Promise.resolve({ok:false, msg:'云端已重置（数据被清空），本机将自动对齐清空', resync:true});
+  }
   if(localCount === 0 && rc2 > 0){
     return Promise.resolve({ok:false, msg:'检测到本机为空、云端有 ' + rc2 + ' 名学生，已阻止推送并改从云端恢复', resync:true});
   }
@@ -3020,6 +3027,7 @@ function checkPushSafety(remoteJson){
 // 统一的推送实现（auto / manual 共用）
 // 流程：GET(拿 sha 与云端内容) → checkPushSafety 闸门 → 与云端合并 → 加密 → PUT
 function doPushToCloud(message){
+  if(wipeInProgress){ console.log('[Sync] wipe in progress, skip push:', message); return Promise.resolve(); }
   var token = getGHToken();
   var apiUrl = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH;
   var baseHeaders = { 'Authorization':'token ' + token, 'Accept':'application/vnd.github.v3+json', 'User-Agent':'cm' };
@@ -3070,6 +3078,17 @@ function doPushToCloud(message){
 function applyCloudData(remoteData){
   var localRaw = localStorage.getItem(STORE_KEY);
   var localData = localRaw ? JSON.parse(localRaw) : {};
+  // v2.11.3：云端执行过重置（wipeAt 比本机新）→ 本机强制清空对齐。
+  // 必须在 smartMerge 并集之前拦截，否则旧设备本地的脏数据会「并」回云端复活。
+  if((remoteData.wipeAt || 0) > ((localData && localData.wipeAt) || 0)){
+    localStorage.setItem(STORE_KEY, JSON.stringify(remoteData));
+    loadData();
+    renderWaterDuty(); renderScheduleImage(); renderClassBrand(); renderAll();
+    lastSyncTime = new Date().toISOString();
+    showToast('云端已重置，本机数据已清空对齐','info');
+    console.log('[Sync] Remote wipeAt > local, wiped local to align');
+    return true;
+  }
   var localCount = (localData.students || []).length;
   cloudDataInfo = {
     students: (remoteData.students || []).length,
@@ -3211,7 +3230,8 @@ let state = {
   nextWorkLogId: 1,
   honors: [],
   nextHonorId: 1,
-  notices: { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 }
+  notices: { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 },
+  wipeAt: 0   // v2.11.3 数据重置时间戳：清空数据时更新，其他设备拉取到更大的 wipeAt 会强制清空对齐
 };
 
 function loadData(){
@@ -3260,6 +3280,7 @@ function loadData(){
       state.nextHonorId = d.nextHonorId || 1;
       state.nextTodoId = d.nextTodoId || 1;
       if(d.notices) state.notices = d.notices;
+      state.wipeAt = d.wipeAt || 0;   // v2.11.3 重置时间戳：拉取对齐判断的依据，必须随数据恢复
     }catch(e){ console.error('Load failed',e); }
   }
 }
@@ -3426,8 +3447,11 @@ function smartMergeData(localData,remoteData){
 // 同步锁：拉取进行中禁止推送。P0 竞态的根因就是异步拉取未完成时，
 // 空的本地数据被 saveData() 触发的 autoPushToCloud 抢先推上去覆盖了云端。
 let syncInProgress = false;
+// v2.11.3 重置锁：「清空数据」的强制推送进行中，屏蔽常规 auto push / auto pull，
+// 防止「本机空保护」把云端旧数据恢复回来、或竞态把 115 人旧数据抢推上去。
+let wipeInProgress = false;
 function autoSyncFromCloud(){
-  if(syncInProgress) return Promise.resolve(false);
+  if(syncInProgress || wipeInProgress) return Promise.resolve(false);
   syncInProgress = true;
   return fetch(getDataJsonUrl() + '?t=' + Date.now(), {cache: 'no-store'})
     .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -3469,6 +3493,11 @@ function autoPushToCloud(){
     if(syncInProgress){
       console.log('[Sync] Pull in progress, defer auto push');
       _pushPending = true;
+      return;
+    }
+    // v2.11.3 重置推送进行中：常规 auto push 一律跳过（强推由 pushWipeToCloud 负责）
+    if(wipeInProgress){
+      console.log('[Sync] wipe in progress, skip auto push');
       return;
     }
     doPushToCloud('auto-sync: update data.json')
@@ -7098,23 +7127,84 @@ function handleImportFile(event){
 }
 
 function clearData(){
-  if(!confirm('确认清空所有数据？此操作不可撤销！')) return;
-  if(!confirm('再次确认：所有学生和操作记录将被永久删除！')) return;
+  if(!confirm('确认清空所有数据？\n\n将清空本机数据，并自动把云端也清空（其他设备打开时会自动对齐清空，旧数据不会复活）。\n班级名称、头像、格言、课表图会保留。\n\n此操作不可撤销！')) return;
+  if(!confirm('再次确认：所有学生、学分记录、值日排班、罚扫、请假、考试等将被永久删除！')) return;
+  // 保留品牌/配置类：className / classMotto / classAvatar / scheduleImage
   localStorage.removeItem(STORE_KEY);
   state.students = [];
   state.operations = [];
   state.reasons = [...defaultReasons];
+  state.reasonScores = Object.assign({}, defaultReasonScores);
   state.nextId = 1;
   state.nextOpId = 1;
   state.nextSid = 1;
-  state.className = '高一班级';
-  state.scheduleImage = null;
-  state.committee = { banzhang:null, fubanzhang:null, xuexi:null, shenghuo:null, tiyu:null };
+  state.lastExport = null;
+  state.lastImport = null;
+  state.committee = Object.assign({}, DEFAULT_COMMITTEE);
   state.seating = { cols:8, rows:5, seats:[] };
-  state.duty = { currentWeek:0, schedule:[], waterDuty:[], waterUsedIds:[], waterRound:1 };
+  state.duty = { currentWeek:0, schedule:[], waterDuty:[], waterUsedIds:[], waterRound:1,
+                 queue:[], cursorId:null, round:1, servedIds:[], roundLedger:[], lastGenWeek:-1, waterCursorId:null };
+  state.punishments = [];
+  state.nextPunishId = 1;
+  state.exportedOpsCount = 0;
+  state.leaves = [];
+  state.nextLeaveId = 1;
+  state.exams = [];
+  state.nextExamId = 1;
+  state.todos = [];
+  state.nextTodoId = 1;
+  state.workLogs = [];
+  state.nextWorkLogId = 1;
+  state.honors = [];
+  state.nextHonorId = 1;
+  state.notices = { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 };
+  state.selectedStudents = new Set();
+  state.wipeAt = Date.now();   // v2.11.3 重置戳：其他设备拉取到更大的 wipeAt 会自动清空对齐，旧数据不复活
   saveData();
   renderAll();
-  showToast('数据已清空','info');
+  showToast('本机已清空，正在同步清空云端…','info');
+  pushWipeToCloud();
+}
+
+/* v2.11.3 清空后的强制推送：绕过「本机空保护拦截」与「并集合并」——
+   本机是刚被有意清空的，若走常规推送会被 checkPushSafety 拦截并从云端恢复旧数据。
+   wipeInProgress 声明在同步锁区域（autoSyncFromCloud 上方），此处只赋值。 */
+function pushWipeToCloud(){
+  var token = getGHToken();
+  if(!token || !hasSyncPwd()){
+    wipeInProgress = false;
+    showToast('未配置同步 Token/口令，云端清理跳过（仅本机已清空）','error');
+    return;
+  }
+  wipeInProgress = true;
+  var apiUrl = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH;
+  var baseHeaders = { 'Authorization':'token ' + token, 'Accept':'application/vnd.github.v3+json', 'User-Agent':'cm' };
+  fetch(apiUrl, { method:'GET', headers: baseHeaders })
+    .then(function(r){ if(r.status === 404) return null; if(!r.ok) throw new Error('GET SHA failed: ' + r.status); return r.json(); })
+    .then(function(json){
+      var parsed = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+      return encryptForCloud(buildCloudPayload(parsed)).then(function(payload){
+        var pretty = JSON.stringify(payload, null, 2);
+        var bytes = new TextEncoder().encode(pretty);
+        var binary = '';
+        for(var i=0;i<bytes.length;i++) binary += String.fromCharCode(bytes[i]);
+        return fetch(apiUrl, {
+          method:'PUT',
+          headers: Object.assign({}, baseHeaders, { 'Content-Type':'application/json' }),
+          body: JSON.stringify({ message: 'reset: wipe all class data (wipeAt=' + (parsed.wipeAt||0) + ')', content: btoa(binary), branch: GH_BRANCH, sha: json ? json.sha : undefined })
+        });
+      });
+    })
+    .then(function(r){
+      if(!r.ok) throw new Error('PUT failed: ' + r.status);
+      lastSyncTime = new Date().toISOString();
+      showToast('云端已清空 ✓ 其他设备打开时将自动对齐清空','success');
+    })
+    .catch(function(e){
+      console.error('[Sync] wipe push failed:', e);
+      showToast('云端清理失败：' + e.message + '，可重新点一次「清空数据」重试','error');
+    })
+    .then(function(){ wipeInProgress = false; });
 }
 
 /* ==================== Sync Status ==================== */

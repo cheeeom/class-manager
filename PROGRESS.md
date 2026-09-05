@@ -173,3 +173,17 @@
 - [x] 顺带修复：登录页版本号 v2.11.0 时实际未落盘（grep 验证误判，两个 v2.11.0 来自侧栏+功能标签），本次一并修正
 - [x] 回归 _v2110_test.js 扩到 20 项（重复导入修复/同名配对/冲突组/脏名清洗），三套共 64 项全绿；115 人沙盘推演收敛正确（52 原有学分全保留）
 - [ ] 老板操作：强刷页面 → 名单同步 → 粘贴 59 人名单 → 预览核对（移除应为 55~56 个副本/退班者）→ 确认 → 如刘梓萱组报冲突，按提示手动删多余的那条 0 分记录
+
+### 2026-09-05（v2.11.3：彻底重置机制 wipeAt，老板要求清除云端数据）
+
+- [x] 需求：数据多次折腾后老板决定推倒重来，要求清除云端数据
+- [x] 机制分析结论（关键）：应用内清空/直接删云端文件都无效——
+  ① checkPushSafety「本机空+云端有人→拦截并从云端恢复」会让清空 instantly 复活；
+  ② 旧设备本地的脏数据 auto-push 会通过并集合并覆盖空云端。
+  唯一正解 = 重置戳 wipeAt 全链路
+- [x] 实现：clearData 重写（补齐 punishments/duty 轮次制字段/8岗 committee；保留 className/motto/avatar/scheduleImage）→ 打 state.wipeAt=Date.now() → pushWipeToCloud 强推（绕过空本地保护+并集合并）；
+  wipeInProgress 锁屏蔽 wipe 期间的常规 auto push / auto pull（防竞态复活）；
+  checkPushSafety 加「云端 wipeAt 更新→拦截并 resync」；applyCloudData 在 smartMerge 之前做 wipeAt 对齐（云端重置→本机强制清空）；CLOUD_SYNC_FIELDS/loadData 支持 wipeAt
+- [x] 新增 _v2113_test.js 13 项（整页脚本语法编译 + checkPushSafety 重置决策表 + 结构断言）；六套测试共 118 项全绿
+- [x] 云端 data.json 已备份：D:/a/chee777/backups/data.json.bak-20260905-154027（密文，可回滚）
+- [ ] 老板操作：强刷（v2.11.3）→ 设置 → 🗑清空数据（两次确认）→ 自动同步清空云端 → 学生页名单同步导入 59 人 → 其他设备打开自动对齐
