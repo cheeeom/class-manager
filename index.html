@@ -1764,7 +1764,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.11.1</div>
+      <div class="login-version">v2.11.2</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1869,7 +1869,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.11.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.11.2 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -4484,16 +4484,18 @@ function rosterParse(text){
 
 /* 纯函数：构建同步计划（不碰 DOM/state，便于回归测试）。
    entries: rosterParse 的输出；students: 现有学生 [{id, sid, name, credit}]
-   匹配规则（v2.11.1 增强，可自动修复重复导入）：
+   匹配规则（v2.11.2 增强，可自动修复重复导入）：
    ① 精确同名 → ② 规范名匹配（去掉序号前缀「1 」「1、」与备注括号「（白驿）」）→
    ③ 规范名对应多人：名单同规范名条目数 = 班级同名人数 → 按顺序一一配对；
-      数量不一致 → 该组全部记入 conflicts 保守不动（不误删也不误加）；
+      人数偏多时先自动剔除「明显副本」（0 分且无标签者，按学分/标签丰度排序保正身）；
+      剔完仍对不上（多余者有学分/标签，可能是真人）→ 该组 conflict 保守不动；
    ④ 匹配到名字带序号前缀的脏名学生 → 顺带改名清洗 */
 function rosterBuildPlan(entries, students){
   const pad = n => String(n).padStart(3,'0');
   const targetSid = no => '2026' + pad(no);
   const DIRTY = /^\d{1,3}\s*[、,.，．]?\s*/;
   const norm = n => String(n).replace(DIRTY, '').replace(/[（(][^）)]*[)）]/g, '').trim();
+  const dataScore = s => (s.credit ? 2 : 0) + ((s.tags && s.tags.length) ? 1 : 0);
   const byExact = {}, byNorm = {};
   students.forEach(s => {
     (byExact[s.name] = byExact[s.name] || []).push(s);
@@ -4501,7 +4503,24 @@ function rosterBuildPlan(entries, students){
   });
   const entryCount = {};   // 名单里每个规范名出现几条
   entries.forEach(e => { const k = norm(e.raw); entryCount[k] = (entryCount[k] || 0) + 1; });
+
+  /* 预处理：同名组人数 > 名单条数时，把「0 分且无标签」的明显副本标记为 droppable（直接进移除清单），
+     保住有学分/标签的正身；副本必然是重复导入产物（真新同学不会没分没标签地在班里挤着同名） */
+  const droppable = {};
+  Object.keys(entryCount).forEach(k => {
+    const all = byNorm[k] || [];
+    const need = entryCount[k];
+    if(all.length > need){
+      const ranked = all.slice().sort((a,b) => dataScore(b) - dataScore(a));   // 稳定排序：有数据的在前
+      const extra = ranked.slice(need);
+      if(extra.every(s => !s.credit && !(s.tags && s.tags.length))){
+        extra.forEach(s => { droppable[s.id] = true; });
+      }
+    }
+  });
+
   const used = {}, conflicted = {}, conflictGroups = {};
+  const usable = arr => (arr || []).filter(s => !used[s.id] && !conflicted[s.id] && !droppable[s.id]);
   const adds = [], updates = [], renames = [], conflicts = [];
   entries.forEach(e => {
     const tSid = e.no != null ? targetSid(e.no) : null;
@@ -4511,11 +4530,11 @@ function rosterBuildPlan(entries, students){
       conflicts.push({ no: e.no, raw: e.raw, reason: `「${k}」班级人数与名单条数不一致，本组全部留待手动处理` });
       return;
     }
-    const exact = (byExact[e.raw] || []).find(s => !used[s.id] && !conflicted[s.id]);
+    const exact = usable(byExact[e.raw]).find(Boolean);
     if(exact){ cand = exact; }
     else {
-      const all = byNorm[k] || [];
-      const pool = all.filter(s => !used[s.id] && !conflicted[s.id]);
+      const all = (byNorm[k] || []).filter(s => !droppable[s.id]);
+      const pool = usable(all);
       if(pool.length === 1){ cand = pool[0]; }
       else if(pool.length > 1){
         if((entryCount[k] || 0) === all.length){
@@ -4523,7 +4542,7 @@ function rosterBuildPlan(entries, students){
         } else {
           conflictGroups[k] = true;
           all.forEach(s => { conflicted[s.id] = true; });
-          conflicts.push({ no: e.no, raw: e.raw, reason: `「${k}」班级里有 ${all.length} 人、名单只有 ${entryCount[k] || 0} 条（多 ${all.length - (entryCount[k] || 0)} 人），请先手动删除多余学生再同步` });
+          conflicts.push({ no: e.no, raw: e.raw, reason: `「${k}」班级里有 ${all.length} 人、名单只有 ${entryCount[k] || 0} 条，且多出的人带学分/标签不像副本——请人工核对后删除多余学生再同步` });
           return;
         }
       }
