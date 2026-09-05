@@ -1764,7 +1764,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.10.0</div>
+      <div class="login-version">v2.11.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1869,7 +1869,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.11.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.11.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -4484,39 +4484,62 @@ function rosterParse(text){
 
 /* 纯函数：构建同步计划（不碰 DOM/state，便于回归测试）。
    entries: rosterParse 的输出；students: 现有学生 [{id, sid, name, credit}]
-   匹配规则：先精确同名，再去掉「（xx）」备注后按基础名匹配；基础名对应多人且无法唯一确定 → 记入 conflicts 不动 */
+   匹配规则（v2.11.1 增强，可自动修复重复导入）：
+   ① 精确同名 → ② 规范名匹配（去掉序号前缀「1 」「1、」与备注括号「（白驿）」）→
+   ③ 规范名对应多人：名单同规范名条目数 = 班级同名人数 → 按顺序一一配对；
+      数量不一致 → 该组全部记入 conflicts 保守不动（不误删也不误加）；
+   ④ 匹配到名字带序号前缀的脏名学生 → 顺带改名清洗 */
 function rosterBuildPlan(entries, students){
   const pad = n => String(n).padStart(3,'0');
   const targetSid = no => '2026' + pad(no);
-  const base = n => String(n).replace(/[（(][^）)]*[)）]/g, '').trim();
-  const byName = {};
-  students.forEach(s => { (byName[s.name] = byName[s.name] || []).push(s); });
-  const used = {};
-  const conflicted = {};   // 同名无法自动区分的学生：既不更新也不移除，留待人工处理
-  const adds = [], updates = [], conflicts = [];
+  const DIRTY = /^\d{1,3}\s*[、,.，．]?\s*/;
+  const norm = n => String(n).replace(DIRTY, '').replace(/[（(][^）)]*[)）]/g, '').trim();
+  const byExact = {}, byNorm = {};
+  students.forEach(s => {
+    (byExact[s.name] = byExact[s.name] || []).push(s);
+    (byNorm[norm(s.name)] = byNorm[norm(s.name)] || []).push(s);
+  });
+  const entryCount = {};   // 名单里每个规范名出现几条
+  entries.forEach(e => { const k = norm(e.raw); entryCount[k] = (entryCount[k] || 0) + 1; });
+  const used = {}, conflicted = {}, conflictGroups = {};
+  const adds = [], updates = [], renames = [], conflicts = [];
   entries.forEach(e => {
     const tSid = e.no != null ? targetSid(e.no) : null;
+    const k = norm(e.raw);
     let cand = null;
-    const exact = (byName[e.raw] || []).find(s => !used[s.id]);
+    if(conflictGroups[k]){
+      conflicts.push({ no: e.no, raw: e.raw, reason: `「${k}」班级人数与名单条数不一致，本组全部留待手动处理` });
+      return;
+    }
+    const exact = (byExact[e.raw] || []).find(s => !used[s.id] && !conflicted[s.id]);
     if(exact){ cand = exact; }
     else {
-      const pool = (byName[base(e.raw)] || []).filter(s => !used[s.id]);
+      const all = byNorm[k] || [];
+      const pool = all.filter(s => !used[s.id] && !conflicted[s.id]);
       if(pool.length === 1){ cand = pool[0]; }
       else if(pool.length > 1){
-        pool.forEach(s => { conflicted[s.id] = true; });
-        conflicts.push({ no: e.no, raw: e.raw, reason: `「${base(e.raw)}」同名 ${pool.length} 人，无法自动区分，请先在学生详情里改名区分后再同步` });
-        return;
+        if((entryCount[k] || 0) === all.length){
+          cand = pool[0];   // 数量一致 → 按顺序一一配对（可消化重复导入）
+        } else {
+          conflictGroups[k] = true;
+          all.forEach(s => { conflicted[s.id] = true; });
+          conflicts.push({ no: e.no, raw: e.raw, reason: `「${k}」班级里有 ${all.length} 人、名单只有 ${entryCount[k] || 0} 条（多 ${all.length - (entryCount[k] || 0)} 人），请先手动删除多余学生再同步` });
+          return;
+        }
       }
     }
     if(cand){
       used[cand.id] = true;
-      if(tSid && String(cand.sid) !== tSid) updates.push({ id: cand.id, name: cand.name, oldSid: cand.sid, newSid: tSid });
+      if(DIRTY.test(cand.name) && e.raw && !DIRTY.test(e.raw)){
+        renames.push({ id: cand.id, oldName: cand.name, newName: e.raw });   // 脏名清洗
+      }
+      if(tSid && String(cand.sid) !== tSid) updates.push({ id: cand.id, name: e.raw, oldSid: cand.sid, newSid: tSid });
     } else {
       adds.push({ no: e.no, name: e.raw, sid: tSid || '' });
     }
   });
   const removes = students.filter(s => !used[s.id] && !conflicted[s.id]).map(s => ({ id: s.id, name: s.name, sid: s.sid, credit: s.credit }));
-  return { adds, updates, removes, conflicts };
+  return { adds, updates, renames, removes, conflicts };
 }
 
 let _rosterPlan = null;   // 同步预览暂存（避免把数据拼进 onclick 属性）
@@ -4538,16 +4561,18 @@ function previewRosterSync(){
     <div class="import-area">
       <h3 style="margin-bottom:8px">同步预览</h3>
       <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px">
-        名单共 ${entries.length} 人 ｜ 将执行：<b style="color:var(--success)">新增 ${plan.adds.length}</b> ·
+        当前班级 <b>${state.students.length}</b> 人 → 同步后 <b style="color:var(--primary)">${state.students.length - plan.removes.length + plan.adds.length}</b> 人（名单 ${entries.length} 人）<br>
+        将执行：<b style="color:var(--success)">新增 ${plan.adds.length}</b> ·
         <b style="color:var(--danger)">移除 ${plan.removes.length}</b> ·
-        <b style="color:var(--primary)">学号更新 ${plan.updates.length}</b> · 保留 ${(entries.length - plan.adds.length - plan.conflicts.length)} 人（学分/标签不动）
+        <b style="color:var(--primary)">学号更新 ${plan.updates.length}</b>${plan.renames.length ? ` · <b>改名清洗 ${plan.renames.length}</b>` : ''} · 保留学生的学分/标签/寝室均不动
       </p>
       ${sec('➕ 新增', plan.adds, a => `<div class="preview-item"><span>${escapeHtml(a.name)}</span><span>学号 ${escapeHtml(a.sid || '(自动)')}</span></div>`, 'var(--success)')}
-      ${sec('➖ 移除（学分累计保留在操作记录中）', plan.removes, r => `<div class="preview-item"><span>${escapeHtml(r.name)}</span><span>${escapeHtml(r.sid)} · ${r.credit} 分</span></div>`, 'var(--danger)')}
+      ${sec('➖ 移除（重复导入的副本 / 已不在名单的学生；学分流水保留）', plan.removes, r => `<div class="preview-item"><span>${escapeHtml(r.name)}</span><span>${escapeHtml(r.sid)} · ${r.credit} 分</span></div>`, 'var(--danger)')}
       ${sec('🔁 学号更新', plan.updates, u => `<div class="preview-item"><span>${escapeHtml(u.name)}</span><span>${escapeHtml(u.oldSid)} → ${escapeHtml(u.newSid)}</span></div>`, 'var(--primary)')}
-      ${sec('⚠️ 需手动处理', plan.conflicts, c => `<div class="preview-item"><span>${escapeHtml(c.raw)}</span><span>${escapeHtml(c.reason)}</span></div>`, 'var(--warning)')}
-      ${(plan.adds.length || plan.removes.length || plan.updates.length)
-        ? `<button class="btn btn-primary" onclick="confirmRosterSync()">确认同步（+${plan.adds.length} / -${plan.removes.length} / 学号 ${plan.updates.length}）</button>`
+      ${sec('✏️ 改名清洗（去掉名字里误入的序号前缀）', plan.renames, r => `<div class="preview-item"><span>${escapeHtml(r.oldName)}</span><span>→ ${escapeHtml(r.newName)}</span></div>`, 'var(--warning)')}
+      ${sec('⚠️ 需手动处理（不影响其余学生的同步）', plan.conflicts, c => `<div class="preview-item"><span>${escapeHtml(c.raw)}</span><span>${escapeHtml(c.reason)}</span></div>`, 'var(--warning)')}
+      ${(plan.adds.length || plan.removes.length || plan.updates.length || plan.renames.length)
+        ? `<button class="btn btn-primary" onclick="confirmRosterSync()">确认同步（+${plan.adds.length} / -${plan.removes.length} / 学号 ${plan.updates.length}${plan.renames.length ? ' / 改名 ' + plan.renames.length : ''}）</button>`
         : '<div style="font-size:13px;color:var(--success)">✅ 班级名单与输入名单已一致，无需同步</div>'}
     </div>`;
 }
@@ -4555,9 +4580,9 @@ function previewRosterSync(){
 function confirmRosterSync(){
   const plan = _rosterPlan;
   if(!plan) return;
-  const total = plan.adds.length + plan.removes.length + plan.updates.length;
+  const total = plan.adds.length + plan.removes.length + plan.updates.length + plan.renames.length;
   if(total === 0){ showToast('名单已一致，无需同步','success'); return; }
-  if(!confirm(`确认同步名单？\n新增 ${plan.adds.length} 人、移除 ${plan.removes.length} 人、更新学号 ${plan.updates.length} 人。\n保留学生的学分与标签不受影响。`)) return;
+  if(!confirm(`确认同步名单？\n新增 ${plan.adds.length} 人、移除 ${plan.removes.length} 人、更新学号 ${plan.updates.length} 人${plan.renames.length ? '、改名清洗 ' + plan.renames.length + ' 人' : ''}。\n保留学生的学分与标签不受影响。`)) return;
 
   // 1) 移除：清理班委任命 / 座位 / 值日排班 / 罚扫引用（值日队列由 dutyEnsureQueue 自动吸收）
   plan.removes.forEach(r => {
@@ -4568,10 +4593,14 @@ function confirmRosterSync(){
     state.duty.schedule = state.duty.schedule.filter(x => x.studentId !== r.id);
     if(state.punishments) state.punishments = state.punishments.filter(x => x.studentId !== r.id);
   });
-  // 2) 学号更新（保留学分/标签/档案）
+  // 2) 学号更新 + 改名清洗（保留学分/标签/档案）
   plan.updates.forEach(u => {
     const s = state.students.find(x => x.id === u.id);
     if(s) s.sid = u.newSid;
+  });
+  plan.renames.forEach(r => {
+    const s = state.students.find(x => x.id === r.id);
+    if(s) s.name = r.newName;
   });
   // 3) 新增
   plan.adds.forEach(a => {
@@ -4584,7 +4613,7 @@ function confirmRosterSync(){
   document.getElementById('rosterPreview').innerHTML = '';
   document.querySelector('#studentTabs .tab[data-tab="list"]').click();
   renderStudents();
-  showToast(`同步完成：新增 ${plan.adds.length} · 移除 ${plan.removes.length} · 学号更新 ${plan.updates.length}`, 'success');
+  showToast(`同步完成：现有 ${state.students.length} 人（新增 ${plan.adds.length} · 移除 ${plan.removes.length}）`, 'success');
 }
 
 /* ==================== Detail Panel ==================== */
