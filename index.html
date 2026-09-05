@@ -1721,6 +1721,26 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .ic-solid use{fill:currentColor;fill-opacity:.25}
 /* 排版细节：数字等宽对齐，长文本断行 */
 .tl-time,.stat-value,.exam-stat-value,td,.grade-rank-score,.todo-meta,.pie-legend-item{font-variant-numeric:tabular-nums}
+/* 学分原因多级选择器（v2.12.0）：方向 → 大类 → 原因 */
+.rp{position:relative;display:inline-block}
+.rp-trigger.rp-active{border-color:var(--primary);color:var(--primary);font-weight:600}
+.rp-panel{position:absolute;top:calc(100% + 6px);left:0;z-index:80;background:var(--card-bg);
+  border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-hover);
+  padding:12px;min-width:300px;max-width:360px;max-height:62vh;overflow:auto}
+.rp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.rp-head span{font-size:12px;color:var(--text-muted)}
+.rp-head button{border:none;background:none;color:var(--text-muted);cursor:pointer;font-size:12px;padding:2px 6px;border-radius:6px}
+.rp-head button:hover{color:var(--danger);background:var(--bg-secondary)}
+.rp-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.rp-row:last-child{margin-bottom:0}
+.rp-chip{border:1px solid var(--border);background:var(--card-bg);border-radius:999px;
+  padding:5px 12px;font-size:13px;cursor:pointer;color:var(--text);white-space:nowrap}
+.rp-chip:hover{border-color:var(--primary);color:var(--primary)}
+.rp-chip.rp-on{background:var(--primary);border-color:var(--primary);color:#fff}
+.rp-chip.rp-neg.rp-on{background:var(--danger);border-color:var(--danger)}
+.rp-chip.rp-reason b{color:var(--success);margin-left:2px}
+.rp-chip.rp-reason b.neg{color:var(--danger)}
+.rp-chip.rp-reason.rp-on b{color:#fff}
 </style>
 </head>
 <body>
@@ -1764,7 +1784,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.11.3</div>
+      <div class="login-version">v2.12.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1869,7 +1889,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.11.3 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.12.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2165,7 +2185,8 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             </div>
             <input type="number" id="customCredit" placeholder="自定义" style="width:100px;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px" oninput="onCreditInputChange()">
             <button class="btn btn-primary btn-sm" id="customApplyBtn" onclick="customCreditApply()" disabled>应用</button>
-            <select id="creditReason" style="max-width:180px;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px" onchange="onCreditReasonChange()">
+            <span id="rp-credit" class="rp"></span>
+            <select id="creditReason" style="display:none" onchange="onCreditReasonChange()">
               <option value="">原因（必选）</option>
             </select>
           </div>
@@ -2622,8 +2643,8 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="form-group">
         <label>原因</label>
-        <select id="batchReason" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px">
-        </select>
+        <div id="rp-batch" class="rp" style="display:block"></div>
+        <select id="batchReason" style="display:none"></select>
       </div>
     </div>
     <div class="modal-footer">
@@ -3157,6 +3178,30 @@ const defaultReasonScores = {
   '作业缺交迟交':-2, '作业抄袭考试作弊':-8, '值日偷懒卫生脏乱':-3, '损坏公物':-4, '宿舍违纪':-3,
   '同学冲突':-5, '欺凌造谣':-6, '虚假举报':-5
 };
+/* 学分原因多级目录（v2.12.0）：方向 → 大类 → 原因。
+   原因必须与 defaultReasons 完全对应（有 _v2120_test.js 校验防漏），
+   分值统一读 state.reasonScores（制度分值，可被自定义覆盖），目录里不存分值。 */
+const REASON_CATALOG = {
+  '加分': {
+    '学习表现': ['月度全勤','课堂表现积极','作业全月优秀','考试进步'],
+    '活动荣誉': ['班级活动参与','班级参赛','校级获奖'],
+    '卫生劳动': ['卫生优秀个人'],
+    '班级贡献': ['有效检举','检举属实','协助班级工作']
+  },
+  '扣分': {
+    '考勤': ['迟到早退','旷课','请假手续不全'],
+    '课堂纪律': ['课堂违纪','扰乱课堂顶撞老师','集会违纪'],
+    '作业考试': ['作业缺交迟交','作业抄袭考试作弊'],
+    '值日公物': ['值日偷懒卫生脏乱','损坏公物'],
+    '宿舍': ['宿舍违纪'],
+    '同学关系': ['同学冲突','欺凌造谣','虚假举报']
+  },
+  '其他': {
+    '通用': ['其他']
+  }
+};
+const REASON_CATALOG_FLAT = Object.values(REASON_CATALOG)
+  .flatMap(g => Object.values(g).flat());
 /* 学分等级：制度第六章（≥100 优秀 / 90-100 合格 / 80-90 一般 / <80 不合格） */
 function creditLevel(credit){
   var c = Number(credit);
@@ -5793,6 +5838,115 @@ function openDayBoardingList(){
 }
 
 /* ==================== Credits Page ==================== */
+/* ==================== 学分原因多级选择器（v2.12.0） ====================
+   三级筛选：加分/扣分/其他 → 大类 → 具体原因（带制度分值）。
+   底层仍是原 <select>（creditReason/batchReason），选择器只是它的可视皮肤——
+   quickCredit / customCreditApply / confirmBatchCredit 等既有逻辑零改动。
+   点选原因自动把制度分值填进分值输入框（可手改）。 */
+const RP_INSTANCES = {};
+
+function rcScoreOf(name){
+  var sc = (state.reasonScores || {})[name];
+  return (typeof sc === 'number' && sc !== 0) ? sc : null;
+}
+
+function initReasonPicker(rootId, selectId, scoreInputId){
+  var prev = RP_INSTANCES[rootId];
+  if(prev && prev.selectId === selectId){ renderReasonPicker(rootId); return; }   // 幂等：保留展开/选中状态
+  RP_INSTANCES[rootId] = { selectId: selectId, scoreInputId: scoreInputId || null, dir: null, group: null, open: false };
+  renderReasonPicker(rootId);
+}
+
+function rcSelValue(st){ var el = document.getElementById(st.selectId); return el ? el.value : ''; }
+
+function rcToggle(rootId){
+  var st = RP_INSTANCES[rootId]; if(!st) return;
+  st.open = !st.open;
+  renderReasonPicker(rootId);
+}
+function rcSetDir(rootId, dir){
+  var st = RP_INSTANCES[rootId]; if(!st) return;
+  st.dir = (st.dir === dir) ? null : dir;
+  st.group = null;
+  renderReasonPicker(rootId);
+}
+function rcSetGroup(rootId, g){
+  var st = RP_INSTANCES[rootId]; if(!st) return;
+  st.group = (st.group === g) ? null : g;
+  renderReasonPicker(rootId);
+}
+function rcClear(rootId){
+  var st = RP_INSTANCES[rootId]; if(!st) return;
+  var sel = document.getElementById(st.selectId);
+  if(sel) sel.value = '';
+  if(st.scoreInputId){ var inp = document.getElementById(st.scoreInputId); if(inp) inp.value = ''; }
+  if(st.selectId === 'creditReason' && typeof onCreditInputChange === 'function') onCreditInputChange();
+  st.open = false;
+  renderReasonPicker(rootId);
+}
+function rcPick(rootId, name){
+  var st = RP_INSTANCES[rootId]; if(!st) return;
+  var sel = document.getElementById(st.selectId);
+  if(sel) sel.value = name;
+  if(st.selectId === 'creditReason' && typeof onCreditReasonChange === 'function'){
+    onCreditReasonChange();          // 学分页：既有联动负责填 customCredit
+  } else if(st.scoreInputId){
+    var sc = rcScoreOf(name);
+    if(sc !== null){ var inp = document.getElementById(st.scoreInputId); if(inp) inp.value = sc; }
+  }
+  st.open = false;
+  renderReasonPicker(rootId);
+}
+
+function renderReasonPicker(rootId){
+  var st = RP_INSTANCES[rootId];
+  var root = document.getElementById(rootId);
+  if(!root || !st) return;
+  var cur = rcSelValue(st);
+  var sc = cur ? rcScoreOf(cur) : null;
+  var summary = cur ? (cur + (sc !== null ? ' (' + (sc > 0 ? '+' : '') + sc + ')' : '')) : '原因（必选）';
+  var full = rootId === 'rp-batch';   // 批量弹窗里占满整行
+  var h = '<button type="button" class="btn btn-outline btn-sm rp-trigger' + (cur ? ' rp-active' : '') + '"' +
+          ' style="padding:10px 14px;font-size:14px;' + (full ? 'width:100%;text-align:left;justify-content:space-between;' : '') + '" onclick="rcToggle(\'' + rootId + '\')">' +
+          escapeHtml(summary) + ' ▾</button>';
+  if(st.open){
+    h += '<div class="rp-panel"><div class="rp-head"><span>选原因：先方向 → 再大类 → 点具体项</span>' +
+         (cur ? '<button type="button" onclick="rcClear(\'' + rootId + '\')">✕ 清除已选</button>' : '<button type="button" onclick="rcToggle(\'' + rootId + '\')">收起</button>') +
+         '</div>';
+    var dirs = Object.keys(REASON_CATALOG);
+    var dirEmoji = { '加分':'➕', '扣分':'➖', '其他':'⚪' };   // emoji 只进显示文本，不进属性/键（escapeAttr 白名单不含 emoji）
+    h += '<div class="rp-row">' + dirs.map(function(d){
+      return '<button type="button" class="rp-chip' + (d === '扣分' ? ' rp-neg' : '') + (st.dir === d ? ' rp-on' : '') +
+             '" onclick="rcSetDir(\'' + rootId + '\',\'' + escapeAttr(d) + '\')">' + (dirEmoji[d] || '') + ' ' + escapeHtml(d) + '</button>';
+    }).join('') + '</div>';
+    if(st.dir && REASON_CATALOG[st.dir]){
+      var groups = Object.keys(REASON_CATALOG[st.dir]);
+      // 自定义原因兜底：state.reasons 里不在目录中的项，归入「自定义」组
+      var extra = (state.reasons || []).filter(function(r){ return REASON_CATALOG_FLAT.indexOf(r) < 0; });
+      if(extra.length) groups = groups.concat(['自定义']);
+      h += '<div class="rp-row">' + groups.map(function(g){
+        return '<button type="button" class="rp-chip' + (st.group === g ? ' rp-on' : '') +
+               '" onclick="rcSetGroup(\'' + rootId + '\',\'' + escapeAttr(g) + '\')">' + escapeHtml(g) + '</button>';
+      }).join('') + '</div>';
+      if(st.group && REASON_CATALOG[st.dir][st.group]){
+        h += '<div class="rp-row">' + REASON_CATALOG[st.dir][st.group].map(function(name){
+          var s2 = rcScoreOf(name);
+          var hint = s2 !== null ? ' <b class="' + (s2 < 0 ? 'neg' : '') + '">' + (s2 > 0 ? '+' : '') + s2 + '</b>' : '';
+          return '<button type="button" class="rp-chip rp-reason' + (cur === name ? ' rp-on' : '') +
+                 '" onclick="rcPick(\'' + rootId + '\',\'' + escapeAttr(name) + '\')">' + escapeHtml(name) + hint + '</button>';
+        }).join('') + '</div>';
+      } else if(st.group === '自定义' && extra.length){
+        h += '<div class="rp-row">' + extra.map(function(name){
+          return '<button type="button" class="rp-chip rp-reason' + (cur === name ? ' rp-on' : '') +
+                 '" onclick="rcPick(\'' + rootId + '\',\'' + escapeAttr(name) + '\')">' + escapeHtml(name) + '</button>';
+        }).join('') + '</div>';
+      }
+    }
+    h += '</div>';
+  }
+  root.innerHTML = h;
+}
+
 function renderReasonSelects(){
   const selects = ['creditReason','batchReason'];
   selects.forEach(id=>{
@@ -5807,6 +5961,9 @@ function renderReasonSelects(){
       }).join('');
     el.value = val;
   });
+  // v2.12.0 多级选择器（幂等初始化，保留展开/选中状态）
+  initReasonPicker('rp-credit', 'creditReason', 'customCredit');
+  initReasonPicker('rp-batch', 'batchReason', 'batchCredit');
 }
 
 function renderCreditsPage(){
