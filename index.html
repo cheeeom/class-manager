@@ -1863,7 +1863,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.2</div>
+      <div class="login-version">v2.17.3</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1979,7 +1979,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.2 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.3 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -5394,12 +5394,17 @@ function pickStudent(id){
   _studentPickerId = id;
   confirmStudentSelect();
 }
+/* v2.17.3 热修：内联 oninput="onStudentSearchInput()" 是裸调用，this 指向 window 而非输入框，
+   this.value 恒为 undefined → 永远按空词渲染全量名单（真机复现：Chromium 派发 input 事件名单不变）。
+   改为函数内按 id 取输入框取值，彻底摆脱 this 绑定。 */
 function onStudentSearchInput(){
-  renderStudentMatchList(this.value);
+  var el = document.getElementById('studentSearchInput');
+  renderStudentMatchList(el ? el.value : '');
 }
 function onStudentSearchKeydown(e){
   if(e.key !== 'Enter') return;
-  var matches = matchStudentsByName(_studentPickerPool, this.value);
+  var el = document.getElementById('studentSearchInput');
+  var matches = matchStudentsByName(_studentPickerPool, el ? el.value : '');
   if(matches.length === 1){ pickStudent(matches[0].id); }
   else if(matches.length > 1){ e.preventDefault(); showToast('匹配 ' + matches.length + ' 人，请点选具体姓名', 'info'); }
   else { e.preventDefault(); showToast('没有匹配的学生', 'warning'); }

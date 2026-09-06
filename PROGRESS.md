@@ -295,3 +295,15 @@
 - [x] 回归：_v2172_test.js 新增 23 项；_v2150/_v2160/_v2170/_v2171 版本断言 2.17.1→2.17.2；**十四套共 308 项全绿**（25/19/21/13/11/11/16/38/42/32/17/23/26/14）+ _crypto ✅
 - [x] 版本三处同步 v2.17.2（登录页/侧栏/CACHE_NAME）；CONTEXT 更新
 - [ ] 老板验收：班委管理页点「任命」→ 弹窗输入「王」看筛选 → 点姓名直接任命 → 再任命他人时输入完整姓名回车直选 → 座位页/值日页同样可用 → 暗色主题下弹窗与列表可读
+
+### 2026-09-07（v2.17.3 热修：任命班委输入姓名不过滤——内联事件 this 陷阱）
+
+- [x] 老板反馈：任命班委时输入姓名没有按姓氏实时筛选，仍是全量名单
+- [x] **静态排查无果**：render 纯函数正确、单测全绿、无重复 id/函数、两个全局 input 监听均按 id 白名单不影响 → 上真机
+- [x] **headless Chromium 复现**（playwright-core + ms-playwright 缓存内核，file:// 直接注入学生调 openCommitteeSelect）：派发真实 input 事件后名单纹丝不动，稳定复现
+- [x] **根因定位**（逐环节验证）：render('王') 直调=2 行 ✅；`onStudentSearchInput.call(inp)`=1 行 ✅；裸调用 `onStudentSearchInput()`=全量 ❌ ——内联属性 `oninput="onStudentSearchInput()"` 是**裸调用，this 指向 window 而非输入框**，`this.value` 恒为 undefined → 永远按空词渲染全量。事件确实触发了（监听可见 attr-fired），只是取值取错
+- [x] 修复：onStudentSearchInput / onStudentSearchKeydown 改为函数内 `document.getElementById('studentSearchInput')` 取值，彻底不依赖 this；真机复验 王→2 / 罗→1 / 王小明→1 / zzz→空态 / 清空→全量 ✅
+- [x] 坑：**内联事件处理器里调用全局函数拿不到元素 this**（this=window），取值要传参 `(this)` 或函数内按 id 查——本 bug 单测测不出（stub 直调绕过事件路径），必须浏览器级事件冒烟；新套件补「真实事件路径」防回归
+- [x] 回归：_v2172 23→26 项；_v2150/_v2160/_v2170/_v2171/_v2172 版本断言 → v2.17.3；**十四套共 311 项全绿**（25/19/21/13/11/11/16/38/42/32/17/26/26/14）+ _crypto ✅
+- [x] 版本三处同步 v2.17.3；CONTEXT 更新
+- [ ] 老板验收：任命班委弹窗输入「王」→ 名单即时只剩姓王同学；输入完整姓名回车直选；乱输显示空态提示
