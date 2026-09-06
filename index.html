@@ -9985,8 +9985,8 @@ function renderPubSummary(data){
     pubStat('净变化', '<span style="color:' + (data.netSum>=0?'var(--success)':'var(--danger)') + '">' + (data.netSum>0?'+':'') + data.netSum + '</span>') +
     pubStat('人均变动', (data.avgDelta>0?'+':'') + data.avgDelta.toFixed(1)) +
     pubStat('最活跃', data.topActive ? escapeHtml(pubDisplayName(data.topActive)) : '—') +
-    pubStat('🏆 最高分', data.maxRow ? '<span style="color:var(--success)">' + data.maxRow.credit + '</span><span style="font-size:11px;color:var(--text-muted)"> · ' + escapeHtml(pubDisplayName(data.maxRow)) + '</span>' : '—') +
-    pubStat('⚠️ 最低分', data.minRow ? '<span style="color:' + (data.minRow.credit < 80 ? 'var(--danger)' : 'var(--text-secondary)') + '">' + data.minRow.credit + '</span><span style="font-size:11px;color:var(--text-muted)"> · ' + escapeHtml(pubDisplayName(data.minRow)) + '</span>' : '—');
+    pubStat('🏆 最高分', data.maxRow ? '<span style="color:var(--success)">' + data.maxRow.credit + '</span><span style="font-size:15px;font-weight:600;color:var(--text-secondary)"> · ' + escapeHtml(pubDisplayName(data.maxRow)) + '</span>' : '—') +
+    pubStat('⚠️ 最低分', data.minRow ? '<span style="color:' + (data.minRow.credit < 80 ? 'var(--danger)' : 'var(--text-secondary)') + '">' + data.minRow.credit + '</span><span style="font-size:15px;font-weight:600;color:var(--text-secondary)"> · ' + escapeHtml(pubDisplayName(data.minRow)) + '</span>' : '—');
 }
 
 /* ---- 榜单区 ---- */
