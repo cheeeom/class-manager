@@ -1802,7 +1802,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.15.0</div>
+      <div class="login-version">v2.15.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1908,7 +1908,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.15.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.15.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3324,8 +3324,12 @@ function refreshCreditViews(){
     try{ if(typeof fn === 'function') fn(); }catch(e){ console.warn('[refreshCreditViews]', e); }
   };
   safe(window.renderTable);
-  safe(window.renderCreditsPage);
   safe(window.renderProfiles);
+  // 学分页：只刷时间线与撤销按钮，不整页 reset。
+  // renderCreditsPage() 开头会清空已选学生与搜索框 —— 每次加减分都清一次，
+  // 连续操作时表现为「刚加完分，选的人没了、刚做的操作像没生效」。
+  safe(window.renderCreditsTimeline);
+  safe(window.updateUndoBtn);
   var dash = document.getElementById('page-dashboard');
   if(dash && dash.classList.contains('active')) safe(window.renderDashboard);
   var ana = document.getElementById('page-analytics');
@@ -4324,12 +4328,15 @@ function renderDashboard(){
   document.getElementById('onboardingBanner').style.display = 'none';
   document.getElementById('statGrid').querySelectorAll('.stat-card').forEach(c => c.style.display = '');
   const total = students.length;
-  const credits = students.map(s=>s.credit);
+  // v2.15.1：credit 可能是字符串（导入/名单同步遗留），NaN 会让 Math.min 得到 NaN，
+  // 严格相等 s.credit===min 又永远匹配不上 → 最高/最低显示成「—」或指向错的人
+  const creditOf = s => { const n = Number(s.credit); return isNaN(n) ? 0 : n; };
+  const credits = students.map(creditOf);
   const avg = credits.reduce((a,b)=>a+b,0) / total;
-  const max = Math.max(...credits);
-  const min = Math.min(...credits);
-  const maxStu = students.find(s=>s.credit===max);
-  const minStu = students.find(s=>s.credit===min);
+  const max = credits.reduce((a,b)=> b > a ? b : a, credits[0]);
+  const min = credits.reduce((a,b)=> b < a ? b : a, credits[0]);
+  const maxStu = students.find(s=>creditOf(s)===max);
+  const minStu = students.find(s=>creditOf(s)===min);
 
   countUp(document.getElementById('statTotal'), total);
   countUp(document.getElementById('statAvg'), Math.round(avg));
@@ -4349,20 +4356,12 @@ function renderDashboard(){
     </div>
   `).join('');
 
-  const recent = state.operations.slice(0,10);
-  if(recent.length === 0){
-    document.getElementById('recentTimeline').innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:12px 0">暂无操作记录</div>';
-  } else {
-    document.getElementById('recentTimeline').innerHTML = recent.map(op=>{
-      const d = new Date(op.time);
-      const ts = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-      const sign = op.amount > 0 ? '+' : '';
-      const color = op.amount > 0 ? 'var(--success)' : 'var(--danger)';
-      return `<div class="timeline-item">
-        <div class="tl-time">${ts}</div>
-        <div class="tl-text"><strong>${op.studentName}</strong> ${sign}${op.amount} 学分 <span style="color:var(--text-muted)">— ${op.reason}</span></div>
-      </div>`;
-    }).join('');
+  const recent = (state.operations || []).slice(0,10);
+  const rtEl = document.getElementById('recentTimeline');
+  if(rtEl){
+    rtEl.innerHTML = recent.length === 0
+      ? '<div style="color:var(--text-muted);font-size:13px;padding:12px 0">暂无操作记录</div>'
+      : recent.map(renderOpItem).join('');   // v2.15.1 复用统一渲染（含时间兜底与转义）
   }
   drawDistChart(credits);
   renderDashTodo();
@@ -4396,15 +4395,25 @@ function drawDistChart(credits){
     return;
   }
 
-  const max = Math.max(...credits, 10);
-  const bucketSize = 10;
-  const numBuckets = Math.ceil(max / bucketSize);
+  // v2.15.1：100 分基准下固定 10 分一档，会把 90~100 的人全堆进最后一桶，
+  // 且刚好 100 分会因 idx 越界被压桶 —— 图上看不出任何分布。
+  // 改为按**实际区间**自适应 8 档：无论数据是 0-30 还是 92-105，都能看清形状。
+  const nums = credits.map(c => { const n = Number(c); return isNaN(n) ? 0 : n; });
+  const max = Math.max(...nums, 10);
+  const numBuckets = 8;
+  let lo = Math.floor(Math.min(...nums) / 5) * 5;
+  let hi = Math.ceil((max + 1) / 5) * 5;
+  if(!isFinite(lo) || !isFinite(hi)){ lo = 0; hi = 100; }
+  if(hi - lo < numBuckets) hi = lo + numBuckets;
+  const span = (hi - lo) / numBuckets;
   const buckets = new Array(numBuckets).fill(0);
-  credits.forEach(c => {
-    let idx = Math.floor(c / bucketSize);
+  nums.forEach(c => {
+    let idx = Math.floor((c - lo) / span);
+    if(idx < 0) idx = 0;
     if(idx >= numBuckets) idx = numBuckets - 1;
     buckets[idx]++;
   });
+  const bucketLabel = i => Math.round(lo + span * i) + '-' + Math.round(lo + span * (i + 1) - 1);
 
   const padL = 40, padR = 20, padT = 20, padB = 40;
   const chartW = W - padL - padR;
@@ -4443,7 +4452,7 @@ function drawDistChart(credits){
       ctx.fillStyle = '#A0988C';
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(`${i*bucketSize}-${i*bucketSize+bucketSize-1}`, cx, padT + chartH + 18);
+      ctx.fillText(bucketLabel(i), cx, padT + chartH + 18);
       return;
     }
     const palette = [
@@ -4470,7 +4479,7 @@ function drawDistChart(credits){
     ctx.fillText(b, cx, y - 6);
     ctx.fillStyle = '#A0988C';
     ctx.font = '10px sans-serif';
-    ctx.fillText(`${i*bucketSize}-${i*bucketSize+bucketSize-1}`, cx, padT + chartH + 18);
+    ctx.fillText(bucketLabel(i), cx, padT + chartH + 18);
   });
 }
 
@@ -6389,22 +6398,39 @@ function updateUndoBtn(){
   document.getElementById('undoBtn').disabled = state.operations.length === 0;
 }
 
+/* 流水时间线统一渲染。v2.15.1：
+   ① 容器 null 保护 ② 时间戳无效时兜底（旧数据 time 缺失会显示 NaN/NaN，看起来像「记录没出来」）
+   ③ 补齐年月日（跨年补年份）④ 姓名/原因缺失兜底 ⑤ 原因转义（自定义原因是自由文本，直接拼接有 XSS 风险） */
+function formatOpTime(op){
+  const d = new Date(op && op.time);
+  if(isNaN(d.getTime())) return '时间未知';
+  const p = n => String(n).padStart(2, '0');
+  const ymd = (d.getFullYear() !== new Date().getFullYear() ? d.getFullYear() + '-' : '') + p(d.getMonth() + 1) + '-' + p(d.getDate());
+  return ymd + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+function renderOpItem(op){
+  const amount = Number(op.amount) || 0;
+  const color = amount > 0 ? 'var(--success)' : 'var(--danger)';
+  const who = op.studentName ? escapeHtml(op.studentName) : ('#' + escapeHtml(String(op.studentId == null ? '' : op.studentId)));
+  const why = op.reason ? escapeHtml(op.reason) : '未填原因';
+  return `<div class="timeline-item">
+    <div class="tl-time">${formatOpTime(op)}</div>
+    <div class="tl-text"><strong>${who}</strong> <span style="color:${color};font-weight:600">${amount > 0 ? '+' : ''}${amount}</span> 学分 <span style="color:var(--text-muted)">— ${why}</span></div>
+  </div>`;
+}
 function renderCreditsTimeline(){
   const tl = document.getElementById('creditsTimeline');
-  if(state.operations.length === 0){
+  if(!tl) return;
+  const ops = state.operations || [];
+  if(ops.length === 0){
     tl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:12px 0">暂无操作记录</div>';
     return;
   }
-  tl.innerHTML = state.operations.slice(0,30).map(op=>{
-    const d = new Date(op.time);
-    const ts = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-    const sign = op.amount > 0 ? '+' : '';
-    const color = op.amount > 0 ? 'var(--success)' : 'var(--danger)';
-    return `<div class="timeline-item">
-      <div class="tl-time">${ts}</div>
-      <div class="tl-text"><strong>${op.studentName}</strong> <span style="color:${color};font-weight:600">${sign}${op.amount}</span> 学分 <span style="color:var(--text-muted)">— ${op.reason}</span></div>
-    </div>`;
-  }).join('');
+  const LIMIT = 50;
+  const shown = ops.slice(0, LIMIT);
+  const rest = ops.length - shown.length;
+  tl.innerHTML = shown.map(renderOpItem).join('') +
+    (rest > 0 ? `<div style="color:var(--text-muted);font-size:12px;padding:8px 0;text-align:center">仅显示最近 ${LIMIT} 条，共 ${ops.length} 条</div>` : '');
 }
 
 /* ==================== Batch Credit ==================== */
@@ -6621,7 +6647,8 @@ function renderAnalytics(){
     document.getElementById('analyticsSummary').innerHTML = '<div class="empty-state"><div class="icon">📈</div><div class="text">暂无数据</div></div>';
     return;
   }
-  const credits = students.map(s=>s.credit);
+  // v2.15.1：同首页，把 credit 规范成数字再统计（字符串/NaN 会污染所有指标）
+  const credits = students.map(s=>{ const n = Number(s.credit); return isNaN(n) ? 0 : n; });
   const avg = credits.reduce((a,b)=>a+b,0)/credits.length;
   const sorted = [...credits].sort((a,b)=>a-b);
   const median = sorted.length % 2 === 0 ? (sorted[sorted.length/2-1]+sorted[sorted.length/2])/2 : sorted[Math.floor(sorted.length/2)];
@@ -6633,8 +6660,8 @@ function renderAnalytics(){
     <div class="stat-mini"><div class="label">中位数</div><div class="value">${median}</div></div>
     <div class="stat-mini"><div class="label">标准差</div><div class="value">${std.toFixed(2)}</div></div>
     <div class="stat-mini"><div class="label">极差</div><div class="value">${Math.max(...credits)-Math.min(...credits)}</div></div>
-    <div class="stat-mini"><div class="label">及格率 (≥10)</div><div class="value">${(credits.filter(c=>c>=10).length/credits.length*100).toFixed(0)}%</div></div>
-    <div class="stat-mini"><div class="label">优秀率 (≥25)</div><div class="value">${(credits.filter(c=>c>=25).length/credits.length*100).toFixed(0)}%</div></div>
+    <div class="stat-mini"><div class="label">合格率 (≥90)</div><div class="value">${(credits.filter(c=>c>=90).length/credits.length*100).toFixed(0)}%</div></div>
+    <div class="stat-mini"><div class="label">优秀率 (≥100)</div><div class="value">${(credits.filter(c=>c>=100).length/credits.length*100).toFixed(0)}%</div></div>
   `;
 
   drawRangeChart(credits);
@@ -6664,14 +6691,15 @@ function drawRangeChart(credits){
     return;
   }
 
+  // v2.15.1：制度基准已是 100 分（≥100 优秀 / 90-99 合格 / 80-89 一般 / <80 不合格）。
+  // 旧分段 0-10/11-20/…/41+ 在 100 分制下会把全班塞进同一根柱子，等于没有信息。
   const buckets = [
-    {label:'0-10', min:0, max:10, color1:'#B42318', color2:'#D98A76'},
-    {label:'11-20', min:11, max:20, color1:'#C08A2D', color2:'#E3C98F'},
-    {label:'21-30', min:21, max:30, color1:'#3B6E8F', color2:'#A9C2CE'},
-    {label:'31-40', min:31, max:40, color1:'#2F7D5B', color2:'#A5CBB7'},
-    {label:'41+', min:41, max:9999, color1:'#6B5B95', color2:'#BEB4D6'}
+    {label:'<80 不合格', min:-Infinity, max:80,       color1:'#B42318', color2:'#D98A76'},
+    {label:'80-89 一般', min:80,        max:90,       color1:'#6B5B95', color2:'#BEB4D6'},
+    {label:'90-99 合格', min:90,        max:100,      color1:'#C08A2D', color2:'#E3C98F'},
+    {label:'≥100 优秀',  min:100,       max:Infinity, color1:'#2F7D5B', color2:'#A5CBB7'}
   ];
-  buckets.forEach(b => b.count = credits.filter(c => c >= b.min && c <= b.max).length);
+  buckets.forEach(b => b.count = credits.filter(c => c >= b.min && c < b.max).length);
   const maxB = Math.max(...buckets.map(b=>b.count), 1);
 
   const padL = 40, padR = 20, padT = 20, padB = 40;
@@ -6745,13 +6773,14 @@ function drawPieChart(credits){
   const W = rect.width, H = 220;
   ctx.clearRect(0,0,W,H);
 
+  // v2.15.1：改为制度四档（100 分基准），与 creditLevel 口径一致
   const segments = [
-    {label:'0-10 (待努力)', min:0, max:10, color:'#C4523F'},
-    {label:'11-20 (一般)', min:11, max:20, color:'#C08A2D'},
-    {label:'21-30 (良好)', min:21, max:30, color:'#3B6E8F'},
-    {label:'31+ (优秀)', min:31, max:9999, color:'#2F7D5B'}
+    {label:'<80 不合格', min:-Infinity, max:80,       color:'#C4523F'},
+    {label:'80-89 一般', min:80,        max:90,       color:'#6B5B95'},
+    {label:'90-99 合格', min:90,        max:100,      color:'#C08A2D'},
+    {label:'≥100 优秀',  min:100,       max:Infinity, color:'#2F7D5B'}
   ];
-  segments.forEach(s => s.count = credits.filter(c => c >= s.min && c <= s.max).length);
+  segments.forEach(s => s.count = credits.filter(c => c >= s.min && c < s.max).length);
   const total = credits.length;
   const cx = W/2, cy = H/2;
   const outerR = Math.min(W, H) / 2 - 24;
