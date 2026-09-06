@@ -660,6 +660,23 @@ tbody tr.highlight{
   box-shadow:0 0 0 3px rgba(166,58,43,0.1);
 }
 .modal textarea{min-height:120px;resize:vertical;font-family:monospace}
+/* v2.17.1 体检弹窗内容按浅色表格式设计：强制白底防暗色主题下文字隐形 */
+#creditAuditModal .modal{background:#fff}
+#creditAuditModal .modal h3{color:#1f2329}
+/* v2.17.2 学生快速选择：输入筛选行（随主题） */
+.ss-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer;text-align:left;background:transparent;transition:background .15s}
+.ss-row:last-child{border-bottom:none}
+.ss-row:hover{background:var(--bg-secondary)}
+.ss-row:active{background:rgba(166,58,43,0.07)}
+.ss-avatar{width:30px;height:30px;border-radius:50%;background:rgba(166,58,43,0.12);color:var(--primary);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:none}
+.ss-name{display:block;font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ss-sub{display:block;font-size:12px;color:var(--text-muted);margin-top:1px}
+.ss-go{font-size:12px;color:var(--text-secondary);flex:none}
+.ss-mark{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;background:rgba(166,58,43,0.12);color:var(--primary);margin-left:6px;vertical-align:1px}
+.ss-hint{display:block;text-align:center;color:var(--text-muted);font-size:13px;padding:18px 10px}
+.ss-list{margin-top:8px;max-height:46vh;overflow:auto;border:1px solid var(--border);border-radius:10px}
+.ss-tip{font-size:12px;color:var(--text-muted);margin-top:6px}
+
 .form-group{margin-bottom:14px}
 .form-group label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--text-secondary)}
 
@@ -1846,7 +1863,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.1</div>
+      <div class="login-version">v2.17.2</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1962,7 +1979,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.2 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3021,15 +3038,15 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
     <h3 id="studentSelectTitle">选择学生</h3>
     <div class="modal-body">
       <div class="form-group">
-        <label>学生</label>
-        <select id="studentSelectDropdown" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px">
-        </select>
+        <label>学生（输入姓名 / 学号快速筛选，点名字即生效）</label>
+        <input type="text" id="studentSearchInput" placeholder="输入学生姓名，如：王小明…" autocomplete="off" oninput="onStudentSearchInput()" onkeydown="onStudentSearchKeydown(event)" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit">
+        <div class="ss-list" id="studentMatchList"></div>
+        <div class="ss-tip">💡 输入后回车：仅匹配 1 人时直接生效；匹配多人需点选具体姓名</div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" id="studentSelectRemove" style="display:none" onclick="confirmStudentSelectRemove()">免职/移除</button>
       <button class="btn btn-outline" onclick="closeModal('studentSelectModal')">取消</button>
-      <button class="btn btn-primary" onclick="confirmStudentSelect()">确认</button>
     </div>
   </div>
 </div>
@@ -5326,23 +5343,87 @@ function renderCommittee(){
   }).join('');
 }
 
+/* ==================== v2.17.2 学生快速选择器（共享弹窗：任命班委 / 座位 / 值日） ====================
+   老板需求：任命班委要能输入姓名快速选择。旧交互=原生下拉在几十人里滚动找；改为
+   搜索框即时筛选（姓名/学号子串）+ 点击行立即生效 + 回车快捷（唯一匹配时直选）。
+   原「下拉选择框」已下线，三入口共用同一套新交互。 */
+var _studentPickerPool = [];     // 候选池：调用方按场景过滤后注入（值日/任命=全体，座位=剔除已占座）
+var _studentPickerMark = null;   // 需标注「现任/当前座位」的学生 id
+var _studentPickerId = null;     // 点击选中的学生 id（随弹窗重新打开重置）
+
+/* 纯函数（可测）：姓名 / 学号子串过滤，忽略大小写；空词返回全量副本 */
+function matchStudentsByName(pool, q){
+  q = String(q == null ? '' : q).trim().toLowerCase();
+  if(!q) return (pool || []).slice();
+  return (pool || []).filter(function(s){
+    return String(s.name || '').toLowerCase().indexOf(q) >= 0 ||
+           String(s.sid == null ? '' : String(s.sid)).toLowerCase().indexOf(q) >= 0;
+  });
+}
+
+function renderStudentMatchList(q){
+  var el = document.getElementById('studentMatchList');
+  if(!el) return;
+  var matches = matchStudentsByName(_studentPickerPool, q);
+  if(!matches.length){
+    var word = String(q == null ? '' : q).trim();
+    el.innerHTML = '<span class="ss-hint">' + (word ? '没有匹配「' + escapeHtml(word) + '」的学生' : '暂无可选学生') + '</span>';
+    return;
+  }
+  el.innerHTML = matches.map(function(s){
+    var mark = (s.id === _studentPickerMark) ? '<span class="ss-mark">现任</span>' : '';
+    var sub = [];
+    if(s.sid != null && s.sid !== '') sub.push('#' + escapeHtml(String(s.sid)));
+    sub.push(((Number(s.credit) || 0)) + ' 分');
+    var avatar = escapeHtml(String(s.name || '?').charAt(0));
+    return '<div class="ss-row" onclick="pickStudent(' + s.id + ')">' +
+      '<span class="ss-avatar">' + avatar + '</span>' +
+      '<span style="flex:1;min-width:0"><span class="ss-name">' + escapeHtml(s.name || '') + mark + '</span>' +
+      '<span class="ss-sub">' + sub.join(' · ') + '</span></span>' +
+      '<span class="ss-go">选择 ›</span></div>';
+  }).join('');
+}
+
+function refreshStudentPicker(){
+  _studentPickerId = null;
+  var input = document.getElementById('studentSearchInput');
+  if(input) input.value = '';
+  renderStudentMatchList('');
+}
+function pickStudent(id){
+  _studentPickerId = id;
+  confirmStudentSelect();
+}
+function onStudentSearchInput(){
+  renderStudentMatchList(this.value);
+}
+function onStudentSearchKeydown(e){
+  if(e.key !== 'Enter') return;
+  var matches = matchStudentsByName(_studentPickerPool, this.value);
+  if(matches.length === 1){ pickStudent(matches[0].id); }
+  else if(matches.length > 1){ e.preventDefault(); showToast('匹配 ' + matches.length + ' 人，请点选具体姓名', 'info'); }
+  else { e.preventDefault(); showToast('没有匹配的学生', 'warning'); }
+}
+
 function openCommitteeSelect(key, currentId){
   const title = committeeConfig.find(c=>c.key===key)?.title || '班委';
   document.getElementById('studentSelectTitle').textContent = `任命${title}`;
-  const dropdown = document.getElementById('studentSelectDropdown');
-  dropdown.innerHTML = '<option value="">请选择学生...</option>' +
-    state.students.map(s=>`<option value="${escapeHtml(s.id)}" ${s.id===currentId?'selected':''}>${escapeHtml(s.name)} (${escapeHtml(s.credit)}分)</option>`).join('');
+  _studentPickerPool = state.students.slice();
+  _studentPickerMark = currentId || null;
   document.getElementById('studentSelectRemove').style.display = currentId ? '' : 'none';
   document.getElementById('studentSelectModal').dataset.context = 'committee';
   document.getElementById('studentSelectModal').dataset.key = key;
+  refreshStudentPicker();
   openModal('studentSelectModal');
+  const si = document.getElementById('studentSearchInput');
+  if(si){ try { si.focus(); } catch(err){} }
 }
 
 function confirmStudentSelect(){
   const modal = document.getElementById('studentSelectModal');
   const ctx = modal.dataset.context;
-  const studentId = parseInt(document.getElementById('studentSelectDropdown').value);
-  if(!studentId){ showToast('请选择学生','error'); return; }
+  const studentId = _studentPickerId;
+  if(studentId == null){ showToast('请选择学生','error'); return; }
   if(ctx === 'committee'){
     const key = modal.dataset.key;
     state.committee[key] = studentId;
@@ -5489,16 +5570,15 @@ function seatClick(row, col, studentId){
   }
   // Edit mode: open student select
   document.getElementById('studentSelectTitle').textContent = studentId ? '更换座位' : '安排座位';
-  const dropdown = document.getElementById('studentSelectDropdown');
   const occupiedIds = state.seating.seats.map(s=>s.studentId);
-  dropdown.innerHTML = '<option value="">请选择学生...</option>' +
-    state.students.filter(s=>!occupiedIds.includes(s.id) || s.id===studentId)
-    .map(s=>`<option value="${escapeHtml(s.id)}" ${s.id===studentId?'selected':''}>${escapeHtml(s.name)} (${escapeHtml(s.credit)}分)</option>`).join('');
+  _studentPickerPool = state.students.filter(s=>!occupiedIds.includes(s.id) || s.id===studentId);
+  _studentPickerMark = studentId || null;
   document.getElementById('studentSelectRemove').style.display = studentId ? '' : 'none';
   const modal = document.getElementById('studentSelectModal');
   modal.dataset.context = 'seating';
   modal.dataset.row = row;
   modal.dataset.col = col;
+  refreshStudentPicker();
   openModal('studentSelectModal');
 }
 
@@ -5824,14 +5904,14 @@ function dutyCellClick(day, area){
     return s ? s.name : "?";
   }).join("\u3001") || "(空)";
   document.getElementById("studentSelectTitle").textContent = "值日安排 - " + day + " " + area;
-  var dropdown = document.getElementById("studentSelectDropdown");
-  dropdown.innerHTML = '<option value="">请选择学生...</option>' +
-    state.students.map(function(s){return '<option value="' + escapeHtml(s.id) + '">' + escapeHtml(s.name) + ' (' + escapeHtml(s.credit) + '分)</option>';}).join('');
+  _studentPickerPool = state.students.slice();
+  _studentPickerMark = null;
   document.getElementById("studentSelectRemove").style.display = "none";
   var modal = document.getElementById("studentSelectModal");
   modal.dataset.context = "duty";
   modal.dataset.day = day;
   modal.dataset.area = area;
+  refreshStudentPicker();
   openModal("studentSelectModal");
 }
 
