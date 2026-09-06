@@ -1863,7 +1863,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.4</div>
+      <div class="login-version">v2.17.5</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1979,7 +1979,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.4 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.5 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -6747,6 +6747,13 @@ function applyCreditBulk(ids, amount, reason){
   saveData();
   refreshCreditViews();                                        // v2.15.0：学生管理模块同步刷新
   showToast('已为 ' + applied + ' 名学生 ' + (amount > 0 ? '+' : '') + amount + ' 学分 (' + reason + ')', amount > 0 ? 'success' : 'warning');
+  // v2.17.5 操作成功后自动清空备选名单（免手动点「清空」）+ 复位学生搜索框
+  _creditSelectedIds.clear();
+  renderCreditSelectedChips();
+  var _csInput = document.getElementById('creditStudentInput');
+  if(_csInput) _csInput.value = '';
+  var _csDd = document.getElementById('creditStudentDropdown');
+  if(_csDd) _csDd.style.display = 'none';
 }
 
 function quickCredit(amount){
