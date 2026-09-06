@@ -1802,7 +1802,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.14.0</div>
+      <div class="login-version">v2.15.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1908,7 +1908,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.14.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.15.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3236,6 +3236,101 @@ function normalizeInitialCredits(students, operations){
   });
   return fixed;
 }
+
+/* ==================== 学分一致性 v2.15.0 ====================
+   问题：student.credit 是快照、state.operations 是流水，两套真相会漂移；
+   且 smartMerge 按 updatedAt 取新，而学生对象此前从不写 updatedAt，
+   导致合并时永远取本地、云端的学分变更被丢弃 —— 各模块显示的分数对不上。
+   解法：① 每个学生固化 creditBase（基线），使 credit = creditBase + Σ(本人流水)
+        ② 所有学分写入走统一入口，同时打 creditVer / updatedAt
+        ③ 启动与每次拉取后按流水自愈校准
+   ———————————————————————————————————————————————————— */
+
+/* 按学生聚合流水增量（纯函数）。返回 { studentId: 增量和 } */
+function sumCreditsByStudent(operations){
+  var map = {};
+  (operations || []).forEach(function(op){
+    if(!op || op.studentId == null) return;
+    map[op.studentId] = (map[op.studentId] || 0) + (Number(op.amount) || 0);
+  });
+  return map;
+}
+
+/* 基线迁移（幂等）：creditBase = 当前 credit - Σ(本人流水)。
+   老学生初始分不全是 100（示例数据随机、早期导入各异），只能反推，不能硬写 100。 */
+function ensureCreditBase(students, operations){
+  var sums = sumCreditsByStudent(operations);
+  (students || []).forEach(function(s){
+    if(typeof s.creditBase !== 'number' || !isFinite(s.creditBase)){
+      s.creditBase = (Number(s.credit) || 0) - (sums[s.id] || 0);
+    }
+  });
+  return sums;
+}
+
+/* 自愈校准（纯函数，可测）：把 credit 修正为 creditBase + Σ流水，返回修正人数。
+   流水是并集全集且永不裁剪（唯一清空途径是 clearData），所以流水算出的才是真值。 */
+function reconcileCreditDrift(students, operations){
+  var sums = ensureCreditBase(students, operations);
+  var fixed = 0;
+  (students || []).forEach(function(s){
+    var expect = (Number(s.creditBase) || 0) + (sums[s.id] || 0);
+    if((Number(s.credit) || 0) !== expect){
+      s.credit = expect;
+      s.creditVer = (Number(s.creditVer) || 0) + 1;
+      s.updatedAt = Date.now();
+      fixed++;
+    }
+  });
+  return fixed;
+}
+
+/* 单一写入入口：快照 + 流水 + 版本戳 + 时间戳，四者原子一致。
+   禁止在业务代码里裸写 student.credit += x。 */
+function applyCreditDelta(student, amount, reason, opts){
+  opts = opts || {};
+  if(!student) return null;
+  amount = Number(amount) || 0;
+  if(amount === 0) return null;
+  if(typeof student.creditBase !== 'number' || !isFinite(student.creditBase)){
+    ensureCreditBase([student], state.operations);
+  }
+  student.credit = (Number(student.credit) || 0) + amount;
+  student.creditVer = (Number(student.creditVer) || 0) + 1;
+  student.updatedAt = Date.now();
+  var op = {
+    id: state.nextOpId++,
+    studentId: student.id,
+    studentName: student.name,
+    amount: amount,
+    reason: reason || (state.reasons && state.reasons[0]) || '其他',
+    time: opts.time || Date.now()
+  };
+  state.operations.unshift(op);
+  return op;
+}
+
+/* 撤销：反向写一条等量流水 + 回退快照，保证流水与快照仍然对得上 */
+function revertCreditOp(student, op){
+  if(!student || !op) return null;
+  return applyCreditDelta(student, -(Number(op.amount) || 0), op.reason, { time: Date.now() });
+}
+
+/* 学分变更后统一刷新所有展示学分的视图。
+   此前 applyCredit / applyCreditBulk / undoLastOp 只刷 renderCreditsPage，
+   学生管理模块的表格不刷新 —— 这是「分数不一致」的直接观感来源。 */
+function refreshCreditViews(){
+  var safe = function(fn){
+    try{ if(typeof fn === 'function') fn(); }catch(e){ console.warn('[refreshCreditViews]', e); }
+  };
+  safe(window.renderTable);
+  safe(window.renderCreditsPage);
+  safe(window.renderProfiles);
+  var dash = document.getElementById('page-dashboard');
+  if(dash && dash.classList.contains('active')) safe(window.renderDashboard);
+  var ana = document.getElementById('page-analytics');
+  if(ana && ana.classList.contains('active')) safe(window.renderAnalytics);
+}
 /* 学分等级：制度第六章（≥100 优秀 / 90-100 合格 / 80-90 一般 / <80 不合格） */
 function creditLevel(credit){
   var c = Number(credit);
@@ -3369,6 +3464,16 @@ function loadData(){
           setTimeout(function(){ showToast('已将 ' + fixedN + ' 名未初始化学生的初始学分统一为 ' + INITIAL_CREDIT + ' 分', 'success'); }, 800);
         }
       }
+      // v2.15.0 学分一致性：以流水为准自愈校准（快照与流水漂移、或多设备合并取错版本时生效）
+      var needBase = (state.students||[]).some(function(s){ return typeof s.creditBase !== 'number'; });
+      var driftN = reconcileCreditDrift(state.students, state.operations);
+      if(driftN > 0 || needBase){
+        saveData();
+        if(driftN > 0 && !window.__creditDriftToastShown){
+          window.__creditDriftToastShown = true;
+          setTimeout(function(){ showToast('已按学分流水校准 ' + driftN + ' 名学生的学分', 'info'); }, 1300);
+        }
+      }
     }catch(e){ console.error('Load failed',e); }
   }
 }
@@ -3430,7 +3535,21 @@ function smartMergeData(localData,remoteData){
     remoteData.students.forEach(function(rs){
       var ls=lmap[rs.id];
       if(!ls){lmap[rs.id]=rs;}
-      else{var lt=ls.updatedAt||ls.createdAt||0;var rt=rs.updatedAt||rs.createdAt||0;if(rt>lt)lmap[rs.id]=rs;}
+      else{
+        var lt=ls.updatedAt||ls.createdAt||0;var rt=rs.updatedAt||rs.createdAt||0;
+        if(rt>lt){lmap[rs.id]=rs;}
+        else{
+          // v2.15.0：updatedAt 相同或云端更旧时，用学分版本号判定谁的分更新。
+          // 旧版本写的数据没有 creditVer（=0），此时保守取本地，由 reconcileCreditDrift 兜底校准。
+          var lv=Number(ls.creditVer)||0, rv=Number(rs.creditVer)||0;
+          if(rv>lv){
+            ls.credit=rs.credit;
+            if(typeof rs.creditBase==='number') ls.creditBase=rs.creditBase;
+            ls.creditVer=rv;
+            if(rt>0) ls.updatedAt=rt;
+          }
+        }
+      }
     });
     merged.students=Object.keys(lmap).map(function(k){return lmap[k];});
   }
@@ -4492,18 +4611,11 @@ function adjustCredit(id, amount, e){
   const student = state.students.find(s=>s.id===id);
   if(!student) return;
   const reason = state.reasons[0] || '其他';
-  student.credit += amount;
-  state.operations.unshift({
-    id: state.nextOpId++,
-    studentId: id,
-    studentName: student.name,
-    amount, reason,
-    time: Date.now()
-  });
+  applyCreditDelta(student, amount, reason);   // v2.15.0：统一入口，快照+流水+版本戳原子一致
   saveData();
   const row = document.querySelector(`tr[data-id="${id}"]`);
   if(row){ row.classList.remove('highlight'); void row.offsetWidth; row.classList.add('highlight'); }
-  renderTable();
+  refreshCreditViews();                        // v2.15.0：学生表/学分页/档案页一起刷
   showToast(`${student.name} ${amount>0?'+':''}${amount} 学分`, amount > 0 ? 'success' : 'warning');
 }
 
@@ -6220,19 +6332,12 @@ function applyCreditBulk(ids, amount, reason){
   ids.forEach(function(id){
     var student = state.students.find(function(s){ return s.id === id; });
     if(!student) return;
-    student.credit += amount;
-    state.operations.unshift({
-      id: state.nextOpId++,
-      studentId: id,
-      studentName: student.name,
-      amount, reason,
-      time: ts
-    });
+    applyCreditDelta(student, amount, reason, { time: ts });   // v2.15.0 统一入口
     applied++;
   });
   if(!applied) return;
   saveData();
-  renderCreditsPage();
+  refreshCreditViews();                                        // v2.15.0：学生管理模块同步刷新
   showToast('已为 ' + applied + ' 名学生 ' + (amount > 0 ? '+' : '') + amount + ' 学分 (' + reason + ')', amount > 0 ? 'success' : 'warning');
 }
 
@@ -6258,16 +6363,9 @@ function customCreditApply(){
 function applyCredit(id, amount, reason){
   const student = state.students.find(s=>s.id===id);
   if(!student) return;
-  student.credit += amount;
-  state.operations.unshift({
-    id: state.nextOpId++,
-    studentId: id,
-    studentName: student.name,
-    amount, reason,
-    time: Date.now()
-  });
+  applyCreditDelta(student, amount, reason);   // v2.15.0 统一入口
   saveData();
-  renderCreditsPage();
+  refreshCreditViews();                        // v2.15.0：学生管理模块同步刷新
   showToast(`${student.name} ${amount>0?'+':''}${amount} 学分 (${reason})`, amount > 0 ? 'success' : 'warning');
 }
 
@@ -6276,9 +6374,13 @@ function undoLastOp(){
   const op = state.operations.shift();
   const student = state.students.find(s=>s.id===op.studentId);
   if(student){
+    // v2.15.0：流水已 shift 出去，此处只回退快照并打版本戳，二者仍然对得上
+    if(typeof student.creditBase !== 'number') ensureCreditBase([student], state.operations);
     student.credit -= op.amount;
+    student.creditVer = (Number(student.creditVer)||0) + 1;
+    student.updatedAt = Date.now();
     saveData();
-    renderCreditsPage();
+    refreshCreditViews();
     showToast(`已撤销: ${op.studentName} ${op.amount>0?'+':''}${op.amount}`, 'info');
   }
 }
@@ -6325,22 +6427,14 @@ function confirmBatchCredit(){
   state.selectedStudents.forEach(id => {
     const student = state.students.find(s=>s.id===id);
     if(student){
-      student.credit += amount;
-      state.operations.unshift({
-        id: state.nextOpId++,
-        studentId: id,
-        studentName: student.name,
-        amount, reason,
-        time: Date.now()
-      });
+      applyCreditDelta(student, amount, reason);   // v2.15.0 统一入口
     }
   });
   saveData();
   state.selectedStudents.clear();
   closeModal('batchModal');
-  renderTable();
   showToast(`已为 ${count} 名学生批量${amount>0?'加':'减'}学分`,'success');
-  renderCreditsPage();
+  refreshCreditViews();                            // v2.15.0：一次刷新全部相关视图
 }
 
 /* ==================== Analytics ==================== */
