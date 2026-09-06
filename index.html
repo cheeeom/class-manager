@@ -1732,6 +1732,8 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .rp-head button{border:none;background:none;color:var(--text-muted);cursor:pointer;font-size:12px;padding:2px 6px;border-radius:6px}
 .rp-head button:hover{color:var(--danger);background:var(--bg-secondary)}
 .rp-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.rp-empty{font-size:12px;color:var(--text-muted);padding:6px 2px}
+.tl-cm{display:inline-block;font-size:11px;font-weight:600;color:#8a63d2;background:rgba(138,99,210,0.12);border-radius:6px;padding:1px 6px;margin-left:4px;vertical-align:1px}
 .rp-row:last-child{margin-bottom:0}
 .rp-chip{border:1px solid var(--border);background:var(--card-bg);border-radius:999px;
   padding:5px 12px;font-size:13px;cursor:pointer;color:var(--text);white-space:nowrap}
@@ -1759,6 +1761,26 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 #cmExitBtn:hover{border-color:var(--danger);color:var(--danger)}
 .committee-entry{width:100%;margin-top:16px;padding:10px;font-size:13px}
 .committee-entry:hover{border-color:var(--primary);color:var(--primary)}
+/* v2.17.0 原因目录管理（设置页） */
+.cat-dir{border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:rgba(127,127,127,0.04)}
+.cat-dir-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.cat-dir-name{font-weight:700;font-size:14px}
+.cat-dir-tools,.cat-group-tools{display:inline-flex;gap:6px;align-items:center}
+.cat-group{border-left:3px solid var(--border);padding:4px 0 4px 10px;margin:4px 0}
+.cat-group-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.cat-group-name{font-size:13px;font-weight:600;color:var(--text-secondary)}
+.cat-reason-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px dashed rgba(127,127,127,0.15)}
+.cat-reason-row:last-child{border-bottom:none}
+.cat-reason-name{flex:1;font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cat-reason-score{display:inline-flex;align-items:center;gap:3px;font-size:12px;color:var(--text-muted);white-space:nowrap}
+.cat-empty-group{font-size:12px;color:var(--text-muted);padding:6px 0}
+.cat-mini-btn{background:none;border:none;cursor:pointer;font-size:13px;padding:2px 6px;color:var(--text-secondary);border-radius:6px}
+.cat-mini-btn:hover{background:rgba(127,127,127,0.12)}
+/* v2.17.0 多级原因选择器：逐层下钻 + 面包屑 */
+.rp-crumb{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-muted);margin-bottom:8px;flex-wrap:wrap}
+.rp-crumb b{color:var(--text-secondary);cursor:pointer;font-weight:600}
+.rp-crumb b:hover{color:var(--primary)}
+.rp-crumb i{font-style:normal;opacity:.5}
 /* v2.16.1 学分公示 */
 .pub-tabs{display:flex;gap:4px;background:var(--bg-secondary);padding:4px;border-radius:12px}
 .pub-tab{padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--text-muted);transition:background .15s}
@@ -1824,7 +1846,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.16.1</div>
+      <div class="login-version">v2.17.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1833,7 +1855,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </div>
     <div class="login-right">
-      <div class="login-input-area">
+      <div class="login-input-area" id="loginPwdArea">
         <div class="login-pwd-label">输入密码 <span style="font-size:11px;color:var(--text-muted);font-weight:400">（6位数字）</span></div>
         <div class="login-pwd-display" id="loginPwdDisplay">
           <span class="pwd-dots" id="pwdDots"></span>
@@ -1841,7 +1863,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="login-err" id="loginErr"></div>
         <div class="login-help">忘记密码？请联系管理员重置</div>
       </div>
-      <div class="login-keypad">
+      <div class="login-keypad" id="loginKeypad">
         <button class="key" onclick="loginKey('1')">1</button>
         <button class="key" onclick="loginKey('2')">2</button>
         <button class="key" onclick="loginKey('3')">3</button>
@@ -1855,7 +1877,14 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <button class="key" onclick="loginKey('0')">0</button>
         <button class="key key-fn key-ok" onclick="loginSubmit()">确定</button>
       </div>
-      <button class="btn btn-outline btn-sm committee-entry" onclick="enterCommitteeMode()">👩‍💼 班委入口（免密码 · 仅学分/值日等协作功能）</button>
+      <button class="btn btn-outline btn-sm committee-entry" onclick="enterCommitteeMode()">👩‍💼 班委入口（免密码 · 选身份后操作留痕）</button>
+      <!-- v2.17.0 班委身份选择（免密，从已任命岗位中选；操作将署名） -->
+      <div id="cmIdentityPanel" style="display:none">
+        <div class="login-pwd-label">选择你的班委身份 <span style="font-size:11px;color:var(--text-muted);font-weight:400">（学分加减将署名，可在时间线追溯）</span></div>
+        <div id="cmIdentityList" style="margin:12px 0;display:flex;flex-direction:column;gap:8px"></div>
+        <button class="btn btn-outline btn-sm" style="width:100%" onclick="cmLoginAs('')">以「通用班委」进入（不署名）</button>
+        <button class="btn btn-sm" style="width:100%;margin-top:6px" onclick="cmLoginBack()">‹ 返回密码登录</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1933,7 +1962,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.16.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2482,12 +2511,21 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         </div>
 
         <div class="settings-section">
-          <h3>学分操作原因预设</h3>
-          <div class="tag-list" id="reasonTagList"></div>
-          <div style="display:flex;gap:8px;margin-top:12px">
-            <input type="text" id="newReasonInput" placeholder="新增原因...（可加 ,分值 如 作业优秀,2）" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px">
-            <button class="btn btn-outline btn-sm" onclick="addReason()">添加</button>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap">
+            <div>
+              <h3>📚 学分原因目录（多级菜单）</h3>
+              <div style="margin-top:6px;font-size:12px;color:var(--text-muted);line-height:1.7">
+                加减分时按「方向 → 大类 → 原因」逐级点选。预设 26 项只是初始模板，<b>可自由增删改</b>；
+                改动立即生效，并随云同步到班委端。
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="btn btn-outline btn-sm" onclick="openReasonDirModal()">＋ 方向</button>
+              <button class="btn btn-outline btn-sm" onclick="openReasonItemModal('')">＋ 原因</button>
+              <button class="btn btn-sm" style="color:var(--danger)" onclick="askResetReasonCatalog()">↺ 恢复预设</button>
+            </div>
           </div>
+          <div id="reasonCatalogTree" style="margin-top:12px"></div>
         </div>
         <div class="settings-section">
           <h3>座位设置</h3>
@@ -2530,6 +2568,15 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             </div>
           </div>
           <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">公示页与导出图中的姓名按此显示；开学日期用于「本学期」周期统计（默认按学年 9/1 或 3/1 自动推断）</div>
+        </div>
+        <div class="settings-section">
+          <h3>👩‍💼 班委协作设置</h3>
+          <label style="display:flex;gap:8px;align-items:center;font-size:14px;cursor:pointer">
+            <input type="checkbox" id="cmCanMinusChk" onchange="onCmCanMinusChange()" style="width:16px;height:16px"> 允许班委扣分（减分）
+          </label>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-muted);line-height:1.7">
+            班委在学分页可协助加减分（留痕署名：谁操作的、什么身份一目了然）。关闭扣分后班委只能加分，减分统一由你操作。
+          </div>
         </div>
 <div class="settings-section">
           <h3>数据管理</h3>
@@ -2974,6 +3021,34 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
   </div>
 </div>
 
+<!-- v2.17.0 Modal: 新增原因（原因目录管理） -->
+<div class="modal-overlay" id="reasonItemModal">
+  <div class="modal">
+    <h3>➕ 新增原因</h3>
+    <div class="modal-body">
+      <div class="form-group"><label>方向</label>
+        <select id="catDirSel" onchange="catRefillGroupSel()" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px"></select>
+      </div>
+      <div class="form-group"><label>大类</label>
+        <select id="catGroupSel" onchange="catOnGroupSel()" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px"></select>
+      </div>
+      <div class="form-group" id="catNewGroupWrap" style="display:none"><label>新大类名称</label>
+        <input type="text" id="catNewGroupInput" placeholder="如：卫生 / 考勤 / 自定义…" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px">
+      </div>
+      <div class="form-group"><label>原因名称</label>
+        <input type="text" id="catNameInput" placeholder="如：主动擦黑板" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px">
+      </div>
+      <div class="form-group"><label>默认分值（可选；留空 = 每次手填；负数为扣分）</label>
+        <input type="number" id="catScoreInput" min="-99" max="99" placeholder="如 +2 或 -3" style="width:140px;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('reasonItemModal')">取消</button>
+      <button class="btn btn-primary" onclick="catSaveNewItem()">保存</button>
+    </div>
+  </div>
+</div>
+
 <!-- Side Panel: Student Detail -->
 <div class="side-panel" id="studentDetailPanel">
   <div class="side-panel-header">
@@ -3004,7 +3079,7 @@ const GH_REPO = 'class-manager';
 const GH_BRANCH = 'main';
 const GH_DATA_PATH = 'data.json';
 // 云端 data.json 同步字段白名单（auto/manual push 共用）
-const CLOUD_SYNC_FIELDS = ['className','students','operations','reasons','reasonScores','nextId','nextOpId','nextSid',
+const CLOUD_SYNC_FIELDS = ['className','students','operations','reasons','reasonScores','reasonCatalog','nextId','nextOpId','nextSid',
   'lastExport','lastImport','committee','seating','duty','exportedOpsCount','classMotto',
   'leaves','nextLeaveId','exams','nextExamId','todos','nextTodoId',
   'workLogs','nextWorkLogId','honors','nextHonorId','notices',
@@ -3314,6 +3389,64 @@ const REASON_CATALOG = {
 const REASON_CATALOG_FLAT = Object.values(REASON_CATALOG)
   .flatMap(g => Object.values(g).flat());
 
+/* ==================== v2.17.0 原因目录可编辑化 ====================
+   REASON_CATALOG 降级为「初始模板」：真实目录存 state.reasonCatalog
+   （结构相同：方向 → 大类 → [原因…]），班主任可在设置页增删改，
+   多设备随云端同步；reasons 一维列表改为目录的派生扁平（不再独立编辑）。
+   分值仍统一存 state.reasonScores（目录与原因都不存分值）。 */
+function cloneReasonCatalog(cat){ return JSON.parse(JSON.stringify(cat)); }
+function defaultReasonCatalog(){ return cloneReasonCatalog(REASON_CATALOG); }
+// 目录 → 原因一维扁平（保序去重）
+function flattenReasonCatalog(cat){
+  var out = [];
+  (cat || {}); Object.keys(cat || {}).forEach(function(dir){
+    var g = cat[dir] || {};
+    Object.keys(g).forEach(function(gr){
+      (g[gr] || []).forEach(function(name){ if(out.indexOf(name) < 0) out.push(name); });
+    });
+  });
+  return out;
+}
+// 目录结构并集（方向/大类并集，组内原因去重保序）。用于多设备合并：两边改动都保留，
+// 被删除项可能复活（删除类操作天然难以跨设备合并，属已知取舍）。
+function mergeReasonCatalog(a, b){
+  var out = cloneReasonCatalog(a || {});
+  Object.keys(b || {}).forEach(function(dir){
+    if(!out[dir]) out[dir] = {};
+    Object.keys(b[dir] || {}).forEach(function(gr){
+      if(!out[dir][gr]) out[dir][gr] = [];
+      (b[dir][gr] || []).forEach(function(name){
+        if(out[dir][gr].indexOf(name) < 0) out[dir][gr].push(name);
+      });
+    });
+  });
+  return out;
+}
+// 迁移：v2.16 及以前无目录（reasons 一维可增删自定义项）→ 首次进入用模板建目录；
+// 已有目录则尊重用户编辑结果（不做模板并集，避免被删的预设项复活）。
+// 老数据里不在目录平铺中的自定义原因 → 归入「其他 → 自定义原因」组，不丢。
+function migrateReasonCatalog(savedCat, oldReasons){
+  var cat = (savedCat && typeof savedCat === 'object') ? cloneReasonCatalog(savedCat) : defaultReasonCatalog();
+  Object.keys(cat).forEach(function(dir){
+    if(typeof cat[dir] !== 'object' || !cat[dir]) cat[dir] = {};
+    Object.keys(cat[dir]).forEach(function(gr){
+      if(!Array.isArray(cat[dir][gr])) cat[dir][gr] = [];
+    });
+  });
+  var flat = flattenReasonCatalog(cat);
+  var extras = (oldReasons || []).filter(function(r){ return flat.indexOf(r) < 0; });
+  if(extras.length){
+    if(!cat['其他']) cat['其他'] = {};
+    if(!cat['其他']['自定义原因']) cat['其他']['自定义原因'] = [];
+    extras.forEach(function(r){ if(cat['其他']['自定义原因'].indexOf(r) < 0) cat['其他']['自定义原因'].push(r); });
+  }
+  return cat;
+}
+// 目录变更后同步派生字段（reasons 一维列表 = 目录平铺）
+function syncReasonsFromCatalog(){
+  state.reasons = flattenReasonCatalog(state.reasonCatalog);
+}
+
 /* v2.14.0 初始学分基准：制度第六章满分基准。0 分且无任何流水 = 未初始化（导入/新增遗漏），
    自动修复为基准分；有过流水记录的 0 分（真扣到 0）保持不动。纯函数，便于回归测试。 */
 const INITIAL_CREDIT = 100;
@@ -3396,6 +3529,13 @@ function applyCreditDelta(student, amount, reason, opts){
     reason: reason || (state.reasons && state.reasons[0]) || '其他',
     time: opts.time || Date.now()
   };
+  // v2.17.0 操作留痕：班委操作署名到人（班主任操作不写 by = 默认教师）
+  if(window.__cmRole === 'committee'){
+    var cmi = window.__cmIdentity || {};
+    op.by = 'cm';
+    if(cmi.name) op.byName = cmi.name;
+    if(cmi.post) op.byPost = cmi.post;
+  }
   state.operations.unshift(op);
   return op;
 }
@@ -3473,6 +3613,7 @@ let state = {
   operations: [],
   reasons: [...defaultReasons],
   reasonScores: {},
+  reasonCatalog: defaultReasonCatalog(),   // v2.17.0 可编辑原因目录（模板 = REASON_CATALOG）
   sortDir: 'desc',
   selectedStudents: new Set(),
   nextId: 1,
@@ -3515,6 +3656,10 @@ function loadData(){
         ? d.reasons.concat(defaultReasons.filter(function(r){ return d.reasons.indexOf(r) < 0; }))
         : [...defaultReasons];
       state.reasonScores = Object.assign({}, defaultReasonScores, d.reasonScores || {});
+      // v2.17.0 原因目录可编辑化：老数据无目录 → 模板迁移；已有目录尊重用户编辑。
+      // 目录内自定义原因并入「其他 → 自定义原因」；reasons 改为目录派生扁平。
+      state.reasonCatalog = migrateReasonCatalog(d.reasonCatalog, state.reasons);
+      syncReasonsFromCatalog();
       state.nextId = d.nextId || (d.students?.length + 1 || 1);
       state.nextOpId = d.nextOpId || (d.operations?.length + 1 || 1);
       state.nextSid = d.nextSid || 1;
@@ -3579,6 +3724,7 @@ function saveData(){
     operations: state.operations,
     reasons: state.reasons,
     reasonScores: state.reasonScores || {},
+    reasonCatalog: state.reasonCatalog || {},
     nextId: state.nextId,
     nextOpId: state.nextOpId,
     nextSid: state.nextSid,
@@ -3709,6 +3855,10 @@ function smartMergeData(localData,remoteData){
   // reasonScores: union（冲突时云端优先）
   if(remoteData.reasonScores){
     merged.reasonScores=Object.assign({}, localData.reasonScores||{}, remoteData.reasonScores);
+  }
+  // reasonCatalog: 结构并集（v2.17.0 目录可编辑化；两侧改动都保留，删除项可能复活属已知取舍）
+  if(remoteData.reasonCatalog && typeof remoteData.reasonCatalog === 'object'){
+    merged.reasonCatalog = mergeReasonCatalog(localData.reasonCatalog || {}, remoteData.reasonCatalog);
   }
   // committee/seating/duty: take newer
   var lts=localData.exportedOpsCount||0;var rts=remoteData.exportedOpsCount||0;
@@ -6135,13 +6285,18 @@ function rcToggle(rootId){
 }
 function rcSetDir(rootId, dir){
   var st = RP_INSTANCES[rootId]; if(!st) return;
-  st.dir = (st.dir === dir) ? null : dir;
+  st.dir = dir;
   st.group = null;
+  renderReasonPicker(rootId);
+}
+function rcToDirs(rootId){
+  var st = RP_INSTANCES[rootId]; if(!st) return;
+  st.dir = null; st.group = null;
   renderReasonPicker(rootId);
 }
 function rcSetGroup(rootId, g){
   var st = RP_INSTANCES[rootId]; if(!st) return;
-  st.group = (st.group === g) ? null : g;
+  st.group = g || null;      // v2.17.0：null = 返回大类列表
   renderReasonPicker(rootId);
 }
 function rcClear(rootId){
@@ -6179,37 +6334,38 @@ function renderReasonPicker(rootId){
           ' style="padding:10px 14px;font-size:14px;' + (full ? 'width:100%;text-align:left;justify-content:space-between;' : '') + '" onclick="rcToggle(\'' + rootId + '\')">' +
           escapeHtml(summary) + ' ▾</button>';
   if(st.open){
-    h += '<div class="rp-panel"><div class="rp-head"><span>选原因：先方向 → 再大类 → 点具体项</span>' +
+    // v2.17.0 逐层下钻（仿成熟 Cascader）：方向 → 大类 → 原因，一次只显示一层，
+    // 顶部路径可点返回；数据源 = state.reasonCatalog（可编辑目录，班委端同源）。
+    var cat = state.reasonCatalog || {};
+    var dirEmoji = { '加分':'➕', '扣分':'➖', '其他':'⚪' };   // emoji 只进显示文本，不进属性/键（escapeAttr 白名单不含 emoji）
+    h += '<div class="rp-panel"><div class="rp-head"><span>' +
+         (!st.dir ? '① 选方向' : (!st.group ? '② ' + escapeHtml(st.dir) + ' · 选大类' : '③ ' + escapeHtml(st.dir) + ' → ' + escapeHtml(st.group))) +
+         '</span>' +
          (cur ? '<button type="button" onclick="rcClear(\'' + rootId + '\')">✕ 清除已选</button>' : '<button type="button" onclick="rcToggle(\'' + rootId + '\')">收起</button>') +
          '</div>';
-    var dirs = Object.keys(REASON_CATALOG);
-    var dirEmoji = { '加分':'➕', '扣分':'➖', '其他':'⚪' };   // emoji 只进显示文本，不进属性/键（escapeAttr 白名单不含 emoji）
-    h += '<div class="rp-row">' + dirs.map(function(d){
-      return '<button type="button" class="rp-chip' + (d === '扣分' ? ' rp-neg' : '') + (st.dir === d ? ' rp-on' : '') +
-             '" onclick="rcSetDir(\'' + rootId + '\',\'' + escapeAttr(d) + '\')">' + (dirEmoji[d] || '') + ' ' + escapeHtml(d) + '</button>';
-    }).join('') + '</div>';
-    if(st.dir && REASON_CATALOG[st.dir]){
-      var groups = Object.keys(REASON_CATALOG[st.dir]);
-      // 自定义原因兜底：state.reasons 里不在目录中的项，归入「自定义」组
-      var extra = (state.reasons || []).filter(function(r){ return REASON_CATALOG_FLAT.indexOf(r) < 0; });
-      if(extra.length) groups = groups.concat(['自定义']);
-      h += '<div class="rp-row">' + groups.map(function(g){
-        return '<button type="button" class="rp-chip' + (st.group === g ? ' rp-on' : '') +
-               '" onclick="rcSetGroup(\'' + rootId + '\',\'' + escapeAttr(g) + '\')">' + escapeHtml(g) + '</button>';
+    if(!st.dir){
+      var dirs = Object.keys(cat);
+      h += '<div class="rp-row">' + dirs.map(function(d){
+        return '<button type="button" class="rp-chip' + (d === '扣分' ? ' rp-neg' : '') + '" onclick="rcSetDir(\'' + rootId + '\',\'' + escapeAttr(d) + '\')">' + (dirEmoji[d] || '📁') + ' ' + escapeHtml(d) + ' ›</button>';
       }).join('') + '</div>';
-      if(st.group && REASON_CATALOG[st.dir][st.group]){
-        h += '<div class="rp-row">' + REASON_CATALOG[st.dir][st.group].map(function(name){
-          var s2 = rcScoreOf(name);
-          var hint = s2 !== null ? ' <b class="' + (s2 < 0 ? 'neg' : '') + '">' + (s2 > 0 ? '+' : '') + s2 + '</b>' : '';
-          return '<button type="button" class="rp-chip rp-reason' + (cur === name ? ' rp-on' : '') +
-                 '" onclick="rcPick(\'' + rootId + '\',\'' + escapeAttr(name) + '\')">' + escapeHtml(name) + hint + '</button>';
-        }).join('') + '</div>';
-      } else if(st.group === '自定义' && extra.length){
-        h += '<div class="rp-row">' + extra.map(function(name){
-          return '<button type="button" class="rp-chip rp-reason' + (cur === name ? ' rp-on' : '') +
-                 '" onclick="rcPick(\'' + rootId + '\',\'' + escapeAttr(name) + '\')">' + escapeHtml(name) + '</button>';
-        }).join('') + '</div>';
-      }
+      if(!dirs.length) h += '<div class="rp-empty">目录为空：请班主任在 设置 → 学分原因目录 中添加</div>';
+    } else if(!st.group){
+      var groups = Object.keys(cat[st.dir] || {});
+      h += '<div class="rp-crumb"><b onclick="rcToDirs(\'' + rootId + '\')">‹ 换方向</b><i>/</i><span>' + escapeHtml(st.dir) + '</span></div>';
+      h += '<div class="rp-row">' + groups.map(function(g){
+        return '<button type="button" class="rp-chip" onclick="rcSetGroup(\'' + rootId + '\',\'' + escapeAttr(g) + '\')">' + escapeHtml(g) + ' ›</button>';
+      }).join('') + '</div>';
+      if(!groups.length) h += '<div class="rp-empty">该方向下暂无大类</div>';
+    } else {
+      var names = (cat[st.dir] || {})[st.group] || [];
+      h += '<div class="rp-crumb"><b onclick="rcSetGroup(\'' + rootId + '\',null)">‹ 返回大类</b><i>/</i><span>' + escapeHtml(st.dir) + '</span><i>/</i><span>' + escapeHtml(st.group) + '</span></div>';
+      h += '<div class="rp-row">' + names.map(function(name){
+        var s2 = rcScoreOf(name);
+        var hint = s2 !== null ? ' <b class="' + (s2 < 0 ? 'neg' : '') + '">' + (s2 > 0 ? '+' : '') + s2 + '</b>' : '';
+        return '<button type="button" class="rp-chip rp-reason' + (cur === name ? ' rp-on' : '') +
+               '" onclick="rcPick(\'' + rootId + '\',\'' + escapeAttr(name) + '\')">' + escapeHtml(name) + hint + '</button>';
+      }).join('') + '</div>';
+      if(!names.length) h += '<div class="rp-empty">该大类下暂无原因</div>';
     }
     h += '</div>';
   }
@@ -6351,6 +6507,10 @@ function updateCreditBtnStates(){
   const hasReason = document.getElementById('creditReason').value !== '';
   const valid = hasStudent && hasReason;
   document.querySelectorAll('#quickBtnGroup button').forEach(b => b.disabled = !valid);
+  // v2.17.0 班委禁扣：减分快捷按钮恒禁用（逻辑层另有 cmMinusBlocked 兜底）
+  if(window.__cmRole === 'committee' && !cmCanMinus()){
+    document.querySelectorAll('#quickBtnGroup button.minus').forEach(function(b){ b.disabled = true; b.title = '班主任已关闭班委扣分权限'; });
+  }
   const customBtn = document.getElementById('customApplyBtn');
   if(customBtn) customBtn.disabled = !valid || !document.getElementById('customCredit').value;
 }
@@ -6446,6 +6606,7 @@ function quickCredit(amount){
   var reason = document.getElementById('creditReason').value;
   if(ids.length === 0){ showToast('请选择学生','error'); return; }
   if(!reason){ showToast('请选择原因','error'); return; }
+  if(amount < 0 && cmMinusBlocked()) return;   // v2.17.0 班委扣分开关
   applyCreditBulk(ids, amount, reason);
 }
 
@@ -6456,6 +6617,7 @@ function customCreditApply(){
   if(ids.length === 0){ showToast('请选择学生','error'); return; }
   if(!reason){ showToast('请选择原因','error'); return; }
   if(!amount || amount === 0){ showToast('请输入分值','error'); return; }
+  if(amount < 0 && cmMinusBlocked()) return;   // v2.17.0 班委扣分开关
   applyCreditBulk(ids, amount, reason);
   document.getElementById('customCredit').value = '';
 }
@@ -6504,9 +6666,12 @@ function renderOpItem(op){
   const color = amount > 0 ? 'var(--success)' : 'var(--danger)';
   const who = op.studentName ? escapeHtml(op.studentName) : ('#' + escapeHtml(String(op.studentId == null ? '' : op.studentId)));
   const why = op.reason ? escapeHtml(op.reason) : '未填原因';
+  const cmTag = (op.by === 'cm')
+    ? ' <span class="tl-cm">👩‍💼 ' + escapeHtml(op.byName || '通用班委') + (op.byPost ? ' · ' + escapeHtml(op.byPost) : '') + '</span>'
+    : '';
   return `<div class="timeline-item">
     <div class="tl-time">${formatOpTime(op)}</div>
-    <div class="tl-text"><strong>${who}</strong> <span style="color:${color};font-weight:600">${amount > 0 ? '+' : ''}${amount}</span> 学分 <span style="color:var(--text-muted)">— ${why}</span></div>
+    <div class="tl-text"><strong>${who}</strong>${cmTag} <span style="color:${color};font-weight:600">${amount > 0 ? '+' : ''}${amount}</span> 学分 <span style="color:var(--text-muted)">— ${why}</span></div>
   </div>`;
 }
 function renderCreditsTimeline(){
@@ -6540,6 +6705,7 @@ function confirmBatchCredit(){
   const reason = document.getElementById('batchReason').value;
   if(!amount || isNaN(amount)){ showToast('请输入有效学分','error'); return; }
   if(!reason){ showToast('请选择原因','error'); return; }
+  if(amount < 0 && cmMinusBlocked()) return;   // v2.17.0 班委扣分开关
   const count = state.selectedStudents.size;
   state.selectedStudents.forEach(id => {
     const student = state.students.find(s=>s.id===id);
@@ -7451,7 +7617,7 @@ function renderSettings(){
   document.getElementById('sidebarClassName').textContent = state.className;
   document.getElementById('seatColsInput').value = state.seating.cols;
   document.getElementById('seatRowsInput').value = state.seating.rows;
-  renderReasonTags();
+  renderReasonCatalogTree();
   document.getElementById('mottoInput').value = state.classMotto || '';
   const avatarPrev = document.getElementById('settingsAvatarPreview');
   const removeBtn = document.getElementById('removeAvatarBtn');
@@ -7477,6 +7643,9 @@ function renderSettings(){
       ssEl.value = sd.getFullYear() + '-' + String(sd.getMonth()+1).padStart(2,'0') + '-' + String(sd.getDate()).padStart(2,'0');
     }
   }
+  // v2.17.0 班委协作设置回填
+  var cmChk = document.getElementById('cmCanMinusChk');
+  if(cmChk) cmChk.checked = cmCanMinus();
 }
 
 /* v2.16.0 公示设置事件 */
@@ -7502,6 +7671,27 @@ function onPubSemesterStartChange(){
   if(pg && pg.classList.contains('active')) renderPublicity();
 }
 
+/* v2.17.0 班委协作设置（本地存储，仅班主任设备） */
+function loadTSetting(k){
+  try{ return (JSON.parse(localStorage.getItem('cm_teacher_settings')||'{}'))[k]; }catch(e){ return undefined; }
+}
+function saveTSetting(k, v){
+  var s = {}; try{ s = JSON.parse(localStorage.getItem('cm_teacher_settings')||'{}'); }catch(e){}
+  s[k] = v; localStorage.setItem('cm_teacher_settings', JSON.stringify(s));
+}
+function cmCanMinus(){ return loadTSetting('cmCanMinus') !== false; }   // 默认允许
+function cmMinusBlocked(){
+  if(window.__cmRole !== 'committee') return false;
+  if(cmCanMinus()) return false;
+  showToast('班主任已关闭班委扣分权限：班委只能加分', 'warning');
+  return true;
+}
+function onCmCanMinusChange(){
+  var chk = document.getElementById('cmCanMinusChk');
+  saveTSetting('cmCanMinus', !!chk.checked);
+  showToast(chk.checked ? '已允许班委加减分' : '已收回班委扣分权限（只能加分）', 'success');
+}
+
 function saveClassName(){
   const name = document.getElementById('classNameInput').value.trim();
   if(!name){ showToast('请输入班级名称','error'); return; }
@@ -7511,41 +7701,229 @@ function saveClassName(){
   showToast('班级名称已保存','success');
 }
 
-function renderReasonTags(){
-  const list = document.getElementById('reasonTagList');
-  const negWords = ['迟到','违规','旷课','扣','不达标','缺席'];
-  const posWords = ['优秀','进步','获奖','参与','回答','助人'];
-  list.innerHTML = state.reasons.map((r,i) => {
-    const isNeg = negWords.some(w => r.includes(w));
-    const isPos = !isNeg && posWords.some(w => r.includes(w));
-    const cls = isNeg ? 'tag-negative' : (isPos ? 'tag-positive' : '');
-    return `<div class="tag ${cls}">${r}<span class="tag-close" onclick="removeReason(${i})">×</span></div>`;
+/* ==================== v2.17.0 原因目录管理（设置页） ====================
+   数据源：state.reasonCatalog = {方向: {大类: [原因…]}}；分值存 state.reasonScores。
+   任何目录改动：saveData + syncReasonsFromCatalog + 刷新（目录树 / 隐藏 select / 多级选择器）。 */
+function catRefresh(){
+  saveData();
+  syncReasonsFromCatalog();
+  renderReasonCatalogTree();
+  renderReasonSelects();   // 学分页选择器跟着目录即时刷新（含面板展开态）
+}
+function catDirList(){ return Object.keys(state.reasonCatalog || {}); }
+function catGroupList(dir){ return Object.keys((state.reasonCatalog || {})[dir] || {}); }
+function catReasonList(dir, gr){ return ((state.reasonCatalog || {})[dir] || {})[gr] || []; }
+function catDirEmoji(d){ return { '加分':'➕', '扣分':'➖', '其他':'⚪' }[d] || '📁'; }
+
+function renderReasonCatalogTree(){
+  const el = document.getElementById('reasonCatalogTree');
+  if(!el) return;
+  var dirs = catDirList();
+  if(!dirs.length){
+    el.innerHTML = '<div class="pub-empty" style="padding:18px">目录为空。点右上「＋ 方向」或「＋ 原因」开始建立你自己的加减分原因库。</div>';
+    return;
+  }
+  el.innerHTML = dirs.map(function(dir){
+    var groups = catGroupList(dir);
+    var inner = groups.map(function(gr){
+      var rows = catReasonList(dir, gr).map(function(nm){
+        var sc = (state.reasonScores || {})[nm];
+        var scVal = (typeof sc === 'number' && sc !== 0) ? sc : '';
+        return '<div class="cat-reason-row">' +
+          '<span class="cat-reason-name">' + escapeHtml(nm) + '</span>' +
+          '<span class="cat-reason-score">' +
+            '<input type="number" value="' + scVal + '" placeholder="手填" min="-99" max="99" style="width:62px;padding:3px 6px;border:1px solid var(--border);border-radius:6px;font-size:12px;text-align:right;background:var(--card-bg);color:var(--text)" onchange="catSetScore(\'' + escapeAttr(dir) + '\',\'' + escapeAttr(gr) + '\',\'' + escapeAttr(nm) + '\',this.value)">分' +
+          '</span>' +
+          '<button class="cat-mini-btn" title="删除原因" style="color:var(--danger)" onclick="catDeleteReason(\'' + escapeAttr(dir) + '\',\'' + escapeAttr(gr) + '\',\'' + escapeAttr(nm) + '\')">✕</button>' +
+        '</div>';
+      }).join('');
+      return '<div class="cat-group">' +
+        '<div class="cat-group-head">' +
+          '<span class="cat-group-name">▸ ' + escapeHtml(gr) + '</span>' +
+          '<span class="cat-group-tools">' +
+            '<button class="btn btn-outline btn-sm" onclick="openReasonItemModal(\'' + escapeAttr(dir) + '\',\'' + escapeAttr(gr) + '\')">＋ 原因</button>' +
+            '<button class="cat-mini-btn" title="重命名大类" onclick="catRenameGroup(\'' + escapeAttr(dir) + '\',\'' + escapeAttr(gr) + '\')">✎</button>' +
+            '<button class="cat-mini-btn" title="删除大类及其中所有原因" style="color:var(--danger)" onclick="catDeleteGroup(\'' + escapeAttr(dir) + '\',\'' + escapeAttr(gr) + '\')">🗑</button>' +
+          '</span>' +
+        '</div>' +
+        (rows || '<div class="cat-empty-group">（空大类，点「＋ 原因」添加）</div>') +
+      '</div>';
+    }).join('');
+    return '<div class="cat-dir">' +
+      '<div class="cat-dir-head">' +
+        '<span class="cat-dir-name">' + catDirEmoji(dir) + ' ' + escapeHtml(dir) + '</span>' +
+        '<span class="cat-dir-tools">' +
+          '<button class="btn btn-outline btn-sm" onclick="openReasonGroupModal(\'' + escapeAttr(dir) + '\')">＋ 大类</button>' +
+          '<button class="cat-mini-btn" title="重命名方向" onclick="catRenameDir(\'' + escapeAttr(dir) + '\')">✎</button>' +
+          '<button class="cat-mini-btn" title="删除方向及其下所有原因" style="color:var(--danger)" onclick="catDeleteDir(\'' + escapeAttr(dir) + '\')">🗑</button>' +
+        '</span>' +
+      '</div>' + inner +
+    '</div>';
   }).join('');
 }
 
-function addReason(){
-  const input = document.getElementById('newReasonInput');
-  let val = input.value.trim();
-  if(!val){ showToast('请输入原因','error'); return; }
-  let score = 0;
-  if(val.includes(',')){ const parts = val.split(','); val = parts[0].trim(); score = parseInt(parts[1]) || 0; }
-  if(state.reasons.includes(val)){ showToast('该原因已存在','warning'); return; }
-  state.reasons.push(val);
-  if(!state.reasonScores) state.reasonScores = {};
-  if(score !== 0) state.reasonScores[val] = score;
-  saveData();
-  input.value = '';
-  renderReasonTags();
-  renderReasonSelects();
-  showToast(score !== 0 ? `已添加: ${val} (${score>0?'+':''}${score}分)` : '已添加原因','success');
+/* ---- 新增方向 / 大类（prompt 快录） ---- */
+function openReasonDirModal(){
+  var name = prompt('新增方向名称（如：加分 / 扣分 / 卫生 / 纪律）：', '');
+  if(name == null) return;
+  name = String(name).trim();
+  if(!name){ showToast('方向名不能为空', 'error'); return; }
+  if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(name)){ showToast('方向名限中英文/数字，不能含符号与表情', 'error'); return; }
+  if(state.reasonCatalog[name]){ showToast('方向「' + name + '」已存在', 'warning'); return; }
+  state.reasonCatalog[name] = {};
+  catRefresh();
+  showToast('已新增方向：' + name, 'success');
+}
+function openReasonGroupModal(dir){
+  var name = prompt('在方向「' + dir + '」下新增大类名称（如：学习表现 / 考勤）：', '');
+  if(name == null) return;
+  name = String(name).trim();
+  if(!name){ showToast('大类名不能为空', 'error'); return; }
+  if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(name)){ showToast('大类名限中英文/数字，不能含符号与表情', 'error'); return; }
+  if(!state.reasonCatalog[dir]) state.reasonCatalog[dir] = {};
+  if(state.reasonCatalog[dir][name]){ showToast('大类「' + name + '」已存在', 'warning'); return; }
+  state.reasonCatalog[dir][name] = [];
+  catRefresh();
+  showToast('已新增大类：' + dir + ' → ' + name, 'success');
+}
+function catRenameDir(oldName){
+  var name = prompt('重命名方向「' + oldName + '」为：', oldName);
+  if(name == null) return;
+  name = String(name).trim();
+  if(!name || name === oldName) return;
+  if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(name)){ showToast('方向名限中英文/数字', 'error'); return; }
+  if(state.reasonCatalog[name]){ showToast('方向「' + name + '」已存在', 'warning'); return; }
+  state.reasonCatalog[name] = state.reasonCatalog[oldName];
+  delete state.reasonCatalog[oldName];
+  catRefresh();
+  showToast('方向已改名：' + oldName + ' → ' + name, 'success');
+}
+function catRenameGroup(dir, oldName){
+  var name = prompt('重命名大类「' + oldName + '」为：', oldName);
+  if(name == null) return;
+  name = String(name).trim();
+  if(!name || name === oldName) return;
+  if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(name)){ showToast('大类名限中英文/数字', 'error'); return; }
+  if(state.reasonCatalog[dir][name]){ showToast('大类「' + name + '」已存在', 'warning'); return; }
+  state.reasonCatalog[dir][name] = state.reasonCatalog[dir][oldName];
+  delete state.reasonCatalog[dir][oldName];
+  catRefresh();
+  showToast('大类已改名：' + oldName + ' → ' + name, 'success');
 }
 
-function removeReason(idx){
-  state.reasons.splice(idx, 1);
-  saveData();
-  renderReasonTags();
-  renderReasonSelects();
-  showToast('已移除原因','info');
+/* ---- 删除（confirm 确认；删原因同步清其分值） ---- */
+function catDeleteDir(dir){
+  var n = catReasonList(dir).reduce(function(s, gr){ return s + catReasonList(dir, gr).length; }, 0) || 0;
+  if(!confirm('确认删除方向「' + dir + '」？其下 ' + (catGroupList(dir).length) + ' 个大类、' + n + ' 个原因将一并删除。\n历史流水不受影响（仅影响以后选择）。')) return;
+  delete state.reasonCatalog[dir];
+  catRefresh();
+  showToast('已删除方向：' + dir, 'info');
+}
+function catDeleteGroup(dir, gr){
+  var n = catReasonList(dir, gr).length;
+  if(!confirm('确认删除大类「' + dir + ' → ' + gr + '」？其中 ' + n + ' 个原因将一并删除。')) return;
+  delete state.reasonCatalog[dir][gr];
+  catRefresh();
+  showToast('已删除大类：' + gr, 'info');
+}
+function catDeleteReason(dir, gr, name){
+  if(!confirm('确认删除原因「' + name + '」？其配置的分值一并清除。')) return;
+  var arr = state.reasonCatalog[dir][gr];
+  var i = arr.indexOf(name);
+  if(i >= 0) arr.splice(i, 1);
+  delete state.reasonScores[name];
+  catRefresh();
+  showToast('已删除原因：' + name, 'info');
+}
+/* ---- 行内改分值 ---- */
+function catSetScore(dir, gr, name, v){
+  v = String(v == null ? '' : v).trim();
+  if(v === ''){
+    delete state.reasonScores[name];
+  } else {
+    var n = Number(v);
+    if(isNaN(n) || n === 0){
+      delete state.reasonScores[name];
+      showToast(n === 0 ? '0 分等于手动填，已清除默认分值' : '分值无效，已清除', 'info');
+    } else {
+      state.reasonScores[name] = n;
+    }
+  }
+  catRefresh();
+}
+
+/* ---- 新增原因（弹窗：方向/大类联动，支持顺手新建大类） ---- */
+function openReasonItemModal(dir, group){
+  var dirSel = document.getElementById('catDirSel');
+  var dirs = catDirList();
+  if(!dirs.length){ showToast('请先添加一个方向（＋ 方向）', 'warning'); return; }
+  dirSel.innerHTML = dirs.map(function(d){
+    return '<option value="' + escapeHtml(d) + '">' + catDirEmoji(d) + ' ' + escapeHtml(d) + '</option>';
+  }).join('');
+  dirSel.value = (dir && dirs.indexOf(dir) >= 0) ? dir : dirs[0];
+  catRefillGroupSel(group);
+  document.getElementById('catNewGroupWrap').style.display = 'none';
+  document.getElementById('catNameInput').value = '';
+  document.getElementById('catScoreInput').value = '';
+  openModal('reasonItemModal');
+}
+function catRefillGroupSel(presetGroup){
+  var dir = document.getElementById('catDirSel').value;
+  var groups = catGroupList(dir);
+  var gSel = document.getElementById('catGroupSel');
+  gSel.innerHTML = groups.map(function(g){
+    return '<option value="' + escapeHtml(g) + '">' + escapeHtml(g) + '</option>';
+  }).join('') + '<option value="__new__">＋ 新建大类…</option>';
+  if(presetGroup && groups.indexOf(presetGroup) >= 0) gSel.value = presetGroup;
+  else gSel.value = '__new__';
+  catOnGroupSel(presetGroup);
+}
+function catOnGroupSel(presetGroup){
+  var sel = document.getElementById('catGroupSel');
+  var wrap = document.getElementById('catNewGroupWrap');
+  var isNew = sel.value === '__new__';
+  wrap.style.display = isNew ? '' : 'none';
+  if(isNew && presetGroup && catGroupList(document.getElementById('catDirSel').value).indexOf(presetGroup) < 0){
+    document.getElementById('catNewGroupInput').value = presetGroup;
+  } else if(isNew){
+    document.getElementById('catNewGroupInput').value = '';
+  }
+}
+function catSaveNewItem(){
+  var dir = document.getElementById('catDirSel').value;
+  var group;
+  if(document.getElementById('catGroupSel').value === '__new__'){
+    group = document.getElementById('catNewGroupInput').value.trim();
+    if(!group){ showToast('请填写新大类名称', 'error'); return; }
+  } else {
+    group = document.getElementById('catGroupSel').value;
+  }
+  var name = document.getElementById('catNameInput').value.trim();
+  if(!name){ showToast('请填写原因名称', 'error'); return; }
+  if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(name)){ showToast('原因名限中英文/数字，不能含符号与表情', 'error'); return; }
+  var flat = flattenReasonCatalog(state.reasonCatalog);
+  if(flat.indexOf(name) >= 0){ showToast('原因「' + name + '」已在目录中', 'warning'); return; }
+  if(!state.reasonCatalog[dir]) state.reasonCatalog[dir] = {};
+  if(!state.reasonCatalog[dir][group]) state.reasonCatalog[dir][group] = [];
+  state.reasonCatalog[dir][group].push(name);
+  var scoreStr = String(document.getElementById('catScoreInput').value || '').trim();
+  if(scoreStr !== ''){
+    var n = Number(scoreStr);
+    if(!isNaN(n) && n !== 0) state.reasonScores[name] = n;
+  }
+  closeModal('reasonItemModal');
+  catRefresh();
+  showToast('已新增原因：' + dir + ' → ' + group + ' → ' + name, 'success');
+}
+
+/* ---- 恢复预设（覆盖当前目录与分值） ---- */
+function askResetReasonCatalog(){
+  if(!confirm('确认恢复预设目录？\n\n当前全部自定义原因、分组与分值将被 26 项制度预设覆盖。\n历史流水不受影响。')) return;
+  if(!confirm('再次确认：自定义内容将被覆盖，不可撤销。')) return;
+  state.reasonCatalog = defaultReasonCatalog();
+  state.reasonScores = Object.assign({}, defaultReasonScores);
+  catRefresh();
+  showToast('已恢复制度预设目录（26 项）', 'success');
 }
 
 /* ==================== Data Export/Import/Clear ==================== */
@@ -7913,8 +8291,17 @@ function loginClear(){
 /* v2.13.0 班委模式：登录页免密入口，白名单页面（学分/值日/座次/待办/荣誉/首页），
    无学生档案/成绩/请假/通知/设置，无导入导出/添加学生。数据同步照常（班委的操作入云不丢）。 */
 const CM_ROLE_KEY = 'cm_role';
+const CM_UID_KEY = 'cm_uid';   // v2.17.0 班委身份：已任命班委的 studentId，用于操作署名
 const COMMITTEE_PAGES = ['dashboard','credits','publicity','duty','seating','todo','honors'];
 function isCommitteeMode(){ return sessionStorage.getItem(CM_ROLE_KEY) === 'committee'; }
+// v2.17.0 班委身份解析：按 cm_uid 找学生与其岗位；学生已删除/未选身份 → 匿名（通用班委）
+function resolveCmIdentity(){
+  var uid = sessionStorage.getItem(CM_UID_KEY);
+  var student = (uid && state.students) ? state.students.find(function(s){ return s.id === Number(uid); }) : null;
+  if(!student) return { name:'', post:'', anonymous:true };
+  var posts = committeeConfig.filter(function(c){ return state.committee[c.key] === student.id; }).map(function(c){ return c.title; });
+  return { name: student.name, post: posts.join('/'), anonymous:false };
+}
 
 function enterApp(msg){
   document.getElementById('loginOverlay').classList.add('hidden');
@@ -7943,19 +8330,57 @@ function loginSubmit(){
 }
 
 function enterCommitteeMode(){
+  // v2.17.0：先进身份选择（免密，从已任命班委中选），选定后重载进入受限视图，操作署名
+  openCmIdentityPanel();
+}
+function openCmIdentityPanel(){
+  var entries = [];
+  (committeeConfig || []).forEach(function(cfg){
+    var sid = state.committee[cfg.key];
+    if(sid == null) return;
+    var s = (state.students || []).find(function(x){ return x.id === sid; });
+    if(s) entries.push({ uid: s.id, name: s.name, post: cfg.title });
+  });
+  document.getElementById('cmIdentityList').innerHTML = entries.length
+    ? entries.map(function(a){
+        return '<button class="btn btn-outline btn-sm" style="justify-content:space-between" onclick="cmLoginAs(' + a.uid + ')">' +
+          '<span>👩‍💼 ' + escapeHtml(a.name) + '</span>' +
+          '<span style="color:var(--text-muted);font-size:12px">' + escapeHtml(a.post) + '</span></button>';
+      }).join('')
+    : '<div class="login-help" style="text-align:center">班主任还没任命班委岗位（在 班委管理 页任命后这里会出现名单）。<br>可先以「通用班委」身份进入。</div>';
+  document.getElementById('loginPwdArea').style.display = 'none';
+  document.getElementById('loginKeypad').style.display = 'none';
+  document.getElementById('cmIdentityPanel').style.display = '';
+  var entry = document.querySelector('.login-right > .committee-entry');
+  if(entry) entry.style.display = 'none';
+  var err = document.getElementById('loginErr'); if(err) err.textContent = '';
+  if(typeof loginClear === 'function') loginClear();
+}
+function cmLoginBack(){
+  document.getElementById('loginPwdArea').style.display = '';
+  document.getElementById('loginKeypad').style.display = '';
+  document.getElementById('cmIdentityPanel').style.display = 'none';
+  var entry = document.querySelector('.login-right > .committee-entry');
+  if(entry) entry.style.display = '';
+}
+function cmLoginAs(uid){
   sessionStorage.setItem(CM_ROLE_KEY, 'committee');
   sessionStorage.removeItem(SESSION_KEY);   // 班委模式不占用/不继承主账号登录态
-  enterApp('已进入班委模式');
+  if(uid) sessionStorage.setItem(CM_UID_KEY, String(uid));
+  else sessionStorage.removeItem(CM_UID_KEY);
+  location.reload();
 }
 
 function exitCommitteeMode(){
   sessionStorage.removeItem(CM_ROLE_KEY);
+  sessionStorage.removeItem(CM_UID_KEY);
   location.reload();
 }
 
 function applyCommitteeRestrictions(){
   document.body.classList.add('role-committee');
   window.__cmRole = 'committee';
+  window.__cmIdentity = resolveCmIdentity();   // v2.17.0 署名身份
   // 导航三套入口（侧栏/移动 tab/更多抽屉）按白名单裁剪
   document.querySelectorAll('.nav-item, .mobile-tab, .more-item').forEach(function(n){
     if(COMMITTEE_PAGES.indexOf(n.dataset.page) < 0) n.classList.add('cm-hide');
@@ -7967,10 +8392,17 @@ function applyCommitteeRestrictions(){
   // 侧栏底部：班委标识 + 退出
   var foot = document.querySelector('.sidebar-footer');
   if(foot){
-    foot.innerHTML = '<span class="cm-badge">👩‍💼 班委模式</span><button id="cmExitBtn" onclick="exitCommitteeMode()">退出班委模式</button>';
+    var idt = window.__cmIdentity || {};
+    var badgeText = '👩‍💼 班委模式' + (idt.anonymous || !idt.name ? '' : ' · ' + idt.name + (idt.post ? '(' + idt.post + ')' : ''));
+    foot.innerHTML = '<span class="cm-badge">' + badgeText + '</span><button id="cmExitBtn" onclick="exitCommitteeMode()">退出班委模式</button>';
   }
   var sub = document.querySelector('.logo-sub');
-  if(sub) sub.textContent = '班委协作端';
+  if(sub){
+    var idt2 = window.__cmIdentity || {};
+    sub.textContent = (idt2.anonymous || !idt2.name)
+      ? '班委协作端'
+      : (idt2.name + (idt2.post ? ' · ' + idt2.post : '') + '（班委）');
+  }
   // 当前若停在非白名单页，拉回首页
   var active = document.querySelector('.nav-item.active');
   if(active && COMMITTEE_PAGES.indexOf(active.dataset.page) < 0) navigateTo('dashboard');
@@ -7991,6 +8423,8 @@ function changeLoginPwd(){
 document.addEventListener('keydown', (e) => {
   const overlay = document.getElementById('loginOverlay');
   if(!overlay || overlay.classList.contains('hidden')) return;
+  const cmP = document.getElementById('cmIdentityPanel');
+  if(cmP && cmP.style.display !== 'none') return;   // v2.17.0 班委身份选择阶段：数字不进入密码框
   const k = e.key;
   if(/^\d$/.test(k)){
     e.preventDefault();

@@ -29,9 +29,13 @@ t('敏感页面全部不在白名单（档案/成绩/请假/通知/设置/寝室
 t('登录页有免密班委入口按钮', () => {
   eq(/onclick="enterCommitteeMode\(\)"/.test(html), true);
 });
-t('enterCommitteeMode：不继承主账号登录态（移除 SESSION_KEY）', () => {
+t('班委登录流（v2.17.0）：enterCommitteeMode 打开身份面板；cmLoginAs 不继承主账号登录态且记录身份', () => {
   const fn = html.match(/function enterCommitteeMode\(\)\{[\s\S]*?\n\}/)[0];
-  if (!fn.includes("sessionStorage.removeItem(SESSION_KEY)")) throw new Error('未隔离主账号登录态');
+  if (!fn.includes('openCmIdentityPanel()')) throw new Error('入口未接身份选择面板');
+  const login = html.match(/function cmLoginAs\(uid\)\{[\s\S]*?\n\}/)[0];
+  if (!login.includes('sessionStorage.removeItem(SESSION_KEY)')) throw new Error('未隔离主账号登录态');
+  if (!login.includes("sessionStorage.setItem(CM_UID_KEY, String(uid))")) throw new Error('未记录班委身份');
+  if (!html.includes('id="cmIdentityPanel"') || !html.includes('id="cmIdentityList"')) throw new Error('身份面板 HTML 缺失');
 });
 t('navigateTo 第一行即白名单拦截', () => {
   const fn = html.match(/function navigateTo\(page\)\{[\s\S]*?\n\}/)[0];
