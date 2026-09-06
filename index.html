@@ -1759,7 +1759,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 #cmExitBtn:hover{border-color:var(--danger);color:var(--danger)}
 .committee-entry{width:100%;margin-top:16px;padding:10px;font-size:13px}
 .committee-entry:hover{border-color:var(--primary);color:var(--primary)}
-/* v2.16.0 学分公示 */
+/* v2.16.1 学分公示 */
 .pub-tabs{display:flex;gap:4px;background:var(--bg-secondary);padding:4px;border-radius:12px}
 .pub-tab{padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--text-muted);transition:background .15s}
 .pub-tab.active{background:var(--card-bg);color:var(--primary);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.08)}
@@ -1824,7 +1824,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.16.0</div>
+      <div class="login-version">v2.16.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1933,7 +1933,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.16.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.16.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2286,7 +2286,8 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <div class="section-title"><span class="dot"></span>📌 公示口径说明</div>
           <div style="font-size:12px;color:var(--text-muted);line-height:1.8">
             学分 = 基准分 100 + 全部流水之和；各周期统计均按流水时间戳实时聚合。
-            进步榜按周期内净增分（加分 − 扣分）排序；「零扣分榜」指本期有记录且无任何扣分。
+            概览卡展示当前最高分 / 最低分（不分周期）；进步榜按周期内净增分排序。
+            「零扣分榜」按距上次扣分天数排「未扣分续航」，从未扣分者居首（不分周期）。
             退步榜默认折叠，预警榜（&lt;80 分）仅班主任可见，均不进导出图。
             姓名显示方式可在 设置 → 公示设置 中切换（全名 / 张* / 仅学号）。
           </div>
@@ -9502,14 +9503,37 @@ function computePublicityData(students, operations, rangeKind, nowDate){
   rows.forEach(function(r){ if(r.adds > starAddN){ starAddN = r.adds; starAdd = r; } });
   var maxSingle = { v:0, name:'', sid:null };
   ops.forEach(function(o){ var a = Number(o.amount)||0; if(a > maxSingle.v && byId[o.studentId]){ maxSingle = { v:a, name:byId[o.studentId].name, sid:o.studentId }; } });
+  // 最高 / 最低分：按当前学分（不分周期；并列取学号小者展示）
+  var allSorted = rows.slice().sort(creditSort);
+  var maxRow = allSorted.length ? allSorted[0] : null;
+  var minRow = allSorted.length ? allSorted[allSorted.length - 1] : null;
+  // 未扣分续航榜：与周期无关，用**全部流水**算「距上次扣分天数」；从未扣分者排最前
+  var nowTs = (nowDate ? new Date(nowDate) : new Date()).getTime();
+  var DAYMS = 86400000;
+  var lastSub = {};
+  (operations || []).forEach(function(o){
+    if(o && typeof o.time === 'number' && (Number(o.amount)||0) < 0){
+      var oid = o.studentId;
+      if(oid != null && (!lastSub[oid] || o.time > lastSub[oid])) lastSub[oid] = o.time;
+    }
+  });
+  var zero = rows.map(function(r){
+    return { row:r, days: lastSub[r.id] != null ? Math.max(0, Math.floor((nowTs - lastSub[r.id])/DAYMS)) : null };
+  }).sort(function(a,b){
+    if(a.days === null && b.days === null) return creditSort(a.row, b.row);
+    if(a.days === null) return -1;                       // 从未扣分：续航榜首
+    if(b.days === null) return 1;
+    return (b.days - a.days) || creditSort(a.row, b.row);  // 天数长者在先
+  }).slice(0,10);
   return {
     count:n, touched:rows.filter(function(r){return r.touched;}).length,
     addPts:addPtsT, subPts:subPtsT, addCnt:addCntT, subCnt:subCntT, netSum:netSum,
     avgDelta: n ? (netSum/n) : 0, topActive:topActive,
+    maxRow:maxRow, minRow:minRow,
     top:  rows.slice().sort(creditSort).slice(0,10),
     prog: rows.filter(function(r){ return r.net > 0; }).sort(function(x,y){ return (y.net-x.net) || creditSort(x,y); }).slice(0,10),
     reg:  rows.filter(function(r){ return r.net < 0; }).sort(function(x,y){ return (x.net-y.net) || creditSort(x,y); }).slice(0,5),
-    zero: rows.filter(function(r){ return r.touched && r.subs === 0; }).sort(function(x,y){ return (y.adds-x.adds) || creditSort(x,y); }).slice(0,10),
+    zero: zero,
     warn: rows.filter(function(r){ return r.credit < 80; }).sort(function(x,y){ return (x.credit-y.credit); }),
     starAdd:starAdd, starAddN:starAddN, maxSingle:maxSingle
   };
@@ -9526,7 +9550,9 @@ function renderPubSummary(data){
     pubStat('扣分', '<span style="color:var(--danger)">-' + data.subPts + '</span> <span style="font-size:11px;color:var(--text-muted)">' + data.subCnt + ' 次</span>') +
     pubStat('净变化', '<span style="color:' + (data.netSum>=0?'var(--success)':'var(--danger)') + '">' + (data.netSum>0?'+':'') + data.netSum + '</span>') +
     pubStat('人均变动', (data.avgDelta>0?'+':'') + data.avgDelta.toFixed(1)) +
-    pubStat('最活跃', data.topActive ? escapeHtml(pubDisplayName(data.topActive)) : '—');
+    pubStat('最活跃', data.topActive ? escapeHtml(pubDisplayName(data.topActive)) : '—') +
+    pubStat('🏆 最高分', data.maxRow ? '<span style="color:var(--success)">' + data.maxRow.credit + '</span><span style="font-size:11px;color:var(--text-muted)"> · ' + escapeHtml(pubDisplayName(data.maxRow)) + '</span>' : '—') +
+    pubStat('⚠️ 最低分', data.minRow ? '<span style="color:' + (data.minRow.credit < 80 ? 'var(--danger)' : 'var(--text-secondary)') + '">' + data.minRow.credit + '</span><span style="font-size:11px;color:var(--text-muted)"> · ' + escapeHtml(pubDisplayName(data.minRow)) + '</span>' : '—');
 }
 
 /* ---- 榜单区 ---- */
@@ -9545,6 +9571,17 @@ function pubDeltaRow(row, i){
     '<span class="pub-delta" style="color:'+(row.net>0?'var(--success)':'var(--danger)')+'">'+(row.net>0?'+':'')+row.net+'</span>' +
     '<span class="pub-score">'+row.credit+' 分</span></div>';
 }
+// v2.16.1 零扣分续航榜行：entry = {row:学生行, days:距上次扣分天数|null(从未扣分)}
+function pubStaminaRow(entry, i){
+  var r = entry.row;
+  var noCls = i===0 ? 'top1' : i===1 ? 'top2' : i===2 ? 'top3' : '';
+  var tag = entry.days === null
+    ? '<span class="pub-tag" style="background:rgba(47,125,91,0.12);color:#2F7D5B;margin-right:2px">从未扣分</span>'
+    : '<span class="pub-tag" style="background:rgba(233,196,106,0.16);color:#B7791F;margin-right:2px">'+entry.days+' 天</span>';
+  return '<div class="pub-rank"><span class="pub-no '+noCls+'">'+(i+1)+'</span>' +
+    '<span class="pub-name">'+escapeHtml(pubDisplayName(r))+'</span>' + tag +
+    '<span class="pub-score">'+r.credit+' 分</span></div>';
+}
 function pubCard(title, sub, innerHtml){ return '<div class="pub-board-col"><div class="pub-board-title">'+title+'<span class="pub-board-sub">'+sub+'</span></div>'+innerHtml+'</div>'; }
 function renderPubBoards(data){
   var el = document.getElementById('pubBoards');
@@ -9554,7 +9591,7 @@ function renderPubBoards(data){
   html += pubCard('🏆 学分榜 Top10', '当前总分', data.top.length ? data.top.map(pubRankRow).join('') : '<div class="pub-empty">暂无学生</div>');
   html += pubCard('📈 进步榜 Top10', pubRangeName(pubRange)+'净增', data.prog.length ? data.prog.map(pubDeltaRow).join('') : '<div class="pub-empty">本周期暂无加分</div>');
   html += '</div><div class="pub-board-row">';
-  html += pubCard('🌟 零扣分榜 Top10', '本期有记录且未扣分', data.zero.length ? data.zero.map(function(r,i){ return pubRankRow(r,i).replace(pubCreditLevel(r.credit).label, r.adds+' 次加分'); }).join('') : '<div class="pub-empty">本周期暂无记录</div>');
+  html += pubCard('🌟 零扣分榜 Top10', '未扣分续航 · 距上次扣分最久', data.zero.length ? data.zero.map(pubStaminaRow).join('') : '<div class="pub-empty">暂无学生</div>');
   html += pubCard('🏅 单项之星', pubRangeName(pubRange), '<div class="pub-rank"><span class="pub-name">加分次数最多</span><span class="pub-score">'+(data.starAdd?escapeHtml(pubDisplayName(data.starAdd))+' · '+data.starAddN+' 次':'—')+'</span></div><div class="pub-rank"><span class="pub-name">单笔加分最高</span><span class="pub-score">'+(data.maxSingle && data.maxSingle.v>0?escapeHtml(pubDisplayName(data.maxSingle))+' · +'+data.maxSingle.v:'—')+'</span></div>');
   html += '</div>';
   // 退步榜：默认折叠

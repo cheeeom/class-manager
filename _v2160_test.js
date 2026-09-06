@@ -1,4 +1,5 @@
-/* v2.16.0 回归测试：学分公示模块（周期统计/榜单/隐私/导航白名单/导出入口）
+/* v2.16.1 回归测试：学分公示模块（周期统计/榜单/隐私/导航白名单/导出入口）
+   v2.16.1：概览卡最高/最低分；零扣分榜改为「未扣分续航」（距上次扣分天数，全程流水）
    运行：node _v2160_test.js */
 const fs = require('fs');
 const html = fs.readFileSync('index.html', 'utf8');
@@ -120,10 +121,12 @@ t('退步榜：净增 <0 升序 → 只有小红(-3)', () => {
   const d = computePublicityData(stu, ops, 'month');
   eq(d.reg.length, 1); eq(d.reg[0].sid, 'A002'); eq(d.reg[0].net, -3);
 });
-t('零扣分榜：本期有记录且无扣分 → 小明(2条) / 小刚 / 小美（不含无记录者与扣分者）', () => {
+t('零扣分榜 v2.16.1（续航语义）：从未扣分者居前（小明/小刚/小美），今天刚扣分的小红垫底（0 天）', () => {
   const d = computePublicityData(stu, ops, 'month');
-  const sids = d.zero.map(r => r.sid).join(',');
-  eq(sids, 'A001,A003,A004');
+  const names = d.zero.map(z => z.row.sid).join(',');
+  eq(names, 'A001,A003,A004,A002');   // 从未扣分按学分+学号排前；小红今天 -3 → 0 天垫底
+  eq(d.zero[0].days, null);
+  eq(d.zero[3].days, 0);
 });
 t('预警榜：当前 <80 → 小美(75)', () => {
   const d = computePublicityData(stu, ops, 'month');
@@ -146,6 +149,51 @@ t('平均变动 = 汇总/人数（netSum 15 ÷ 4 = 3.75）', () => {
   const d = computePublicityData(stu, ops, 'month');
   eq(d.avgDelta, 3.75);
 });
+t('最高分/最低分：按当前学分、并列取学号小者 → 最高 A001(100)，最低 A004(75)', () => {
+  const d = computePublicityData(stu, ops, 'month');
+  eq(d.maxRow.sid, 'A001'); eq(d.maxRow.credit, 100);
+  eq(d.minRow.sid, 'A004'); eq(d.minRow.credit, 75);
+});
+t('最高/最低分与周期无关：就算本月无流水也照常返回（数据造在昨天 → today 口径）', () => {
+  const yesterday = now - 86400000;
+  const d = computePublicityData(stu, ops.map(o => ({ ...o, time: yesterday })), 'today');
+  eq(d.netSum, 0);            // 全部被 today 过滤
+  eq(d.maxRow.sid, 'A001');   // 但最高/最低仍给出
+  eq(d.minRow.sid, 'A004');
+});
+t('零扣分续航：天数 = floor((now−上次扣分)/86400000)，扣得越久越靠前', () => {
+  const DAY = 86400000, T = Date.now();
+  const stus = [
+    { id: 1, sid: 'B001', name: '小甲', credit: 100 },
+    { id: 2, sid: 'B002', name: '小乙', credit: 97 },
+    { id: 3, sid: 'B003', name: '小丙', credit: 95 },
+    { id: 4, sid: 'B004', name: '小丁', credit: 96 }
+  ];
+  const dz = computePublicityData(stus, [
+    { studentId: 2, amount: -3, time: T - 10 * DAY },
+    { studentId: 3, amount: -5, time: T - 3 * DAY },
+    { studentId: 4, amount: -4, time: T }
+  ], 'month', new Date(T)).zero;
+  eq(dz.length, 4);
+  eq(dz[0].days, null); eq(dz[0].row.sid, 'B001');  // 从未扣分：续航榜首
+  eq(dz[1].days, 10);  eq(dz[1].row.sid, 'B002');
+  eq(dz[2].days, 3);   eq(dz[2].row.sid, 'B003');
+  eq(dz[3].days, 0);   eq(dz[3].row.sid, 'B004');   // 今天扣过分 → 0 天
+});
+t('零扣分续航：只认本人最后一次扣分；扣分后加分不影响续航', () => {
+  const DAY = 86400000, T = Date.now();
+  const dz = computePublicityData(
+    [{ id: 1, sid: 'D001', name: 'x', credit: 100 }],
+    [
+      { studentId: 1, amount: -1, time: T - 20 * DAY },
+      { studentId: 1, amount: +5, time: T - 2 * DAY }   // 加分不算「中断续航」
+    ], 'month', new Date(T)).zero;
+  eq(dz[0].days, 20);
+});
+t('零扣分续航榜封顶 10 人', () => {
+  const many = Array.from({ length: 12 }, (_, i) => ({ id: i + 1, sid: 'C' + (100 + i), name: 'n' + i, credit: 100 + i }));
+  eq(computePublicityData(many, [], 'month').zero.length, 10);
+});
 
 console.log('\n=== 页面与导航接线 ===');
 t('侧栏有「学分公示」导航、学分页 div、canvas 四张齐备', () => {
@@ -165,6 +213,17 @@ t('pageTitles 含 publicity，navigateTo 调用 renderPublicity', () => {
 t('班委白名单含 publicity（公示是公开页，班委可见）', () => {
   const m = html.match(/const COMMITTEE_PAGES = \[([^\]]*)\]/);
   eq(m[1].includes('publicity'), true);
+});
+t('班委操作端：公示三套入口齐（侧栏 nav-item / 更多抽屉 / 路由守卫放行）', () => {
+  if (!/class="nav-item" data-page="publicity"/.test(html)) throw new Error('侧栏缺公示入口');
+  if (!/data-page="publicity" onclick="navigateTo\('publicity'\)"/.test(html)) throw new Error('抽屉缺公示入口');
+  const guard = html.match(/window\.__cmRole === 'committee' && COMMITTEE_PAGES\.indexOf\(page\) < 0/);
+  if (!guard) throw new Error('缺班委路由守卫');
+});
+t('班委端导出受控：海报导出函数对班委模式拦截（预警不进图 + 班委不开放导出）', () => {
+  const src = html.match(/function exportPublicityPoster\(mode\)[\s\S]*?\n\}/);
+  if (!src) throw new Error('导出函数缺');
+  if (!/班委模式不开放导出/.test(src[0])) throw new Error('缺班委导出拦截');
 });
 t('公示姓名/开学日期设置项在设置页（仅班主任可达）', () => {
   if (!html.includes('id="pubNameMode"') || !html.includes('id="pubSemesterStart"')) throw new Error('设置项缺');
@@ -211,6 +270,21 @@ global.escapeHtml = s => String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;').r
  'function drawPubTrend(id, students, operations)', 'function drawPubDaily(id, operations)',
  'function drawPubDist(id, students)', 'function drawPubReason(id, legendId, operations)',
  'function drawPubPoster(ctx, W, H, data, range, avatar)'].forEach(smokeEval);
+// 零扣分续航榜行渲染（纯 HTML 字符串，直接断言）
+const pubStaminaRow = eval('(' + grab('function pubStaminaRow(entry, i)') + ')');
+t('pubStaminaRow：从未扣分 → 「从未扣分」标签 + 姓名 + 学分', () => {
+  const h = pubStaminaRow({ row: { name: '张伟', sid: 'A001', credit: 100 }, days: null }, 0);
+  if (!h.includes('从未扣分') || !h.includes('张伟') || !h.includes('100 分')) throw new Error('输出缺要素: ' + h);
+});
+t('pubStaminaRow：10 天未扣分 → 「10 天」标签', () => {
+  const h = pubStaminaRow({ row: { name: '李四', sid: 'A002', credit: 92 }, days: 10 }, 1);
+  if (!h.includes('10 天') || h.includes('从未扣分')) throw new Error('天数标签错: ' + h);
+});
+t('renderPubBoards 的零扣分榜走续航渲染（不再用「次加分」旧口径）', () => {
+  const seg = html.match(/pubCard\('🌟 零扣分榜 Top10'[\s\S]*?data\.zero\.map\(pubStaminaRow\)/);
+  if (!seg) throw new Error('零扣分榜未接入 pubStaminaRow');
+  if (/次加分/.test(seg[0])) throw new Error('仍残留旧口径「次加分」');
+});
 t('canvas 冒烟环境：四图一海报函数全部可执行不抛异常', () => {
   const ctx = mockCtx();
   global.document = {
@@ -231,11 +305,11 @@ t('canvas 冒烟环境：四图一海报函数全部可执行不抛异常', () =
 global.document = __orig.doc; global.requestAnimationFrame = __orig.raf; global.state = __orig.state;
 
 console.log('\n=== 版本号 ===');
-t('v2.16.0 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
-  if (!/login-version">v2\.16\.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.16\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
+t('v2.16.1 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
+  if (!/login-version">v2\.16\.1</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.16\.1 ·/.test(html)) throw new Error('侧栏版本号未更新');
   const sw = fs.readFileSync('sw.js', 'utf8');
-  if (!sw.includes('class-manager-v2.16.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!sw.includes('class-manager-v2.16.1')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');
