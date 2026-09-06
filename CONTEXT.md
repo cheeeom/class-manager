@@ -67,10 +67,12 @@ for f in _v290 _v2100 _v2110 _v2113 _v2120 _v2130 _v2140 _v2150 _v2160 _sync _xs
 
 **做法**：用正则从 `index.html` 抽取真实函数源码，`eval` 后跑断言 —— 测的是线上代码，不是复制品。
 
-**三个反复踩的坑**：
+**几个反复踩的坑**：
 1. `eval` 解析对象字面量必须加括号：`eval('(' + src + ')')`
 2. `eq` 断言**不能传数组**（引用比较必失败），要传基本类型
 3. 版本号验证要逐位置 grep，不能只数出现次数
+4. 抽取函数用「到行首 `}` 收尾」的规则，**单行定义**（`function x(){...}` 无换行）抓不到 → 换别的断言方式或 stub
+5. **canvas 绘制冒烟**（真实执行不抛异常）：stub 万能 ctx（Proxy：任意方法 no-op、`measureText`→{width}、渐变→{addColorStop}）+ stub `document.getElementById`/`window.devicePixelRatio`/`requestAnimationFrame`，把绘制函数真跑一遍。样例见 `_v2160_test.js`「绘制冒烟」节（记得 stub 被引用的 `escapeHtml`/`roundRect`/`rr` 等全局 helper）
 
 ## 五、关键架构记忆
 
