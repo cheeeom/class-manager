@@ -256,3 +256,17 @@
 - [x] _v2160_test.js 32→42 项：零扣分榜旧断言（本期无扣分）按新语义重写；新增最高/最低（含并列取学号小、周期外也返回）、续航天数 = floor((now−上次扣分)/86400000)、加分不中断续航、续航榜封顶 10 人、pubStaminaRow 标签输出、班委端三入口+导出拦截断言；_v2150 版本断言 2.16.0→2.16.1
 - [x] 版本号三处同步 v2.16.1（登录页/侧栏/CACHE_NAME）；**十一套共 236 项全绿**（25/19/21/13/11/11/16/38/42/26/14）+ _crypto 跨设备解密 ✅
 - [ ] 老板验收：公示页概览卡看最高/最低分（切周期它俩不变）→ 零扣分榜看「从未扣分/N 天」标签 → 班委入口 → 学分公示只读可见、导出按钮被拦
+
+### 2026-09-07（v2.17.0：可编辑原因目录 + 多级菜单逐层化 + 班委操作留痕）
+
+- [x] 老板三点需求：①班委要能操作学分加减辅助管理 ②加减分原因多级菜单不能写死预设、要能自定义 ③先上 GitHub 找成熟多级菜单方案再优化
+- [x] **GitHub 调研结论**：成熟方案两类——级联悬浮面板（AntD/element-plus Cascader：点父级右列联动、末级即收）与逐层滑动抽屉（traversable_menu，移动端友好）；纯手写轻量参考较老。**老板沿用图表选型套路拍板：不引库**，按 Cascader 交互范式重构现有选择器为「数据驱动 + 逐层下钻」
+- [x] **口径拍板（AskUserQuestion 三项全选推荐）**：班委加减全开 + 设置开关可关扣分 / 班委入口选身份署名到人 / 预设 26 项 = 初始模板全可编辑
+- [x] **数据层（目录可编辑化）**：REASON_CATALOG 降级模板；state.reasonCatalog 为实例（云端 reasonCatalog 字段同步）；CLOUD_SYNC_FIELDS/saveData/smartMerge 全接线（并集合并，删除复活属已知取舍）；reasons 降为派生缓存（syncReasonsFromCatalog = 目录扁平）；loadData 迁移：无目录→模板、历史自定义原因并入「其他→自定义原因」、**已有目录尊重编辑不复活已删预设**（migrate 初版误用模板并集复活删除项，已修）；删原因同步清 reasonScores
+- [x] **设置页目录管理 UI**：替换旧一维「原因预设」区为目录树（方向块→大类块→原因行内分值编辑+删除），prompt 快录方向/大类、改名、删除 confirm；新增原因弹窗（方向/大类联动、支持顺手新建大类、默认分值可空=手填）；一键恢复预设（双 confirm 覆盖目录+分值）；改动即 saveData+派生+全刷新
+- [x] **多级选择器逐层化**：renderReasonPicker 从「三行全展开」改为 Cascader 式逐层（①方向 → ②大类 → ③原因，一次一层），头部路径面包屑（‹ 换方向 / ‹ 返回大类）可回退；数据源切 state.reasonCatalog；去掉 extra/自定义组兜底分支（迁移后所有原因都在目录）；rcSetDir 直入、rcSetGroup(null) 返回大类、新增 rcToDirs
+- [x] **班委操作**：确认现状班委本就能加减（无角色拦截）但**零留痕**——①入口改造：enterCommitteeMode → 身份选择面板（列出 state.committee 已任命岗位，含「通用班委」匿名兜底；未任命给出引导）；cmLoginAs 记录 cm_uid + 移除主账号登录态；keydown 在身份选择阶段不吞数字 ②resolveCmIdentity → window.__cmIdentity ③applyCreditDelta 班委写 op.by='cm'/+byName/byPost（教师不写 by）④renderOpItem 时间线紫标小牌「👩‍💼 王小明 · 班长」⑤扣分开关：设置页「班委协作设置」checkbox（本地 cm_teacher_settings 不上云），cmMinusBlocked() 拦 quickCredit/customCreditApply/confirmBatchCredit 负值 + updateCreditBtnStates 禁扣时减分按钮置灰
+- [x] 坑：enterCommitteeMode 原实现多了 removeItem(SESSION_KEY)+enterApp() 两行，凭记忆的 old_string 不匹配 → grep 原文再替换；单行函数（defaultReasonCatalog/cloneReasonCatalog）又被 grab 的「行首 }」抓到跨段拼接 → stub；migrate 模板并集复活删除项 bug
+- [x] 回归：_v2170_test.js 新增 32 项（目录纯函数/迁移尊重删除/署名行为/扣分开关三态/选择器三层 stub-DOM 冒烟/接线断言/旧 UI 下线检查）；_v2130（班委登录流改 cmLoginAs 断言）、_v2150/_v2160（版本号）同步；**十二套共 268 项全绿**（25/19/21/13/11/11/16/38/42/32/26/14）+ _crypto ✅
+- [x] 版本三处同步 v2.17.0；CONTEXT 架构记忆更新（班委模式留痕/原因目录新节/编号顺延）
+- [ ] 老板验收：设置页增删改原因目录（含新方向「卫生」+新组+原因+分值）→ 学分页原因选择器逐层点选 → 恢复预设按钮 → 班委入口选身份 → 班委加减分 → 教师端时间线看到「王小明 · 班长」紫标 → 设置关掉「允许班委扣分」后班委减分按钮变灰

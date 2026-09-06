@@ -305,11 +305,11 @@ t('canvas 冒烟环境：四图一海报函数全部可执行不抛异常', () =
 global.document = __orig.doc; global.requestAnimationFrame = __orig.raf; global.state = __orig.state;
 
 console.log('\n=== 版本号 ===');
-t('v2.16.1 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
-  if (!/login-version">v2\.16\.1</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.16\.1 ·/.test(html)) throw new Error('侧栏版本号未更新');
+t('v2.17.0 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
+  if (!/login-version">v2\.17\.0</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.17\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
   const sw = fs.readFileSync('sw.js', 'utf8');
-  if (!sw.includes('class-manager-v2.16.1')) throw new Error('SW CACHE_NAME 未更新');
+  if (!sw.includes('class-manager-v2.17.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');
