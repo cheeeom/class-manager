@@ -1846,7 +1846,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.0</div>
+      <div class="login-version">v2.17.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1962,7 +1962,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2583,8 +2583,10 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
             <button class="btn btn-outline" onclick="exportData()">💾 导出数据</button>
             <button class="btn btn-outline" onclick="importData()">📂 导入数据</button>
+            <button class="btn btn-outline" onclick="openCreditAudit()">🔍 学分体检</button>
             <button class="btn btn-danger" onclick="clearData()">🗑 清空数据</button>
           </div>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">「学分体检」可查看每人 当前分 / 入班基准 / 流水合计 是否对得上，基准异常（≠100）可一键纠正</div>
           <div id="syncStatus" style="margin-top:12px;padding:10px 14px;background:rgba(166,58,43,0.04);border-radius:10px;font-size:13px;color:var(--text-secondary);display:none">
             <span id="syncStatusText"></span>
           </div>
@@ -2634,6 +2636,17 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- v2.17.1 Modal: 学分体检 -->
+<div class="modal-overlay" id="creditAuditModal">
+  <div class="modal" style="width:94%;max-width:820px">
+    <h3>🔍 学分体检</h3>
+    <div class="modal-body" id="creditAuditBody" style="padding:4px 0 8px"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('creditAuditModal')">关闭</button>
     </div>
   </div>
 </div>
@@ -3506,6 +3519,52 @@ function reconcileCreditDrift(students, operations){
     }
   });
   return fixed;
+}
+
+/* ==================== v2.17.1 学分体检 ====================
+   老板反馈：公示「最低分」疑似与扣分流水矛盾（两人都无加分，扣得多的反而分高）。
+   根因多半是 creditBase 反推值 ≠ 100（老数据/早期导入初始分各异，见 ensureCreditBase 注释），
+   而基准从不展示 → 老师无从判断。体检工具把 当前分/基准/流水/应得分 摊开对比：
+   ① computeCreditAudit 纯函数：逐生核对（可测，不改数据）
+   ② applyCreditBaseFix 受控修正：把基准改回 100（连带重算快照，写版本戳）
+   注意：computeCreditAudit 内不要出现行首 } 的对象字面量收尾（回归脚本 grab 规则）。 */
+
+/* 逐生体检行（纯函数）：{当前分, 基准, 流水合计, 应得分(=基准+流水), 是否一致, 基准是否=100}。
+   基准缺失(null)只发生在尚未 ensureCreditBase 的场合，UI 调用前会先补基准。 */
+function computeCreditAudit(students, operations){
+  var sums = sumCreditsByStudent(operations || []);
+  return (students || []).map(function(s){
+    var hasBase = (typeof s.creditBase === 'number') && isFinite(s.creditBase);
+    var base = hasBase ? s.creditBase : null;
+    var sum = sums[s.id] || 0;
+    var credit = Number(s.credit) || 0;
+    var expect = hasBase ? base + sum : null;
+    return {
+      id: s.id,
+      sid: (s.sid == null ? '' : String(s.sid)),
+      name: s.name || '未命名',
+      credit: credit,
+      base: base,
+      sum: sum,
+      expect: expect,
+      ok: hasBase && credit === expect,
+      baseOk: hasBase && base === 100
+    };
+  });
+}
+
+/* 受控修正基准：creditBase = newBase，快照重算为 newBase + Σ本人流水，打版本戳。
+   返回新快照分；学生不存在/基准非法返回 null。 */
+function applyCreditBaseFix(student, newBase, operations){
+  if(!student) return null;
+  var base = Number(newBase);
+  if(!isFinite(base)) return null;
+  var sums = sumCreditsByStudent(operations || []);
+  student.creditBase = base;
+  student.credit = base + (sums[student.id] || 0);
+  student.creditVer = (Number(student.creditVer) || 0) + 1;
+  student.updatedAt = Date.now();
+  return student.credit;
 }
 
 /* 单一写入入口：快照 + 流水 + 版本戳 + 时间戳，四者原子一致。
@@ -7924,6 +7983,85 @@ function askResetReasonCatalog(){
   state.reasonScores = Object.assign({}, defaultReasonScores);
   catRefresh();
   showToast('已恢复制度预设目录（26 项）', 'success');
+}
+
+/* ==================== v2.17.1 学分体检（教师端） ==================== */
+function renderCreditAudit(){
+  var el = document.getElementById('creditAuditBody');
+  if(!el) return;
+  ensureCreditBase(state.students, state.operations);   // 幂等：缺基准的先补基准（反推），保证每行都有基准可查
+  var rows = computeCreditAudit(state.students, state.operations)
+    .sort(function(a,b){ return (a.credit - b.credit) || String(a.sid).localeCompare(String(b.sid)); });
+  var driftN = rows.filter(function(r){ return !r.ok; }).length;
+  var baseOddN = rows.filter(function(r){ return r.base !== null && r.base !== 100; }).length;
+  var total = rows.length;
+  function chip(r){
+    if(r.base === null) return '<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:#f1f2f4;color:#57606a">未设基准</span>';
+    if(!r.ok) return '<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:rgba(180,35,24,0.1);color:#B42318;font-weight:600">✗ 快照漂移</span>';
+    if(r.base !== 100) return '<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:rgba(192,138,45,0.14);color:#C08A2D;font-weight:600">⚠ 基准≠100</span>';
+    return '<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:rgba(47,125,91,0.12);color:#2F7D5B">✓ 一致</span>';
+  }
+  var head = '<div style="font-size:13px;color:#57606a;line-height:1.8;padding:10px 12px;background:#f7f8fa;border-radius:10px;margin-bottom:12px">' +
+    '每人当前分 = <b>入班基准</b> + 本人全部流水合计。基准默认 100；老数据/早期导入学生在 v2.15.0 迁移时按「当时分 − 流水」<b>反推</b>，可能不是 100 —— 这正是「扣得多的反而分低」的常见原因。<br>' +
+    '<b>核对方法</b>：看「最低分」那位同学的基准是否为 100；若不是且入班初始确实是 100，点该行「基准→100」即可纠正（保存并同步云端）。' +
+    '<div style="margin-top:8px"><span style="color:#57606a">共 ' + total + ' 人 · 快照漂移 ' + driftN + ' 人 · 基准≠100 ' + baseOddN + ' 人</span>' +
+    ' <button class="btn btn-outline" style="font-size:12px;padding:4px 12px;margin-left:10px" onclick="creditAuditReconcileAll()">🧹 校准全部漂移</button>' +
+    ' <button class="btn btn-outline" style="font-size:12px;padding:4px 12px" onclick="renderCreditAudit()">↻ 刷新</button></div></div>';
+  var thead = '<tr style="text-align:left;font-size:12px;color:#8b949e"><th style="padding:8px 10px;border-bottom:1px solid #eef0f3">学生</th>' +
+    '<th style="padding:8px 10px;border-bottom:1px solid #eef0f3">当前分</th><th style="padding:8px 10px;border-bottom:1px solid #eef0f3">入班基准</th>' +
+    '<th style="padding:8px 10px;border-bottom:1px solid #eef0f3">流水合计</th><th style="padding:8px 10px;border-bottom:1px solid #eef0f3">应得分</th>' +
+    '<th style="padding:8px 10px;border-bottom:1px solid #eef0f3">状态</th><th style="padding:8px 10px;border-bottom:1px solid #eef0f3">操作</th></tr>';
+  var bodyRows = rows.map(function(r){
+    var acts = '';
+    if(r.base !== null && r.base !== 100) acts += '<button class="btn btn-sm" style="background:var(--danger);color:#fff;padding:3px 10px;font-size:12px;margin-right:6px" onclick="creditAuditFixBase(' + r.id + ')">基准→100</button>';
+    if(r.base !== null && !r.ok) acts += '<button class="btn btn-outline btn-sm" style="padding:3px 10px;font-size:12px" onclick="creditAuditReconcileOne(' + r.id + ')">校快照</button>';
+    return '<tr style="font-size:13px;color:#1f2329;border-bottom:1px solid #f2f3f5"><td style="padding:8px 10px;font-weight:600">' + escapeHtml(r.name) + '<span style="color:#8b949e;font-weight:400;margin-left:6px;font-size:12px">' + escapeHtml(r.sid) + '</span></td>' +
+      '<td style="padding:8px 10px;font-weight:700">' + r.credit + '</td>' +
+      '<td style="padding:8px 10px">' + (r.base === null ? '—' : r.base) + '</td>' +
+      '<td style="padding:8px 10px;color:' + (r.sum > 0 ? '#2F7D5B' : (r.sum < 0 ? '#B42318' : '#57606a')) + '">' + (r.sum > 0 ? '+' : '') + r.sum + '</td>' +
+      '<td style="padding:8px 10px;color:#57606a">' + (r.expect === null ? '—' : r.expect) + '</td>' +
+      '<td style="padding:8px 10px">' + chip(r) + '</td>' +
+      '<td style="padding:8px 10px">' + (acts || '<span style="color:#c0c4cc;font-size:12px">—</span>') + '</td></tr>';
+  }).join('');
+  el.innerHTML = head + '<div style="max-height:58vh;overflow:auto;border:1px solid #eef0f3;border-radius:10px"><table style="width:100%;border-collapse:collapse;min-width:640px">' + thead + bodyRows + '</table></div>';
+}
+function openCreditAudit(){
+  renderCreditAudit();
+  openModal('creditAuditModal');
+}
+function creditAuditReconcileAll(){
+  var n = reconcileCreditDrift(state.students, state.operations);
+  if(n > 0){ saveData(); refreshCreditViews(); showToast('已校准 ' + n + ' 名学生的快照分', 'success'); }
+  else { showToast('没有发现快照漂移', 'info'); }
+  renderCreditAudit();
+}
+function creditAuditReconcileOne(id){
+  var s = (state.students || []).find(function(x){ return x.id === id; });
+  if(!s) return;
+  var sums = sumCreditsByStudent(state.operations);
+  var expect = (Number(s.creditBase) || 0) + (sums[id] || 0);
+  if((Number(s.credit) || 0) === expect){ showToast(s.name + ' 快照无漂移', 'info'); return; }
+  s.credit = expect;
+  s.creditVer = (Number(s.creditVer) || 0) + 1;
+  s.updatedAt = Date.now();
+  saveData(); refreshCreditViews();
+  showToast('已校准 ' + s.name + ' → ' + expect + ' 分', 'success');
+  renderCreditAudit();
+}
+function creditAuditFixBase(id){
+  var s = (state.students || []).find(function(x){ return x.id === id; });
+  if(!s) return;
+  if(Number(s.creditBase) === 100){ showToast(s.name + ' 基准已是 100', 'info'); return; }
+  var sums = sumCreditsByStudent(state.operations);
+  var cur = Number(s.credit) || 0;
+  var flow = sums[id] || 0;
+  var nxt = 100 + flow;
+  if(!confirm('将 ' + s.name + ' 的入班基准从 ' + s.creditBase + ' 改为 100？\n\n当前分将从 ' + cur + ' 变为 ' + nxt + ' 分（基准100 + 流水合计' + (flow > 0 ? '+' : '') + flow + '）。\n\n仅当该生入班初始确实为 100 分时才执行；改动会保存并同步到云端公示。')) return;
+  if(!confirm('再次确认：修改 ' + s.name + ' 的基准为 100？\n此操作会改变其公示排名，且不可撤销。')) return;
+  applyCreditBaseFix(s, 100, state.operations);
+  saveData(); refreshCreditViews();
+  showToast(s.name + ' 基准已改为 100，当前分 ' + s.credit, 'success');
+  renderCreditAudit();
 }
 
 /* ==================== Data Export/Import/Clear ==================== */
