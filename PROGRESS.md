@@ -215,3 +215,18 @@
 - [x] **详情面板关闭键美化**：panel-close 圆形描边 34px、hover 变红+90° 旋转、active 缩放，与卡片圆角语言统一
 - [x] _v2140_test.js 16 项；九套共 156 项全绿
 - [ ] 老板验收：学分页连续点选多人批量加减 / 值日页记劳动整改（搬水 1 天）/ 打开学生详情看新关闭键
+
+### 2026-09-06（v2.15.0 / v2.15.1：学分一致性修复 + 图表 100 分制口径）
+
+- [x] **背景**：老板反馈「学分加减没体现在学生管理模块、分数不一致」「操作记录不显示」「柱状图 0-99 不合理、最低学分同学不对」。逐条挖根因
+- [x] **根因 A（多设备分数不一致）**：smartMergeData 合并 students 时按 updatedAt 取新，但学生对象**从不写 updatedAt** → lt=rt=0 → `rt>lt` 恒 false → **永远取本地**，云端学分变更被丢弃，流水并集却两边都收 → 快照与流水漂移、各模块各说各话
+- [x] **根因 B（学生管理模块不刷新）**：applyCredit/applyCreditBulk/undoLastOp 只调 renderCreditsPage()，不调 renderTable() → 学分页操作后学生列表不刷
+- [x] **根因 C（操作记录不显示的体验来源）**：renderCreditsPage() 开头清空已选学生+搜索框，refreshCreditViews 每次加分都整页 reset → 连续操作时选的人没了像没生效；旧流水 time 缺失显示 NaN/NaN；时间线 30 条无上限提示
+- [x] **根因 D（首页/分析数值错位）**：`s.credit===min` 严格比较，credit 为字符串（导入遗留）时永远匹配不上 → 最低分显示「—」或错人；Math.min 遇 NaN 返回 NaN
+- [x] **根因 E（图表老口径）**：drawRangeChart 分段 0-10/11-20/…/41+、drawPieChart 同理、及格率≥10/优秀率≥25 —— 全是 v2.14.0 之前的基准，100 分制下全班挤进一根柱子
+- [x] **v2.15.0 修复**：creditBase 基线（credit = base + Σ本人流水，幂等反推，老学生初始分各异不硬写 100）；applyCreditDelta() 统一写入入口（credit+creditVer+updatedAt+流水四者原子一致，四个写入点全改走它）；reconcileCreditDrift() 启动/拉取后自愈；smartMerge 增 creditVer 判定取新，旧数据无 ver 保守取本地由自愈兜底；refreshCreditViews() 统一刷学生表/档案/时间线（dashboard/analytics 活跃页判定）；新增 _v2150_test.js 26 项
+- [x] **v2.15.1 修复**：refreshCreditViews 不再调 renderCreditsPage（避免清空选择）改直刷 renderCreditsTimeline+updateUndoBtn；renderOpItem/formatOpTime 统一时间线渲染（时间戳兜底「时间未知」/姓名缺失用学号/原因转义防 XSS/50 条上限+总数提示）；首页最值用 creditOf Number 规范化；distChart 自适应 8 档（按实际区间 [lo,hi]，不再固定 10 分一档）；rangeChart/pieChart 制度四档（<80 不合格/80-89 一般/90-99 合格/≥100 优秀）；合格率(≥90)/优秀率(≥100)；测试扩到 38 项
+- [x] 十套共 **194 项全绿**（25/19/21/13/11/11/16/38/26/14）；远端 commit d3dfc899
+- [ ] 老板验收：强刷 v2.15.1 → ①学分页连加几人看时间线实时出新记录且选择不被清空 ②首页最高/最低名字正确 ③首页分布图与分析页区间/饼图按 100 分制显示
+- [ ] 学分公示模块（v2.16.0）：规格见 SPEC_学分公示模块.md，老板已逐项确认，待开工
+- [ ] 图表选型待老板拍板：是否内联 Frappe Charts（15.1k★ 零依赖 SVG 20KB）或保持纯手绘（推荐）
