@@ -44,7 +44,7 @@ node D:/a/chee777/scripts/cm-push-incremental.js "提交信息" index.html sw.js
 
 ## 四、测试
 
-十一套回归，**共 225 项**（改动后必须全跑，全绿才能推）：
+十一套回归，**共 226 项**（改动后必须全跑，全绿才能推）：
 
 | 文件 | 项数 | 覆盖 |
 |---|---|---|
@@ -56,7 +56,7 @@ node D:/a/chee777/scripts/cm-push-incremental.js "提交信息" index.html sw.js
 | `_v2130_test.js` | 11 | 班委模式白名单 |
 | `_v2140_test.js` | 16 | 批量学分/劳动整改 |
 | `_v2150_test.js` | 38 | 学分一致性/图表 100 分制/时间线 |
-| `_v2160_test.js` | 31 | 学分公示（周期/榜单/隐私/海报导出） |
+| `_v2160_test.js` | 32 | 学分公示（周期/榜单/隐私/海报导出） |
 | `_sync_test.js` | 26 | 同步与合并 |
 | `_xss_test.js` | 14 | XSS 防护 |
 

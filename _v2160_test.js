@@ -181,6 +181,55 @@ t('导出海报为纯 canvas 自绘（不依赖 html2canvas/第三方库）', ()
   if (/html2canvas|Chart\.js|echarts|frappe/i.test(src[0])) throw new Error('海报引用了第三方库');
 });
 
+console.log('\n=== 绘制冒烟（stub canvas，验证不抛异常） ===');
+// 万能 ctx：任何方法返回 no-op，渐变/文本测量可调用
+function mockCtx() {
+  return new Proxy({}, {
+    get(t, k) {
+      if (k === 'measureText') return () => ({ width: 60 });
+      if (k === 'createLinearGradient' || k === 'createRadialGradient') return () => ({ addColorStop() {} });
+      if (k === 'canvas') return {};
+      if (k in t) return t[k];
+      return (...a) => { t.__calls = (t.__calls || 0) + 1; };
+    },
+    set(t, k, v) { t[k] = v; return true; }
+  });
+}
+function smokeEval(sig) {
+  const fn = eval('(' + grab(sig) + ')');
+  global[fn.name] = fn;
+  return fn;
+}
+const __orig = { doc: global.document, raf: global.requestAnimationFrame, state: global.state };
+// pubCredit / rr 是单行定义，grab 的「行首 }」规则抓不到；pubCredit 上面已 stub，
+// rr 这里用矩形近似（冒烟只验证「能画完不抛异常」，精确圆角路径由语法+使用处保证）
+global.rr = function (ctx, x, y, w, h, r) { ctx.beginPath(); ctx.rect(x, y, w, h); };
+global.roundRect = function (ctx, x, y, w, h, r) { ctx.beginPath(); ctx.rect(x, y, w, h); };
+global.escapeHtml = s => String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+['function pubCreditLevel(c)', 'function pubDisplayName(s)', 'function pubRangeCaption(r, nowDate)',
+ 'function pubCanvasReady(id, cb)', 'function pubGrid(ctx, W, H, padL, padR, padT, padB, nDiv)',
+ 'function drawPubTrend(id, students, operations)', 'function drawPubDaily(id, operations)',
+ 'function drawPubDist(id, students)', 'function drawPubReason(id, legendId, operations)',
+ 'function drawPubPoster(ctx, W, H, data, range, avatar)'].forEach(smokeEval);
+t('canvas 冒烟环境：四图一海报函数全部可执行不抛异常', () => {
+  const ctx = mockCtx();
+  global.document = {
+    getElementById: () => ({ getContext: () => ctx, getBoundingClientRect: () => ({ width: 560 }), style: {}, width: 0, height: 200 }),
+    querySelectorAll: () => [], querySelector: () => null
+  };
+  global.window = { devicePixelRatio: 1 };
+  global.requestAnimationFrame = () => {};
+  global.state = { className: '冒烟班', classMotto: '好好学习', classAvatar: null };
+  const d = computePublicityData(stu, ops, 'month');
+  drawPubTrend('c1', stu, ops); drawPubDaily('c2', ops);
+  drawPubDist('c3', stu); drawPubReason('c4', 'lg', ops);
+  drawPubPoster(ctx, 1080, 1920, d, 'month', null);   // 竖版
+  drawPubPoster(ctx, 1080, 1350, d, 'today', null);   // 紧凑版
+  if (ctx.__calls === undefined) throw new Error('绘图函数似乎没有实际调用 ctx');
+});
+// 还原全局（避免污染后续）
+global.document = __orig.doc; global.requestAnimationFrame = __orig.raf; global.state = __orig.state;
+
 console.log('\n=== 版本号 ===');
 t('v2.16.0 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
   if (!/login-version">v2\.16\.0</.test(html)) throw new Error('登录页版本号未更新');
