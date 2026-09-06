@@ -1863,7 +1863,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.3</div>
+      <div class="login-version">v2.17.4</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1979,7 +1979,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.3 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.4 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2106,7 +2106,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
                   <th class="checkbox-cell"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th>
                   <th>姓名</th>
                   <th>学号</th>
-                  <th id="creditTh" class="th-sort" onclick="toggleSort()" title="点击按学分排序，再次点击恢复按序号">学分 <span class="sort-icon" id="sortIcon">⇅</span></th>
+                  <th id="creditTh" class="th-sort" onclick="toggleSort()" title="点击排序：学分 ↓ → 学分 ↑ → 恢复按序号" style="cursor:pointer">学分 <span class="sort-icon" id="sortIcon">⇅</span></th>
                   <th>快速操作</th>
                   <th>操作</th>
                 </tr>
@@ -4840,7 +4840,10 @@ function initStudentTabIndicator(){
   }
 }
 
-/* v2.11.0 排序：默认按序号；点「学分」列头切到按学分排序；再点恢复序号排序 */
+/* v2.11.0 排序：默认按序号；点「学分」列头切换。
+   v2.17.4 修复「点学分没排对」：旧实现只有 序号⇄学分↓ 两态，永远排不出升序，
+   第二下点击直接跳回序号 → 老师以为没排序成功。改为三态循环（↓ → ↑ → 序号），
+   学分比较强制 Number()（防导入字符串残留导致排序错乱）。 */
 let sortMode = 'index';   // 'index' = 按序号（默认） | 'credit' = 按学分
 let sortDir = 'desc';
 function updateSortUi(){
@@ -4859,8 +4862,9 @@ function updateSortUi(){
   }
 }
 function toggleSort(){
-  if(sortMode === 'index'){ sortMode = 'credit'; sortDir = 'desc'; }  // 点学分 → 按学分降序
-  else { sortMode = 'index'; }                                        // 再点 → 恢复默认按序号
+  if(sortMode === 'index'){ sortMode = 'credit'; sortDir = 'desc'; }        // ① 点学分 → 降序
+  else if(sortMode === 'credit' && sortDir === 'desc'){ sortDir = 'asc'; }  // ② 再点 → 升序
+  else { sortMode = 'index'; sortDir = 'desc'; }                            // ③ 再点 → 恢复按序号
   updateSortUi();
   renderTable();
 }
@@ -4872,7 +4876,7 @@ function renderTable(){
     s.name.toLowerCase().includes(search) || s.sid.toLowerCase().includes(search)
   );
   if(sortMode === 'credit'){
-    list.sort((a,b)=> sortDir === 'desc' ? b.credit - a.credit : a.credit - b.credit);
+    list.sort((a,b)=>{ const ca=Number(a.credit)||0, cb=Number(b.credit)||0; return sortDir === 'desc' ? cb - ca : ca - cb; });  // v2.17.4 数值化，防字符串残留
   } else {
     list.sort((a,b)=> String(a.sid).localeCompare(String(b.sid)));   // 默认：按学号（序号）升序
   }
