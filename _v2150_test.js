@@ -1,4 +1,4 @@
-/* v2.15.0 回归测试：学分一致性（统一写入入口 / 基线自愈 / 合并取新 / 全视图刷新）
+/* v2.15.1 回归测试：学分一致性（统一写入入口 / 基线自愈 / 合并取新 / 全视图刷新）
    运行：node _v2150_test.js */
 const fs = require('fs');
 const html = fs.readFileSync('index.html', 'utf8');
@@ -153,11 +153,18 @@ t('流水按 id 去重并集，永不丢失（自愈依赖此前提）', () => {
 });
 
 console.log('\n=== 全视图刷新 ===');
-t('refreshCreditViews 覆盖 学生表 / 学分记录 / 学生档案', () => {
+t('refreshCreditViews 覆盖 学生表 / 学分时间线 / 撤销按钮 / 学生档案', () => {
   const src = grab('function refreshCreditViews()');
-  ['renderTable', 'renderCreditsPage', 'renderProfiles'].forEach(s => {
+  ['renderTable', 'renderCreditsTimeline', 'updateUndoBtn', 'renderProfiles'].forEach(s => {
     if (!src.includes(s)) throw new Error('缺少刷新: ' + s);
   });
+});
+t('refreshCreditViews 不调用 renderCreditsPage（它会清空已选学生与搜索框）', () => {
+  const src = grab('function refreshCreditViews()');
+  const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');  // 剥离注释只看代码
+  if (/renderCreditsPage/.test(code)) {
+    throw new Error('仍会整页 reset 学分页，连续操作时选择会被清空');
+  }
 });
 t('refreshCreditViews 对 dashboard / analytics 做活跃页判定（避免无谓重绘）', () => {
   const src = grab('function refreshCreditViews()');
@@ -189,12 +196,74 @@ t('applyCloudData 三条分支最终都过 loadData（自愈不会被绕过）',
   eq((fn.match(/loadData\(\);/g) || []).length >= 3, true);
 });
 
+console.log('\n=== v2.15.1 热修：图表口径 / 最值 / 操作时间线 ===');
+global.escapeHtml = s => String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const formatOpTime = eval('(' + grab('function formatOpTime(op)') + ')');
+const renderOpItem = eval('(' + grab('function renderOpItem(op)') + ')');
+
+t('formatOpTime：无效/缺失时间戳兜底为「时间未知」（旧数据会显示 NaN/NaN）', () => {
+  eq(formatOpTime({}), '时间未知');
+  eq(formatOpTime({ time: undefined }), '时间未知');
+  eq(formatOpTime({ time: 'not-a-date' }), '时间未知');
+});
+t('formatOpTime：有效时间戳输出 MM-DD HH:mm（同年不带年份）', () => {
+  eq(formatOpTime({ time: new Date(2026, 8, 6, 14, 30).getTime() }), '09-06 14:30');
+  eq(formatOpTime({ time: new Date(2026, 0, 2, 9, 5).getTime() }), '01-02 09:05');
+});
+t('renderOpItem：原因做转义（自定义原因是自由文本，防 XSS）', () => {
+  const h = renderOpItem({ studentName: '小明', amount: 2, reason: '<img src=x onerror=alert(1)>', time: Date.now() });
+  eq(/<img/.test(h), false);
+  eq(/&lt;img/.test(h), true);
+});
+t('renderOpItem：姓名缺失时用学号兜底，不显示 undefined', () => {
+  const h = renderOpItem({ studentId: 42, amount: -1, reason: '迟到', time: Date.now() });
+  eq(/#42/.test(h), true);
+  eq(/undefined/.test(h), false);
+});
+t('操作时间线：容器 null 保护 + 50 条上限提示', () => {
+  const src = grab('function renderCreditsTimeline()');
+  if (!src.includes('if(!tl) return;')) throw new Error('容器未做 null 保护');
+  if (!src.includes('LIMIT = 50')) throw new Error('未设显示上限');
+});
+t('首页最近记录复用统一渲染 renderOpItem（不再自己拼 innerHTML）', () => {
+  const dash = html.match(/function renderDashboard\(\)\{[\s\S]*?\n\}/)[0];
+  if (!dash.includes('renderOpItem')) throw new Error('首页时间线未复用统一渲染');
+});
+t('首页最高/最低学分：credit 统一转数字后再比较（字符串会让 find 匹配不上）', () => {
+  const dash = html.match(/function renderDashboard\(\)\{[\s\S]*?\n\}/)[0];
+  if (!dash.includes('const creditOf =')) throw new Error('未做 Number 规范化');
+  if (/Math\.min\(\.\.\.credits\)/.test(dash)) throw new Error('仍在用会受 NaN 污染的 Math.min');
+});
+t('分布图：改为自适应 8 档（旧的固定 10 分一档在 100 分制下会把人堆进一桶）', () => {
+  const fn = grab('function drawDistChart(credits)');
+  if (!fn.includes('const numBuckets = 8;')) throw new Error('未改为固定 8 档自适应');
+  if (fn.includes('bucketSize')) throw new Error('仍残留 bucketSize 旧逻辑');
+  if (!fn.includes('bucketLabel')) throw new Error('缺少区间标签函数');
+});
+t('区间柱状图：改为制度四档 <80 / 80-89 / 90-99 / ≥100', () => {
+  const fn = grab('function drawRangeChart(credits)');
+  ['<80 不合格', '80-89 一般', '90-99 合格', '≥100 优秀'].forEach(s => {
+    if (!fn.includes(s)) throw new Error('缺少档位: ' + s);
+  });
+});
+t('饼图分段同步改为制度四档', () => {
+  const fn = grab('function drawPieChart(credits)');
+  ['<80 不合格', '80-89 一般', '90-99 合格', '≥100 优秀'].forEach(s => {
+    if (!fn.includes(s)) throw new Error('缺少档位: ' + s);
+  });
+});
+t('合格率/优秀率口径改为 ≥90 / ≥100（旧的 ≥10 / ≥25 已失效）', () => {
+  if (!html.includes('合格率 (≥90)')) throw new Error('合格率未改');
+  if (!html.includes('优秀率 (≥100)')) throw new Error('优秀率未改');
+  if (html.includes('及格率 (≥10)') || html.includes('优秀率 (≥25)')) throw new Error('旧口径残留');
+});
+
 console.log('\n=== 版本号 ===');
-t('v2.15.0 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
-  if (!/login-version">v2\.15\.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.15\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
+t('v2.15.1 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
+  if (!/login-version">v2\.15\.1</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.15\.1 ·/.test(html)) throw new Error('侧栏版本号未更新');
   const sw = fs.readFileSync('sw.js', 'utf8');
-  if (!sw.includes('class-manager-v2.15.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!sw.includes('class-manager-v2.15.1')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');
