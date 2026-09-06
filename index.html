@@ -1759,6 +1759,28 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 #cmExitBtn:hover{border-color:var(--danger);color:var(--danger)}
 .committee-entry{width:100%;margin-top:16px;padding:10px;font-size:13px}
 .committee-entry:hover{border-color:var(--primary);color:var(--primary)}
+/* v2.16.0 学分公示 */
+.pub-tabs{display:flex;gap:4px;background:var(--bg-secondary);padding:4px;border-radius:12px}
+.pub-tab{padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--text-muted);transition:background .15s}
+.pub-tab.active{background:var(--card-bg);color:var(--primary);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.pub-boards{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.pub-board-row{display:flex;gap:12px;flex-wrap:wrap}
+.pub-board-col{flex:1;min-width:270px;background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:12px 14px}
+.pub-board-title{font-size:14px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.pub-board-sub{font-size:11px;color:var(--text-muted);font-weight:400}
+.pub-rank{display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:1px dashed var(--border)}
+.pub-rank:last-child{border-bottom:none}
+.pub-no{width:22px;height:22px;border-radius:50%;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-muted);flex:none}
+.pub-no.top1{background:linear-gradient(135deg,#F5C518,#E8A20C);color:#fff}
+.pub-no.top2{background:linear-gradient(135deg,#BDBDBD,#9B9B9B);color:#fff}
+.pub-no.top3{background:linear-gradient(135deg,#CD7F32,#B06A28);color:#fff}
+.pub-name{flex:1;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pub-delta{font-size:12px;font-weight:700}
+.pub-score{font-size:13px;color:var(--text-muted);font-weight:600;flex:none}
+.pub-tag{font-size:11px;padding:1px 7px;border-radius:999px;font-weight:600}
+.pub-empty{color:var(--text-muted);font-size:13px;padding:14px 4px;text-align:center}
+.pub-fold{cursor:pointer;color:var(--text-muted);font-size:12px;margin-top:2px;display:inline-block}
+.pub-fold:hover{color:var(--primary)}
 </style>
 </head>
 <body>
@@ -1802,7 +1824,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.15.1</div>
+      <div class="login-version">v2.16.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1897,6 +1919,9 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       <div class="nav-item" data-page="credits">
         <span class="nav-icon"><svg class="ic"><use href="#i-pen"/></svg></span><span>学分记录</span>
       </div>
+      <div class="nav-item" data-page="publicity">
+        <span class="nav-icon"><svg class="ic"><use href="#i-honor"/></svg></span><span>学分公示</span>
+      </div>
       <div class="nav-item" data-page="honors">
         <span class="nav-icon"><svg class="ic"><use href="#i-honor"/></svg></span><span>荣誉墙</span>
       </div>
@@ -1908,7 +1933,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.15.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.16.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2222,6 +2247,52 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         </div>
       </div>
 
+      <!-- Publicity Page (v2.16.0 学分公示：排行榜 / 周期变动 / 图表 / 导出海报) -->
+      <div class="page" id="page-publicity">
+        <div class="page-toolbar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div class="pub-tabs" id="pubTabs">
+            <span class="pub-tab" data-range="today" onclick="setPubRange('today')">今日</span>
+            <span class="pub-tab" data-range="week" onclick="setPubRange('week')">本周</span>
+            <span class="pub-tab active" data-range="month" onclick="setPubRange('month')">本月</span>
+            <span class="pub-tab" data-range="semester" onclick="setPubRange('semester')">本学期</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-outline btn-sm" onclick="exportPublicityPoster('compact')">📤 紧凑图</button>
+            <button class="btn btn-primary btn-sm" onclick="exportPublicityPoster('portrait')">📤 导出竖版公示图</button>
+          </div>
+        </div>
+        <div class="analytics-grid" id="pubSummary"></div>
+        <div id="pubBoards"></div>
+        <div class="dash-grid">
+          <div class="chart-card">
+            <div class="section-title"><span class="dot"></span>全班人均学分趋势（近 30 天）</div>
+            <canvas id="pubTrendChart" height="200"></canvas>
+          </div>
+          <div class="chart-card">
+            <div class="section-title"><span class="dot"></span>每日加减分（近 14 天）</div>
+            <canvas id="pubDailyChart" height="200"></canvas>
+          </div>
+          <div class="chart-card">
+            <div class="section-title"><span class="dot"></span>当前学分区间分布（100 分制）</div>
+            <canvas id="pubDistChart" height="200"></canvas>
+          </div>
+          <div class="chart-card">
+            <div class="section-title"><span class="dot"></span>本期原因分布 Top6</div>
+            <canvas id="pubReasonChart" height="200"></canvas>
+            <div class="pie-legend" id="pubReasonLegend"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="section-title"><span class="dot"></span>📌 公示口径说明</div>
+          <div style="font-size:12px;color:var(--text-muted);line-height:1.8">
+            学分 = 基准分 100 + 全部流水之和；各周期统计均按流水时间戳实时聚合。
+            进步榜按周期内净增分（加分 − 扣分）排序；「零扣分榜」指本期有记录且无任何扣分。
+            退步榜默认折叠，预警榜（&lt;80 分）仅班主任可见，均不进导出图。
+            姓名显示方式可在 设置 → 公示设置 中切换（全名 / 张* / 仅学号）。
+          </div>
+        </div>
+      </div>
+
       <!-- Analytics Page -->
       <div class="page" id="page-analytics">
         <div class="analytics-tabs">
@@ -2440,6 +2511,24 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <button class="btn btn-sm" id="themeDarkBtn" onclick="setTheme('dark')">🌙 暗色</button>
           </div>
           <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">跟随系统：自动根据设备系统外观切换</div>
+        </div>
+<div class="settings-section">
+          <h3>🏆 公示设置</h3>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+            <div class="form-group" style="margin-bottom:0">
+              <label>公示姓名显示</label>
+              <select id="pubNameMode" onchange="onPubNameModeChange()" style="padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">
+                <option value="full">全名</option>
+                <option value="mask">姓 + *（如 张*）</option>
+                <option value="sid">仅学号</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label>本学期开学日期</label>
+              <input type="date" id="pubSemesterStart" onchange="onPubSemesterStartChange()" style="padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">
+            </div>
+          </div>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">公示页与导出图中的姓名按此显示；开学日期用于「本学期」周期统计（默认按学年 9/1 或 3/1 自动推断）</div>
         </div>
 <div class="settings-section">
           <h3>数据管理</h3>
@@ -3905,7 +3994,7 @@ function loadSampleData(){
 const pageTitles = {
   dashboard:'工作台首页', students:'学生管理', committee:'班委管理', dorm:'寝室管理',
   seating:'座次表', duty:'值日排表', credits:'学分记录', honors:'荣誉墙',
-  analytics:'数据分析', settings:'设置',
+  publicity:'学分公示', analytics:'数据分析', settings:'设置',
   attendance:'请假管理', grades:'成绩管理', todo:'待办提醒',
   notices:'通知', profiles:'学生档案', worklogs:'工作留痕'
 };
@@ -3917,7 +4006,7 @@ document.querySelectorAll('.nav-item').forEach(item=>{
 function navigateTo(page){
   // v2.13.0 班委模式白名单拦截（含 dashboard 动态卡片等间接跳转）
   if(window.__cmRole === 'committee' && COMMITTEE_PAGES.indexOf(page) < 0){
-    showToast('班委模式仅开放：首页、学分、值日、座次、待办、荣誉','warning');
+    showToast('班委模式仅开放：首页、学分、公示、值日、座次、待办、荣誉','warning');
     return;
   }
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
@@ -3938,6 +4027,7 @@ function navigateTo(page){
   if(page==='grades') renderGrades();
   if(page==='todo') renderTodo();
   if(page==='credits') renderCreditsPage();
+  if(page==='publicity') renderPublicity();
   if(page==='analytics') renderAnalytics();
     if(page==='notices') renderNotices();
   if(page==='profiles') renderProfiles();
@@ -7375,6 +7465,40 @@ function renderSettings(){
   updateSyncStatus();
   updateCloudSyncUI();
   renderClassBrand();
+  // v2.16.0 公示设置回填
+  var pmEl = document.getElementById('pubNameMode');
+  if(pmEl) pmEl.value = loadPubSetting('nameMode') || 'full';
+  var ssEl = document.getElementById('pubSemesterStart');
+  if(ssEl){
+    var ssv = loadPubSetting('semesterStart');
+    if(ssv && parseInt(ssv,10) > 0){
+      var sd = new Date(parseInt(ssv,10));
+      ssEl.value = sd.getFullYear() + '-' + String(sd.getMonth()+1).padStart(2,'0') + '-' + String(sd.getDate()).padStart(2,'0');
+    }
+  }
+}
+
+/* v2.16.0 公示设置事件 */
+function onPubNameModeChange(){
+  var el = document.getElementById('pubNameMode');
+  savePubSetting('nameMode', el.value);
+  showToast('公示姓名显示方式：' + ({full:'全名', mask:'姓 + *', sid:'仅学号'})[el.value], 'success');
+  var pg = document.getElementById('page-publicity');
+  if(pg && pg.classList.contains('active')) renderPublicity();
+}
+function onPubSemesterStartChange(){
+  var el = document.getElementById('pubSemesterStart');
+  if(!el.value){
+    var s = {}; try{ s = JSON.parse(localStorage.getItem('cm_pub_settings')||'{}'); }catch(e){}
+    delete s.semesterStart; localStorage.setItem('cm_pub_settings', JSON.stringify(s));
+    showToast('已恢复自动推断开学日期', 'info');
+    return;
+  }
+  var d = new Date(el.value + 'T00:00:00');
+  savePubSetting('semesterStart', d.getTime());
+  showToast('本学期开学日期已更新', 'success');
+  var pg = document.getElementById('page-publicity');
+  if(pg && pg.classList.contains('active')) renderPublicity();
 }
 
 function saveClassName(){
@@ -7788,7 +7912,7 @@ function loginClear(){
 /* v2.13.0 班委模式：登录页免密入口，白名单页面（学分/值日/座次/待办/荣誉/首页），
    无学生档案/成绩/请假/通知/设置，无导入导出/添加学生。数据同步照常（班委的操作入云不丢）。 */
 const CM_ROLE_KEY = 'cm_role';
-const COMMITTEE_PAGES = ['dashboard','credits','duty','seating','todo','honors'];
+const COMMITTEE_PAGES = ['dashboard','credits','publicity','duty','seating','todo','honors'];
 function isCommitteeMode(){ return sessionStorage.getItem(CM_ROLE_KEY) === 'committee'; }
 
 function enterApp(msg){
@@ -9276,6 +9400,461 @@ function touchNotices(){
   saveData();
 }
 
+/* ==================== v2.16.0 学分公示模块 ====================
+   独立公示页：周期统计（今日/本周/本月/学期）+ 6 榜单 + 4 图表（canvas 手绘）
+   + 导出公示海报（1080×1920 竖版 / 1080×1350 紧凑）。
+   口径：学分 = 基准分 + Σ流水（流水是唯一真相）；周期统计按流水 time 实时聚合。
+   隐私：姓名显示方式（全名 / 姓加星 / 仅学号）与学期开学日在 设置 → 公示设置 里配置。 */
+
+/* ---- 公示偏好（本地存储，无需上云） ---- */
+function loadPubSetting(k){
+  try{ return (JSON.parse(localStorage.getItem('cm_pub_settings')||'{}'))[k]; }catch(e){ return undefined; }
+}
+function savePubSetting(k, v){
+  var s = {}; try{ s = JSON.parse(localStorage.getItem('cm_pub_settings')||'{}'); }catch(e){}
+  s[k] = v; localStorage.setItem('cm_pub_settings', JSON.stringify(s));
+}
+
+/* ---- 周期边界（纯函数，now 可注入便于测试） ---- */
+function rangeStartOf(kind, nowDate){
+  var d = nowDate ? new Date(nowDate) : new Date();
+  d.setHours(0,0,0,0);
+  if(kind === 'today') return d.getTime();
+  if(kind === 'week'){ d.setDate(d.getDate() - ((d.getDay()+6)%7)); return d.getTime(); }   // 周一为起点
+  if(kind === 'month'){ d.setDate(1); return d.getTime(); }
+  if(kind === 'semester'){
+    var cfg = loadPubSetting('semesterStart');
+    if(cfg && parseInt(cfg,10) > 0) return parseInt(cfg,10);
+    var m = d.getMonth() + 1;
+    if(m >= 3 && m <= 8){ d.setMonth(2); d.setDate(1); }            // 3-8月 → 当年 3/1（春季）
+    else if(m >= 9){ d.setMonth(8); d.setDate(1); }                 // 9-12月 → 当年 9/1（秋季）
+    else { d.setFullYear(d.getFullYear()-1); d.setMonth(8); d.setDate(1); }  // 1-2月 → 上年 9/1
+    return d.getTime();
+  }
+  return 0;
+}
+var pubRange = 'month';   // 当前选中周期
+function pubRangeName(r){ return ({today:'今日', week:'本周', month:'本月', semester:'本学期'})[r] || r; }
+function setPubRange(r){
+  pubRange = r;
+  var tabs = document.querySelectorAll('#pubTabs .pub-tab');
+  for(var i=0;i<tabs.length;i++){ tabs[i].classList.toggle('active', tabs[i].dataset.range === r); }
+  renderPublicity();
+}
+/* 海报/页面主标题文案：如「2026 年 9 月」「9 月 6 日（今日）」「9 月第 1 周」「2026 春学期」 */
+function pubRangeCaption(r, nowDate){
+  var n = nowDate ? new Date(nowDate) : new Date();
+  var Y = n.getFullYear(), M = n.getMonth()+1, D = n.getDate();
+  if(r === 'today') return Y + ' 年 ' + M + ' 月 ' + D + ' 日';
+  if(r === 'week') return Y + ' 年 ' + M + ' 月第 ' + Math.ceil(D/7) + ' 周';
+  if(r === 'semester'){
+    var m = M; if(m>=9) return Y + ' 年秋学期'; if(m<=2) return (Y-1) + ' 年秋学期'; return Y + ' 年春学期';
+  }
+  return Y + ' 年 ' + M + ' 月';
+}
+/* 显示名（隐私开关：full 全名 / mask 张* / sid 仅学号） */
+function pubDisplayName(s){
+  if(!s) return '—';
+  var mode = loadPubSetting('nameMode') || 'full';
+  if(mode === 'sid') return '#' + String(s.sid == null ? s.id : s.sid);
+  if(mode === 'mask') return s.name.charAt(0) + '*';
+  return s.name;
+}
+function pubCredit(s){ var n = Number(s.credit); return isNaN(n) ? 0 : n; }
+function pubCreditLevel(c){
+  if(c >= 100) return {label:'优秀', color:'#2F7D5B'};
+  if(c >= 90)  return {label:'合格', color:'#C08A2D'};
+  if(c >= 80)  return {label:'一般', color:'#6B5B95'};
+  return {label:'不合格', color:'#B42318'};
+}
+
+/* ---- 核心统计（纯函数，可测）：周期内全部指标一次算清 ---- */
+function computePublicityData(students, operations, rangeKind, nowDate){
+  var t0 = rangeStartOf(rangeKind, nowDate);
+  var ops = (operations || []).filter(function(o){ return o && typeof o.time === 'number' && o.time >= t0; });
+  var n = students ? students.length : 0;
+  var byId = {};
+  (students||[]).forEach(function(s){ byId[s.id] = s; });
+  var addPts = {}, subPts = {}, cntAdd = {}, cntSub = {}, act = {};
+  ops.forEach(function(o){
+    var id = o.studentId, amt = Number(o.amount) || 0;
+    if(id == null || !byId[id]) return;      // 学生已删除的孤儿流水：不进任何统计
+    act[id] = (act[id]||0) + 1;
+    if(amt > 0){ addPts[id] = (addPts[id]||0) + amt; cntAdd[id] = (cntAdd[id]||0) + 1; }
+    else if(amt < 0){ subPts[id] = (subPts[id]||0) - amt; cntSub[id] = (cntSub[id]||0) + 1; }
+  });
+  var rows = (students||[]).map(function(s){
+    return {
+      id: s.id, sid: s.sid, name: s.name, credit: pubCredit(s),
+      net: (addPts[s.id]||0) - (subPts[s.id]||0),
+      addPts: addPts[s.id]||0, subPts: subPts[s.id]||0,
+      adds: cntAdd[s.id]||0, subs: cntSub[s.id]||0,
+      touched: !!act[s.id]
+    };
+  });
+  var addPtsT = 0, subPtsT = 0, addCntT = 0, subCntT = 0, netSum = 0;
+  rows.forEach(function(r){ addPtsT += r.addPts; subPtsT += r.subPts; addCntT += r.adds; subCntT += r.subs; netSum += r.net; });
+  var topActive = null;
+  rows.forEach(function(r){ if(r.touched && (!topActive || (r.adds + r.subs) > (topActive.adds + topActive.subs))) topActive = r; });
+  var creditSort = function(x,y){ return (y.credit - x.credit) || String(x.sid).localeCompare(String(y.sid)); };
+  // 单项之星：加分次数最多（并列取加分总分多者）；单笔最高按金额
+  var starAdd = null, starAddN = 0;
+  rows.forEach(function(r){ if(r.adds > starAddN){ starAddN = r.adds; starAdd = r; } });
+  var maxSingle = { v:0, name:'', sid:null };
+  ops.forEach(function(o){ var a = Number(o.amount)||0; if(a > maxSingle.v && byId[o.studentId]){ maxSingle = { v:a, name:byId[o.studentId].name, sid:o.studentId }; } });
+  return {
+    count:n, touched:rows.filter(function(r){return r.touched;}).length,
+    addPts:addPtsT, subPts:subPtsT, addCnt:addCntT, subCnt:subCntT, netSum:netSum,
+    avgDelta: n ? (netSum/n) : 0, topActive:topActive,
+    top:  rows.slice().sort(creditSort).slice(0,10),
+    prog: rows.filter(function(r){ return r.net > 0; }).sort(function(x,y){ return (y.net-x.net) || creditSort(x,y); }).slice(0,10),
+    reg:  rows.filter(function(r){ return r.net < 0; }).sort(function(x,y){ return (x.net-y.net) || creditSort(x,y); }).slice(0,5),
+    zero: rows.filter(function(r){ return r.touched && r.subs === 0; }).sort(function(x,y){ return (y.adds-x.adds) || creditSort(x,y); }).slice(0,10),
+    warn: rows.filter(function(r){ return r.credit < 80; }).sort(function(x,y){ return (x.credit-y.credit); }),
+    starAdd:starAdd, starAddN:starAddN, maxSingle:maxSingle
+  };
+}
+
+/* ---- 概览卡 ---- */
+function pubStat(label, valHtml){ return '<div class="stat-mini"><div class="label">'+label+'</div><div class="value">'+valHtml+'</div></div>'; }
+function renderPubSummary(data){
+  var el = document.getElementById('pubSummary');
+  var rate = data.count ? Math.round(data.touched / data.count * 100) : 0;
+  el.innerHTML =
+    pubStat('变动人次', data.touched + '<span style="font-size:11px;color:var(--text-muted)">/' + data.count + '（' + rate + '%）</span>') +
+    pubStat('加分', '<span style="color:var(--success)">+' + data.addPts + '</span> <span style="font-size:11px;color:var(--text-muted)">' + data.addCnt + ' 次</span>') +
+    pubStat('扣分', '<span style="color:var(--danger)">-' + data.subPts + '</span> <span style="font-size:11px;color:var(--text-muted)">' + data.subCnt + ' 次</span>') +
+    pubStat('净变化', '<span style="color:' + (data.netSum>=0?'var(--success)':'var(--danger)') + '">' + (data.netSum>0?'+':'') + data.netSum + '</span>') +
+    pubStat('人均变动', (data.avgDelta>0?'+':'') + data.avgDelta.toFixed(1)) +
+    pubStat('最活跃', data.topActive ? escapeHtml(pubDisplayName(data.topActive)) : '—');
+}
+
+/* ---- 榜单区 ---- */
+function pubRankRow(row, i){
+  var lv = pubCreditLevel(row.credit);
+  var noCls = i===0 ? 'top1' : i===1 ? 'top2' : i===2 ? 'top3' : '';
+  return '<div class="pub-rank"><span class="pub-no '+noCls+'">'+(i+1)+'</span>' +
+    '<span class="pub-name">'+escapeHtml(pubDisplayName(row))+'</span>' +
+    '<span class="pub-tag" style="background:rgba(47,125,91,0.12);color:#2F7D5B;margin-right:2px">'+lv.label+'</span>' +
+    '<span class="pub-score">'+row.credit+' 分</span></div>';
+}
+function pubDeltaRow(row, i){
+  var cls = i===0 ? 'top1' : i===1 ? 'top2' : i===2 ? 'top3' : '';
+  return '<div class="pub-rank"><span class="pub-no '+cls+'">'+(i+1)+'</span>' +
+    '<span class="pub-name">'+escapeHtml(pubDisplayName(row))+'</span>' +
+    '<span class="pub-delta" style="color:'+(row.net>0?'var(--success)':'var(--danger)')+'">'+(row.net>0?'+':'')+row.net+'</span>' +
+    '<span class="pub-score">'+row.credit+' 分</span></div>';
+}
+function pubCard(title, sub, innerHtml){ return '<div class="pub-board-col"><div class="pub-board-title">'+title+'<span class="pub-board-sub">'+sub+'</span></div>'+innerHtml+'</div>'; }
+function renderPubBoards(data){
+  var el = document.getElementById('pubBoards');
+  if(!el) return;
+  var isCommittee = window.__cmRole === 'committee';
+  var html = '<div class="pub-board-row">';
+  html += pubCard('🏆 学分榜 Top10', '当前总分', data.top.length ? data.top.map(pubRankRow).join('') : '<div class="pub-empty">暂无学生</div>');
+  html += pubCard('📈 进步榜 Top10', pubRangeName(pubRange)+'净增', data.prog.length ? data.prog.map(pubDeltaRow).join('') : '<div class="pub-empty">本周期暂无加分</div>');
+  html += '</div><div class="pub-board-row">';
+  html += pubCard('🌟 零扣分榜 Top10', '本期有记录且未扣分', data.zero.length ? data.zero.map(function(r,i){ return pubRankRow(r,i).replace(pubCreditLevel(r.credit).label, r.adds+' 次加分'); }).join('') : '<div class="pub-empty">本周期暂无记录</div>');
+  html += pubCard('🏅 单项之星', pubRangeName(pubRange), '<div class="pub-rank"><span class="pub-name">加分次数最多</span><span class="pub-score">'+(data.starAdd?escapeHtml(pubDisplayName(data.starAdd))+' · '+data.starAddN+' 次':'—')+'</span></div><div class="pub-rank"><span class="pub-name">单笔加分最高</span><span class="pub-score">'+(data.maxSingle && data.maxSingle.v>0?escapeHtml(pubDisplayName(data.maxSingle))+' · +'+data.maxSingle.v:'—')+'</span></div>');
+  html += '</div>';
+  // 退步榜：默认折叠
+  if(data.reg.length){
+    html += '<div class="pub-board-row"><div class="pub-board-col" style="min-width:100%">' +
+      '<div class="pub-board-title">📉 退步榜 Top5 <span class="pub-board-sub">本期净减，默认不导出</span></div>' +
+      '<div id="pubRegBody" style="display:none">' + data.reg.map(function(r){ return pubDeltaRow(r,0).replace(/pub-no top1/g,'pub-no'); }).join('') + '</div>' +
+      '<a class="pub-fold" onclick="var b=document.getElementById(\'pubRegBody\');b.style.display=b.style.display===\'none\'?\'\':\'none\';this.textContent=b.style.display===\'none\'?\'▸ 展开退步榜\':\'▾ 收起退步榜\'">▸ 展开退步榜</a></div></div>';
+  }
+  // 预警榜：仅班主任可见
+  if(!isCommittee && data.warn.length){
+    html += '<div class="pub-board-row"><div class="pub-board-col" style="min-width:100%;border-color:rgba(180,35,24,.3)">' +
+      '<div class="pub-board-title" style="color:var(--danger)">⚠️ 预警榜（当前学分 &lt; 80）<span class="pub-board-sub">仅班主任可见 · 不进导出图</span></div>' +
+      data.warn.map(function(r){ return '<div class="pub-rank"><span class="pub-name">'+escapeHtml(pubDisplayName(r))+'</span><span class="pub-score" style="color:var(--danger)">'+r.credit+' 分</span></div>'; }).join('') +
+      '</div></div>';
+  }
+  el.innerHTML = html;
+}
+
+/* ---- 图表（纯 canvas 手绘，全部自适应尺寸 + rAF 兜底） ---- */
+function pubCanvasReady(id, cb){
+  var cv = document.getElementById(id);
+  if(!cv) return;
+  var ctx = cv.getContext('2d');
+  var rect = cv.getBoundingClientRect();
+  if(rect.width < 10){ requestAnimationFrame(function(){ pubCanvasReady(id, cb); }); return; }
+  var dpr = window.devicePixelRatio || 1;
+  var W = rect.width, H = cv.height || 200;
+  cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  cb(ctx, W, H);
+}
+function pubGrid(ctx, W, H, padL, padR, padT, padB, nDiv){
+  var cw = W - padL - padR, ch = H - padT - padB;
+  ctx.strokeStyle = 'rgba(166,58,43,0.07)'; ctx.lineWidth = 1; ctx.fillStyle = '#A0988C'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+  for(var i=0;i<=nDiv;i++){
+    var y = padT + (ch/nDiv)*i;
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(W-padR,y); ctx.stroke();
+  }
+  return { cw:cw, ch:ch };
+}
+
+/* 全班人均学分趋势（近 30 天）：用流水反推每日人均 credit(期初) */
+function drawPubTrend(id, students, operations){
+  pubCanvasReady(id, function(ctx, W, H){
+    if(!students || !students.length){ ctx.fillStyle='#A0988C'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('暂无数据', W/2, H/2); return; }
+    var dayMs = 86400000, days = 30;
+    var tNow = Date.now();
+    var t0 = new Date(); t0.setHours(0,0,0,0); var todayStart = t0.getTime();
+    var n = students.length;
+    var totalNow = 0; students.forEach(function(s){ totalNow += pubCredit(s); });
+    var series = [];
+    for(var i=days-1;i>=0;i--){
+      var ts = todayStart - i*dayMs;
+      var gain = 0;
+      (operations||[]).forEach(function(o){ if(o && o.time >= ts && o.time <= tNow) gain += (Number(o.amount)||0); });
+      series.push({ x: ts, y: (totalNow - gain) / n });
+    }
+    var vals = series.map(function(p){return p.y;});
+    var mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals);
+    if(mx - mn < 1){ mn -= 1; mx += 1; }
+    var padL=34,padR=10,padT=14,padB=22;
+    var g = pubGrid(ctx,W,H,padL,padR,padT,padB,4);
+    var X = function(i){ return padL + (g.cw/(days-1))*i; };
+    var Y = function(v){ return padT + g.ch - (v-mn)/(mx-mn)*g.ch; };
+    // 网格 y 标签
+    ctx.font='10px sans-serif'; ctx.textAlign='right'; ctx.fillStyle='#A0988C';
+    for(var k=0;k<=4;k++){ var v=mn+(mx-mn)/4*k; ctx.fillText(Math.round(v), padL-5, Y(v)+3); }
+    ctx.strokeStyle='rgba(47,125,91,0.12)'; ctx.lineWidth=1; ctx.beginPath();
+    series.forEach(function(p,i){ ctx.moveTo(X(i),Y(p.y)); if(i===0) ctx.lineTo(X(i),Y(p.y)); });
+    // 折线
+    ctx.beginPath(); series.forEach(function(p,i){ var x=X(i),y=Y(p.y); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
+    ctx.strokeStyle='#2F7D5B'; ctx.lineWidth=2; ctx.stroke();
+    // 渐变填充
+    ctx.lineTo(X(days-1), Y(series[days-1].y));
+    ctx.lineTo(X(days-1), padT+g.ch); ctx.lineTo(X(0), padT+g.ch); ctx.closePath();
+    var grad = ctx.createLinearGradient(0, padT, 0, padT+g.ch);
+    grad.addColorStop(0, 'rgba(47,125,91,0.22)'); grad.addColorStop(1, 'rgba(47,125,91,0.02)');
+    ctx.fillStyle = grad; ctx.fill();
+    // x 轴日期（每 5 天一个）
+    ctx.textAlign='center'; ctx.fillStyle='#A0988C'; ctx.font='9px sans-serif';
+    for(var j=0;j<days;j+=5){ var dd=new Date(series[j].x); ctx.fillText((dd.getMonth()+1)+'/'+dd.getDate(), X(j), padT+g.ch+14); }
+  });
+}
+
+/* 每日加减分（近 14 天，正上绿 / 负下红） */
+function drawPubDaily(id, operations){
+  pubCanvasReady(id, function(ctx, W, H){
+    if(!operations || !operations.length){ ctx.fillStyle='#A0988C'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('暂无数据', W/2, H/2); return; }
+    var dayMs=86400000, days=14;
+    var t0=new Date(); t0.setHours(0,0,0,0); var todayStart=t0.getTime();
+    var data=[]; for(var i=days-1;i>=0;i--){ data.push({ts:todayStart-i*dayMs, add:0, sub:0}); }
+    (operations||[]).forEach(function(o){
+      if(!o || typeof o.time!=='number') return;
+      var idx=Math.floor((o.time-todayStart)/dayMs)+days-1;
+      if(idx<0||idx>=days) return;
+      var a=Number(o.amount)||0;
+      if(a>0) data[idx].add+=a; else if(a<0) data[idx].sub-=a;
+    });
+    var mx=1; data.forEach(function(d){ if(d.add>mx)mx=d.add; if(d.sub>mx)mx=d.sub; });
+    var padL=30,padR=8,padT=12,padB=22;
+    var g=pubGrid(ctx,W,H,padL,padR,padT,padB,4);
+    var midY=padT+g.ch/2;
+    var slot=g.cw/days, bw=Math.min(slot*0.55,26);
+    for(var k=0;k<=4;k++){ var v=Math.round(mx/4*k); ctx.fillStyle='#A0988C'; ctx.font='10px sans-serif'; ctx.textAlign='right'; ctx.fillText(v,padL-5, midY-g.ch/2*(v/mx)+3); ctx.fillText(-v,padL-5, midY+g.ch/2*(v/mx)+3); }
+    ctx.strokeStyle='rgba(166,58,43,0.2)'; ctx.beginPath(); ctx.moveTo(padL,midY); ctx.lineTo(W-padR,midY); ctx.stroke();
+    data.forEach(function(d,i){
+      var cx=padL+slot*i+slot/2;
+      if(d.add>0){ var h=d.add/mx*(g.ch/2-4); ctx.fillStyle='#2F7D5B'; roundRect(ctx,cx-bw/2,midY-h,bw,h,4); ctx.fill(); }
+      if(d.sub>0){ var h2=d.sub/mx*(g.ch/2-4); ctx.fillStyle='#C4523F'; roundRect(ctx,cx-bw/2,midY,bw,h2,4); ctx.fill(); }
+      if(i%2===0){ var dd=new Date(d.ts); ctx.fillStyle='#A0988C'; ctx.font='9px sans-serif'; ctx.textAlign='center'; ctx.fillText((dd.getMonth()+1)+'/'+dd.getDate(), cx, padT+g.ch+14); }
+    });
+  });
+}
+
+/* 当前学分区间分布（制度四档） */
+function drawPubDist(id, students){
+  pubCanvasReady(id, function(ctx, W, H){
+    if(!students || !students.length){ ctx.fillStyle='#A0988C'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('暂无数据', W/2, H/2); return; }
+    var buckets=[
+      {label:'<80 不合格', min:-Infinity, max:80,  c1:'#B42318', c2:'#D98A76'},
+      {label:'80-89 一般', min:80, max:90,  c1:'#6B5B95', c2:'#BEB4D6'},
+      {label:'90-99 合格', min:90, max:100, c1:'#C08A2D', c2:'#E3C98F'},
+      {label:'≥100 优秀',  min:100, max:Infinity, c1:'#2F7D5B', c2:'#A5CBB7'}
+    ];
+    buckets.forEach(function(b){ b.count = students.filter(function(s){ var c=pubCredit(s); return c>=b.min && c<b.max; }).length; });
+    var mx=Math.max.apply(null,buckets.map(function(b){return b.count;}))||1;
+    var padL=30,padR=10,padT=16,padB=34;
+    var g=pubGrid(ctx,W,H,padL,padR,padT,padB,4);
+    ctx.font='10px sans-serif'; ctx.textAlign='right'; ctx.fillStyle='#A0988C';
+    for(var k=0;k<=4;k++){ ctx.fillText(Math.round(mx/4*k), padL-5, padT+g.ch-(mx/4*k)/mx*g.ch+3); }
+    var slot=g.cw/buckets.length, bw=Math.min(slot*0.55,54);
+    buckets.forEach(function(b,i){
+      var h=b.count/mx*(g.ch-8); var cx=padL+slot*i+slot/2, x=cx-bw/2, y=padT+g.ch-h;
+      var grad=ctx.createLinearGradient(0,y,0,y+Math.max(h,1)); grad.addColorStop(0,b.c1); grad.addColorStop(1,b.c2);
+      ctx.fillStyle=grad; roundRect(ctx,x,y,bw,Math.max(h,2),6); ctx.fill();
+      ctx.fillStyle=b.c1; ctx.font='bold 12px sans-serif'; ctx.textAlign='center';
+      if(h>0) ctx.fillText(b.count, cx, y-5);
+      ctx.fillStyle='#A0988C'; ctx.font='10px sans-serif'; ctx.fillText(b.label, cx, padT+g.ch+13);
+    });
+  });
+}
+
+/* 原因分布环形图 Top6（按流水条数） */
+function drawPubReason(id, legendId, operations){
+  var cv=document.getElementById(id), lg=document.getElementById(legendId);
+  pubCanvasReady(id, function(ctx, W, H){
+    if(!operations || !operations.length){ ctx.fillStyle='#A0988C'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('暂无数据', W/2, H/2); if(lg) lg.innerHTML=''; return; }
+    var cnt={};
+    (operations||[]).forEach(function(o){ if(!o) return; var r=o.reason||'未填原因'; cnt[r]=(cnt[r]||0)+1; });
+    var arr=Object.keys(cnt).map(function(r){ return {label:r, n:cnt[r]}; }).sort(function(a,b){return b.n-a.n;}).slice(0,6);
+    var total=arr.reduce(function(s,x){return s+x.n;},0);
+    if(!total){ if(lg) lg.innerHTML=''; return; }
+    var palette=['#2F7D5B','#C08A2D','#6B5B95','#3B6E8F','#B42318','#8C6242'];
+    var cx=W/2, cy=H/2, R=Math.min(W,H)/2-20, r=R*0.62;
+    var start=-Math.PI/2;
+    arr.forEach(function(x,i){
+      var ang=x.n/total*Math.PI*2;
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,R,start,start+ang); ctx.closePath();
+      ctx.fillStyle=palette[i%palette.length]; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,start+ang); ctx.closePath();
+      ctx.fillStyle='var(--card-bg)'; ctx.fill();
+      start+=ang;
+    });
+    ctx.fillStyle='#555'; ctx.font='14px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(total+' 条', cx, cy-4); ctx.fillStyle='#999'; ctx.font='10px sans-serif'; ctx.fillText('原因分布', cx, cy+12);
+    if(lg) lg.innerHTML = arr.map(function(x,i){ return '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 8px 0 0;font-size:12px"><i style="width:10px;height:10px;border-radius:3px;background:'+palette[i%palette.length]+';display:inline-block"></i>'+escapeHtml(x.label)+' '+x.n+'</span>'; }).join('');
+  });
+}
+
+/* ---- 海报导出：canvas 自绘，不依赖 html2canvas（离线可用、版式可控） ---- */
+function exportPublicityPoster(mode){
+  if(!state.students || !state.students.length){ showToast('暂无学生数据，无法生成公示图', 'error'); return; }
+  var isCommittee = window.__cmRole === 'committee';
+  if(isCommittee){ showToast('班委模式不开放导出', 'warning'); return; }
+  var data = computePublicityData(state.students, state.operations, pubRange);
+  var W = 1080, H = mode === 'compact' ? 1350 : 1920;
+  var cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  var ctx = cv.getContext('2d');
+  var done = function(avatar){
+    drawPubPoster(ctx, W, H, data, pubRange, avatar);
+    finishPubPoster(cv, data);
+  };
+  if(state.classAvatar){
+    var im = new Image();
+    im.onload = function(){ done(im); };
+    im.onerror = function(){ done(null); };
+    im.src = state.classAvatar;
+  } else { done(null); }
+}
+function finishPubPoster(cv, data){
+  try{
+    cv.toBlob(function(blob){
+      if(!blob){ showToast('导出失败', 'error'); return; }
+      var name = (state.className || '班级').replace(/[\\/:*?"<>|]/g, '_') + '_学分公示_' + pubRangeCaption(pubRange).replace(/[年月日 ]/g,'').replace(/学期/g,'') + '.png';
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 3000);
+      showToast('公示图已生成并开始下载', 'success');
+    }, 'image/png');
+  }catch(e){ console.warn(e); showToast('导出失败：' + e.message, 'error'); }
+}
+function rr(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function drawPubPoster(ctx, W, H, data, range, avatar){
+  var M = 56;                       // 边距
+  var accent = '#2F7D5B';           // 主色（绿，象征进步）
+  // 背景
+  var bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#FBF7EE'); bg.addColorStop(1,'#F3EDDF');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+  // 顶部色块
+  ctx.fillStyle = accent;
+  ctx.fillRect(0,0,W,300);
+  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  ctx.beginPath(); ctx.arc(W-40, 40, 220, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(60, 320, 160, 0, Math.PI*2); ctx.fill();
+  var y = 0;
+  // 头像
+  if(avatar){
+    try{ ctx.save(); ctx.beginPath(); ctx.arc(90, 108, 44, 0, Math.PI*2); ctx.clip(); ctx.drawImage(avatar, 46, 64, 88, 88); ctx.restore();
+      ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(90,108,44,0,Math.PI*2); ctx.stroke(); }catch(e){}
+  } else {
+    ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.beginPath(); ctx.arc(90,108,44,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = accent; ctx.font = 'bold 40px sans-serif'; ctx.textAlign='center'; ctx.fillText('🏫', 90, 125);
+  }
+  ctx.fillStyle = '#fff'; ctx.textAlign = 'left';
+  ctx.font = 'bold 44px sans-serif'; ctx.fillText(state.className || '班级', avatar ? 158 : 120, 100);
+  ctx.font = '22px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.92)';
+  ctx.fillText(state.classMotto || '', avatar ? 158 : 120, 142);
+  // 副标题
+  var caption = pubRangeCaption(range) + ' · 学分公示';
+  y = 380;
+  ctx.fillStyle = '#333'; ctx.textAlign='left'; ctx.font = 'bold 40px sans-serif'; ctx.fillText('🏆 学分榜 Top ' + data.top.length, M, y);
+  ctx.font = '20px sans-serif'; ctx.fillStyle = '#888';
+  ctx.fillText('全班 ' + data.count + ' 人 · 期初基准 100 分 · 按当前总分排序', M, y + 34);
+  y += 74;
+  // 榜单行
+  data.top.forEach(function(r, i){
+    var rowH = 64;
+    var lv = pubCreditLevel(r.credit);
+    // 前3行浅底
+    if(i < 3){ ctx.fillStyle = i===0 ? 'rgba(245,197,24,0.13)' : i===1 ? 'rgba(200,200,200,0.14)' : 'rgba(205,127,50,0.13)';
+      rr(ctx, M-10, y-6, W-2*M+20, rowH, 14); ctx.fill(); }
+    var noBg = ['#F5C518','#A9A9A9','#CD7F32'][i] || '#E8E0D0';
+    ctx.fillStyle = noBg; ctx.beginPath(); ctx.arc(M+22, y+rowH/2-6, 24, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = noBg === '#E8E0D0' ? '#8A7A5A' : '#fff'; ctx.font = 'bold 26px sans-serif'; ctx.textAlign='center'; ctx.fillText(String(i+1), M+22, y+rowH/2+4);
+    ctx.fillStyle = '#222'; ctx.font = 'bold 32px sans-serif'; ctx.textAlign='left'; ctx.fillText(pubDisplayName(r), M+64, y+rowH/2+8);
+    // 等级标签
+    ctx.font = '20px sans-serif'; var lw = ctx.measureText(lv.label).width + 30;
+    ctx.fillStyle = lv.color; rr(ctx, W-M-60-lw-240-10, y+rowH/2-24, lw+20, 30, 15); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.textAlign='center'; ctx.fillText(lv.label, W-M-60-lw-240+10+lw/2-10, y+rowH/2-1);
+    ctx.fillStyle = '#333'; ctx.font = 'bold 36px sans-serif'; ctx.textAlign='right'; ctx.fillText(r.credit, W-M-60, y+rowH/2+8);
+    ctx.font = '16px sans-serif'; ctx.fillStyle = '#999'; ctx.fillText('分', W-M-38, y+rowH/2+8);
+    y += rowH;
+  });
+  y += 34;
+  // 分隔
+  ctx.strokeStyle = 'rgba(0,0,0,0.08)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(M,y); ctx.lineTo(W-M,y); ctx.stroke();
+  y += 44;
+  // 进步榜
+  ctx.fillStyle = '#333'; ctx.font = 'bold 34px sans-serif'; ctx.textAlign='left'; ctx.fillText('📈 进步榜 Top ' + Math.min(5, data.prog.length), M, y);
+  y += 14;
+  data.prog.slice(0,5).forEach(function(r, i){
+    y += 54;
+    ctx.fillStyle = '#2F7D5B'; ctx.font = 'bold 26px sans-serif'; ctx.textAlign='center';
+    ctx.beginPath(); ctx.arc(M+20, y-8, 20, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.fillText(String(i+1), M+20, y-1);
+    ctx.fillStyle = '#222'; ctx.textAlign='left'; ctx.font = '26px sans-serif'; ctx.fillText(pubDisplayName(r), M+52, y);
+    ctx.fillStyle = '#2F7D5B'; ctx.font = 'bold 28px sans-serif'; ctx.textAlign='right'; ctx.fillText('+' + r.net, W-M, y);
+    ctx.font = '18px sans-serif'; ctx.fillStyle = '#999'; ctx.fillText('分', W-M-58, y);
+  });
+  if(!data.prog.length){ ctx.fillStyle='#999'; ctx.font='22px sans-serif'; ctx.textAlign='center'; ctx.fillText('本周期暂无净增分记录', W/2, y+50); }
+  // 底部
+  var footY = H - 96;
+  var now = new Date();
+  ctx.fillStyle = '#aaa'; ctx.font = '20px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('生成时间：' + now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ' · 由班主任工作台生成', W/2, footY);
+}
+
+/* ---- 公示页入口 ---- */
+function renderPublicity(){
+  var wrap = document.getElementById('page-publicity');
+  if(!wrap) return;
+  if(!state.students || !state.students.length){
+    document.getElementById('pubSummary').innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">🏆</div><div class="text">暂无学生数据，请先添加学生</div></div>';
+    document.getElementById('pubBoards').innerHTML = '';
+    return;
+  }
+  var data = computePublicityData(state.students, state.operations, pubRange);
+  renderPubSummary(data);
+  renderPubBoards(data);
+  drawPubTrend('pubTrendChart', state.students, state.operations);
+  drawPubDaily('pubDailyChart', state.operations);
+  drawPubDist('pubDistChart', state.students);
+  drawPubReason('pubReasonChart', 'pubReasonLegend', state.operations);
+}
+
+
 
 </script>
 <!-- Mobile Tab Bar -->
@@ -9303,6 +9882,7 @@ function touchNotices(){
     <div class="more-item" data-page="attendance" onclick="navigateTo('attendance')"><span class="more-icon"><svg class="ic"><use href="#i-leave"/></svg></span><span>请假</span></div>
     <div class="more-item" data-page="grades" onclick="navigateTo('grades')"><span class="more-icon"><svg class="ic"><use href="#i-grades"/></svg></span><span>成绩</span></div>
     <div class="more-item" data-page="notices" onclick="navigateTo('notices')"><span class="more-icon"><svg class="ic"><use href="#i-horn"/></svg></span><span>通知</span></div>
+<div class="more-item" data-page="publicity" onclick="navigateTo('publicity')"><span class="more-icon"><svg class="ic"><use href="#i-honor"/></svg></span><span>公示</span></div>
 <div class="more-item" data-page="analytics" onclick="navigateTo('analytics')"><span class="more-icon"><svg class="ic"><use href="#i-trend"/></svg></span><span>分析</span></div>
   </div>
 </div>
