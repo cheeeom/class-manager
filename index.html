@@ -1743,6 +1743,16 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .rp-chip.rp-reason.rp-on b{color:#fff}
 /* 班委模式（v2.13.0）：白名单裁剪与标识 */
 .cm-hide{display:none!important}
+
+/* v2.14.0 统一面板关闭键：圆形描边、hover 变红轻旋，与整体圆角语言一致 */
+.panel-close{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);
+  background:var(--card-bg);color:var(--text-muted);cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;padding:0;
+  transition:border-color .2s,color .2s,background .2s,transform .25s}
+.panel-close:hover{border-color:var(--danger);color:var(--danger);
+  background:rgba(180,35,24,0.06);transform:rotate(90deg)}
+.panel-close:active{transform:rotate(90deg) scale(0.92)}
+
 .cm-badge{display:block;font-size:12px;color:var(--primary);font-weight:600;margin-bottom:6px}
 #cmExitBtn{width:100%;margin-top:6px;padding:6px;border:1px solid var(--border);background:var(--card-bg);
   border-radius:8px;font-size:12px;cursor:pointer;color:var(--text-secondary)}
@@ -1792,7 +1802,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.13.0</div>
+      <div class="login-version">v2.14.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1898,7 +1908,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.13.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.14.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2143,12 +2153,12 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <!-- 罚扫记录卡片 -->
         <div class="card" style="margin-top:16px">
           <div class="section-title" style="display:flex;align-items:center;justify-content:space-between">
-            <span><span class="dot"></span>罚扫记录</span>
-            <button class="btn btn-primary btn-sm" onclick="openPunishModal()">+ 记罚扫</button>
+            <span><span class="dot"></span>劳动整改</span>
+            <button class="btn btn-primary btn-sm" onclick="openPunishModal()">+ 记劳动整改</button>
           </div>
           <div id="punishTodayBanner" style="display:none"></div>
           <div id="punishList"></div>
-          <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">记罚扫会自动按制度扣学分（默认 -3，可调整），与学分页流水、首页周报全链路同步。</div>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">记劳动整改会自动按制度扣学分（默认 -3，可调整），与学分页流水、首页周报全链路同步。</div>
         </div>
           </table>
         </div>
@@ -2199,6 +2209,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
               <option value="">原因（必选）</option>
             </select>
           </div>
+          <div id="creditSelectedChips" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px"></div>
           <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-outline btn-sm" onclick="undoLastOp()" id="undoBtn" disabled>↶ 撤销上一次</button>
             <button class="btn btn-primary btn-sm" onclick="openMonthlySettle()">🗓️ 月度自动加分（制度对齐）</button>
@@ -2505,7 +2516,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="form-group">
         <label>初始学分</label>
-        <input type="number" id="addStudentCredit" value="0" min="0">
+        <input type="number" id="addStudentCredit" value="100" min="0">
       </div>
     </div>
     <div class="modal-footer">
@@ -2743,10 +2754,10 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
   </div>
 </div>
 
-<!-- Modal: 记罚扫 -->
+<!-- Modal: 记劳动整改 -->
 <div class="modal-overlay" id="punishModal">
   <div class="modal" style="max-width:520px;width:94vw">
-    <h3>记罚扫</h3>
+    <h3>记劳动整改</h3>
     <div class="modal-body">
       <div class="form-group">
         <label>学生</label>
@@ -2759,17 +2770,15 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div style="display:flex;gap:10px">
         <div class="form-group" style="flex:1">
-          <label>区域</label>
-          <select id="punishArea" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px">
-            <option>教室</option><option>公共区</option>
+          <label>劳动类型</label>
+          <select id="punishArea" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px" onchange="onPunishAreaChange()">
+            <option>教室</option><option>公共区</option><option>搬水劳动</option>
           </select>
         </div>
         <div class="form-group" style="flex:1">
-          <label>罚扫天数</label>
-          <select id="punishDays" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px">
-            <option value="1">1 天</option><option value="2">2 天</option><option value="3" selected>3 天</option>
-            <option value="5">5 天</option><option value="7">7 天</option>
-          </select>
+          <label>整改天数（可自定义）</label>
+          <input type="number" id="punishDays" value="7" min="1" max="30"
+            style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px">
         </div>
         <div class="form-group" style="flex:1">
           <label>扣学分（默认制度价）</label>
@@ -2779,9 +2788,10 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="form-group">
         <label>原因</label>
-        <input type="text" id="punishReason" placeholder="如：值日偷懒 / 卫生区域脏乱"
+        <input type="text" id="punishReason" placeholder="如：值日偷懒 / 卫生区域脏乱 / 未完成搬水任务"
           style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px">
       </div>
+      <div style="font-size:12px;color:var(--text-muted)">默认天数：教室区 / 公共区 7 天，搬水劳动 1 天；均可在 1-30 天内自定义。</div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('punishModal')">取消</button>
@@ -2878,7 +2888,9 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="side-panel" id="studentDetailPanel">
   <div class="side-panel-header">
     <h3 id="detailName">学生详情</h3>
-    <button class="btn-icon" onclick="closeDetailPanel()" aria-label="关闭学生详情" title="关闭">✕</button>
+    <button class="panel-close" onclick="closeDetailPanel()" aria-label="关闭学生详情" title="关闭">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
   </div>
   <div class="side-panel-body" id="detailBody"></div>
 </div>
@@ -3211,6 +3223,19 @@ const REASON_CATALOG = {
 };
 const REASON_CATALOG_FLAT = Object.values(REASON_CATALOG)
   .flatMap(g => Object.values(g).flat());
+
+/* v2.14.0 初始学分基准：制度第六章满分基准。0 分且无任何流水 = 未初始化（导入/新增遗漏），
+   自动修复为基准分；有过流水记录的 0 分（真扣到 0）保持不动。纯函数，便于回归测试。 */
+const INITIAL_CREDIT = 100;
+function normalizeInitialCredits(students, operations){
+  var touched = {};
+  (operations || []).forEach(function(o){ touched[o.studentId] = true; });
+  var fixed = 0;
+  (students || []).forEach(function(s){
+    if(Number(s.credit) === 0 && !touched[s.id]){ s.credit = INITIAL_CREDIT; fixed++; }
+  });
+  return fixed;
+}
 /* 学分等级：制度第六章（≥100 优秀 / 90-100 合格 / 80-90 一般 / <80 不合格） */
 function creditLevel(credit){
   var c = Number(credit);
@@ -3335,6 +3360,15 @@ function loadData(){
       state.nextTodoId = d.nextTodoId || 1;
       if(d.notices) state.notices = d.notices;
       state.wipeAt = d.wipeAt || 0;   // v2.11.3 重置时间戳：拉取对齐判断的依据，必须随数据恢复
+      // v2.14.0 初始学分统一：0 分且无流水 = 未初始化（名单导入/新增遗漏），修复为制度基准分
+      var fixedN = normalizeInitialCredits(state.students, state.operations);
+      if(fixedN > 0){
+        saveData();
+        if(!window.__initialCreditToastShown){
+          window.__initialCreditToastShown = true;
+          setTimeout(function(){ showToast('已将 ' + fixedN + ' 名未初始化学生的初始学分统一为 ' + INITIAL_CREDIT + ' 分', 'success'); }, 800);
+        }
+      }
     }catch(e){ console.error('Load failed',e); }
   }
 }
@@ -4496,7 +4530,7 @@ function openAddStudentModal(){
   if(window.__cmRole === 'committee'){ showToast('班委模式无权修改学生名单','warning'); return; }
   document.getElementById('addStudentName').value = '';
   document.getElementById('addStudentId').value = '';
-  document.getElementById('addStudentCredit').value = '0';
+  document.getElementById('addStudentCredit').value = '100';
   openModal('addStudentModal');
 }
 
@@ -4507,7 +4541,7 @@ function confirmAddStudent(){
   const name = document.getElementById('addStudentName').value.trim();
   if(!name){ showToast('请输入姓名','error'); return; }
   const sid = document.getElementById('addStudentId').value.trim() || genSid();
-  const credit = parseInt(document.getElementById('addStudentCredit').value) || 0;
+  const credit = parseInt(document.getElementById('addStudentCredit').value) || INITIAL_CREDIT;
   state.students.push({ id: state.nextId++, sid, name, credit, tags:[] });
   saveData();
   closeModal('addStudentModal');
@@ -4525,7 +4559,7 @@ function previewImport(){
     const parts = line.split(',').map(p=>p.trim());
     const name = parts[0];
     const sid = parts[1] || genSid();
-    const credit = parseInt(parts[2]) || 0;
+    const credit = parseInt(parts[2]) || INITIAL_CREDIT;
     if(name) preview.push({name, sid, credit});
   });
   const area = document.getElementById('importPreview');
@@ -4692,7 +4726,7 @@ function confirmRosterSync(){
   if(total === 0){ showToast('名单已一致，无需同步','success'); return; }
   if(!confirm(`确认同步名单？\n新增 ${plan.adds.length} 人、移除 ${plan.removes.length} 人、更新学号 ${plan.updates.length} 人${plan.renames.length ? '、改名清洗 ' + plan.renames.length + ' 人' : ''}。\n保留学生的学分与标签不受影响。`)) return;
 
-  // 1) 移除：清理班委任命 / 座位 / 值日排班 / 罚扫引用（值日队列由 dutyEnsureQueue 自动吸收）
+  // 1) 移除：清理班委任命 / 座位 / 值日排班 / 劳动整改引用（值日队列由 dutyEnsureQueue 自动吸收）
   plan.removes.forEach(r => {
     state.students = state.students.filter(s => s.id !== r.id);
     state.selectedStudents.delete(r.id);
@@ -4712,7 +4746,7 @@ function confirmRosterSync(){
   });
   // 3) 新增
   plan.adds.forEach(a => {
-    state.students.push({ id: state.nextId++, sid: a.sid || genSid(), name: a.name, credit: 0, tags: [], profile: {} });
+    state.students.push({ id: state.nextId++, sid: a.sid || genSid(), name: a.name, credit: INITIAL_CREDIT, tags: [], profile: {} });
   });
   if(plan.removes.length) syncCommitteeTags();
   saveData();
@@ -5470,11 +5504,19 @@ function filterPunishStudents(){
 function showPunishStudentList(){ filterPunishStudents(); var dd=document.getElementById('punishStudentDropdown'); if(dd) dd.style.display=''; }
 function hidePunishStudentList(){ var dd=document.getElementById('punishStudentDropdown'); if(dd) dd.style.display='none'; }
 
+/* v2.14.0 各劳动类型默认整改天数：教室/公共区 7 天，搬水 1 天；均可在弹窗里 1-30 天自定义 */
+const PUNISH_AREA_DEFAULT_DAYS = { '教室': 7, '公共区': 7, '搬水劳动': 1 };
+function onPunishAreaChange(){
+  var area = document.getElementById('punishArea').value;
+  var daysEl = document.getElementById('punishDays');
+  if(daysEl) daysEl.value = String(PUNISH_AREA_DEFAULT_DAYS[area] || 7);
+}
+
 function openPunishModal(){
   _punishSelectedId = null;
   document.getElementById('punishStudentInput').value = '';
   document.getElementById('punishArea').value = '教室';
-  document.getElementById('punishDays').value = '3';
+  document.getElementById('punishDays').value = String(PUNISH_AREA_DEFAULT_DAYS['教室']);
   document.getElementById('punishDeduct').value = '3';
   document.getElementById('punishReason').value = '';
   openModal('punishModal');
@@ -5488,7 +5530,7 @@ function confirmPunish(){
   var days = parseInt(document.getElementById('punishDays').value, 10);
   var deduct = parseInt(document.getElementById('punishDeduct').value, 10);
   var reason = document.getElementById('punishReason').value.trim();
-  if(!days || days < 1){ showToast('罚扫天数至少 1 天','error'); return; }
+  if(!days || days < 1 || days > 30){ showToast('整改天数需在 1-30 之间','error'); return; }
   if(!deduct || deduct < 1 || deduct > 20){ showToast('扣分需在 1-20 之间','error'); return; }
   if(!reason){ showToast('请填写原因','error'); return; }
   state.punishments.unshift({
@@ -5503,9 +5545,9 @@ function confirmPunish(){
     done: false,
     createdAt: Date.now()
   });
-  applyCredit(id, -deduct, '罚扫·' + area + '·' + reason);
+  applyCredit(id, -deduct, '劳动整改·' + area + '·' + reason);
   renderPunishments();
-  showToast(s.name + ' 罚扫已记录，扣 ' + deduct + ' 学分', 'warning');
+  showToast(s.name + ' 劳动整改已记录（' + area + ' ' + days + ' 天），扣 ' + deduct + ' 学分', 'warning');
 }
 
 function finishPunish(pid){
@@ -5515,17 +5557,17 @@ function finishPunish(pid){
   p.doneDate = localDateStr();
   saveData();
   renderPunishments();
-  showToast('已核销：' + p.studentName + ' 的罚扫', 'success');
+  showToast('已核销：' + p.studentName + ' 的劳动整改', 'success');
 }
 
 function deletePunish(pid){
   var p = state.punishments.find(function(x){ return x.id === pid; });
   if(!p) return;
-  if(!confirm('确认删除该条罚扫记录？（不退学分）')) return;
+  if(!confirm('确认删除该条劳动整改记录？（不退学分）')) return;
   state.punishments = state.punishments.filter(function(x){ return x.id !== pid; });
   saveData();
   renderPunishments();
-  showToast('已删除罚扫记录', 'info');
+  showToast('已删除劳动整改记录', 'info');
 }
 
 function renderPunishments(){
@@ -5539,14 +5581,14 @@ function renderPunishments(){
     if(active.length){
       bannerEl.style.display = '';
       bannerEl.innerHTML = '<div style="background:rgba(185,106,31,0.1);border:1px solid rgba(185,106,31,0.3);border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:14px">' +
-        '📌 今日罚扫：' + active.map(function(p){
+        '📌 今日劳动整改：' + active.map(function(p){
           var st = punishStatusFor(p, today);
           return '<b>' + escapeHtml(p.studentName) + '</b>(' + escapeHtml(p.area) + ')剩 ' + st.left + ' 天';
         }).join('　') + '</div>';
     } else { bannerEl.style.display = 'none'; }
   }
   if(all.length === 0){
-    listEl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:10px 0">暂无罚扫记录</div>';
+    listEl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:10px 0">暂无劳动整改记录</div>';
     return;
   }
   listEl.innerHTML = all.map(function(p){
@@ -5988,14 +6030,14 @@ function renderCreditsPage(){
   if(cInput) cInput.value = '';
   var cSel = document.getElementById('creditStudentSelect');
   if(cSel) cSel.value = '';
-  _creditSelectedId = null;
+  _creditSelectedIds.clear();
+  renderCreditSelectedChips();
   renderCreditsTimeline();
   updateUndoBtn();
   updateCreditBtnStates();
 }
 
 /* ==================== 学分操作学生搜索 ==================== */
-var _creditSelectedId = null;
 
 function filterCreditStudents(){
   var input = document.getElementById('creditStudentInput');
@@ -6012,17 +6054,20 @@ function filterCreditStudents(){
   }
   dd.innerHTML = list.map(function(s){
     var lv = creditLevel(s.credit);
-    return '<div class="search-select-item" data-sid="'+s.id+'" data-name="'+escapeAttr(s.name)+'" style="padding:8px 12px;cursor:pointer;font-size:14px;border-radius:6px">'+
+    var on = _creditSelectedIds.has(s.id);
+    return '<div class="search-select-item" data-sid="'+s.id+'" data-name="'+escapeAttr(s.name)+'" style="padding:8px 12px;cursor:pointer;font-size:14px;border-radius:6px;'+(on?'background:rgba(47,125,91,0.08);':'')+'">'+
+      '<span style="color:'+(on?'var(--success)':'var(--text-muted)')+';margin-right:4px">'+(on?'✓':'＋')+'</span>'+
       '<span style="font-weight:600">'+escapeHtml(s.name)+'</span> <span style="color:var(--text-muted);font-size:12px">(#'+escapeHtml(s.sid)+') · 学分 '+Number(s.credit)+'</span>'+
       (lv.label ? '<span class="credit-badge '+lv.cls+'">'+lv.label+'</span>' : '') +
     '</div>';
   }).join('');
   dd.style.display = '';
-  // Attach click handlers
+  // Attach click handlers（批量多选：点选后保持下拉展开，方便连续点选）
   dd.querySelectorAll('.search-select-item').forEach(function(item){
     item.addEventListener('mousedown', function(e){
       e.preventDefault();
       selectCreditStudent(item.dataset.sid, item.dataset.name);
+      filterCreditStudents();
     });
     item.addEventListener('mouseenter', function(){
       this.style.background = 'var(--bg-secondary)';
@@ -6044,11 +6089,40 @@ function hideCreditStudentList(){
   if(dd) dd.style.display = 'none';
 }
 
+/* v2.14.0 学分批量操作：多选学生（点搜索结果即选中/取消，可叠选；chips 可单个移除） */
+var _creditSelectedIds = new Set();
+
 function selectCreditStudent(sid, name){
-  _creditSelectedId = sid;
-  document.getElementById('creditStudentInput').value = name;
-  document.getElementById('creditStudentSelect').value = sid;
-  hideCreditStudentList();
+  sid = parseInt(sid, 10);
+  if(!sid) return;
+  if(_creditSelectedIds.has(sid)) _creditSelectedIds.delete(sid);
+  else _creditSelectedIds.add(sid);
+  renderCreditSelectedChips();
+}
+function removeCreditStudent(id){ _creditSelectedIds.delete(id); renderCreditSelectedChips(); }
+function clearCreditStudents(){ _creditSelectedIds.clear(); renderCreditSelectedChips(); }
+function selectAllCreditStudents(){
+  state.students.forEach(function(s){ _creditSelectedIds.add(s.id); });
+  renderCreditSelectedChips();
+  showToast('已全选 ' + _creditSelectedIds.size + ' 名学生', 'info');
+}
+
+function renderCreditSelectedChips(){
+  var box = document.getElementById('creditSelectedChips');
+  if(!box) return;
+  var ids = Array.from(_creditSelectedIds);
+  if(ids.length === 0){
+    box.innerHTML = '<span style="font-size:12px;color:var(--text-muted)">点击搜索结果选中学生，可连续点选多人批量操作</span>';
+  } else {
+    box.innerHTML = '<span style="font-size:12px;color:var(--text-muted)">已选 <b>' + ids.length + '</b> 人：</span>' +
+      ids.map(function(id){
+        var s = state.students.find(function(x){ return x.id === id; });
+        if(!s) return '';
+        return '<span class="stag stag-blue" style="cursor:pointer" title="点击移除" onclick="removeCreditStudent(' + id + ')">' + escapeHtml(s.name) + ' ✕</span>';
+      }).join('') +
+      '<button type="button" class="btn btn-outline btn-sm" style="padding:2px 10px;font-size:11px" onclick="selectAllCreditStudents()">全班全选</button>' +
+      '<button type="button" class="btn btn-outline btn-sm" style="padding:2px 10px;font-size:11px" onclick="clearCreditStudents()">清空</button>';
+  }
   updateCreditBtnStates();
 }
 
@@ -6061,7 +6135,7 @@ function renderCreditStudentSelect(){
 }
 
 function updateCreditBtnStates(){
-  var hasStudent = parseInt(_creditSelectedId) > 0;
+  var hasStudent = _creditSelectedIds.size > 0;
   const hasReason = document.getElementById('creditReason').value !== '';
   const valid = hasStudent && hasReason;
   document.querySelectorAll('#quickBtnGroup button').forEach(b => b.disabled = !valid);
@@ -6139,22 +6213,45 @@ function confirmMonthlySettle(){
   showToast('月度结算完成：' + list.length + ' 条加分已入账', 'success');
 }
 
+/* v2.14.0 批量加分：一次写所有选中学生的流水，统一保存/渲染/提示 */
+function applyCreditBulk(ids, amount, reason){
+  var applied = 0;
+  var ts = Date.now();
+  ids.forEach(function(id){
+    var student = state.students.find(function(s){ return s.id === id; });
+    if(!student) return;
+    student.credit += amount;
+    state.operations.unshift({
+      id: state.nextOpId++,
+      studentId: id,
+      studentName: student.name,
+      amount, reason,
+      time: ts
+    });
+    applied++;
+  });
+  if(!applied) return;
+  saveData();
+  renderCreditsPage();
+  showToast('已为 ' + applied + ' 名学生 ' + (amount > 0 ? '+' : '') + amount + ' 学分 (' + reason + ')', amount > 0 ? 'success' : 'warning');
+}
+
 function quickCredit(amount){
-  var id = parseInt(_creditSelectedId) || 0;
+  var ids = Array.from(_creditSelectedIds);
   var reason = document.getElementById('creditReason').value;
-  if(!id){ showToast('请选择学生','error'); return; }
+  if(ids.length === 0){ showToast('请选择学生','error'); return; }
   if(!reason){ showToast('请选择原因','error'); return; }
-  applyCredit(id, amount, reason);
+  applyCreditBulk(ids, amount, reason);
 }
 
 function customCreditApply(){
-  var id = parseInt(_creditSelectedId) || 0;
+  var ids = Array.from(_creditSelectedIds);
   var reason = document.getElementById('creditReason').value;
   var amount = parseInt(document.getElementById('customCredit').value);
-  if(!id){ showToast('请选择学生','error'); return; }
+  if(ids.length === 0){ showToast('请选择学生','error'); return; }
   if(!reason){ showToast('请选择原因','error'); return; }
   if(!amount || amount === 0){ showToast('请输入分值','error'); return; }
-  applyCredit(id, amount, reason);
+  applyCreditBulk(ids, amount, reason);
   document.getElementById('customCredit').value = '';
 }
 
@@ -7302,7 +7399,7 @@ function handleImportFile(event){
 
 function clearData(){
   if(!confirm('确认清空所有数据？\n\n将清空本机数据，并自动把云端也清空（其他设备打开时会自动对齐清空，旧数据不会复活）。\n班级名称、头像、格言、课表图会保留。\n\n此操作不可撤销！')) return;
-  if(!confirm('再次确认：所有学生、学分记录、值日排班、罚扫、请假、考试等将被永久删除！')) return;
+  if(!confirm('再次确认：所有学生、学分记录、值日排班、劳动整改、请假、考试等将被永久删除！')) return;
   // 保留品牌/配置类：className / classMotto / classAvatar / scheduleImage
   localStorage.removeItem(STORE_KEY);
   state.students = [];
