@@ -39,6 +39,7 @@ const buildDormMap = extractFn('buildDormMap');
 const syncCommitteeTags = extractFn('syncCommitteeTags');
 const creditLevel = extractFn('creditLevel');
 const monthKeyOf = extractFn('monthKeyOf');
+const liveOps = extractFn('liveOps');   // v2.17.9 monthlySettlePlan 撤销过滤依赖
 const monthlySettlePlan = extractFn('monthlySettlePlan');
 const smartMergeData = extractFn('smartMergeData');
 
@@ -176,7 +177,7 @@ t('制度分值：迟到-2 / 旷课-5 / 作弊-8 / 月度全勤+3 / 校级获奖
   eq(defaultReasonScores['月度全勤'], 3);
   eq(defaultReasonScores['校级获奖'], 5);
 });
-t('月度结算：本月无扣分者 +3，在任班委额外 +3', () => {
+t('月度结算：本月无扣分者 +3，在任班委班委履职额外 +2（合计 +5）', () => {
   const now = new Date('2026-09-15T10:00:00').getTime();
   state = {
     students: [mkStudent({ id: 1, name: '甲' }), mkStudent({ id: 2, name: '乙' }), mkStudent({ id: 3, name: '丙' })],
@@ -189,6 +190,7 @@ t('月度结算：本月无扣分者 +3，在任班委额外 +3', () => {
   eq(plan.bonus.length, 1);
   eq(plan.bonus[0].name, '甲');
   eq(plan.attend[0].amount, 3);
+  eq(plan.bonus[0].amount, 2);   // v2.17.14 班委履职 +3→+2，叠加全勤合计 +5
 });
 t('月度结算：本月有违纪扣分者不参与', () => {
   const now = new Date('2026-09-15T10:00:00').getTime();
