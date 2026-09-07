@@ -1883,7 +1883,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.13</div>
+      <div class="login-version">v2.17.14</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1999,7 +1999,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.13 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.14 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3067,7 +3067,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       <div id="monthlySettleSummary" style="font-size:14px;line-height:1.9"></div>
       <div id="monthlySettleList" style="margin-top:10px;max-height:260px;overflow-y:auto;font-size:13px;color:var(--text-secondary)"></div>
       <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
-        规则源自《班级规章制度及学分奖惩管理制度》：月度无迟到/早退/旷课/违纪 +3；在任班委本月无违纪，额外 +3（班委履职）。每人每月只结算一次。
+        规则源自《班级规章制度及学分奖惩管理制度》：月度无迟到/早退/旷课/违纪 +3；在任班委本月无违纪，班委履职再额外 +2（叠加全勤合计 +5）。每人每月只结算一次。
       </div>
     </div>
     <div class="modal-footer">
@@ -3696,7 +3696,7 @@ function revertCreditOp(student, op){
 /* 学分变更后统一刷新所有展示学分的视图。
    此前 applyCredit / applyCreditBulk / undoLastOp 只刷 renderCreditsPage，
    学生管理模块的表格不刷新 —— 这是「分数不一致」的直接观感来源。
-   v2.17.13：公示页（学分榜/进步榜/零扣分榜/概览统计/四个图表）纳入统一学分刷新——
+   v2.17.14：公示页（学分榜/进步榜/零扣分榜/概览统计/四个图表）纳入统一学分刷新——
    加分/减分/撤销/恢复/校快照后，只要公示页正开着（常驻/投屏），进步榜等立即同步，
    不再出现「同学加了分，进步榜/学分榜还是老样子」。 */
 function refreshCreditViews(){
@@ -3714,7 +3714,7 @@ function refreshCreditViews(){
   if(dash && dash.classList.contains('active')) safe(window.renderDashboard);
   var ana = document.getElementById('page-analytics');
   if(ana && ana.classList.contains('active')) safe(window.renderAnalytics);
-  var pub = document.getElementById('page-publicity');          // v2.17.13 公示页同步
+  var pub = document.getElementById('page-publicity');          // v2.17.14 公示页同步
   if(pub && pub.classList.contains('active')) safe(window.renderPublicity);
 }
 /* 学分等级：制度第六章（≥100 优秀 / 90-100 合格 / 80-90 一般 / <80 不合格） */
@@ -6807,7 +6807,7 @@ function onCreditReasonChange(){
 /* ==================== 月度自动加分（制度对齐，可预览可撤销） ====================
    规则源自制度第二/三章：
    · 月度全勤（本月无任何违纪扣分记录）→ +3
-   · 在任班委且本月无违纪 → 额外 +3（班委履职加分）
+   · 在任班委且本月无违纪 → 班委履职再额外 +2（叠加全勤合计 +5）
    同一学生同月同原因只结算一次，重复点击不会叠加。 */
 function monthKeyOf(ts){
   var d = new Date(ts);
@@ -6830,7 +6830,7 @@ function monthlySettlePlan(nowTs){
     if(hasViolation) return;
     var isCommittee = Object.keys(state.committee || {}).some(function(k){ return state.committee[k] === s.id; });
     if(!settled[s.id + '|月度全勤']) attend.push({id:s.id, name:s.name, amount:3, reason:'月度全勤'});
-    if(isCommittee && !settled[s.id + '|班委履职加分']) bonus.push({id:s.id, name:s.name, amount:3, reason:'班委履职加分'});
+    if(isCommittee && !settled[s.id + '|班委履职加分']) bonus.push({id:s.id, name:s.name, amount:2, reason:'班委履职加分'});
   });
   return {month:mk, attend:attend, bonus:bonus};
 }
@@ -6844,8 +6844,8 @@ function openMonthlySettle(){
   document.getElementById('monthlySettleSummary').innerHTML =
     '<div>结算月份：<b>' + escapeHtml(plan.month) + '</b></div>' +
     '<div>月度全勤 <b>+3</b>：<b style="color:var(--success)">' + plan.attend.length + '</b> 人</div>' +
-    '<div>班委履职 <b>+3</b>（无违纪在任班委）：<b style="color:var(--primary-dark)">' + plan.bonus.length + '</b> 人</div>' +
-    '<div>合计加分：<b>' + (plan.attend.length + plan.bonus.length) * 3 + '</b> 分</div>';
+    '<div>班委履职 <b>+2</b>（无违纪在任班委，叠加全勤合计 +5）：<b style="color:var(--primary-dark)">' + plan.bonus.length + '</b> 人</div>' +
+    '<div>合计加分：<b>' + (plan.attend.length * 3 + plan.bonus.length * 2) + '</b> 分</div>';
   document.getElementById('monthlySettleList').innerHTML =
     (plan.attend.length ? '<div><b>月度全勤</b>：' + plan.attend.map(function(x){ return escapeHtml(x.name); }).join('、') + '</div>' : '') +
     (plan.bonus.length ? '<div style="margin-top:6px"><b>班委履职</b>：' + plan.bonus.map(function(x){ return escapeHtml(x.name); }).join('、') + '</div>' : '');
@@ -8944,7 +8944,7 @@ autoSyncFromCloud().then(function(){
   renderClassBrand();
 });
 // Auto sync when tab becomes visible (mobile tab switching)
-/* v2.17.13 跨标签实时同步：班主任操作窗口（学分页/学生表加分）与公示常驻窗口
+/* v2.17.14 跨标签实时同步：班主任操作窗口（学分页/学生表加分）与公示常驻窗口
    （投屏/另一标签全屏给全班看）通常同浏览器多开、共享 localStorage。storage 事件
    让非来源标签自动 loadData + 重渲当前页 —— 加分/减分/撤销/恢复后，公示窗口的
    学分榜/进步榜/零扣分榜/统计图表即时更新，不再等切回标签或云端往返。
