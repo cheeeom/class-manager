@@ -36,11 +36,13 @@
 ```bash
 export GH_TOKEN=$(cat /d/a/chee777/scripts/_gh_token.txt | tr -d '\r\n')
 cd /d/a/chee777/class-manager
-node D:/a/chee777/scripts/cm-push-incremental.js "提交信息" index.html sw.js PROGRESS.md
+node D:/a/chee777/scripts/cm-push-incremental.js "提交信息" index.html sw.js PROGRESS.md CONTEXT.md
 ```
 
 - 脚本做**增量推送**，保住云端 `data.json`
 - ⚠️ Windows 下 `node` 参数必须用 `D:/...` 正斜杠形式，用 `D:\...` 会被转义吃掉
+- ⚠️⚠️ **推送前必须先把改动文件 `git add 指定文件 && git commit`**（v2.17.6/7 曾因跳过本地 commit、脚本按 `HEAD:<file>` 读 blob，把旧版代码推上远端，commit message 是新的但文件内容永远是旧的，线上停摆两版；脚本已改为 `git hash-object` 读工作区，但仍保持先 commit 惯例，提交历史与 PROGRESS 对应）
+- ⚠️⚠️ **推送后必须验证线上内容**：用 gh api 拉 `contents/index.html?ref=main` 检查特征串（侧栏版本号/新函数名），**不能只看 commit sha 前进**；用户浏览器侧栏版本号是最快的线上版本探针
 
 ## 四、测试
 
