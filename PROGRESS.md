@@ -428,7 +428,7 @@
   5. 再点头部行：`#reasonCatalogBody` 回到 `display:none`、箭头 `▼` → `▶` ✅
   6. 整轮 0 异常/console error
   - 截图：`fold_real_expanded.png`（折叠 → 展开可见 3 个方向）/ `fold_real_collapsed.png`（收起态）
-- [ ] **远端推送（待推送）**：本次改动文件 = `index.html` + `sw.js` + `PROGRESS.md`；推送命令：`node D:/a/chee777/scripts/cm-push-incremental.js "v2.17.10 原因目录默认折叠" index.html sw.js PROGRESS.md`（GH_TOKEN 走 REST API）
+- [x] **远端推送完成**：cm-push-incremental 两次推送 → 远端 HEAD `7505a71a`（= b836f4a3 三件套 + 7505a71a 测试 5 件）；index.html blob sha 99291d52... 字节级一致
 
 ### 2026-09-07（v2.17.11：学分全局同步——加分/减分/撤销全模块联动含公示进步榜）
 
@@ -446,4 +446,17 @@
 - [x] **真机浏览器 5 场景全过**（playwright + 127.0.0.1 静态服务，seed 张三/李四 100 分）：
   ① 公示页停留状态下 applyCredit(+5) → **进步榜即时出现张三**（credit 100→105）✅ ② revokeCreditOp → **进步榜回落移除张三 + credit 回 100 + op.state=revoked** ✅ ③ 跨标签：B 窗口常驻公示页，A 窗口给李四 +8 → **B 窗口进步榜自动跟随出现李四**（storage 监听生效）✅ ④ 学分榜/零扣分榜同源同步（同一 renderPublicity 覆盖）⑤ 无页面异常
 - [x] **截图**：`v21711_prog_add.png`（加分后进步榜张三）/ `v21711_cross_tab.png`（跨标签 B 窗口跟随）
-- [ ] **远端推送（待推送）**：index.html + sw.js + PROGRESS.md；提醒老板强刷（SW v2.17.11）后：加分操作窗口与公示投屏窗口**同浏览器多开**即实时同步；加分编辑建议固定一个窗口（storage 覆盖是 last-write-wins，多窗口并发编辑仍建议单窗口）
+- [x] **远端推送完成**：cm-push-incremental 两次推送 → 远端 HEAD `b068bbb4`（= 8c580e46 三件套 + b068bbb4 测试 5 件）；index.html blob sha 333215ea 本地远端字节级一致；远端验证 login/侧栏 v2.17.11 + renderPublicity 纳入 + storage 监听 + SW class-manager-v2.17.11
+- [x] **给老板**：强刷（SW v2.17.11）后：① 加分/撤销时若公示页正开着（含投屏）进步榜/学分榜即时刷新 ② 同浏览器多开窗口（操作窗口+公示常驻窗口）秒级跟随 ③ 加分编辑固定一个窗口即可（多窗口并发编辑是 last-write-wins）
+
+### 2026-09-07（v2.17.12：浏览器标签页图标修复——内嵌 favicon 换新 + SW 缓存失效）
+
+- [x] **需求**：老板报「浏览器刷新还是之前的图标」——图标重设推送后（c689836 / 远端 516cf67a）只换了磁盘文件，但标签页图标来自 `index.html` `<head>` **内嵌的 data:image base64 favicon**（旧图 1032 字节），没换 → 刷新仍显示旧图标
+- [x] **双重根因**：
+  1. `index.html` 第 13 行 `<link rel="icon" type="image/png" href="data:image/png;base64,...">` 仍是旧图标 base64（标签页以它为唯一来源，与 favicon.ico 文件无关）
+  2. 图标推送没升 `sw.js CACHE_NAME`（仍 v2.17.11）→ 用户的 Service Worker 一直命中**缓存的旧 index.html**，即使线上文件变了也拿不到
+- [x] **修复**：
+  1. 用 Pillow 把新 icon_192.png 缩到 64×64 并 base64（8KB→10.8KB），替换第 13 行 data-URI（保留内嵌方案，SW 交付 HTML 即带新图标，不依赖同 URL 资源的 favicon 抓取缓存）
+  2. 版本 bump v2.17.12：登录/侧栏/SW CACHE_NAME=class-manager-v2.17.12；5 个测试文件版本断言明文+转义双轮替换
+- [x] **回归**：全量 16 套 348 项全绿（版本断言已更新 v2.17.12；favicon 行格式断言通过）
+- [x] **给老板**：强刷 1~2 次（第一次刷新拉新 SW v2.17.12，第二次起新缓存生效）即可见新标签页图标；若仍旧 → 关闭该标签页重开（浏览器对标签 favicon 有独立强缓存）
