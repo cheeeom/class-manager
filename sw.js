@@ -1,5 +1,5 @@
 /* Service Worker - 班主任工作台 PWA */
-const CACHE_NAME = 'class-manager-v2.17.14';
+const CACHE_NAME = 'class-manager-v2.17.15';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -41,10 +41,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 导航请求（index.html）：网络优先，保证新版本代码立即生效
+  // 导航请求（index.html）：网络优先 + 绕过 HTTP 缓存（GitHub Pages max-age=600 会截胡默认 fetch）
+  // → 每次刷新都真正联网，新版本立即生效；仍写 SW 缓存供离线回退
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: 'no-store' })
         .then((response) => {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
@@ -58,7 +59,7 @@ self.addEventListener('fetch', (event) => {
   // data.json 与图片同步文件：网络优先，失败回退缓存
   if (url.pathname.endsWith('data.json') || url.pathname.endsWith('.txt')) {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: 'no-store' })
         .then((response) => {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
@@ -72,7 +73,7 @@ self.addEventListener('fetch', (event) => {
   // 静态资源：缓存优先，后台更新
   event.respondWith(
     caches.match(event.request).then((cached) => {
-      const fetchPromise = fetch(event.request)
+      const fetchPromise = fetch(event.request, { cache: 'no-store' })
         .then((response) => {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
