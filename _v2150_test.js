@@ -21,11 +21,13 @@ function grab(sig) {
   if (!m) throw new Error('未找到函数: ' + sig);
   return m[0];
 }
+const liveOps = eval('(' + grab('function liveOps(ops)') + ')');   // v2.17.10 撤销过滤依赖
 const sumCreditsByStudent = eval('(' + grab('function sumCreditsByStudent(operations)') + ')');
 const ensureCreditBase   = eval('(' + grab('function ensureCreditBase(students, operations)') + ')');
 const reconcileCreditDrift = eval('(' + grab('function reconcileCreditDrift(students, operations)') + ')');
 // smartMergeData 内部引用若干全局常量，为纯函数测试提供最小 stub
 global.DEFAULT_COMMITTEE = {};
+const sortOpsNewestFirst = eval('(' + grab('function sortOpsNewestFirst(ops)') + ')');   // v2.17.10 被 smartMergeData 调用
 const smartMergeData     = eval('(' + grab('function smartMergeData(localData,remoteData)') + ')');
 
 console.log('\n=== 流水聚合 ===');
@@ -118,10 +120,14 @@ t('四个写入点全部改为走统一入口（不再裸写 credit）', () => {
     if (!fns[k].includes('applyCreditDelta')) throw new Error(k + ' 未走统一入口');
   });
 });
-t('撤销路径：流水 shift 后回退快照并打版本戳，二者仍对得上', () => {
+t('v2.17.10 撤销路径：软删标记 + 学分按有效流水重算（不再物理 shift，云端校准不复活）', () => {
   const src = grab('function undoLastOp()');
-  ['state.operations.shift()', 'student.credit -= op.amount', 'student.creditVer = ', 'student.updatedAt = Date.now()']
-    .forEach(s => { if (!src.includes(s)) throw new Error('缺少: ' + s); });
+  ['liveOps(state.operations)', 'revokeCreditOp(live[0].id)'].forEach(s => { if (!src.includes(s)) throw new Error('缺少: ' + s); });
+  const rv = grab('function revokeCreditOp(opId)');
+  ["op.state = 'revoked'", 'op.stateTime = Date.now()', 'afterOpStateChange()'].forEach(s => { if (!rv.includes(s)) throw new Error('撤销核心缺少: ' + s); });
+  const sv = grab('function liveOps(ops)');
+  if (!/(op && op\.state === 'revoked')/.test(sv)) throw new Error('liveOps 未按 revoked 过滤');
+  if (!sv.includes('function liveOps')) throw new Error('liveOps 抽取失败');
 });
 
 console.log('\n=== 合并取新（smartMerge） ===');
@@ -259,11 +265,11 @@ t('合格率/优秀率口径改为 ≥90 / ≥100（旧的 ≥10 / ≥25 已失�
 });
 
 console.log('\n=== 版本号 ===');
-t('v2.17.0 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
-  if (!/login-version">v2\.17\.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
+t('v2.17.10 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
+  if (!/login-version">v2\.17\.10</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.17\.10 ·/.test(html)) throw new Error('侧栏版本号未更新');
   const sw = fs.readFileSync('sw.js', 'utf8');
-  if (!sw.includes('class-manager-v2.17.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!sw.includes('class-manager-v2.17.10')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');
