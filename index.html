@@ -467,6 +467,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .timeline-item .tl-time{font-size:12px;color:var(--text-muted)}
 .timeline-item .tl-text{color:var(--text-secondary);margin-top:2px}
 .timeline-item .tl-text strong{color:var(--text)}
+/* v2.17.9 逐条撤销按钮 + 已撤销抽屉 */
+.tl-undo{display:inline-block;margin-left:8px;padding:0 8px;font-size:11px;line-height:18px;color:var(--text-muted);background:transparent;border:1px dashed var(--border);border-radius:6px;cursor:pointer;vertical-align:1px;transition:all .15s}
+.tl-undo:hover{color:var(--danger);border-color:var(--danger);border-style:solid;background:rgba(220,80,80,.06)}
+.tl-revoked-wrap{margin-top:14px;border:1px dashed var(--border);border-radius:10px;padding:8px 12px;font-size:12px}
+.tl-revoked-head{color:var(--text-muted);cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center}
+.tl-revoked-head:hover{color:var(--text)}
+.tl-revoked-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:5px 0;border-top:1px dashed var(--border-light,rgba(128,128,128,.14));font-size:12px}
+.tl-revoked-row .btn{margin-left:auto;flex:none}
 
 /* ==================== Table ==================== */
 .toolbar{
@@ -1875,7 +1883,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.8</div>
+      <div class="login-version">v2.17.9</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1991,7 +1999,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.8 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.9 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2316,6 +2324,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="card">
           <div class="section-title"><span class="dot"></span>操作记录</div>
           <div class="timeline" id="creditsTimeline"></div>
+          <!-- v2.17.9 已撤销抽屉：撤销只是打标记，这里集中展示可恢复 -->
+          <div class="tl-revoked-wrap" id="creditRevokedWrap" style="display:none">
+            <div class="tl-revoked-head" onclick="var b=document.getElementById('creditRevokedBody');b.style.display=b.style.display==='none'?'block':'none';this.querySelector('.chev').textContent=b.style.display==='none'?'▸':'▾'">
+              <span>🗂 已撤销的记录（点右侧「恢复」可找回，学分自动重扣）<span class="chev" style="display:inline-block;width:12px">▾</span></span>
+            </div>
+            <div id="creditRevokedBody" style="margin-top:4px"><div id="creditRevokedList"></div></div>
+          </div>
         </div>
       </div>
 
@@ -3523,7 +3538,7 @@ function backfillReasons2176(){
 const INITIAL_CREDIT = 100;
 function normalizeInitialCredits(students, operations){
   var touched = {};
-  (operations || []).forEach(function(o){ touched[o.studentId] = true; });
+  liveOps(operations).forEach(function(o){ touched[o.studentId] = true; });   // v2.17.9 已撤销不算
   var fixed = 0;
   (students || []).forEach(function(s){
     if(Number(s.credit) === 0 && !touched[s.id]){ s.credit = INITIAL_CREDIT; fixed++; }
@@ -3540,10 +3555,21 @@ function normalizeInitialCredits(students, operations){
         ③ 启动与每次拉取后按流水自愈校准
    ———————————————————————————————————————————————————— */
 
-/* 按学生聚合流水增量（纯函数）。返回 { studentId: 增量和 } */
+/* v2.17.9 流水撤销语义：撤销 = 给流水打「作废」标记（op.state='revoked' + stateTime），
+   不物理删除 —— 保住"流水永不裁剪"的合并哲学，且作废标记随流水对象进云端，
+   任何设备/任何一次云端校准都不会让已撤销的流水复活（此前 undoLastOp 物理 shift 删除，
+   云端 data.json 里旧流水会在下次合并时被 id 并集补回 → 撤销"只在本地记录里生效"、学分被拉回原值）。
+   liveOps 过滤作废流水，所有统计/展示/学分核算都只认有效流水。 */
+
+/* 过滤已作废流水（纯函数）。op.state==='revoked' 即已撤销，不参与任何统计与学分核算。 */
+function liveOps(ops){
+  return (ops || []).filter(function(op){ return !(op && op.state === 'revoked'); });
+}
+
+/* 按学生聚合流水增量（纯函数）。返回 { studentId: 增量和 }（已撤销流水不计入） */
 function sumCreditsByStudent(operations){
   var map = {};
-  (operations || []).forEach(function(op){
+  liveOps(operations).forEach(function(op){
     if(!op || op.studentId == null) return;
     map[op.studentId] = (map[op.studentId] || 0) + (Number(op.amount) || 0);
   });
@@ -3945,7 +3971,15 @@ function smartMergeData(localData,remoteData){
   // operations: merge by id, dedup
   if(remoteData.operations&&Array.isArray(remoteData.operations)){
     var omap={};(localData.operations||[]).forEach(function(o){omap[o.id]=o;});
-    remoteData.operations.forEach(function(ro){if(!omap[ro.id])omap[ro.id]=ro;});
+    remoteData.operations.forEach(function(ro){
+      var lo = omap[ro.id];
+      if(!lo){ omap[ro.id]=ro; }
+      // v2.17.9 撤销状态合并：op.state('revoked'=已撤销) 随 stateTime 传播 —— 同一笔流水
+      // 本地撤销过 / 云端(别的设备)撤销过，取最后变更者。防"本地撤销了、云端校准又把它复活"。
+      else if((ro.stateTime || 0) > (lo.stateTime || 0)){
+        omap[ro.id] = ro;
+      }
+    });
     merged.operations=sortOpsNewestFirst(Object.keys(omap).map(function(k){return omap[k];}));  // v2.17.7 保持最新在前（防时间线新流水被排没）
   }
   // leaves: merge by id
@@ -4747,7 +4781,7 @@ function renderDashboard(){
     </div>
   `).join('');
 
-  const recent = (state.operations || []).slice(0,10);
+  const recent = liveOps(state.operations).slice(0,10);   // v2.17.9 已撤销不显示
   const rtEl = document.getElementById('recentTimeline');
   if(rtEl){
     rtEl.innerHTML = recent.length === 0
@@ -5279,7 +5313,7 @@ function openDetailPanel(id){
   const s = state.students.find(st=>st.id===id);
   if(!s) return;
   document.getElementById('detailName').textContent = s.name;
-  const ops = state.operations.filter(o=>o.studentId===id).slice(0,20);
+  const ops = state.operations.filter(o=>o.studentId===id && !(o.state==='revoked')).slice(0,20);   // v2.17.9 已撤销不显示
   const cls = s.credit < 10 ? 'low' : s.credit < 25 ? 'mid' : 'high';
   const tags = s.tags || [];
   // ⚠️ 标签内容由用户自由输入（addCustomTag），绝不能拼进 onclick 的字符串字面量——
@@ -6778,10 +6812,10 @@ function monthlySettlePlan(nowTs){
   var settled = {}; // 已结算过的 (id+原因) 记录，防重复
   (state.operations || []).forEach(function(op){
     if(monthKeyOf(op.time) !== mk) return;
-    settled[op.studentId + '|' + op.reason] = true;
+    if(!(op.state === 'revoked')) settled[op.studentId + '|' + op.reason] = true;   // v2.17.9 已撤销的扣分不占结算位
   });
   (state.students || []).forEach(function(s){
-    var hasViolation = (state.operations || []).some(function(op){
+    var hasViolation = liveOps(state.operations).some(function(op){   // v2.17.9 已撤销的扣分不算违规
       return op.studentId === s.id && op.amount < 0 && monthKeyOf(op.time) === mk;
     });
     if(hasViolation) return;
@@ -6873,24 +6907,57 @@ function applyCredit(id, amount, reason){
   showToast(`${student.name} ${amount>0?'+':''}${amount} 学分 (${reason})`, amount > 0 ? 'success' : 'warning');
 }
 
-function undoLastOp(){
-  if(state.operations.length === 0) return;
-  const op = state.operations.shift();
-  const student = state.students.find(s=>s.id===op.studentId);
-  if(student){
-    // v2.15.0：流水已 shift 出去，此处只回退快照并打版本戳，二者仍然对得上
-    if(typeof student.creditBase !== 'number') ensureCreditBase([student], state.operations);
-    student.credit -= op.amount;
-    student.creditVer = (Number(student.creditVer)||0) + 1;
-    student.updatedAt = Date.now();
-    saveData();
-    refreshCreditViews();
-    showToast(`已撤销: ${op.studentName} ${op.amount>0?'+':''}${op.amount}`, 'info');
+/* v2.17.9 撤销核心（软删语义）：
+   撤销一笔流水 = 打 op.state='revoked' + stateTime 标记（保留在流水里，随云端同步），
+   之后学分按 有效流水(去掉已撤销) 重算 = creditBase + ΣliveOps —— 撤销与学分天然一致，
+   且任何设备/云端校准都不会让已撤销流水复活（合并按 stateTime 取新）。
+   恢复 = 去掉标记再打时间戳（stateTime 取新 → 跨设备同样生效）。 */
+function revokeCreditOp(opId){
+  const op = (state.operations || []).find(function(o){ return o.id === opId && !(o.state === 'revoked'); });
+  if(!op){
+    showToast('该记录已撤销或不存在', 'info');
+    return;
   }
+  op.state = 'revoked';
+  op.stateTime = Date.now();
+  afterOpStateChange();
+  const st = state.students.find(s => s.id === op.studentId);
+  showToast(`已撤销 ${st ? st.name : (op.studentName || '')} ${op.amount>0?'+':''}${op.amount} 学分的记录`, 'info');
+}
+function restoreCreditOp(opId){
+  const op = (state.operations || []).find(function(o){ return o.id === opId && o.state === 'revoked'; });
+  if(!op){
+    showToast('该记录未处于撤销状态', 'info');
+    return;
+  }
+  op.state = 'ok';
+  op.stateTime = Date.now();
+  afterOpStateChange();
+  const st = state.students.find(s => s.id === op.studentId);
+  showToast(`已恢复 ${st ? st.name : (op.studentName || '')} 的该笔记录`, 'success');
+}
+/* 撤销/恢复后：学分按流水自愈校准 + 落盘(自动云推送) + 全视图刷新 */
+function afterOpStateChange(){
+  reconcileCreditDrift(state.students, state.operations);   // credit = creditBase + Σ有效流水，撤销即自动回补/恢复即自动重扣
+  saveData();                                                // saveData 内部 autoPushToCloud（debounce）
+  refreshCreditViews();
+}
+
+function undoLastOp(){
+  // 撤销"最近一笔仍有效的操作"（已撤销的跳过）。此前物理 shift 删除 + 手动 credit-=，
+  // 云端校准会把它复活 → 学分被拉回原值（老板 v2.17.7 同款现象再现）。
+  const live = liveOps(state.operations);
+  if(live.length === 0){
+    showToast('没有可撤销的操作', 'info');
+    return;
+  }
+  revokeCreditOp(live[0].id);   // liveOps 后仍是最新在前，[0] 即全局最新未撤
 }
 
 function updateUndoBtn(){
-  document.getElementById('undoBtn').disabled = state.operations.length === 0;
+  var el = document.getElementById('undoBtn');
+  if(!el) return;
+  el.disabled = liveOps(state.operations).length === 0;
 }
 
 /* 流水时间线统一渲染。v2.15.1：
@@ -6911,24 +6978,51 @@ function renderOpItem(op){
   const cmTag = (op.by === 'cm')
     ? ' <span class="tl-cm">👩‍💼 ' + escapeHtml(op.byName || '通用班委') + (op.byPost ? ' · ' + escapeHtml(op.byPost) : '') + '</span>'
     : '';
+  // v2.17.9 每条流水可单独撤销（不再只有全局「撤销上一次」）。op.id 为数字，onclick 传值安全。
+  const undoBtn = `<button type="button" class="tl-undo" onclick="revokeCreditOp(${Number(op.id)})" title="撤销这条记录（学分自动回补）">↩ 撤销</button>`;
   return `<div class="timeline-item">
     <div class="tl-time">${formatOpTime(op)}</div>
-    <div class="tl-text"><strong>${who}</strong>${cmTag} <span style="color:${color};font-weight:600">${amount > 0 ? '+' : ''}${amount}</span> 学分 <span style="color:var(--text-muted)">— ${why}</span></div>
+    <div class="tl-text"><strong>${who}</strong>${cmTag} <span style="color:${color};font-weight:600">${amount > 0 ? '+' : ''}${amount}</span> 学分 <span style="color:var(--text-muted)">— ${why}</span>${undoBtn}</div>
   </div>`;
+}
+/* v2.17.9 已撤销抽屉：撤销只是打标记、记录仍留在流水里。这里集中展示已撤销的流水，
+   老师能随时核对"撤了什么"并一键恢复（防误撤）。 */
+function renderRevokedDrawer(){
+  const box = document.getElementById('creditRevokedList');
+  if(!box) return;
+  const revoked = (state.operations || []).filter(function(o){ return o.state === 'revoked'; }).slice(0, 20);
+  const wrap = document.getElementById('creditRevokedWrap');
+  if(wrap) wrap.style.display = revoked.length > 0 ? '' : 'none';
+  if(revoked.length === 0){
+    box.innerHTML = '';
+    return;
+  }
+  box.innerHTML = revoked.map(function(op){
+    const amount = Number(op.amount) || 0;
+    const color = amount > 0 ? 'var(--success)' : 'var(--danger)';
+    const who = op.studentName ? escapeHtml(op.studentName) : ('#' + escapeHtml(String(op.studentId == null ? '' : op.studentId)));
+    const why = op.reason ? escapeHtml(op.reason) : '未填原因';
+    return `<div class="tl-revoked-row">
+      <span style="color:var(--text-muted)">${formatOpTime(op)}</span>
+      <span style="color:var(--text-secondary)"><strong style="color:var(--text)">${who}</strong> <span style="color:${color};font-weight:600">${amount > 0 ? '+' : ''}${amount}</span> — ${why}</span>
+      <button type="button" class="btn btn-outline btn-sm" style="padding:0 8px;font-size:11px" onclick="restoreCreditOp(${Number(op.id)})">恢复</button>
+    </div>`;
+  }).join('');
 }
 function renderCreditsTimeline(){
   const tl = document.getElementById('creditsTimeline');
   if(!tl) return;
-  const ops = state.operations || [];
+  const ops = liveOps(state.operations);   // v2.17.9：已撤销流水不再显示在时间线
   if(ops.length === 0){
     tl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:12px 0">暂无操作记录</div>';
-    return;
+  } else {
+    const LIMIT = 50;
+    const shown = ops.slice(0, LIMIT);
+    const rest = ops.length - shown.length;
+    tl.innerHTML = shown.map(renderOpItem).join('') +
+      (rest > 0 ? `<div style="color:var(--text-muted);font-size:12px;padding:8px 0;text-align:center">仅显示最近 ${LIMIT} 条，共 ${ops.length} 条</div>` : '');
   }
-  const LIMIT = 50;
-  const shown = ops.slice(0, LIMIT);
-  const rest = ops.length - shown.length;
-  tl.innerHTML = shown.map(renderOpItem).join('') +
-    (rest > 0 ? `<div style="color:var(--text-muted);font-size:12px;padding:8px 0;text-align:center">仅显示最近 ${LIMIT} 条，共 ${ops.length} 条</div>` : '');
+  renderRevokedDrawer();
 }
 
 /* ==================== Batch Credit ==================== */
@@ -7328,7 +7422,7 @@ function renderProgressList(){
   const now = Date.now();
   const weekAgo = now - 7 * 86400000;
   const changes = state.students.map(s => {
-    const ops = state.operations.filter(o => o.studentId === s.id && o.time >= weekAgo);
+    const ops = state.operations.filter(o => o.studentId === s.id && o.time >= weekAgo && !(o.state==='revoked'));   // v2.17.9
     const net = ops.reduce((sum, o) => sum + o.amount, 0);
     return {name: s.name, net, opCount: ops.length};
   }).filter(c => c.opCount > 0).sort((a,b) => Math.abs(b.net) - Math.abs(a.net));
@@ -7368,7 +7462,7 @@ function drawTrendChart(){
     d.setDate(d.getDate() - i);
     const start = d.getTime();
     const end = start + 86400000;
-    const dayOps = state.operations.filter(o => o.time >= start && o.time < end);
+    const dayOps = state.operations.filter(o => o.time >= start && o.time < end && !(o.state==='revoked'));   // v2.17.9
     const total = dayOps.reduce((s,o) => s + o.amount, 0);
     days.push({label: `${d.getMonth()+1}/${d.getDate()}`, total});
   }
@@ -10256,7 +10350,7 @@ function pubCreditLevel(c){
 /* ---- 核心统计（纯函数，可测）：周期内全部指标一次算清 ---- */
 function computePublicityData(students, operations, rangeKind, nowDate){
   var t0 = rangeStartOf(rangeKind, nowDate);
-  var ops = (operations || []).filter(function(o){ return o && typeof o.time === 'number' && o.time >= t0; });
+  var ops = (operations || []).filter(function(o){ return o && !(o.state === 'revoked') && typeof o.time === 'number' && o.time >= t0; });   // v2.17.9 已撤销不进公示
   var n = students ? students.length : 0;
   var byId = {};
   (students||[]).forEach(function(s){ byId[s.id] = s; });
