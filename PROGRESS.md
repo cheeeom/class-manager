@@ -429,3 +429,21 @@
   6. 整轮 0 异常/console error
   - 截图：`fold_real_expanded.png`（折叠 → 展开可见 3 个方向）/ `fold_real_collapsed.png`（收起态）
 - [ ] **远端推送（待推送）**：本次改动文件 = `index.html` + `sw.js` + `PROGRESS.md`；推送命令：`node D:/a/chee777/scripts/cm-push-incremental.js "v2.17.10 原因目录默认折叠" index.html sw.js PROGRESS.md`（GH_TOKEN 走 REST API）
+
+### 2026-09-07（v2.17.11：学分全局同步——加分/减分/撤销全模块联动含公示进步榜）
+
+- [x] **需求**：老板报「进步榜 Top10 不对，有同学加分上面没同步」，并要求「把所有学分模块设置成一个系统，加分减分全部都要同步所有模块，包括撤销操作的分值恢复」
+- [x] **根因定位（三连排查）**：
+  1. 加分/减分/撤销/恢复全链路本来就统一汇到 `refreshCreditViews()`（v2.15.0 起的学分刷新体系）——但它的刷新清单 = 学生表 / 档案 / 学分页时间线 / 首页(active) / 分析(active)，**唯独漏了公示页**：公示页正开着（常驻/投屏）时加分，进步榜/学分榜/零扣分榜/统计图表全不重算 → 「加了分进步榜没同步」
+  2. 同浏览器多开（操作窗口 + 公示常驻窗口）没有 storage 监听，公示窗口永远等不到变化（此前只有切回标签 visibilitychange 才拉云端）
+  3. 复核 `computePublicityData`（revoked 过滤/净增口径）与 `applyCreditDelta`（快照+流水原子写）无数据问题——纯刷新联动缺失
+- [x] **修复**：
+  1. `refreshCreditViews()` 补公示页：`page-publicity` active 时调 `renderPublicity()`（进步榜/学分榜/概览/四图表全量重算，与 navigateTo 切入公示页同款）
+  2. 新增 **storage 跨标签监听**（`window.addEventListener('storage'`，key=STORE_KEY 且非来源标签、非锁屏时）：`loadData()` + `renderAll()`——操作窗口一保存，公示常驻窗口秒级跟随（补 `loadData` 无写回死循环：其内 saveData 仅在幂等修复漂移时触发一次）
+  3. 无需改数据口径：进步榜按周期内净增(net=addPts−subPts，revoked 已剔除)、撤销回补走既有 liveOps/reconcile 体系
+- [x] **版本 bump v2.17.11**：登录/侧栏/SW CACHE_NAME；5 个测试文件版本断言**明文 + 转义双轮替换**
+- [x] **回归**：_v2150 新增「学分全局同步」4 断言（refreshCreditViews 含 renderPublicity / 批量加分链路 = applyCreditDelta+saveData+refreshCreditViews / storage 监听就位 / afterOpStateChange 撤销恢复刷新全视图）；**全量 16 套 351 项全绿**（v 系 303：25/19/24/13/22/11/17/42/42/32/17/26/13；_sync 33 / _xss 14 / _crypto ✅）
+- [x] **真机浏览器 5 场景全过**（playwright + 127.0.0.1 静态服务，seed 张三/李四 100 分）：
+  ① 公示页停留状态下 applyCredit(+5) → **进步榜即时出现张三**（credit 100→105）✅ ② revokeCreditOp → **进步榜回落移除张三 + credit 回 100 + op.state=revoked** ✅ ③ 跨标签：B 窗口常驻公示页，A 窗口给李四 +8 → **B 窗口进步榜自动跟随出现李四**（storage 监听生效）✅ ④ 学分榜/零扣分榜同源同步（同一 renderPublicity 覆盖）⑤ 无页面异常
+- [x] **截图**：`v21711_prog_add.png`（加分后进步榜张三）/ `v21711_cross_tab.png`（跨标签 B 窗口跟随）
+- [ ] **远端推送（待推送）**：index.html + sw.js + PROGRESS.md；提醒老板强刷（SW v2.17.11）后：加分操作窗口与公示投屏窗口**同浏览器多开**即实时同步；加分编辑建议固定一个窗口（storage 覆盖是 last-write-wins，多窗口并发编辑仍建议单窗口）
