@@ -1863,7 +1863,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.5</div>
+      <div class="login-version">v2.17.7</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1979,7 +1979,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.5 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.7 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2532,7 +2532,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <div>
               <h3>📚 学分原因目录（多级菜单）</h3>
               <div style="margin-top:6px;font-size:12px;color:var(--text-muted);line-height:1.7">
-                加减分时按「方向 → 大类 → 原因」逐级点选。预设 26 项只是初始模板，<b>可自由增删改</b>；
+                加减分时按「方向 → 大类 → 原因」逐级点选。预设 27 项只是初始模板，<b>可自由增删改</b>；
                 改动立即生效，并随云同步到班委端。
               </div>
             </div>
@@ -3113,7 +3113,7 @@ const CLOUD_SYNC_FIELDS = ['className','students','operations','reasons','reason
   'lastExport','lastImport','committee','seating','duty','exportedOpsCount','classMotto',
   'leaves','nextLeaveId','exams','nextExamId','todos','nextTodoId',
   'workLogs','nextWorkLogId','honors','nextHonorId','notices',
-  'scheduleImage','classAvatar','wipeAt'];
+  'scheduleImage','classAvatar','wipeAt','schemaVer'];
 // 通知历史可能内嵌近 1MB 的图片 base64，推送前剥离，防止 data.json 膨胀导致移动端拉取超时
 function stripNoticeHistoryImages(notices){
   if(!notices || !Array.isArray(notices.history)) return notices;
@@ -3383,14 +3383,14 @@ function hasGHToken(){ return !!getGHToken(); }
 const defaultReasons = [
   '月度全勤','课堂表现积极','作业全月优秀','考试进步','班级活动参与','校级获奖','班级参赛',
   '卫生优秀个人','有效检举','协助班级工作','检举属实',
-  '迟到早退','旷课','请假手续不全','课堂违纪','扰乱课堂顶撞老师','集会违纪',
+  '迟到早退','旷课','请假手续不全','课堂违纪','扰乱课堂顶撞老师','集会违纪','违禁品',
   '作业缺交迟交','作业抄袭考试作弊','值日偷懒卫生脏乱','损坏公物','宿舍违纪',
   '同学冲突','欺凌造谣','虚假举报','其他'
 ];
 const defaultReasonScores = {
   '月度全勤':3, '课堂表现积极':1, '作业全月优秀':3, '考试进步':3, '班级活动参与':2,
   '校级获奖':5, '班级参赛':3, '卫生优秀个人':2, '有效检举':2, '协助班级工作':2, '检举属实':2,
-  '迟到早退':-2, '旷课':-5, '请假手续不全':-4, '课堂违纪':-3, '扰乱课堂顶撞老师':-6, '集会违纪':-3,
+  '迟到早退':-2, '旷课':-5, '请假手续不全':-4, '课堂违纪':-3, '扰乱课堂顶撞老师':-6, '集会违纪':-3, '违禁品':-10,
   '作业缺交迟交':-2, '作业抄袭考试作弊':-8, '值日偷懒卫生脏乱':-3, '损坏公物':-4, '宿舍违纪':-3,
   '同学冲突':-5, '欺凌造谣':-6, '虚假举报':-5
 };
@@ -3406,7 +3406,7 @@ const REASON_CATALOG = {
   },
   '扣分': {
     '考勤': ['迟到早退','旷课','请假手续不全'],
-    '课堂纪律': ['课堂违纪','扰乱课堂顶撞老师','集会违纪'],
+    '课堂纪律': ['课堂违纪','扰乱课堂顶撞老师','集会违纪','违禁品'],
     '作业考试': ['作业缺交迟交','作业抄袭考试作弊'],
     '值日公物': ['值日偷懒卫生脏乱','损坏公物'],
     '宿舍': ['宿舍违纪'],
@@ -3475,6 +3475,21 @@ function migrateReasonCatalog(savedCat, oldReasons){
 // 目录变更后同步派生字段（reasons 一维列表 = 目录平铺）
 function syncReasonsFromCatalog(){
   state.reasons = flattenReasonCatalog(state.reasonCatalog);
+}
+/* v2.17.6 制度新增原因补齐：向已有目录「扣分 → 课堂纪律」补入「违禁品」，分值表补 -10。
+   老目录尊重班主任编辑，故不整体并集模板；仅随 schemaVer<1 的首次升级执行一次（幂等）。
+   返回是否发生改动（改动则落盘，使目录与分值随云同步到其他设备）。 */
+function backfillReasons2176(){
+  var cat = state.reasonCatalog || {};
+  var DIR='扣分', GR='课堂纪律', NAME='违禁品';
+  if(!cat[DIR]) cat[DIR] = {};
+  if(!cat[DIR][GR]) cat[DIR][GR] = [];
+  var changed = false;
+  if(cat[DIR][GR].indexOf(NAME) < 0){ cat[DIR][GR].push(NAME); changed = true; }
+  if(state.reasonScores == null) state.reasonScores = {};
+  if(typeof state.reasonScores[NAME] !== 'number'){ state.reasonScores[NAME] = -10; changed = true; }
+  if(changed){ syncReasonsFromCatalog(); saveData(); }
+  return changed;
 }
 
 /* v2.14.0 初始学分基准：制度第六章满分基准。0 分且无任何流水 = 未初始化（导入/新增遗漏），
@@ -3716,7 +3731,8 @@ let state = {
   honors: [],
   nextHonorId: 1,
   notices: { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 },
-  wipeAt: 0   // v2.11.3 数据重置时间戳：清空数据时更新，其他设备拉取到更大的 wipeAt 会强制清空对齐
+  wipeAt: 0,  // v2.11.3 数据重置时间戳：清空数据时更新，其他设备拉取到更大的 wipeAt 会强制清空对齐
+  schemaVer: 1   // v2.17.6 原因目录/分值表 schema 版本：<1 时对老数据执行一次「违禁品(-10)」补齐，之后尊重班主任增删
 };
 
 function loadData(){
@@ -3726,7 +3742,7 @@ function loadData(){
       const d = JSON.parse(raw);
       state.className = d.className || state.className;
       state.students = d.students || [];
-      state.operations = d.operations || [];
+      state.operations = sortOpsNewestFirst(d.operations || []);   // v2.17.7 归一化：老合并可能把顺序反转成最旧在前
       // 原因模板：保留老板自定义的原因，并补齐制度新增项（不删除已有项）
       state.reasons = (d.reasons && d.reasons.length)
         ? d.reasons.concat(defaultReasons.filter(function(r){ return d.reasons.indexOf(r) < 0; }))
@@ -3736,6 +3752,12 @@ function loadData(){
       // 目录内自定义原因并入「其他 → 自定义原因」；reasons 改为目录派生扁平。
       state.reasonCatalog = migrateReasonCatalog(d.reasonCatalog, state.reasons);
       syncReasonsFromCatalog();
+      // v2.17.6 制度新增原因「违禁品(-10)」：老数据首次升级补齐目录与分值（schemaVer 门控，幂等）
+      state.schemaVer = d.schemaVer || 0;
+      if(state.schemaVer < 1){
+        state.schemaVer = 1;   // 先置位再落盘，避免每次启动重复迁移
+        backfillReasons2176();
+      }
       state.nextId = d.nextId || (d.students?.length + 1 || 1);
       state.nextOpId = d.nextOpId || (d.operations?.length + 1 || 1);
       state.nextSid = d.nextSid || 1;
@@ -3801,6 +3823,7 @@ function saveData(){
     reasons: state.reasons,
     reasonScores: state.reasonScores || {},
     reasonCatalog: state.reasonCatalog || {},
+    schemaVer: state.schemaVer || 0,
     nextId: state.nextId,
     nextOpId: state.nextOpId,
     nextSid: state.nextSid,
@@ -3841,6 +3864,17 @@ function getDataJsonUrl(){
   return './data.json';
 }
 
+/* v2.17.7 流水归一化：应用内恒为「最新在前」（applyCreditDelta unshift）。
+   smartMergeData 按 Object.keys 重排会把顺序反转成「最旧在前」（时间线只取前 50 →
+   新流水被排到队尾看不见、观感=记录被覆盖取消，撤销也撤错人）。
+   时间倒序（同刻按 id 大者在前）在多设备合并下仍能得到全局最新优先，幂等。 */
+function sortOpsNewestFirst(ops){
+  return (ops || []).slice().sort(function(a, b){
+    var d = (Number(b.time) || 0) - (Number(a.time) || 0);
+    if(d !== 0) return d;
+    return (Number(b.id) || 0) - (Number(a.id) || 0);
+  });
+}
 function smartMergeData(localData,remoteData){
   if(!remoteData||typeof remoteData!=='object')return localData;
   if(!localData||typeof localData!=='object')return remoteData;
@@ -3873,7 +3907,7 @@ function smartMergeData(localData,remoteData){
   if(remoteData.operations&&Array.isArray(remoteData.operations)){
     var omap={};(localData.operations||[]).forEach(function(o){omap[o.id]=o;});
     remoteData.operations.forEach(function(ro){if(!omap[ro.id])omap[ro.id]=ro;});
-    merged.operations=Object.keys(omap).map(function(k){return omap[k];});
+    merged.operations=sortOpsNewestFirst(Object.keys(omap).map(function(k){return omap[k];}));  // v2.17.7 保持最新在前（防时间线新流水被排没）
   }
   // leaves: merge by id
   if(remoteData.leaves&&Array.isArray(remoteData.leaves)){
@@ -3968,6 +4002,7 @@ function smartMergeData(localData,remoteData){
   if(remoteData.lastExport&&(!localData.lastExport||remoteData.lastExport>localData.lastExport))merged.lastExport=remoteData.lastExport;
   if(remoteData.lastImport&&(!localData.lastImport||remoteData.lastImport>localData.lastImport))merged.lastImport=remoteData.lastImport;
   merged.exportedOpsCount=Math.max(localData.exportedOpsCount||0,remoteData.exportedOpsCount||0);
+  merged.schemaVer=Math.max(localData.schemaVer||0,remoteData.schemaVer||0);  // v2.17.6 取高版本，避免旧设备拉取后回退重跑迁移
   return merged;
 }
 
@@ -6662,15 +6697,26 @@ function updateCreditBtnStates(){
   const customBtn = document.getElementById('customApplyBtn');
   if(customBtn) customBtn.disabled = !valid || !document.getElementById('customCredit').value;
 }
-function onCreditInputChange(){ updateCreditBtnStates(); }
+function onCreditInputChange(){ _creditAutofillMark = null; updateCreditBtnStates(); }
 function onCreditInputSearch(){ filterCreditStudents(); updateCreditBtnStates(); }
 
-/* 选原因自动带出制度分值（可手改） */
+/* v2.17.6 自定义分值防覆盖：记住「选原因自动带出」的预设值；
+   仅当输入框为空、或仍显示上一种原因的旧预设（未被手改）时，换原因才重填新预设。
+   老师先输入自定义分值再选原因 → 分值原样保留（此前会被联动静默覆盖，导致记的不是自定义分）。 */
+var _creditAutofillMark = null;   // { reason, val } 最近一次由「选原因」带出的预设
 function onCreditReasonChange(){
-  var r = document.getElementById('creditReason').value;
-  var score = (state.reasonScores || {})[r];
+  var sel = document.getElementById('creditReason');
   var custom = document.getElementById('customCredit');
-  if(custom) custom.value = (typeof score === 'number' && score !== 0) ? score : '';
+  if(!sel || !custom) return;
+  var r = sel.value;
+  var score = (state.reasonScores || {})[r];
+  var preset = (typeof score === 'number' && score !== 0) ? String(score) : '';
+  var cur = custom.value;
+  var staleAuto = !!(_creditAutofillMark && _creditAutofillMark.reason !== r && cur === _creditAutofillMark.val);
+  if(cur === '' || staleAuto){
+    custom.value = preset;
+    _creditAutofillMark = (preset !== '' && r !== '') ? { reason: r, val: preset } : null;
+  }
   updateCreditBtnStates();
 }
 
@@ -8073,12 +8119,12 @@ function catSaveNewItem(){
 
 /* ---- 恢复预设（覆盖当前目录与分值） ---- */
 function askResetReasonCatalog(){
-  if(!confirm('确认恢复预设目录？\n\n当前全部自定义原因、分组与分值将被 26 项制度预设覆盖。\n历史流水不受影响。')) return;
+  if(!confirm('确认恢复预设目录？\n\n当前全部自定义原因、分组与分值将被 27 项制度预设覆盖。\n历史流水不受影响。')) return;
   if(!confirm('再次确认：自定义内容将被覆盖，不可撤销。')) return;
   state.reasonCatalog = defaultReasonCatalog();
   state.reasonScores = Object.assign({}, defaultReasonScores);
   catRefresh();
-  showToast('已恢复制度预设目录（26 项）', 'success');
+  showToast('已恢复制度预设目录（27 项）', 'success');
 }
 
 /* ==================== v2.17.1 学分体检（教师端） ==================== */
