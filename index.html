@@ -1883,7 +1883,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.10</div>
+      <div class="login-version">v2.17.11</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1999,7 +1999,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.10 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.11 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3695,7 +3695,10 @@ function revertCreditOp(student, op){
 
 /* 学分变更后统一刷新所有展示学分的视图。
    此前 applyCredit / applyCreditBulk / undoLastOp 只刷 renderCreditsPage，
-   学生管理模块的表格不刷新 —— 这是「分数不一致」的直接观感来源。 */
+   学生管理模块的表格不刷新 —— 这是「分数不一致」的直接观感来源。
+   v2.17.11：公示页（学分榜/进步榜/零扣分榜/概览统计/四个图表）纳入统一学分刷新——
+   加分/减分/撤销/恢复/校快照后，只要公示页正开着（常驻/投屏），进步榜等立即同步，
+   不再出现「同学加了分，进步榜/学分榜还是老样子」。 */
 function refreshCreditViews(){
   var safe = function(fn){
     try{ if(typeof fn === 'function') fn(); }catch(e){ console.warn('[refreshCreditViews]', e); }
@@ -3711,6 +3714,8 @@ function refreshCreditViews(){
   if(dash && dash.classList.contains('active')) safe(window.renderDashboard);
   var ana = document.getElementById('page-analytics');
   if(ana && ana.classList.contains('active')) safe(window.renderAnalytics);
+  var pub = document.getElementById('page-publicity');          // v2.17.11 公示页同步
+  if(pub && pub.classList.contains('active')) safe(window.renderPublicity);
 }
 /* 学分等级：制度第六章（≥100 优秀 / 90-100 合格 / 80-90 一般 / <80 不合格） */
 function creditLevel(credit){
@@ -8939,6 +8944,22 @@ autoSyncFromCloud().then(function(){
   renderClassBrand();
 });
 // Auto sync when tab becomes visible (mobile tab switching)
+/* v2.17.11 跨标签实时同步：班主任操作窗口（学分页/学生表加分）与公示常驻窗口
+   （投屏/另一标签全屏给全班看）通常同浏览器多开、共享 localStorage。storage 事件
+   让非来源标签自动 loadData + 重渲当前页 —— 加分/减分/撤销/恢复后，公示窗口的
+   学分榜/进步榜/零扣分榜/统计图表即时更新，不再等切回标签或云端往返。
+   与 visibilitychange(云端拉取) 互补：本监听管同浏览器跨标签，云端拉取管跨设备。 */
+window.addEventListener('storage', function(e){
+  if(e.key !== STORE_KEY || e.newValue == null) return;
+  if(syncInProgress || wipeInProgress) return;
+  try{ var fresh = JSON.parse(e.newValue); if(!fresh || !fresh.students) return; }
+  catch(err){ return; }
+  var overlay = document.getElementById('loginOverlay');
+  if(overlay && !overlay.classList.contains('hidden')) return;   // 锁屏中不打扰
+  loadData();
+  renderAll();
+});
+
 document.addEventListener('visibilitychange', function(){
   if(document.visibilityState === 'visible'){
     var overlay = document.getElementById('loginOverlay');
