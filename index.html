@@ -1709,6 +1709,18 @@ html.dark .tl-body{background:var(--bg)}
 .search-select-wrapper{position:relative;z-index:10}
 .search-select-wrapper:focus-within{z-index:1000}
 .search-select-dropdown{position:absolute;top:100%;left:0;right:0;max-height:200px;overflow-y:auto;background:#fff !important;opacity:1 !important;border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.15);z-index:9999;margin-top:4px}
+/* v2.17.8 学分操作：已选学生右侧常驻面板（下拉打开也不遮挡已选名单） */
+.credit-op-grid{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.credit-op-main{flex:1 1 420px;min-width:300px}
+.credit-op-selected{flex:0 1 300px;min-width:240px;max-width:100%;border:1px dashed var(--border);border-radius:12px;padding:10px 12px;background:var(--card-bg)}
+.credit-op-selected.credit-has{border-style:solid;border-color:rgba(47,125,91,0.5)}
+.credit-sel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);margin-bottom:8px}
+.credit-sel-head b{color:var(--success);font-size:14px}
+.credit-sel-body{display:flex;gap:6px;flex-wrap:wrap;align-items:center;max-height:160px;overflow-y:auto;font-size:12px;color:var(--text-muted)}
+@media (max-width:760px){
+  .credit-op-selected{flex-basis:100%;min-width:0}
+  .credit-sel-body{max-height:110px}
+}
 .search-select-option{padding:8px 14px;cursor:pointer;font-size:14px;transition:background .15s}
 .search-select-option:hover{background:rgba(166,58,43,0.08)}
 .search-select-option.selected{background:rgba(166,58,43,0.12);color:var(--primary-dark);font-weight:600}
@@ -1863,7 +1875,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.7</div>
+      <div class="login-version">v2.17.8</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1979,7 +1991,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.7 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.8 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2253,37 +2265,51 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       <div class="page" id="page-credits">
         <div class="card" style="margin-bottom:16px">
           <div class="section-title"><span class="dot"></span>学分操作</div>
-          <div class="toolbar">
-            <div class="search-select-wrapper" style="position:relative;z-index:10;max-width:200px">
-              <input type="text" id="creditStudentInput" placeholder="输入姓名搜索..." autocomplete="off"
-                style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px"
-                oninput="filterCreditStudents()" onfocus="showCreditStudentList()" onblur="setTimeout(hideCreditStudentList,200)">
-              <div id="creditStudentDropdown" class="search-select-dropdown" style="display:none"></div>
-              <input type="hidden" id="creditStudentSelect">
+          <!-- v2.17.8：已选学生挪到右侧常驻面板，下拉不再遮住已选名单（避免看不见选了谁→误以为多点/漏点） -->
+          <div class="credit-op-grid">
+            <div class="credit-op-main">
+              <div class="toolbar">
+                <div class="search-select-wrapper" style="position:relative;z-index:10;max-width:200px">
+                  <input type="text" id="creditStudentInput" placeholder="输入姓名搜索..." autocomplete="off"
+                    style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px"
+                    oninput="filterCreditStudents()" onfocus="showCreditStudentList()" onblur="setTimeout(hideCreditStudentList,200)">
+                  <div id="creditStudentDropdown" class="search-select-dropdown" style="display:none"></div>
+                  <input type="hidden" id="creditStudentSelect">
+                </div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap" id="quickBtnGroup">
+                  <button class="quick-btn plus" onclick="quickCredit(1)" style="width:auto;padding:6px 10px">+1</button>
+                  <button class="quick-btn plus" onclick="quickCredit(2)" style="width:auto;padding:6px 10px">+2</button>
+                  <button class="quick-btn plus" onclick="quickCredit(3)" style="width:auto;padding:6px 10px">+3</button>
+                  <button class="quick-btn plus" onclick="quickCredit(4)" style="width:auto;padding:6px 10px">+4</button>
+                  <button class="quick-btn plus" onclick="quickCredit(5)" style="width:auto;padding:6px 10px">+5</button>
+                  <button class="quick-btn minus" onclick="quickCredit(-1)" style="width:auto;padding:6px 10px">-1</button>
+                  <button class="quick-btn minus" onclick="quickCredit(-2)" style="width:auto;padding:6px 10px">-2</button>
+                  <button class="quick-btn minus" onclick="quickCredit(-3)" style="width:auto;padding:6px 10px">-3</button>
+                  <button class="quick-btn minus" onclick="quickCredit(-4)" style="width:auto;padding:6px 10px">-4</button>
+                  <button class="quick-btn minus" onclick="quickCredit(-5)" style="width:auto;padding:6px 10px">-5</button>
+                </div>
+                <input type="number" id="customCredit" placeholder="自定义" style="width:100px;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px" oninput="onCreditInputChange()">
+                <button class="btn btn-primary btn-sm" id="customApplyBtn" onclick="customCreditApply()" disabled>应用</button>
+                <span id="rp-credit" class="rp"></span>
+                <select id="creditReason" style="display:none" onchange="onCreditReasonChange()">
+                  <option value="">原因（必选）</option>
+                </select>
+              </div>
+              <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn-outline btn-sm" onclick="undoLastOp()" id="undoBtn" disabled>↶ 撤销上一次</button>
+                <button class="btn btn-primary btn-sm" onclick="openMonthlySettle()">🗓️ 月度自动加分（制度对齐）</button>
+              </div>
             </div>
-            <div style="display:flex;gap:4px;flex-wrap:wrap" id="quickBtnGroup">
-              <button class="quick-btn plus" onclick="quickCredit(1)" style="width:auto;padding:6px 10px">+1</button>
-              <button class="quick-btn plus" onclick="quickCredit(2)" style="width:auto;padding:6px 10px">+2</button>
-              <button class="quick-btn plus" onclick="quickCredit(3)" style="width:auto;padding:6px 10px">+3</button>
-              <button class="quick-btn plus" onclick="quickCredit(4)" style="width:auto;padding:6px 10px">+4</button>
-              <button class="quick-btn plus" onclick="quickCredit(5)" style="width:auto;padding:6px 10px">+5</button>
-              <button class="quick-btn minus" onclick="quickCredit(-1)" style="width:auto;padding:6px 10px">-1</button>
-              <button class="quick-btn minus" onclick="quickCredit(-2)" style="width:auto;padding:6px 10px">-2</button>
-              <button class="quick-btn minus" onclick="quickCredit(-3)" style="width:auto;padding:6px 10px">-3</button>
-              <button class="quick-btn minus" onclick="quickCredit(-4)" style="width:auto;padding:6px 10px">-4</button>
-              <button class="quick-btn minus" onclick="quickCredit(-5)" style="width:auto;padding:6px 10px">-5</button>
+            <div class="credit-op-selected" id="creditSelectedPanel">
+              <div class="credit-sel-head">
+                <span>已选学生（<b id="creditSelCount">0</b> 人）</span>
+                <span style="display:flex;gap:4px">
+                  <button type="button" class="btn btn-outline btn-sm" style="padding:1px 8px;font-size:11px" onclick="selectAllCreditStudents()">全班全选</button>
+                  <button type="button" class="btn btn-outline btn-sm" style="padding:1px 8px;font-size:11px" onclick="clearCreditStudents()">清空</button>
+                </span>
+              </div>
+              <div id="creditSelectedChips" class="credit-sel-body"></div>
             </div>
-            <input type="number" id="customCredit" placeholder="自定义" style="width:100px;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px" oninput="onCreditInputChange()">
-            <button class="btn btn-primary btn-sm" id="customApplyBtn" onclick="customCreditApply()" disabled>应用</button>
-            <span id="rp-credit" class="rp"></span>
-            <select id="creditReason" style="display:none" onchange="onCreditReasonChange()">
-              <option value="">原因（必选）</option>
-            </select>
-          </div>
-          <div id="creditSelectedChips" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px"></div>
-          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn btn-outline btn-sm" onclick="undoLastOp()" id="undoBtn" disabled>↶ 撤销上一次</button>
-            <button class="btn btn-primary btn-sm" onclick="openMonthlySettle()">🗓️ 月度自动加分（制度对齐）</button>
           </div>
         </div>
 
@@ -3383,14 +3409,14 @@ function hasGHToken(){ return !!getGHToken(); }
 const defaultReasons = [
   '月度全勤','课堂表现积极','作业全月优秀','考试进步','班级活动参与','校级获奖','班级参赛',
   '卫生优秀个人','有效检举','协助班级工作','检举属实',
-  '迟到早退','旷课','请假手续不全','课堂违纪','扰乱课堂顶撞老师','集会违纪','违禁品',
+  '迟到早退','旷课','请假手续不全','课堂违纪','扰乱课堂顶撞老师','集会违纪','违禁品烟酒手机',
   '作业缺交迟交','作业抄袭考试作弊','值日偷懒卫生脏乱','损坏公物','宿舍违纪',
   '同学冲突','欺凌造谣','虚假举报','其他'
 ];
 const defaultReasonScores = {
   '月度全勤':3, '课堂表现积极':1, '作业全月优秀':3, '考试进步':3, '班级活动参与':2,
   '校级获奖':5, '班级参赛':3, '卫生优秀个人':2, '有效检举':2, '协助班级工作':2, '检举属实':2,
-  '迟到早退':-2, '旷课':-5, '请假手续不全':-4, '课堂违纪':-3, '扰乱课堂顶撞老师':-6, '集会违纪':-3, '违禁品':-10,
+  '迟到早退':-2, '旷课':-5, '请假手续不全':-4, '课堂违纪':-3, '扰乱课堂顶撞老师':-6, '集会违纪':-3, '违禁品烟酒手机':-10,
   '作业缺交迟交':-2, '作业抄袭考试作弊':-8, '值日偷懒卫生脏乱':-3, '损坏公物':-4, '宿舍违纪':-3,
   '同学冲突':-5, '欺凌造谣':-6, '虚假举报':-5
 };
@@ -3406,7 +3432,7 @@ const REASON_CATALOG = {
   },
   '扣分': {
     '考勤': ['迟到早退','旷课','请假手续不全'],
-    '课堂纪律': ['课堂违纪','扰乱课堂顶撞老师','集会违纪','违禁品'],
+    '课堂纪律': ['课堂违纪','扰乱课堂顶撞老师','集会违纪','违禁品烟酒手机'],
     '作业考试': ['作业缺交迟交','作业抄袭考试作弊'],
     '值日公物': ['值日偷懒卫生脏乱','损坏公物'],
     '宿舍': ['宿舍违纪'],
@@ -3476,12 +3502,12 @@ function migrateReasonCatalog(savedCat, oldReasons){
 function syncReasonsFromCatalog(){
   state.reasons = flattenReasonCatalog(state.reasonCatalog);
 }
-/* v2.17.6 制度新增原因补齐：向已有目录「扣分 → 课堂纪律」补入「违禁品」，分值表补 -10。
+/* v2.17.6 制度新增原因补齐：向已有目录「扣分 → 课堂纪律」补入预设原因「违禁品烟酒手机」，分值表补 -10。
    老目录尊重班主任编辑，故不整体并集模板；仅随 schemaVer<1 的首次升级执行一次（幂等）。
    返回是否发生改动（改动则落盘，使目录与分值随云同步到其他设备）。 */
 function backfillReasons2176(){
   var cat = state.reasonCatalog || {};
-  var DIR='扣分', GR='课堂纪律', NAME='违禁品';
+  var DIR='扣分', GR='课堂纪律', NAME='违禁品烟酒手机';   // v2.17.8 起预设=违禁品烟酒手机(-10)；早期补入的旧名「违禁品」由 removeWeijinpinDupe 清理
   if(!cat[DIR]) cat[DIR] = {};
   if(!cat[DIR][GR]) cat[DIR][GR] = [];
   var changed = false;
@@ -3732,7 +3758,7 @@ let state = {
   nextHonorId: 1,
   notices: { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 },
   wipeAt: 0,  // v2.11.3 数据重置时间戳：清空数据时更新，其他设备拉取到更大的 wipeAt 会强制清空对齐
-  schemaVer: 1   // v2.17.6 原因目录/分值表 schema 版本：<1 时对老数据执行一次「违禁品(-10)」补齐，之后尊重班主任增删
+  schemaVer: 2   // 原因目录/分值表 schema 版本：<1 补预设原因、<2 去「违禁品」重名项（v2.17.8），之后尊重班主任增删
 };
 
 function loadData(){
@@ -3752,11 +3778,24 @@ function loadData(){
       // 目录内自定义原因并入「其他 → 自定义原因」；reasons 改为目录派生扁平。
       state.reasonCatalog = migrateReasonCatalog(d.reasonCatalog, state.reasons);
       syncReasonsFromCatalog();
-      // v2.17.6 制度新增原因「违禁品(-10)」：老数据首次升级补齐目录与分值（schemaVer 门控，幂等）
+      // v2.17.6 制度新增原因补齐：向已有目录「扣分 → 课堂纪律」补入预设原因、分值表补分值（v2.17.8 起补「违禁品烟酒手机」）。
+      // 老目录尊重班主任编辑，故不整体并集模板；仅随 schemaVer<1 的首次升级执行一次（幂等）。
+      // 返回是否发生改动（改动则落盘，使目录与分值随云同步到其他设备）。
       state.schemaVer = d.schemaVer || 0;
       if(state.schemaVer < 1){
         state.schemaVer = 1;   // 先置位再落盘，避免每次启动重复迁移
         backfillReasons2176();
+      }
+      // v2.17.8 原因去重：移除旧模板项「违禁品」（与「违禁品烟酒手机」重复），一次性执行
+      if(state.schemaVer < 2){
+        state.schemaVer = 2;
+        var _dup = removeWeijinpinDupe(state.reasonCatalog, state.reasonScores);
+        if(_dup.changed){
+          state.reasonCatalog = _dup.cat;
+          state.reasonScores = _dup.scores;
+          syncReasonsFromCatalog();
+          saveData();
+        }
       }
       state.nextId = d.nextId || (d.students?.length + 1 || 1);
       state.nextOpId = d.nextOpId || (d.operations?.length + 1 || 1);
@@ -6662,17 +6701,19 @@ function renderCreditSelectedChips(){
   var box = document.getElementById('creditSelectedChips');
   if(!box) return;
   var ids = Array.from(_creditSelectedIds);
+  // v2.17.8：右侧面板头部计数 + 有选中时高亮边框
+  var panel = document.getElementById('creditSelectedPanel');
+  var cnt = document.getElementById('creditSelCount');
+  if(cnt) cnt.textContent = ids.length;
+  if(panel) panel.classList.toggle('credit-has', ids.length > 0);
   if(ids.length === 0){
-    box.innerHTML = '<span style="font-size:12px;color:var(--text-muted)">点击搜索结果选中学生，可连续点选多人批量操作</span>';
+    box.innerHTML = '<span style="font-size:12px;color:var(--text-muted)">在左侧搜索框输入姓名并点选学生，可连续点选多人批量操作</span>';
   } else {
-    box.innerHTML = '<span style="font-size:12px;color:var(--text-muted)">已选 <b>' + ids.length + '</b> 人：</span>' +
-      ids.map(function(id){
-        var s = state.students.find(function(x){ return x.id === id; });
-        if(!s) return '';
-        return '<span class="stag stag-blue" style="cursor:pointer" title="点击移除" onclick="removeCreditStudent(' + id + ')">' + escapeHtml(s.name) + ' ✕</span>';
-      }).join('') +
-      '<button type="button" class="btn btn-outline btn-sm" style="padding:2px 10px;font-size:11px" onclick="selectAllCreditStudents()">全班全选</button>' +
-      '<button type="button" class="btn btn-outline btn-sm" style="padding:2px 10px;font-size:11px" onclick="clearCreditStudents()">清空</button>';
+    box.innerHTML = ids.map(function(id){
+      var s = state.students.find(function(x){ return x.id === id; });
+      if(!s) return '';
+      return '<span class="stag stag-blue" style="cursor:pointer" title="点击移除" onclick="removeCreditStudent(' + id + ')">' + escapeHtml(s.name) + ' ✕</span>';
+    }).join('');
   }
   updateCreditBtnStates();
 }
@@ -8125,6 +8166,35 @@ function askResetReasonCatalog(){
   state.reasonScores = Object.assign({}, defaultReasonScores);
   catRefresh();
   showToast('已恢复制度预设目录（27 项）', 'success');
+}
+
+/* v2.17.8 原因去重（纯函数）：移除旧模板项「违禁品」（v2.17.6 曾作为预设补入），保留「违禁品烟酒手机」。
+   按组处理：同组已有「违禁品烟酒手机」→ 只删旧名；同组只有旧名 → 就地改名为「违禁品烟酒手机」（保住该制度项，
+   覆盖 v2.17.6 自动补入但老师从未手动建过新名的老数据）。分值表同理归并。历史流水不在此改动（流水里的原因文本
+   原样保留，仅影响以后的选择项）。schemaVer<2 时执行一次。 */
+function removeWeijinpinDupe(cat, scores){
+  var outCat = JSON.parse(JSON.stringify(cat || {}));
+  var changed = false;
+  Object.keys(outCat).forEach(function(dir){
+    Object.keys(outCat[dir] || {}).forEach(function(gr){
+      var arr = outCat[dir][gr];
+      var i = arr.indexOf('违禁品');
+      if(i < 0) return;
+      if(arr.indexOf('违禁品烟酒手机') >= 0){
+        arr.splice(i, 1);            // 同组已有新名 → 旧名纯属重复，删
+      } else {
+        arr[i] = '违禁品烟酒手机';    // 只有旧名 → 就地改名，不丢制度项
+      }
+      changed = true;
+    });
+  });
+  var outScores = Object.assign({}, scores || {});
+  if('违禁品' in outScores){
+    if(!('违禁品烟酒手机' in outScores)) outScores['违禁品烟酒手机'] = outScores['违禁品'];
+    delete outScores['违禁品'];
+    changed = true;
+  }
+  return { cat: outCat, scores: outScores, changed: changed };
 }
 
 /* ==================== v2.17.1 学分体检（教师端） ==================== */
