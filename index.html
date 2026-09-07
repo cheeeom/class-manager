@@ -1883,7 +1883,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.9</div>
+      <div class="login-version">v2.17.10</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -1999,7 +1999,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.9 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.10 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2569,21 +2569,25 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         </div>
 
         <div class="settings-section">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap">
-            <div>
-              <h3>📚 学分原因目录（多级菜单）</h3>
-              <div style="margin-top:6px;font-size:12px;color:var(--text-muted);line-height:1.7">
-                加减分时按「方向 → 大类 → 原因」逐级点选。预设 27 项只是初始模板，<b>可自由增删改</b>；
-                改动立即生效，并随云同步到班委端。
-              </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;cursor:pointer;user-select:none" onclick="toggleReasonCatalog()" title="点击展开 / 收起">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0">
+              <span id="reasonCatalogArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
+              <h3 style="margin:0">📚 学分原因目录（多级菜单）</h3>
+            </div>
+            <span id="reasonCatalogCollapseHint" style="font-size:12px;color:var(--text-muted)">默认折叠 · 点击展开编辑</span>
+          </div>
+          <div id="reasonCatalogBody" style="display:none;margin-top:14px">
+            <div style="margin-bottom:10px;font-size:12px;color:var(--text-muted);line-height:1.7">
+              加减分时按「方向 → 大类 → 原因」逐级点选。预设 27 项只是初始模板，<b>可自由增删改</b>；
+              改动立即生效，并随云同步到班委端。
             </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap">
               <button class="btn btn-outline btn-sm" onclick="openReasonDirModal()">＋ 方向</button>
               <button class="btn btn-outline btn-sm" onclick="openReasonItemModal('')">＋ 原因</button>
               <button class="btn btn-sm" style="color:var(--danger)" onclick="askResetReasonCatalog()">↺ 恢复预设</button>
             </div>
+            <div id="reasonCatalogTree" style="margin-top:12px"></div>
           </div>
-          <div id="reasonCatalogTree" style="margin-top:12px"></div>
         </div>
         <div class="settings-section">
           <h3>座位设置</h3>
@@ -8050,6 +8054,20 @@ function catDirList(){ return Object.keys(state.reasonCatalog || {}); }
 function catGroupList(dir){ return Object.keys((state.reasonCatalog || {})[dir] || {}); }
 function catReasonList(dir, gr){ return ((state.reasonCatalog || {})[dir] || {})[gr] || []; }
 function catDirEmoji(d){ return { '加分':'➕', '扣分':'➖', '其他':'⚪' }[d] || '📁'; }
+
+/* v2.17.10 学分原因目录默认折叠：树很长会挤占设置页其他选项，收成一行标题，
+   点标题行展开编辑；再次点击收起。展开时重画树，保证编辑后的最新状态。 */
+function toggleReasonCatalog(){
+  const body = document.getElementById('reasonCatalogBody');
+  if(!body) return;
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : '';
+  const arrow = document.getElementById('reasonCatalogArrow');
+  const hint = document.getElementById('reasonCatalogCollapseHint');
+  if(arrow) arrow.textContent = open ? '▶' : '▼';
+  if(hint) hint.textContent = open ? '默认折叠 · 点击展开编辑' : '点击收起';
+  if(!open) renderReasonCatalogTree();
+}
 
 function renderReasonCatalogTree(){
   const el = document.getElementById('reasonCatalogTree');

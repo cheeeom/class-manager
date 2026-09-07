@@ -358,3 +358,74 @@
 - [x] **教训（写进 CONTEXT §三）**：① 改完代码必须先 `git add 指定文件 && git commit` 再跑 cm-push-incremental（脚本虽已修读工作区，但保持本地 commit 惯例，commit 历史与 PROGRESS 对应）② 推送后必须用 gh api 拉线上内容验证特征串（版本号/新函数名），不能只看 commit sha 前进 ③ 用户侧栏版本号是最快的线上版本探针
 - [x] 老板侧影响：全程跑 v2.17.5 → 自定义分值防覆盖（v2.17.6）与流水反转修复（v2.17.7）今天才真正生效；其本地/云端数据中"消失"的记录实为被反转排到队尾，升级后启动归一化会自动回到时间线顶部
 
+
+### 2026-09-07（v2.17.8：学分页右侧常驻已选面板 + 违禁品去重保留「违禁品烟酒手机」+ 老数据迁移）
+
+- [x] 老板需求三条：①「一次输入上传三次扣分」实为多人批量=每生一条（设计如此）的预期行为，但下拉遮挡已选名单导致老师看不见选了谁→误以为多点/漏点 ② 把已选学生挪到右侧 ③ 原因里有两个违禁品 → 删「违禁品 -10」只留「违禁品烟酒手机」
+- [x] **右栏常驻面板**：学分页 HTML 重构为 `.credit-op-grid` flex 两栏（主操作左 + `.credit-op-selected` 右），CSS `.credit-op-grid{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}` + 面板边框/计数/滚动 chips 区（max-height 160px），`renderCreditSelectedChips` 重写：更新 `#creditSelCount` 计数 + `.credit-has` 高亮类；响应式 ≤760px 堆叠
+- [x] **下拉 vs 面板不重叠**：真机（headless Chromium，1280×900）measure 矩形，搜索下拉 `l:285→r:477`、已选面板 chips `l:948→r:1222`，panelRightOfInput=true、overlap=false ✅；下拉打开时 chips 仍可见
+- [x] **「一次输入三条」复现**（`_dbg_triple.js` 已删）：1 人 1 次「应用」= 1 条流水（content 正确 amount=-10 studentId=3）；3 人全选 1 次 = +3 条（4 total），重复点击 button disabled 拦截不叠加
+- [x] **违禁品重命名**：defaultReasons/defaultReasonScores/REASON_CATALOG 课堂纪律的「违禁品」→「违禁品烟酒手机」（-10），`backfillReasons2176` NAME 一并更新
+- [x] **`removeWeijinpinDupe` 按组语义**（防 v2.17.6 自动补入但老师从未手动建新名的老数据悄悄丢制度项）：同组已有「违禁品烟酒手机」→ 删旧名；同组只有旧名 → 就地改名保留位置 + 分值一并归并
+- [x] **迁移** `schemaVer<2`：loadData 启动 `removeWeijinpinDupe(state.reasonCatalog, state.reasonScores)` → 改则 `syncReasonsFromCatalog(); saveData()`；state 初始化 `schemaVer:2`；CLOUD_SYNC_FIELDS 含 schemaVer、smartMergeData 取 `Math.max`、CACHE bump v2.17.8
+- [x] **回归 333 项全绿**（v2.17.7 330 + 3 = _v2120 重写 removeWeijinpinDupe 三按组语义用例：双同名删旧名/只有旧名改名保制度/幂等+纯函数不改入参）：25/19/24/13/22/11/17/38/42/32/17/26/33/14 + _crypto ✅
+- [x] **真机三场景验收**（`_dbg_v2178.js` 已删）：① 全新 v2.17.8 班模板违禁品类只剩「违禁品烟酒手机」+ 分值 -10 ② 老板实际双同名老数据（schemaVer 1，扣分课堂纪律 = ['课堂违纪','集会违纪','违禁品','违禁品烟酒手机']）升级后 schemaVer=2、目录删旧名留新名、分值表只剩新名 -10 ③ v2.17.6 纯旧名老数据（只有 v2.17.6 自动补入的「违禁品」）→ 就地改名 + 分值 -10 转移到新名（**不丢制度项**）
+- [x] **本地提交 `1d4a052`**（按 CONTEXT §三 铁律：改完先 `git add 指定文件 && git commit` 再推；8 个文件 +193 -84）
+- [x] **推送远端完成**（2026-09-07 12:4x，boss 贴 PAT → `cm-push-incremental.js` 设 `GH_TOKEN` 走 gh CLI REST API 推 index.html+sw.js → 远端 **a2a93ca**）
+  - 代理切换（52→192.168.8.70:9890）后仍推不动 → 探测定位根因：**公司代理策略性掐 `github.com` 的 git 写通道**（`info/refs?service=git-receive-pack` 与 `git-receive-pack` 均 10s 断连 000，读通道 upload-pack 200 放行，api.github.com GET/POST 全通）→ git push/SSH(无 key)/gh(未登录) 全不可行，唯一出路 REST API
+  - **本地/远端链分叉处理**：历史清理点 c3334ae 后本地旧链与远端链（cm-push API 推送 + auto-sync data.json commits）分叉 → 直接 cherry-pick 1d4a052 会因远端测试文件缺失/旧版冲突 → 改在 `v2178-push` 分支（=远端 aa64ff7）上 `git checkout main -- index.html sw.js` 内容对齐 → 新 commit 806c7ff → 实际由 cm-push 以远端 aa64ff7 为 base 推成 a2a93ca（blob 07a9531 与本地字节一致 ✅）
+  - 本地收尾：`git tag v2.17.8-legacy-local 466446a` 保底 → `git reset --hard a2a93ca` → checkout 测试 15 件 + CONTEXT/PROGRESS 回挂 → commit `71280ec`（本地独有）→ 删临时分支/锚点 → **`git config core.autocrlf false`**（reset 触发 CRLF 转换使测试正则 `;\n` 匹配失败，关掉后工作区保持 LF）
+  - 远端验证全过：login-version/sidebar-footer v2.17.8、`function removeWeijinpinDupe(cat, scores)`、`sortOpsNewestFirst`、sw.js `class-manager-v2.17.8`、defaultReasons/分值表无独立「违禁品」、有「违禁品烟酒手机」-10
+  - **教训**：① 换代理地址解决不了 git push——先 curl 探 `receive-pack` 端点区分「网络断」与「策略掐写」 ② gh 未登录可用 `GH_TOKEN` 环境变量免登录 ③ Windows 上 reset --hard 会因 autocrlf=true 把 LF blob 转 CRLF 工作区，破坏依赖 `\n` 的测试正则 → `core.autocrlf false`
+
+### 2026-09-07（v2.17.9：学分流水软删撤销——根治"撤销只在记录里生效/学分没同步"+云端复活）
+
+- [x] 老板反馈：web 上操作黄丽萍扣违禁品（因历史有两个违禁品理由）、设置删除多余理由、在记录中撤销了误扣除的分数——但学生管理界面仍是 44 分，时间线里 4 条扣分（最新在前：09:24/09:13/07:55 -10 违禁品烟酒手机、07:35 -7 课堂违纪）没被撤销。诉求：「撤销好像仅在记录里面生效了，我要求和学分务必同步数据」
+- [x] **根因诊断**（代码层）：
+  - ① 时间线**只读渲染**（`renderOpItem` 无任何按钮），撤销入口只有学分操作页的「↶ 撤销上一次」按钮（`undoLastOp`），且只能撤**全局最新一条**——老板想撤黄丽萍中间某条扣分时，若队首是其他学生/其他班委的操作，撤销根本撤不到黄丽萍
+  - ② `undoLastOp` = 物理 `state.operations.shift()` 删流水 + `student.credit -= op.amount`；**云端校准（smartMergeData operations 按 id 并集）会把已删的流水从云端补回来**（与 v2.17.5/2.17.7 老板同款"刷新后被覆盖"的反向复刻：撤销=消失，云同步=复活）
+  - ③ `loadData` 每次启动调 `reconcileCreditDrift` 把 credit 校准成 `creditBase + Σ流水全集`——只要被删流水复活，credit 就被 reconcile 拉回扣分后值（44=100-56 正是老板实际账）→"撤销只在记录里生效"是云端 merge 复活 + reconcile 校准的组合结果，**撤销=根本没生效**
+- [x] **方案设计**：选"软删 tombstone"而非"反向对冲流水"，原因：① 流水永不裁剪哲学（v2.15.0 确立的）→ 软删保留 op 实体，只是打 `state='revoked'` 标记，符合"流水分集是审计唯一真源" ② 作废标记随 op 进 CLOUD_SYNC_FIELDS 全量同步 ③ `smartMergeData` 按 `stateTime` 大者取新→撤销/恢复跨设备一致 ④ 视觉上记录消失符合老师"撤销=作废"心智 ⑤ 增加可恢复抽屉防误撤
+- [x] **核心实现**：
+  - `liveOps(ops)` 纯函数：`(ops||[]).filter(o => !(o && o.state === 'revoked'))`——所有 Σ流水与 filter ops 消费点的统一入口
+  - `sumCreditsByStudent` / `reconcileCreditDrift` / `applyCreditBaseFix` / `computeCreditAudit` / `normalizeInitialCredits` 全部改用 `liveOps(operations)`（之前直接 sum ops，现在 sum 有效流水）→ 已撤销的 -10 自动不计入 credit
+  - `revokeCreditOp(opId)`：`op.state='revoked'; op.stateTime=Date.now(); afterOpStateChange()`（标记 + 时间戳）
+  - `restoreCreditOp(opId)`：`op.state='ok'; op.stateTime=Date.now(); afterOpStateChange()`（恢复 = 去掉标记，时间戳取新 → 跨设备传播）
+  - `afterOpStateChange()`：`reconcileCreditDrift(state.students, state.operations) + saveData() + refreshCreditViews()`——撤销后**学分实时按有效流水重算并自动云推送**（saveData 末尾 autoPushToCloud 触发 debounce 2s 的 GH_API PUT）
+  - `undoLastOp` 改为：`liveOps(state.operations)[0].id → revokeCreditOp(...)`（找最新未撤的，不再物理 shift）
+  - `updateUndoBtn`：`liveOps(...).length === 0` 判定 disabled
+  - `renderOpItem` 每条加 `<button class="tl-undo" onclick="revokeCreditOp(${Number(op.id)})" title="撤销这条记录（学分自动回补）">↩ 撤销</button>`（id 数字安全）→ 时间线每条流水都有「↩ 撤销」按钮
+  - `renderCreditsTimeline` 改 `liveOps(state.operations).slice(0, 50)` + 末尾调 `renderRevokedDrawer()`
+  - `renderRevokedDrawer` 新增：操作记录卡片底部「🗂 已撤销的记录」折叠抽屉，列出最近 20 条已撤销 + 每条「恢复」按钮（`restoreCreditOp`），防误撤
+  - `smartMergeData` operations 合并升级：`if (!lo) omap[ro.id]=ro; else if ((ro.stateTime||0) > (lo.stateTime||0)) omap[ro.id]=ro;`——同 id 按 stateTime 大者胜，本地撤销不被云端旧流水复活、远端撤销/恢复能传到本地
+  - 其他消费点过滤（renderDash recent、openDetailPanel、monthlySettlePlan settled/hasViolation、renderProgressList、dayOps、computePublicityData）统一加 `!(o.state==='revoked')` 或改 `liveOps(...)`
+  - CSS：`.tl-undo`（悬停变红 dashed→solid）、`.tl-revoked-wrap`/`.tl-revoked-row` 抽屉样式
+- [x] **测试**：
+  - 4 个老测试补 `liveOps` 抽取（_v290/_v2140/_v2150/_v2171）
+  - _v2150 undoLastOp 行为断言改为新语义（soft-delete + revokeCreditOp + liveOps 结构断言）
+  - 新增 _v2173（13 项）：liveOps 过滤、sumCreditsByStudent 排除、撤销核心结构、reconcileCreditDrift 用有效流水重算、undoLastOp 跳过已撤找最新、smartMergeData stateTime 传播（本地撤销不被云端复活/远端撤销传到本机/两端口径一致/恢复跨设备）、消费点过滤、时间线撤销按钮 + 撤销抽屉结构
+  - **全量 15+1 套共 346 项全绿**：25/19/24/13/22/11/17/38/42/32/17/26/13/33/14 + _crypto
+- [x] **真机 7 场景 17 断言全过**（playwright，1280×800）：① 黄丽萍连扣 3 笔（-10/-10/-7）→ 73/3条/每条有撤销按钮 ② revokeCreditOp(中间 -10)→ 83/2条/1条 revoked 标记/抽屉显示 ③ restoreCreditOp→ 73/3条 ④ UI 真实点时间线 ↩ 撤销按钮→ 80（最新条 -7 被撤）+ revoked=1 ⑤ undoLastOp→ 90（-7 课堂违纪被撤）+ revoked=2 ⑥ **云合并（本地已撤 2 条 + 云端旧流水全集无标记）→ 合并后 revoked=2 / liveOps=1 / credit=90 不被拉回** ✅ ⑦ 跨设备：本地 op ok + 远端 op stateTime=999 revoked → 合并采用 revoked 态（撤销跨设备生效）
+- [x] **远端推送 e9de113f**（基于 v2.17.8 远端 656f555f 之上的快进）：boss 已配置的 GH_TOKEN + `cm-push-incremental.js` 推 index.html+sw.js（cm-push 走 gh CLI REST API，绕开代理对 git-receive-pack 的掐断）→ 远端 a2a93ca→656f555f→e9de113f
+- [x] **远端验证全过**（gh api）：远端 HEAD=e9de113f；登录/侧栏 v2.17.9；`function liveOps(ops)` / `revokeCreditOp` / `restoreCreditOp` / `afterOpStateChange` 全部存在；`'revoked'` 标记 + `stateTime = Date.now` 字段存在；sw.js CACHE_NAME=class-manager-v2.17.9；**本地 vs 远端 index.html blob sha c4dcdeb3 字节级一致** ✅
+- [x] **老板当前数据救济**：现有 data.json 里黄丽萍那 4 条流水都在（v2.17.8 之前撤销没生效或被云端复活）——新功能上线后，老师在时间线每条流水点「↩ 撤销」即可逐条作废、立即回补学分，**云端推送 debounce 2s 后 4 台设备全部生效**；不用清空 data.json
+
+### 2026-09-07（v2.17.10：原因目录默认折叠）
+
+- [x] **需求**：设置页「学分原因目录」section 内容很长（27 项多级 + 编辑按钮 + 树），展开后挤压座位/暗夜/公示/班委/数据管理/云同步等其他设置项，老师编辑目录时无法一眼看到其它设置。改为「默认折叠 + 点击标题行展开编辑」
+- [x] **实现**：
+  - 设置页 HTML 重构（行 2571-2587）：整块 `.settings-section` 内层拆成两段——头部行（`#reasonCatalogArrow` ▶/▼ + `<h3>` + `#reasonCatalogCollapseHint` 状态文案）整行可点击切换；说明 + 「＋方向/＋原因/恢复预设」+ `#reasonCatalogTree` 全部包进 `#reasonCatalogBody` 默认 `display:none`
+  - 新增 `toggleReasonCatalog()`（index.html ~8054 行，紧贴 renderReasonCatalogTree 前）：根据 body 当前 display 切换 display，同步箭头 ▶/▼、hint 文案「默认折叠 · 点击展开编辑」/「点击收起」，**展开时重画一次树**保证编辑后状态最新
+  - DOM 渲染链：`renderSettings()` → `renderReasonCatalogTree()` 仍每次进设置页跑一次（树很大也要重画无碍），且 `state.reasonCatalog` 数据流未改
+- [x] **版本 bump**：`index.html` 登录页 (1886) + 侧栏 (2002) v2.17.9 → v2.17.10；`sw.js` `CACHE_NAME = class-manager-v2.17.9` → `class-manager-v2.17.10`
+- [x] **测试断言同步**：5 个测试文件（`_v2150/_v2160/_v2170/_v2171/_v2172`）中 v2.17.9 版本断言分两轮 bump——**首轮明文 `v2.17.9` → v2.17.10（覆盖 title/t 名/console.log），二轮转义正则 `v2\.17\.9` → v2\.17\.10**（正则断言 `includes('class-manager-v2.17.10')` 与登录页 `/login-version">v2\.17\.10</`、`sidebar-footer">v2\.17\.10 ·`）。教训：以后升版走一遍双替换，不要再只 replace 明文
+- [x] **全量 16 套共 347 项全绿**：v 系 299（25/19/24/13/22/11/17/38/42/32/17/26/13；v2.17.10 起 `_v2150` 38 项，含本次新增的版本断言 1 项）；`_sync_test.js` 33；`_xss_test.js` 14；`_crypto_test.js` ✅
+- [x] **浏览器验证 6/6 全过**（playwright-core + 本地 chromium 127.0.0.1:8931 静态服务器）：
+  1. 进入设置页：`#reasonCatalogBody` `display === 'none'`（默认折叠）✅
+  2. 点头部行：`#reasonCatalogBody` display 变块、箭头 `▶` → `▼`、hint 文案变「点击收起」✅
+  3. 展开后树渲染 3 个方向（默认模板），`#reasonCatalogTree .cat-dir` 行可见 ✅
+  4. `＋ 方向` 按钮 DOM 存在且 `onclick` 绑定到 `openReasonDirModal` ✅
+  5. 再点头部行：`#reasonCatalogBody` 回到 `display:none`、箭头 `▼` → `▶` ✅
+  6. 整轮 0 异常/console error
+  - 截图：`fold_real_expanded.png`（折叠 → 展开可见 3 个方向）/ `fold_real_collapsed.png`（收起态）
+- [ ] **远端推送（待推送）**：本次改动文件 = `index.html` + `sw.js` + `PROGRESS.md`；推送命令：`node D:/a/chee777/scripts/cm-push-incremental.js "v2.17.10 原因目录默认折叠" index.html sw.js PROGRESS.md`（GH_TOKEN 走 REST API）
