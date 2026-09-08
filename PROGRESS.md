@@ -531,3 +531,22 @@
 - [x] **测试**：新增 `_v2176_test.js` 9 项（语法/版本三处同步/CSS 基础样式四项/`.panel-close` 设计语言未破坏/四个弹窗共用 `modal-header + h3 + button.modal-close` 结构锚点）—— **全量 19 套全绿（新增 9 项）**
 - [x] **升版**：v2.17.17 → v2.17.18（登录/侧栏/SW CACHE_NAME + 7 个测试文件明文+转义双轮，**含 _v2175 的正则断言也要做转义轮**——本次差点漏，模板会自动按"明文 v2.17.17"找，但正则里的 `v2\.17\.17` 走转义轮）
 - [x] **给老板**：强刷后（SW v2.17.18）档案编辑等四个弹窗关闭键已统一为右上角圆形（与侧栏关闭键一致），无需任何额外操作
+
+### 2026-09-08（v2.17.19：档案详情新版式 + 拼音排序 + 寝室→性别补写 + 德育记录本学期滚动 + 荣誉证书导出）
+
+- [x] **需求**：① 学生档案左侧学生列表按姓名首字母音序排名 ② 档案详情界面优化排版（姓名/学分大字号/性别/备注四要素 + 德育记录可折叠可滚动 + 成长记录 + 学生荣誉） ③ 性别从寝室号规则自动派生（男寝 7栋214、女寝 6栋801~806） ④ 荣誉墙加入班级荣誉并支持导出荣誉证书图片
+- [x] **改动**：
+  1. **拼音排序**：`sortStudentsByPinyin` 用 `Intl.Collator('zh-Hans-CN')`（Chromium 完整 ICU 支持中文 pinyin collation），左侧名单按姓名 A→Z 排，同音回退学号；renderProfileList 接入
+  2. **档案详情新版式**（`.pf-summary/.pf-credit/.pf-chip/.pf-notes/.pf-section` 等全新 CSS）：
+     - 头部：头像 + 姓名 + meta（学号/性别 chip/寝室标签） + **当前学分大字号（38px）** + ✏️ 编辑资料
+     - 备注：单独虚线卡显眼展示（特异体质/需关心等）
+     - **德育记录卡**：默认展开，可折叠（chevron ▾），「本学期 / 全部」segmented 切换，列表 **max-height:250px 滚动**，排除已撤销（liveOps）；学分变动加减用绿/红（沿用 credits 时间线既有配色）
+     - 成长记录卡：默认展开，5 个 add 按钮（谈心/表扬/批评/联系家长/其他）+ 时间线
+     - 学生荣誉卡：默认收起，列出个人荣誉 + 每条 📄 证书按钮（导出 PNG）
+  3. **寝室→性别自动补写**：`DORM_GENDER_RULES = [{re:/^7栋-?214室$/,gender:'男'},{re:/^6栋-?80[1-6]室$/,gender:'女'}]`；`fillStudentGenderFromDorm` 仅在性别为空时写入；三个触发点：① renderProfiles 启动时 `fillAllDormGenders()` 全校兜底 ② 寝室页 `addDormMember` ③ 学生页 `addCustomTag` 手填寝室号标签；已设置不覆盖（班主任可手动改）
+  4. **荣誉墙类型筛选**：`_honorScope='全部'`，`setHonorScope` 切换；chips 渲染时显式加「类型」小标，level-all chip 文案「不限」避免与「全部」混淆
+  5. **荣誉证书 PNG 导出**：1500×1062 画布，金框双线 + 角饰 + 红章（班主任荣誉专用章）；中央「荣誉证书」+ 获得者（个人按姓名/集体按班级名） + 标题 + 大红「{等级}荣誉」+ 「特发此证，以资鼓励」+ 日期/落款；个人可按学生出证（`exportHonorCert(id, 学生姓名)`），集体出班级荣誉证；下载文件名 `<人/班>-<标题>-荣誉证书.png`（去掉文件名非法字符）
+- [x] **测试**：新增 `_v2177_test.js` 16 项（语法/版本三处/Intl 拼音 collator + sortStudentsByPinyin 顺序实证 / DORM_GENDER_RULES+dormGenderOf 7 个用例 / fillStudentGenderFromDorm 仅空时写 + 不覆盖 / renderProfiles 兜底挂载 / 详情 CSS 类 + 头部/备注/三段折叠卡结构 / pfSemesterStartTs / 荣誉墙类型筛选 + 证书按钮 + 画布函数接口）
+- [x] **验收**：本地 `python -m http.server` + playwright-core 渲染 21 项全过（拼音顺序 6 人 ✔ / 学分大字号 38px ✔ / 寝室→性别补写（女 ✔ / 男 ✔ / 不规则不补 ✔） / 本学期 2 条过滤 ✔ / 折叠交互 ✔ / 学生荣誉 1 条 ✔ / 证书画布 >50KB ✔ / 集体荣誉下载文件名 `26级幼保2班-广播操比赛第一名-荣誉证书.png` ✔ / 荣誉墙 2 张卡 + 类型筛选个人剩 1 条 ✔）
+- [x] **升版**：v2.17.18 → v2.17.19（index/sw + 8 测试文件明文+转义双轮，注意 _v2177 的 extractFn 抽 DORM_GENDER_RULES const / DORM_RE const 等模块绑定，避免「isDormTag is not defined / DORM_RE is not defined」——单测抽公共函数 + const 常量需要一并注入或解析提供，否则套件一起炸）
+- [x] **全量 20 套件全绿**：v2.17.19 新增 16 项，累加 v2.17.16 起的新模块共 **396+ 项**
