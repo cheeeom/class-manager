@@ -668,7 +668,7 @@ tbody tr.highlight{
   box-shadow:0 0 0 3px rgba(166,58,43,0.1);
 }
 .modal textarea{min-height:120px;resize:vertical;font-family:monospace}
-/* v2.17.19 弹窗头部统一：.modal-header/.modal-close 此前只有暗色 border-color 一行、无基础样式，
+/* v2.17.20 弹窗头部统一：.modal-header/.modal-close 此前只有暗色 border-color 一行、无基础样式，
    × 键裸排到标题下方左缘 → 档案编辑/成长记录/工作留痕/荣誉四个弹窗「关闭键贴左上、观感破碎」。
    统一为 标题居左 + 圆形描边关闭键居右（与 .panel-close 同设计语言，hover 变红轻旋） */
 .modal-header{display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -1463,7 +1463,7 @@ html.dark .honor-level.hl-5{color:#D9A441}
 .tl-badge.tl-contact{background:rgba(185,106,31,0.12);color:var(--orange)}
 .tl-badge.tl-other{background:rgba(126,119,106,0.12);color:var(--text-muted)}
 .tl-body{flex:1;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px}
-/* v2.17.19 档案详情新版式：头部概要 + 德育记录(学分变动)/成长记录/学生荣誉 分卡排版 */
+/* v2.17.20 档案详情新版式：头部概要 + 德育记录(学分变动)/成长记录/学生荣誉 分卡排版 */
 .pf-summary{display:flex;align-items:center;gap:16px;padding:16px 18px;
   background:linear-gradient(135deg,rgba(166,58,43,.055),rgba(201,162,39,.07));
   border:1px solid var(--border);border-radius:14px;margin-bottom:6px;flex-wrap:wrap}
@@ -1938,7 +1938,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.19</div>
+      <div class="login-version">v2.17.20</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2054,7 +2054,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.19 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.20 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2605,6 +2605,11 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <input type="text" id="classNameInput" placeholder="班级名称" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px">
             <button class="btn btn-primary btn-sm" onclick="saveClassName()">保存</button>
           </div>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <input type="text" id="classNameFullInput" placeholder="班级全称（用于荣誉证书等正式文件）" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px">
+            <button class="btn btn-outline btn-sm" onclick="saveClassNameFull()">保存</button>
+          </div>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">如「2026级幼儿保育2班」。导出荣誉证书时按此全称落款；不填则用上方班级名称</div>
         </div>
         <div class="settings-section">
           <h3>班级头像</h3>
@@ -3209,7 +3214,7 @@ const GH_REPO = 'class-manager';
 const GH_BRANCH = 'main';
 const GH_DATA_PATH = 'data.json';
 // 云端 data.json 同步字段白名单（auto/manual push 共用）
-const CLOUD_SYNC_FIELDS = ['className','students','operations','reasons','reasonScores','reasonCatalog','catDeleted','nextId','nextOpId','nextSid',
+const CLOUD_SYNC_FIELDS = ['className','classNameFull','students','operations','reasons','reasonScores','reasonCatalog','catDeleted','nextId','nextOpId','nextSid',
   'lastExport','lastImport','committee','seating','duty','exportedOpsCount','classMotto',
   'leaves','nextLeaveId','exams','nextExamId','todos','nextTodoId',
   'workLogs','nextWorkLogId','honors','nextHonorId','notices',
@@ -3538,7 +3543,7 @@ function flattenReasonCatalog(cat){
   return out;
 }
 // 目录结构并集（方向/大类并集，组内原因去重保序）。用于多设备合并：两边新增都保留；
-// v2.17.19 起删除项由 smartMergeData 中 catDeleted 墓碑剔除，不再复活。
+// v2.17.20 起删除项由 smartMergeData 中 catDeleted 墓碑剔除，不再复活。
 function mergeReasonCatalog(a, b){
   var out = cloneReasonCatalog(a || {});
   Object.keys(b || {}).forEach(function(dir){
@@ -3552,7 +3557,7 @@ function mergeReasonCatalog(a, b){
   });
   return out;
 }
-// ---- v2.17.19 删除墓碑：目录删除要真正持久（本地刷新 / 云合并都不复活） ----
+// ---- v2.17.20 删除墓碑：目录删除要真正持久（本地刷新 / 云合并都不复活） ----
 // 删方向/大类/原因时记入 state.catDeleted（随 CLOUD_SYNC_FIELDS 云同步）；
 // 加载与云端合并后统一 applyCatTombstones 剔除。重新添加同名项会清除对应墓碑。
 function cloneCatDeleted(t){
@@ -3788,7 +3793,7 @@ function revertCreditOp(student, op){
 /* 学分变更后统一刷新所有展示学分的视图。
    此前 applyCredit / applyCreditBulk / undoLastOp 只刷 renderCreditsPage，
    学生管理模块的表格不刷新 —— 这是「分数不一致」的直接观感来源。
-   v2.17.19：公示页（学分榜/进步榜/零扣分榜/概览统计/四个图表）纳入统一学分刷新——
+   v2.17.20：公示页（学分榜/进步榜/零扣分榜/概览统计/四个图表）纳入统一学分刷新——
    加分/减分/撤销/恢复/校快照后，只要公示页正开着（常驻/投屏），进步榜等立即同步，
    不再出现「同学加了分，进步榜/学分榜还是老样子」。 */
 function refreshCreditViews(){
@@ -3806,7 +3811,7 @@ function refreshCreditViews(){
   if(dash && dash.classList.contains('active')) safe(window.renderDashboard);
   var ana = document.getElementById('page-analytics');
   if(ana && ana.classList.contains('active')) safe(window.renderAnalytics);
-  var pub = document.getElementById('page-publicity');          // v2.17.19 公示页同步
+  var pub = document.getElementById('page-publicity');          // v2.17.20 公示页同步
   if(pub && pub.classList.contains('active')) safe(window.renderPublicity);
 }
 /* 学分等级：制度第六章（≥100 优秀 / 90-100 合格 / 80-90 一般 / <80 不合格） */
@@ -3853,12 +3858,13 @@ const DEFAULT_COMMITTEE = {banzhang:null, fubanzhang:null, jilv:null, xuexi:null
 
 let state = {
   className: '高一（1）班',
+  classNameFull: '',   // v2.17.20 班级全称（荣誉证书等正式文书用；留空则回退 className）
   students: [],
   operations: [],
   reasons: [...defaultReasons],
   reasonScores: {},
   reasonCatalog: defaultReasonCatalog(),   // v2.17.0 可编辑原因目录（模板 = REASON_CATALOG）
-  catDeleted: { dirs: [], groups: [], reasons: [] },   // v2.17.19 原因目录删除墓碑（刷新/云合并均不复活删除项）
+  catDeleted: { dirs: [], groups: [], reasons: [] },   // v2.17.20 原因目录删除墓碑（刷新/云合并均不复活删除项）
   sortDir: 'desc',
   selectedStudents: new Set(),
   nextId: 1,
@@ -3895,10 +3901,11 @@ function loadData(){
     try{
       const d = JSON.parse(raw);
       state.className = d.className || state.className;
+      state.classNameFull = d.classNameFull || state.classNameFull;   // v2.17.20 班级全称
       state.students = d.students || [];
       state.operations = sortOpsNewestFirst(d.operations || []);   // v2.17.7 归一化：老合并可能把顺序反转成最旧在前
       // 原因模板：默认模板只参与首次/旧数据迁移（migrate 内部处理），已有目录尊重班主任增删。
-      // v2.17.19：删除项记入 catDeleted 墓碑，加载后统一剔除 → 刷新不复活。
+      // v2.17.20：删除项记入 catDeleted 墓碑，加载后统一剔除 → 刷新不复活。
       var _tomb = (d.catDeleted && typeof d.catDeleted === 'object') ? cloneCatDeleted(d.catDeleted) : { dirs:[], groups:[], reasons:[] };
       state.catDeleted = _tomb;
       state.reasonCatalog = migrateReasonCatalog(d.reasonCatalog, (d.reasons && d.reasons.length) ? d.reasons : defaultReasons);
@@ -3986,12 +3993,13 @@ function loadData(){
 function saveData(){
   localStorage.setItem(STORE_KEY, JSON.stringify({
     className: state.className,
+    classNameFull: state.classNameFull,   // v2.17.20 班级全称
     students: state.students,
     operations: state.operations,
     reasons: state.reasons,
     reasonScores: state.reasonScores || {},
     reasonCatalog: state.reasonCatalog || {},
-    catDeleted: state.catDeleted || { dirs: [], groups: [], reasons: [] },   // v2.17.19 删除墓碑随本地存储持久
+    catDeleted: state.catDeleted || { dirs: [], groups: [], reasons: [] },   // v2.17.20 删除墓碑随本地存储持久
     schemaVer: state.schemaVer || 0,
     nextId: state.nextId,
     nextOpId: state.nextOpId,
@@ -4147,7 +4155,7 @@ function smartMergeData(localData,remoteData){
   if(remoteData.reasonCatalog && typeof remoteData.reasonCatalog === 'object'){
     merged.reasonCatalog = mergeReasonCatalog(localData.reasonCatalog || {}, remoteData.reasonCatalog);
   }
-  // v2.17.19 删除墓碑合并：任一侧删过的方向/大类/原因，合并结果一律剔除（含分值表/平铺列表）→ 跨设备删除生效
+  // v2.17.20 删除墓碑合并：任一侧删过的方向/大类/原因，合并结果一律剔除（含分值表/平铺列表）→ 跨设备删除生效
   merged.catDeleted = { dirs:[], groups:[], reasons:[] };
   var _td = cloneCatDeleted(localData.catDeleted), _tr = cloneCatDeleted(remoteData.catDeleted);
   _td.dirs.concat(_tr.dirs).forEach(function(k){ catDelAdd(merged.catDeleted.dirs, k); });
@@ -4170,6 +4178,7 @@ function smartMergeData(localData,remoteData){
   merged.committee=cm;
   // simple fields
   if(!merged.className&&remoteData.className)merged.className=remoteData.className;
+  if(!merged.classNameFull&&remoteData.classNameFull)merged.classNameFull=remoteData.classNameFull;  // v2.17.20
   if(!merged.classMotto&&remoteData.classMotto)merged.classMotto=remoteData.classMotto;
   if(!merged.classAvatar&&remoteData.classAvatar)merged.classAvatar=remoteData.classAvatar;
   // scheduleImage and classAvatar are synced via data.json (compressed);
@@ -5514,7 +5523,7 @@ function addCustomTag(id){
   if(!s.tags) s.tags = [];
   if(s.tags.includes(tag)){ showToast('该标签已存在','warning'); return; }
   s.tags.push(tag);
-  if(isDormTag(tag)) fillStudentGenderFromDorm(s);   // v2.17.19 手填寝室号标签同样触发性别补写
+  if(isDormTag(tag)) fillStudentGenderFromDorm(s);   // v2.17.20 手填寝室号标签同样触发性别补写
   saveData();
   openDetailPanel(id);
   renderTable();
@@ -6447,7 +6456,7 @@ function dormNoOf(s){
   return '';
 }
 
-/* v2.17.19 宿舍→性别一致性：本班男生寝室 = 7栋214室，女生寝室 = 6栋801~806室。
+/* v2.17.20 宿舍→性别一致性：本班男生寝室 = 7栋214室，女生寝室 = 6栋801~806室。
    学生挂上对应寝室号标签、而档案「性别」为空时，自动按楼栋房号补写性别——寝室与档案不再可能打架
    （杜绝「住女寝的男生」）。已填写的性别不覆盖（班主任可在档案编辑里手动改）。规则随班级可调。 */
 var DORM_GENDER_RULES = [
@@ -6473,7 +6482,7 @@ function fillStudentGenderFromDorm(s){
   s.updatedAt = Date.now();
   return true;
 }
-/* v2.17.19 全校寝室→性别一致性维护通道：进档案页/寝室页时扫一遍，
+/* v2.17.20 全校寝室→性别一致性维护通道：进档案页/寝室页时扫一遍，
    凡寝室号命中规则且性别为空的自动补写（无变化的学校不落盘） */
 function fillAllDormGenders(){
   var changed = false;
@@ -6536,7 +6545,7 @@ function renderDorm(){
     if(!s.tags) return;
     var next = s.tags.map(function(t){ return normalizeDormTag(t); });
     if(JSON.stringify(next) !== JSON.stringify(s.tags)){ s.tags = next; s.updatedAt = Date.now(); changed = true; }
-    // v2.17.19 宿舍号已知但档案性别为空 → 按楼栋房号规则补写（7栋214=男 / 6栋801-806=女）
+    // v2.17.20 宿舍号已知但档案性别为空 → 按楼栋房号规则补写（7栋214=男 / 6栋801-806=女）
     if(fillStudentGenderFromDorm(s)) changed = true;
   });
   if(changed) saveData();
@@ -6645,7 +6654,7 @@ function addDormMember(id, no){
   s.tags = (s.tags||[]).filter(function(t){ return !isDormTag(t) && t !== DAY_TAG; });
   s.tags.push(no);
   s.updatedAt = Date.now();
-  fillStudentGenderFromDorm(s);   // v2.17.19 入寝即补写性别（仅档案性别为空时）
+  fillStudentGenderFromDorm(s);   // v2.17.20 入寝即补写性别（仅档案性别为空时）
   saveData();
   renderDorm();
   showToast(s.name + (old ? ' 已从 ' + old + ' 调至 ' : ' 已加入 ') + no, 'success');
@@ -7706,7 +7715,7 @@ initTheme();
 
 /* ==================== Student Profiles ==================== */
 var _profileSelectedId = null;
-/* v2.17.19 中文姓名按拼音音序（首字母 A→Z）排序：Intl.Collator('zh') 即拼音字典序，
+/* v2.17.20 中文姓名按拼音音序（首字母 A→Z）排序：Intl.Collator('zh') 即拼音字典序，
    旧版按学号/录入序排列，找人不直观。同音回退到学号位次。 */
 var _pyCollator = (typeof Intl !== 'undefined' && Intl.Collator)
   ? new Intl.Collator('zh-Hans-CN', { sensitivity: 'variant', numeric: true })
@@ -7736,7 +7745,7 @@ function ensureProfile(s){
   return s.profile;
 }
 function renderProfiles(){
-  fillAllDormGenders();   // v2.17.19 进档案页先全校同步一次寝室→性别（有改动才落盘）
+  fillAllDormGenders();   // v2.17.20 进档案页先全校同步一次寝室→性别（有改动才落盘）
   renderProfileList();
   if(_profileSelectedId !== null){
     const s = state.students.find(x=>x.id===_profileSelectedId);
@@ -7745,7 +7754,7 @@ function renderProfiles(){
 }
 function renderProfileList(){
   const kw = (document.getElementById('profileSearch')?.value || '').toLowerCase().trim();
-  // v2.17.19 左侧名单按姓名拼音音序排（A→Z），同音按学号
+  // v2.17.20 左侧名单按姓名拼音音序排（A→Z），同音按学号
   const list = sortStudentsByPinyin(state.students.filter(s => !kw || s.name.toLowerCase().includes(kw) || s.sid.toLowerCase().includes(kw)));
   const el = document.getElementById('profileList');
   const count = document.getElementById('profileCount');
@@ -7773,7 +7782,7 @@ function selectProfile(id){
   const s = state.students.find(x=>x.id===id);
   if(s) renderProfileDetail(s);
 }
-/* ---- v2.17.19 档案详情新版式辅助 ---- */
+/* ---- v2.17.20 档案详情新版式辅助 ---- */
 var _pfOpScope = 'term';   // 德育记录范围：term=本学期 / all=全部
 function pfSectionToggle(bodyId, chevId){
   const b = document.getElementById(bodyId), c = document.getElementById(chevId);
@@ -7822,7 +7831,7 @@ function studentHonorsOf(s){
 }
 function renderProfileDetail(s){
   const p = ensureProfile(s);
-  // v2.17.19 档案页兜底：寝室号已知、性别为空 → 按楼栋房号规则补写（7栋214=男 / 6栋801-806=女）
+  // v2.17.20 档案页兜底：寝室号已知、性别为空 → 按楼栋房号规则补写（7栋214=男 / 6栋801-806=女）
   if(fillStudentGenderFromDorm(s)) saveData();
   const el = document.getElementById('profileDetail');
   const tl = p.timeline.slice().sort((a,b)=>b.date.localeCompare(a.date) || b.id-a.id);
@@ -8114,7 +8123,7 @@ function exportMonthLogs(){
 var HONOR_LEVELS = ['校级','区级','市级','省级','国家级'];
 var HONOR_SCOPES = ['集体','个人'];
 var _honorLevel = '全部';
-/* v2.17.19 荣誉墙类型筛选：全部/集体/个人（班级荣誉与个人荣誉分区查看） */
+/* v2.17.20 荣誉墙类型筛选：全部/集体/个人（班级荣誉与个人荣誉分区查看） */
 var _honorScope = '全部';
 function setHonorScope(s){ _honorScope = s; renderHonors(); }
 function renderHonors(){
@@ -8234,15 +8243,18 @@ function deleteHonor(id){
   showToast('已删除','success');
 }
 
-/* ==================== v2.17.19 荣誉证书导出（canvas → PNG） ====================
+/* ==================== v2.17.20 荣誉证书导出（canvas → PNG） ====================
    个人荣誉：档案页按学生出证（exportHonorCert(id, 姓名)）；荣誉墙按人/集体出证。
    一张证书图片，可直接发班级群（集体）或家长群（个人）。 */
+function certClassName(){   // v2.17.20 证书等正式文书用班级全称（设置可配，留空回退班级名称）
+  return state.classNameFull || state.className || '';
+}
 function honorCertEntity(h, personName){
   if(h.scope === '个人'){
     const ps = (personName ? [personName] : ((h.persons||[]).filter(Boolean)));
     return { subject: ps.length ? ps.join('、') : '同学', plural: ps.length !== 1 };
   }
-  return { subject: state.className || '本班', plural: false };
+  return { subject: certClassName() || '本班', plural: false };
 }
 function certCenterText(ctx, text, x, startY, maxW, lh){
   if(!text) return startY;
@@ -8279,7 +8291,7 @@ function drawHonorCertCanvas(h, personName){
   ctx.textAlign = 'center';
   // 顶部落款 + 标题
   ctx.fillStyle = '#8a6d3b'; ctx.font = '34px ' + F;
-  ctx.fillText(state.className || '', W / 2, 118);
+  ctx.fillText(certClassName(), W / 2, 118);
   ctx.fillStyle = '#9e2b25'; ctx.font = '700 118px ' + F;
   ctx.fillText('荣 誉 证 书', W / 2, 262);
   ctx.fillStyle = '#b8933a';
@@ -8299,24 +8311,15 @@ function drawHonorCertCanvas(h, personName){
     ctx.fillStyle = '#999'; ctx.font = '26px ' + F;
     certCenterText(ctx, h.desc, W / 2, yb + 204, W - 360, 40);
   }
-  // 红章
-  ctx.save();
-  ctx.strokeStyle = 'rgba(200,16,46,.85)'; ctx.lineWidth = 6;
-  ctx.beginPath(); ctx.arc(1180, 560, 108, 0, Math.PI * 2); ctx.stroke();
-  ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(1180, 560, 94, 0, Math.PI * 2); ctx.stroke();
-  ctx.fillStyle = 'rgba(200,16,46,.85)'; ctx.textAlign = 'center';
-  ctx.font = '700 28px ' + F; ctx.fillText('班主任', 1180, 528);
-  ctx.font = '800 62px ' + F; ctx.fillText('荣誉', 1180, 592);
-  ctx.font = '700 22px ' + F; ctx.fillText('专用章', 1180, 632);
-  ctx.restore();
-  // 日期 + 落款
+  // v2.17.20 去掉红章（位置不当，直接不要）
+  // 落款：班级全称（右下区块）+ 日期（居右，比班级全称右缘再空两格）
   const dm = String(h.date || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
-  ctx.textAlign = 'left'; ctx.fillStyle = '#666'; ctx.font = '30px ' + F;
-  ctx.fillText(dm ? (dm[1] + ' 年 ' + Number(dm[2]) + ' 月 ' + Number(dm[3]) + ' 日') : (h.date || ''), 150, H - 118);
+  const dtx = dm ? (dm[1] + ' 年 ' + Number(dm[2]) + ' 月 ' + Number(dm[3]) + ' 日') : (h.date || '');
   ctx.textAlign = 'right';
-  ctx.fillStyle = '#555';
-  ctx.fillText(state.className || '', W - 120, H - 168);
-  ctx.fillText('班主任：', W - 120, H - 112);
+  ctx.fillStyle = '#555'; ctx.font = '30px ' + F;
+  ctx.fillText(certClassName(), W - 120, H - 160);
+  ctx.fillStyle = '#888';
+  ctx.fillText(dtx + '　　', W - 120, H - 108);   // 右对齐 + 空两格（全角空格）
   return cv;
 }
 function exportHonorCert(id, personName){
@@ -8325,7 +8328,7 @@ function exportHonorCert(id, personName){
   try{
     const cv = drawHonorCertCanvas(h, personName);
     const base = (h.scope === '个人' && personName) ? personName
-      : (h.scope === '个人' ? ((h.persons && h.persons[0]) || '个人') : (state.className || '班级'));
+      : (h.scope === '个人' ? ((h.persons && h.persons[0]) || '个人') : (certClassName() || '班级'));
     const fn = String(base + '-' + (h.title || '荣誉') + '-荣誉证书').replace(/[\\/:*?"<>|\s]+/g, '').slice(0, 80) + '.png';
     cv.toBlob(function(blob){
       if(!blob){ showToast('生成失败，请重试','error'); return; }
@@ -8344,6 +8347,7 @@ function exportHonorCert(id, personName){
 
 function renderSettings(){
   document.getElementById('classNameInput').value = state.className;
+  document.getElementById('classNameFullInput').value = state.classNameFull || '';   // v2.17.20
   document.getElementById('sidebarClassName').textContent = state.className;
   document.getElementById('seatColsInput').value = state.seating.cols;
   document.getElementById('seatRowsInput').value = state.seating.rows;
@@ -8430,6 +8434,12 @@ function saveClassName(){
   document.getElementById('sidebarClassName').textContent = name;
   showToast('班级名称已保存','success');
 }
+function saveClassNameFull(){   // v2.17.20 班级全称：荣誉证书等正式文件落款用
+  const name = document.getElementById('classNameFullInput').value.trim();
+  state.classNameFull = name;
+  saveData();
+  showToast(name ? '班级全称已保存，荣誉证书将按此落款' : '已清空班级全称（荣誉证书将回退用班级名称）','success');
+}
 
 /* ==================== v2.17.0 原因目录管理（设置页） ====================
    数据源：state.reasonCatalog = {方向: {大类: [原因…]}}；分值存 state.reasonScores。
@@ -8515,7 +8525,7 @@ function openReasonDirModal(){
   if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(name)){ showToast('方向名限中英文/数字，不能含符号与表情', 'error'); return; }
   if(state.reasonCatalog[name]){ showToast('方向「' + name + '」已存在', 'warning'); return; }
   state.reasonCatalog[name] = {};
-  catDelUndo('dirs', name);   // v2.17.19 重新添加同名方向视为放弃删除
+  catDelUndo('dirs', name);   // v2.17.20 重新添加同名方向视为放弃删除
   catRefresh();
   showToast('已新增方向：' + name, 'success');
 }
@@ -8528,7 +8538,7 @@ function openReasonGroupModal(dir){
   if(!state.reasonCatalog[dir]) state.reasonCatalog[dir] = {};
   if(state.reasonCatalog[dir][name]){ showToast('大类「' + name + '」已存在', 'warning'); return; }
   state.reasonCatalog[dir][name] = [];
-  catDelUndo('groups', dir + '|' + name);   // v2.17.19 重新添加同名大类视为放弃删除
+  catDelUndo('groups', dir + '|' + name);   // v2.17.20 重新添加同名大类视为放弃删除
   catRefresh();
   showToast('已新增大类：' + dir + ' → ' + name, 'success');
 }
@@ -8659,7 +8669,7 @@ function catSaveNewItem(){
   if(!state.reasonCatalog[dir]) state.reasonCatalog[dir] = {};
   if(!state.reasonCatalog[dir][group]) state.reasonCatalog[dir][group] = [];
   state.reasonCatalog[dir][group].push(name);
-  catDelUndo('reasons', name);   // v2.17.19 重新添加同名原因视为放弃删除
+  catDelUndo('reasons', name);   // v2.17.20 重新添加同名原因视为放弃删除
   var scoreStr = String(document.getElementById('catScoreInput').value || '').trim();
   if(scoreStr !== ''){
     var n = Number(scoreStr);
@@ -8676,7 +8686,7 @@ function askResetReasonCatalog(){
   if(!confirm('再次确认：自定义内容将被覆盖，不可撤销。')) return;
   state.reasonCatalog = defaultReasonCatalog();
   state.reasonScores = Object.assign({}, defaultReasonScores);
-  state.catDeleted = { dirs: [], groups: [], reasons: [] };   // v2.17.19 恢复预设后清空墓碑
+  state.catDeleted = { dirs: [], groups: [], reasons: [] };   // v2.17.20 恢复预设后清空墓碑
   catRefresh();
   showToast('已恢复制度预设目录（27 项）', 'success');
 }
@@ -9306,7 +9316,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ==================== Init ==================== */
-// v2.17.19 先加载本地数据，再执行班委模式限制/身份解析（此前 applyCommitteeRestrictions 先于 loadData 运行，
+// v2.17.20 先加载本地数据，再执行班委模式限制/身份解析（此前 applyCommitteeRestrictions 先于 loadData 运行，
 // 身份解析时学生名单为空 → 署名退化成匿名「通用班委」，选了身份也白选）
 loadData();
 // 登录拦截：未解锁时显示登录页；班委模式免密直达（受限视图）
@@ -9340,14 +9350,14 @@ autoSyncFromCloud().then(function(){
   // Re-render after sync to ensure DOM is updated
   renderScheduleImage();
   renderClassBrand();
-  // v2.17.19 云端首次拉到名单后补一次身份解析：本地无缓存、名单只在云端时，
+  // v2.17.20 云端首次拉到名单后补一次身份解析：本地无缓存、名单只在云端时，
   // 启动期 resolveCmIdentity 会因名单为空退化为匿名，这里补齐署名身份（幂等，仅匿名时触发）
   if(window.__cmRole === 'committee' && window.__cmIdentity && window.__cmIdentity.anonymous && state.students && state.students.length){
     applyCommitteeRestrictions();
   }
 });
 // Auto sync when tab becomes visible (mobile tab switching)
-/* v2.17.19 跨标签实时同步：班主任操作窗口（学分页/学生表加分）与公示常驻窗口
+/* v2.17.20 跨标签实时同步：班主任操作窗口（学分页/学生表加分）与公示常驻窗口
    （投屏/另一标签全屏给全班看）通常同浏览器多开、共享 localStorage。storage 事件
    让非来源标签自动 loadData + 重渲当前页 —— 加分/减分/撤销/恢复后，公示窗口的
    学分榜/进步榜/零扣分榜/统计图表即时更新，不再等切回标签或云端往返。

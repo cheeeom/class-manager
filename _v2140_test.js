@@ -20,6 +20,8 @@ const m = html.match(/const INITIAL_CREDIT = (\d+);[\s\S]*?function normalizeIni
 t('INITIAL_CREDIT = 100 且迁移函数存在', () => { eq(m[1], '100'); });
 global.INITIAL_CREDIT = 100;
 const normSrc = m[0].slice(m[0].indexOf('function normalizeInitialCredits'));
+const liveOpsM = html.match(/function liveOps\(ops\)\{[\s\S]*?\n\}/);
+const liveOps = eval('(' + liveOpsM[0] + ')');   // v2.17.9
 const normalizeInitialCredits = eval('(' + normSrc + ')');
 t('0 分且无流水 → 修复为 100', () => {
   const students = [{ id: 1, credit: 0 }, { id: 2, credit: 0 }, { id: 3, credit: 95 }];
@@ -66,6 +68,12 @@ t('applyCreditBulk：一次流水一批、统一保存渲染提示', () => {
   // v2.15.0：流水写入下沉到统一入口 applyCreditDelta（含 nextOpId++），此处只校验编排
   ['applyCreditDelta(student, amount, reason, { time: ts })', 'saveData()', 'refreshCreditViews()', 'showToast'].forEach(s => {
     if (!fn.includes(s)) throw new Error('缺少: ' + s);
+  });
+});
+t('v2.17.5 操作成功后自动清空备选名单（免手动点清空）+ 复位搜索框', () => {
+  const fn = html.match(/function applyCreditBulk\(ids, amount, reason\)\{[\s\S]*?\n\}/)[0];
+  ['_creditSelectedIds.clear()', 'renderCreditSelectedChips()', "getElementById('creditStudentInput')", "getElementById('creditStudentDropdown')"].forEach(s => {
+    if (!fn.includes(s)) throw new Error('缺少自动清空: ' + s);
   });
 });
 t('下拉多选交互：点选后保持展开，已选打 ✓', () => {

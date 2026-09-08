@@ -550,3 +550,22 @@
 - [x] **验收**：本地 `python -m http.server` + playwright-core 渲染 21 项全过（拼音顺序 6 人 ✔ / 学分大字号 38px ✔ / 寝室→性别补写（女 ✔ / 男 ✔ / 不规则不补 ✔） / 本学期 2 条过滤 ✔ / 折叠交互 ✔ / 学生荣誉 1 条 ✔ / 证书画布 >50KB ✔ / 集体荣誉下载文件名 `26级幼保2班-广播操比赛第一名-荣誉证书.png` ✔ / 荣誉墙 2 张卡 + 类型筛选个人剩 1 条 ✔）
 - [x] **升版**：v2.17.18 → v2.17.19（index/sw + 8 测试文件明文+转义双轮，注意 _v2177 的 extractFn 抽 DORM_GENDER_RULES const / DORM_RE const 等模块绑定，避免「isDormTag is not defined / DORM_RE is not defined」——单测抽公共函数 + const 常量需要一并注入或解析提供，否则套件一起炸）
 - [x] **全量 20 套件全绿**：v2.17.19 新增 16 项，累加 v2.17.16 起的新模块共 **396+ 项**
+
+### 2026-09-08（v2.17.20：荣誉证书导出四项修复——去红章 / 去班主任署名 / 日期右对齐空两格 / 班级全称落款）
+
+- [x] **需求**：① 去掉红章「班主任荣誉专用章」(位置不当直接不要) ② 时间位置不对→居右空两格与班级全称对齐 ③ 去掉班主任名字 ④ 班级要显示全称「2026级幼儿保育2班」(侧栏用的是缩写「26级幼保2班」)
+- [x] **证书绘制改动（`drawHonorCertCanvas`）**：
+  - 删除整段红章 10 行（两圈描红 + 「班主任」「荣誉」「专用章」三字 + save/restore）
+  - 删除 `ctx.fillText('班主任：', ...)` 署名行
+  - 日期从左下 `x=150` 改成 `ctx.textAlign='right'` + `x=W-120` + 字符串尾部追加两个全角空格 `'　　'` → 日期可视右边缘比班级全称右缘再缩 60px（GB 落款：署名右空二字，日期再缩两字）
+  - 落款顺序保留：班级全称 H-160 在上，日期 H-108 在下
+  - 顶头抬头 + 落款 + honorCertEntity 集体主语 + 导出文件名集体基 = 全部走 `certClassName()` 助手
+- [x] **新增 `state.classNameFull` 班级全称字段**：默认 `''`；证书用 `certClassName() = classNameFull || className || ''` 兜底
+  - 链路 5 处齐：state 默认 + loadData 读取 + saveData 手写清单 + CLOUD_SYNC_FIELDS 白名单 + smartMergeData 合并
+  - clearData 不主动重置（与 className 同组品牌/配置类保留）
+  - 设置页班级名称 section 内新增 input `classNameFullInput` + 「保存」按钮 + 提示「用于荣誉证书等正式文件落款；不填则用上方班级名称」；`saveClassNameFull` / `renderSettings` 回填
+- [x] **测试**：`_v2177_test.js` 追加 8 项 v2.17.20 断言（红章/班主任文 + arc 描画都校验；certClassName 函数提取+运行验证有/无全称两路径；证书内 ≥2 处用 certClassName 且不再直读 state.className；日期右对齐+全角空格×2；honorCertEntity 集体主语走 certClassName；classNameFull 链路五处齐；设置页有 input + 保存函数 + 渲染回填）——**20 套件全绿（_v2177 = 24 项）**
+- [x] **测试联动坑再现**：certClassName 原本是单行函数 `function certClassName(){...} // v2.17.20 注释`，extractFn 抽出的 buffer eval 时尾注释把外层 `)` 吞了 → `Unexpected end of input`。**单行函数要格式化多行**（即 `} // 注释` 拆两行）
+- [x] **升版**：v2.17.19 → v2.17.20（index/sw + 9 测试文件明文+转义双轮）；index.html v2.17.20 出现 39 处（31 原 + 8 新增），sw 1 处
+- [x] **视觉验证**：playwright 渲染证书 PNG（classNameFull='2026级幼儿保育2班'、honor scope=个人）→ 抬头 + 落款均显示「2026级幼儿保育2班」，右下日期「2026 年 9 月 1 日」可见比班级名右缘缩两格；红章位置 (1180,560) 像素 RGB=(249,242,223)=底色，确认无红色描画；底部无「班主任：」文字
+- [ ] 推送 + 验证远端 CDN

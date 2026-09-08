@@ -1,4 +1,4 @@
-/* v2.17.19 回归测试：班委署名身份解析顺序 —— Init 先 loadData 再 applyCommitteeRestrictions，
+/* v2.17.20 回归测试：班委署名身份解析顺序 —— Init 先 loadData 再 applyCommitteeRestrictions，
    身份解析时学生名单已就绪 → 记录署名到人（此前名单为空退化成「通用班委」）。
    运行：node _v2175_test.js */
 const fs = require('fs');
@@ -33,14 +33,14 @@ t('index.html 主 <script> 块可被完整编译（无语法错误）', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 
-console.log('\n=== v2.17.19 版本三处同步 ===');
-t('登录页 / 侧栏 / SW CACHE_NAME = v2.17.19', () => {
-  if (!/login-version">v2\.17\.19</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.19 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.17.19')) throw new Error('SW CACHE_NAME 未更新');
+console.log('\n=== v2.17.20 版本三处同步 ===');
+t('登录页 / 侧栏 / SW CACHE_NAME = v2.17.20', () => {
+  if (!/login-version">v2\.17\.20</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.17\.20 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.17.20')) throw new Error('SW CACHE_NAME 未更新');
 });
 
-console.log('\n=== Init 顺序回归（v2.17.19 修复点） ===');
+console.log('\n=== Init 顺序回归（v2.17.20 修复点） ===');
 const initStart = html.indexOf('/* ==================== Init');
 const initEnd = html.indexOf('// Auto-compress legacy oversized schedule image on load');
 if (initStart < 0 || initEnd < 0 || initEnd <= initStart) throw new Error('Init 区块边界定位失败');
@@ -55,7 +55,7 @@ t('loadData() 先于登录拦截 if 与 applyCommitteeRestrictions()（名单先
   const iRest = initBlock.indexOf('applyCommitteeRestrictions();');
   if (iLoad < 0 || iGate < 0 || iRest < 0) throw new Error('Init 区块缺关键调用');
   if (!(iLoad < iGate && iLoad < iRest)) throw new Error('顺序错误：loadData 未先于登录门/身份限制');
-  has(initBlock, '// v2.17.19 先加载本地数据', '缺修复注释标记');
+  has(initBlock, '// v2.17.20 先加载本地数据', '缺修复注释标记');
 });
 t('班委分支仍在登录门内执行 applyCommitteeRestrictions（受限视图逻辑未丢）', () => {
   has(initBlock, "if(isCommitteeMode()){", '缺班委模式分支');
