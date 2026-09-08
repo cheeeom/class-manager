@@ -581,4 +581,4 @@
 - [x] **测试**：`_v2177_test.js` 在 v2.17.20 8 项基础上调整为 v2.17.21 居中布局断言 + 新增 2 项（saveClassName 镜像 + 导出提示开关）,共 26 项全过
 - [x] **视觉验证**：playwright 渲染（classNameFull='2026级幼儿保育2班'、honor scope=个人、张三、学习进步之星、2026-09-08）→ 抬头 + 落款均「2026级幼儿保育2班」居中,右下日期「2026 年 9 月 8 日」紧贴全称下方居中对齐；红章位 RGB=底色
 - [x] **升版**：v2.17.20 → v2.17.21（index/sw + 9 测试文件明文+转义双轮）；index.html v2.17.21 出现 42 处（原 39 + 3 新增注释）,sw 1 处
-- [ ] 推送 + 验证远端 CDN
+- [x] **推送**：cm-push-incremental 三提交 → 远端 `b5d11c58`，19 文件字节级一致；gh api 远端 index.html 验证：login/sidebar=v2.17.21、classNameFullStatus×3 + __cmFullNameToastShown×2 + classNameFullInput×5 + saveClassNameFull×2 + certClassName()×5、v2.17.20 右对齐残留(dtx+'　　'、W-120,H-160)均=0、v2.17.21 居中绘制(certClassName(),W/2,H-150 / dtx,W/2,H-100)=1+1；线上 CDN 仍走 SW no-store 刷新生效，强刷告知
