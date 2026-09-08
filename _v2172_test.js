@@ -29,14 +29,14 @@ t('index.html 主 <script> 块可被完整编译（选择器改造无语法错�
   if (!n) throw new Error('未找到主脚本块');
 });
 
-console.log('\n=== v2.17.18 版本三处同步 ===');
-t('登录页 / 侧栏 / SW CACHE_NAME = v2.17.18', () => {
-  if (!/login-version">v2\.17\.18</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.18 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.17.18')) throw new Error('SW CACHE_NAME 未更新');
+console.log('\n=== v2.17.19 版本三处同步 ===');
+t('登录页 / 侧栏 / SW CACHE_NAME = v2.17.19', () => {
+  if (!/login-version">v2\.17\.19</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.17\.19 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.17.19')) throw new Error('SW CACHE_NAME 未更新');
 });
 
-console.log('\n=== v2.17.18 热修：内联事件 this 陷阱 ===');
+console.log('\n=== v2.17.19 热修：内联事件 this 陷阱 ===');
 t('onStudentSearchInput 不再依赖 this，改为按 id 取输入框', () => {
   const fn = grab('function onStudentSearchInput()');
   if (fn.includes('this.value')) throw new Error('仍用 this.value');
@@ -109,7 +109,7 @@ t('行点击绑定 pickStudent(数字 id)，不拼接裸姓名（防注入）', 
   if (!matchList.innerHTML.includes('onclick="pickStudent(1)"')) throw new Error('点击绑定缺失');
   if (/<option[^>]*>王小明/.test(matchList.innerHTML)) throw new Error('不应出现旧的 option 直拼');
 });
-t('v2.17.18 真实事件路径冒烟：输入框值=王 → 名单过滤为 2 行（this 陷阱修复）', () => {
+t('v2.17.19 真实事件路径冒烟：输入框值=王 → 名单过滤为 2 行（this 陷阱修复）', () => {
   // 复刻浏览器真实路径：onStudentSearchInput 内部按 id 取输入框值再渲染，不依赖 this
   const inputEl = { value: '王' };
   const prevDoc = global.document, prevPool = global._studentPickerPool;
