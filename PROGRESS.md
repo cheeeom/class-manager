@@ -512,7 +512,7 @@
 - [x] **测试**：新增 `_v2174_test.js` 9 项（墓碑纯函数 4 / 重载不复活 + 回归护栏 1 / 云合并剔除 1 / 持久接线 1 / 删除重加闭环 1 / 恢复预设清墓碑 1）；老套件 4+1 个因 smartMergeData 新增墓碑块需注入依赖函数（_v290/_v2150/_v2173 grab/extractFn 注入 cloneCatDeleted/catDelAdd/applyCatTombstones/flattenReasonCatalog；_v2170 结构断言锚点更新；_sync _sliceFn 改花括号配平）——**全量 17 套 357 项全绿**
 - [x] **给老板**：强刷后删原因即永久生效（不再刷新复活）；删掉的旧流水还在学分记录里显示可撤销；纠分请用时间线 ↩ 撤销
 
-### 2026-09-07（v2.17.17：班委署名身份修复——Init 顺序先 loadData 后身份解析）
+### 2026-09-08（v2.17.17：班委署名身份修复——Init 顺序先 loadData 后身份解析）
 
 - [x] **需求**：老板报「班委入口选择班委身份后进行学分加减操作，学分记录上还是显示『通用班委』」——身份选了个寂寞，署名没落到人
 - [x] **根因（初始化顺序）**：Init 区块里 `applyCommitteeRestrictions()`（内部执行 `resolveCmIdentity()` 解析署名身份）**先于 `loadData()` 运行** → 身份解析那一刻 `state.students` 还是空数组 → `resolveCmIdentity` 找不到 uid 对应学生 → 返回 `{name:'',post:'',anonymous:true}` → `window.__cmIdentity` 全程匿名 → `applyCreditDelta` 签名时 `cmi.name` 为空 → 时间线兜底渲染「通用班委」。身份选了、数据也在本地，但解析太早名单没加载
