@@ -495,3 +495,19 @@
 - [x] **版本 bump v2.17.15**（登录/侧栏/SW CACHE_NAME + 5 测试文件明文+转义双轮）
 - [x] **回归**：全量 16 套 348 项全绿
 - [x] **给老板**：v2.17.15 上线后**单次普通刷新即可拿到最新**（不再需要刷两次）；若此刻仍卡在旧版，用 Ctrl+F5 或开发者工具注销 SW 强制过一次即可（一次性），此后 SW 更新机制自愈
+
+### 2026-09-08（v2.17.16：原因目录删除持久化——catDeleted 墓碑，刷新/云合并不复活删除项）
+
+- [x] **需求**：老板报三个点 ① 设置里删除自定义加减分原因（一类/方向）后刷新页面自动恢复 ② 删除原因不应删除历史扣分流水 ③ 撤销扣分只能在学分记录里操作并恢复学分
+- [x] **根因（双复活源）**：
+  1. `loadData` 每次启动把 `defaultReasons`/`defaultReasonScores` 无条件并回内存（旧代码 3808-3811）→ migrate 把「被删的模板原因」当 extras 塞回「其他 → 自定义原因」——本地刷新即复活
+  2. 云合并 `smartMergeData` 对 reasonCatalog 做**结构并集**，注释自己写着「删除项可能复活属已知取舍」——云端旧副本把删除项带回来
+- [x] **修复（删除墓碑 catDeleted = {dirs,groups,reasons}）**：
+  1. 新增 `catDeleted` 字段：state 默认空墓碑、进 `CLOUD_SYNC_FIELDS` 云同步、`saveData` 手写清单补落盘（漏了它墓碑就永不持久——本次最隐蔽一环）
+  2. 新增墓碑辅助（`cloneCatDeleted`/`catDelAdd`/`catDeletedAdd`/`catDelUndo`/`applyCatTombstones`）
+  3. `catDeleteDir/Group/Reason` 删除时登记墓碑（方向/大类按 key、原因全局名，分值表同步清理）；确认文案明确「历史流水与学分不受影响，纠正请在学分记录中撤销」
+  4. `loadData` 加载后 `applyCatTombstones` 剔除 + 不再无条件并集默认模板（只随 migrate 首次迁移）；`smartMergeData` 云合并墓碑并集后统一剔除 → **跨设备删除也生效**
+  5. 重加同名项 = 放弃删除（清除对应墓碑）；「恢复预设目录」清空墓碑
+  6. 历史流水绝不因目录删除变动（删除只影响目录/分值/以后选择）；撤销扣分唯一入口 = 学分记录 ↩ 撤销（v2.17.9 起语义）
+- [x] **测试**：新增 `_v2174_test.js` 9 项（墓碑纯函数 4 / 重载不复活 + 回归护栏 1 / 云合并剔除 1 / 持久接线 1 / 删除重加闭环 1 / 恢复预设清墓碑 1）；老套件 4+1 个因 smartMergeData 新增墓碑块需注入依赖函数（_v290/_v2150/_v2173 grab/extractFn 注入 cloneCatDeleted/catDelAdd/applyCatTombstones/flattenReasonCatalog；_v2170 结构断言锚点更新；_sync _sliceFn 改花括号配平）——**全量 17 套 357 项全绿**
+- [x] **给老板**：强刷后删原因即永久生效（不再刷新复活）；删掉的旧流水还在学分记录里显示可撤销；纠分请用时间线 ↩ 撤销
