@@ -568,4 +568,4 @@
 - [x] **测试联动坑再现**：certClassName 原本是单行函数 `function certClassName(){...} // v2.17.20 注释`，extractFn 抽出的 buffer eval 时尾注释把外层 `)` 吞了 → `Unexpected end of input`。**单行函数要格式化多行**（即 `} // 注释` 拆两行）
 - [x] **升版**：v2.17.19 → v2.17.20（index/sw + 9 测试文件明文+转义双轮）；index.html v2.17.20 出现 39 处（31 原 + 8 新增），sw 1 处
 - [x] **视觉验证**：playwright 渲染证书 PNG（classNameFull='2026级幼儿保育2班'、honor scope=个人）→ 抬头 + 落款均显示「2026级幼儿保育2班」，右下日期「2026 年 9 月 1 日」可见比班级名右缘缩两格；红章位置 (1180,560) 像素 RGB=(249,242,223)=底色，确认无红色描画；底部无「班主任：」文字
-- [ ] 推送 + 验证远端 CDN
+- [x] **推送**：cm-push-incremental 三提交 → 远端 `e81c4a79`，19 文件字节级一致；直接 gh api 拉远端 index.html：login/sidebar=v2.17.20、certClassName×1 + classNameFullInput×3 + saveClassNameFull×2 + classNameFull:×2 + 班级全称×8 + certClassName()×5、红章/专用章均=0；线上 CDN (cheeeom.github.io) 当前 max-age=600 缓存仍回 v2.17.19 — SW no-store 路径刷新后取新；强刷生效
