@@ -668,7 +668,7 @@ tbody tr.highlight{
   box-shadow:0 0 0 3px rgba(166,58,43,0.1);
 }
 .modal textarea{min-height:120px;resize:vertical;font-family:monospace}
-/* v2.17.23 弹窗头部统一：.modal-header/.modal-close 此前只有暗色 border-color 一行、无基础样式，
+/* v2.17.24 弹窗头部统一：.modal-header/.modal-close 此前只有暗色 border-color 一行、无基础样式，
    × 键裸排到标题下方左缘 → 档案编辑/成长记录/工作留痕/荣誉四个弹窗「关闭键贴左上、观感破碎」。
    统一为 标题居左 + 圆形描边关闭键居右（与 .panel-close 同设计语言，hover 变红轻旋） */
 .modal-header{display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -1463,7 +1463,7 @@ html.dark .honor-level.hl-5{color:#D9A441}
 .tl-badge.tl-contact{background:rgba(185,106,31,0.12);color:var(--orange)}
 .tl-badge.tl-other{background:rgba(126,119,106,0.12);color:var(--text-muted)}
 .tl-body{flex:1;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px}
-/* v2.17.23 档案详情新版式：头部概要 + 德育记录(学分变动)/成长记录/学生荣誉 分卡排版 */
+/* v2.17.24 档案详情新版式：头部概要 + 德育记录(学分变动)/成长记录/学生荣誉 分卡排版 */
 .pf-summary{display:flex;align-items:center;gap:16px;padding:16px 18px;
   background:linear-gradient(135deg,rgba(166,58,43,.055),rgba(201,162,39,.07));
   border:1px solid var(--border);border-radius:14px;margin-bottom:6px;flex-wrap:wrap}
@@ -1939,7 +1939,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.23</div>
+      <div class="login-version">v2.17.24</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2058,7 +2058,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.23 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.24 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2337,7 +2337,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <div class="credit-op-grid">
             <div class="credit-op-main">
               <div class="toolbar">
-                <!-- v2.17.23 布局：姓名搜索 → 原因选择器（固定紧邻搜索框右侧）→ 自定义分值 → 应用
+                <!-- v2.17.24 布局：姓名搜索 → 原因选择器（固定紧邻搜索框右侧）→ 自定义分值 → 应用
                      去掉了原「姓名右侧」的 ±1~±5 快捷预设——原因目录每项自带分值，选原因即自动带出，不再需要盲按分值 -->
                 <div class="search-select-wrapper" style="position:relative;z-index:10;max-width:200px">
                   <input type="text" id="creditStudentInput" placeholder="输入姓名搜索..." autocomplete="off"
@@ -2570,7 +2570,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="card" style="padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap" id="honorStats"></div>
         <div id="honorList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px"></div>
       </div>
-      <!-- v2.17.23 学分银行：内容由 renderBankPage() 整页渲染（教师专属，班委白名单不含 page-bank） -->
+      <!-- v2.17.24 学分银行：内容由 renderBankPage() 整页渲染（教师专属，班委白名单不含 page-bank） -->
       <div class="page" id="page-bank"></div>
 <div class="page" id="page-notices">
         <div class="tabs" id="noticeTabs">
@@ -3543,7 +3543,7 @@ function flattenReasonCatalog(cat){
   return out;
 }
 // 目录结构并集（方向/大类并集，组内原因去重保序）。用于多设备合并：两边新增都保留；
-// v2.17.23 起删除项由 smartMergeData 中 catDeleted 墓碑剔除，不再复活。
+// v2.17.24 起删除项由 smartMergeData 中 catDeleted 墓碑剔除，不再复活。
 function mergeReasonCatalog(a, b){
   var out = cloneReasonCatalog(a || {});
   Object.keys(b || {}).forEach(function(dir){
@@ -3557,7 +3557,7 @@ function mergeReasonCatalog(a, b){
   });
   return out;
 }
-// ---- v2.17.23 删除墓碑：目录删除要真正持久（本地刷新 / 云合并都不复活） ----
+// ---- v2.17.24 删除墓碑：目录删除要真正持久（本地刷新 / 云合并都不复活） ----
 // 删方向/大类/原因时记入 state.catDeleted（随 CLOUD_SYNC_FIELDS 云同步）；
 // 加载与云端合并后统一 applyCatTombstones 剔除。重新添加同名项会清除对应墓碑。
 function cloneCatDeleted(t){
@@ -3781,7 +3781,7 @@ function applyCreditDelta(student, amount, reason, opts){
     if(cmi.post) op.byPost = cmi.post;
   }
   state.operations.unshift(op);
-  // v2.17.23 学分银行双轨：加分自动等额发币由「币=Σ有效加分流水+银行流水」派生，
+  // v2.17.24 学分银行双轨：加分自动等额发币由「币=Σ有效加分流水+银行流水」派生，
   // 此处无需额外记账——撤销→流水退出有效集→币自动回退；恢复→自动补回（与 credit 同源自愈）
   return op;
 }
@@ -3795,7 +3795,7 @@ function revertCreditOp(student, op){
 /* 学分变更后统一刷新所有展示学分的视图。
    此前 applyCredit / applyCreditBulk / undoLastOp 只刷 renderCreditsPage，
    学生管理模块的表格不刷新 —— 这是「分数不一致」的直接观感来源。
-   v2.17.23：公示页（学分榜/进步榜/零扣分榜/概览统计/四个图表）纳入统一学分刷新——
+   v2.17.24：公示页（学分榜/进步榜/零扣分榜/概览统计/四个图表）纳入统一学分刷新——
    加分/减分/撤销/恢复/校快照后，只要公示页正开着（常驻/投屏），进步榜等立即同步，
    不再出现「同学加了分，进步榜/学分榜还是老样子」。 */
 function refreshCreditViews(){
@@ -3813,11 +3813,11 @@ function refreshCreditViews(){
   if(dash && dash.classList.contains('active')) safe(window.renderDashboard);
   var ana = document.getElementById('page-analytics');
   if(ana && ana.classList.contains('active')) safe(window.renderAnalytics);
-  var pub = document.getElementById('page-publicity');          // v2.17.23 公示页同步
+  var pub = document.getElementById('page-publicity');          // v2.17.24 公示页同步
   if(pub && pub.classList.contains('active')) safe(window.renderPublicity);
-  var bank = document.getElementById('page-bank');              // v2.17.23 学分银行页同步（币随加分/撤销自动联动）
+  var bank = document.getElementById('page-bank');              // v2.17.24 学分银行页同步（币随加分/撤销自动联动）
   if(bank && bank.classList.contains('active')) safe(window.renderBankPage);
-  safe(window.updateCbAlertChip);                               // v2.17.23 预警角标
+  safe(window.updateCbAlertChip);                               // v2.17.24 预警角标
 }
 /* 学分等级：制度第六章（≥100 优秀 / 90-100 合格 / 80-90 一般 / <80 不合格） */
 function creditLevel(credit){
@@ -3863,13 +3863,13 @@ const DEFAULT_COMMITTEE = {banzhang:null, fubanzhang:null, jilv:null, xuexi:null
 
 let state = {
   className: '高一（1）班',
-  classNameFull: '',   // v2.17.23 班级全称（荣誉证书等正式文书用；留空则回退 className）
+  classNameFull: '',   // v2.17.24 班级全称（荣誉证书等正式文书用；留空则回退 className）
   students: [],
   operations: [],
   reasons: [...defaultReasons],
   reasonScores: {},
   reasonCatalog: defaultReasonCatalog(),   // v2.17.0 可编辑原因目录（模板 = REASON_CATALOG）
-  catDeleted: { dirs: [], groups: [], reasons: [] },   // v2.17.23 原因目录删除墓碑（刷新/云合并均不复活删除项）
+  catDeleted: { dirs: [], groups: [], reasons: [] },   // v2.17.24 原因目录删除墓碑（刷新/云合并均不复活删除项）
   sortDir: 'desc',
   selectedStudents: new Set(),
   nextId: 1,
@@ -3897,12 +3897,12 @@ let state = {
   nextHonorId: 1,
   notices: { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 },
   creditBank: { settings:{ autoCoin:true, alertEnabled:true }, wallets:{}, ledger:[], nextLedgerId:1,
-                alerts:[], nextAlertId:1, nextVoucherId:1, lastSettleMonth:'', createdAt:0 },  // v2.17.23 学分银行
+                alerts:[], nextAlertId:1, nextVoucherId:1, lastSettleMonth:'', createdAt:0 },  // v2.17.24 学分银行
   wipeAt: 0,  // v2.11.3 数据重置时间戳：清空数据时更新，其他设备拉取到更大的 wipeAt 会强制清空对齐
   schemaVer: 2   // 原因目录/分值表 schema 版本：<1 补预设原因、<2 去「违禁品」重名项（v2.17.8），之后尊重班主任增删
 };
 
-/* ==================== v2.17.23 学分银行（双轨账本） ====================
+/* ==================== v2.17.24 学分银行（双轨账本） ====================
    设计（老板确认版）：
    ① 双轨：表现分 credit 照旧；学分币 = 「Σ有效加分流水」+「银行流水」派生 ——
       任何加分自动等额发币；扣分不动币；撤销加分 → 该流水退出有效集 → 币自动回退；
@@ -4292,6 +4292,26 @@ function cbBankTabTo(t){
   cbBankTab = t;
   renderBankPage();
 }
+/* v2.17.24 tabs 滑块定位：全局 .tab.active 是白字（.tab.active{color:#fff}），
+   白色能看见全靠红色渐变滑块 .tab-indicator 垫在下面（z-index:1 滑块 / z-index:2 文字）。
+   银行页是整页 innerHTML 重渲染，滑块必须每次重算 left/width，
+   否则「点一下 tab，字变白看不见」（页面初次进入/切页后同理）。 */
+function initBankTabIndicator(){
+  var wrap = document.getElementById('cbBankTabs');
+  if(!wrap) return;
+  var tab = wrap.querySelector('.tab.active');
+  var ind = wrap.querySelector('.tab-indicator');
+  if(!tab || !ind) return;
+  if(tab.offsetWidth > 0){
+    ind.style.left = (tab.offsetLeft - 4) + 'px';
+    ind.style.width = tab.offsetWidth + 'px';
+  }
+}
+// 横竖屏/窗口缩放后 tab 位置变了，滑块要跟着重算（仅银行页可见时）
+window.addEventListener('resize', function(){
+  var p = document.getElementById('page-bank');
+  if(p && p.classList.contains('active')) initBankTabIndicator();
+});
 function cbStoreSidPick(v){ cbStoreSid = String(v || ''); }
 function cbPersist(){
   saveData();
@@ -4394,9 +4414,11 @@ function renderBankPage(){
   var settled = bank.lastSettleMonth === month;
   var tabs = [
     { k:'overview', t:'🏦 概览' }, { k:'store', t:'🛒 兑换商店' }, { k:'vouchers', t:'🎟 券包与核销' },
-    { k:'ledger', t:'🧾 币流水' }, { k:'alerts', t:'🚨 预警中心' + (pend ? ' <b style="color:#c53030">' + pend + '</b>' : '') }
+    { k:'ledger', t:'🧾 币流水' },
+    // active 时数字随白字（红滑块上），非 active 时红色更醒目
+    { k:'alerts', t:'🚨 预警中心' + (pend ? ' <b style="color:' + (cbBankTab === 'alerts' ? '#fff' : '#c53030') + '">' + pend + '</b>' : '') }
   ];
-  var tabHtml = '<div class="tabs" style="margin-bottom:14px">';
+  var tabHtml = '<div class="tabs" id="cbBankTabs" style="margin-bottom:14px;max-width:100%;overflow-x:auto">';
   tabs.forEach(function(tb){
     tabHtml += '<div class="tab' + (cbBankTab === tb.k ? ' active' : '') + '" onclick="cbBankTabTo(\'' + tb.k + '\')">' + tb.t + '</div>';
   });
@@ -4550,6 +4572,7 @@ function renderBankPage(){
              '<span style="font-size:12px;color:var(--text-muted)">数据随学分流水自动同步 · ' + (state.classNameFull || state.className || '') + '</span></div>' +
              tabHtml + '<div id="cbBankBody">' + body + '</div>';
   el.innerHTML = html;
+  initBankTabIndicator();   // v2.17.24 重渲染后立即重算滑块位置（active 白字的红底）
 }
 function updateCbAlertChip(){
   var chip = document.getElementById('cbAlertChip');
@@ -4571,11 +4594,11 @@ function loadData(){
     try{
       const d = JSON.parse(raw);
       state.className = d.className || state.className;
-      state.classNameFull = d.classNameFull || state.classNameFull;   // v2.17.23 班级全称
+      state.classNameFull = d.classNameFull || state.classNameFull;   // v2.17.24 班级全称
       state.students = d.students || [];
       state.operations = sortOpsNewestFirst(d.operations || []);   // v2.17.7 归一化：老合并可能把顺序反转成最旧在前
       // 原因模板：默认模板只参与首次/旧数据迁移（migrate 内部处理），已有目录尊重班主任增删。
-      // v2.17.23：删除项记入 catDeleted 墓碑，加载后统一剔除 → 刷新不复活。
+      // v2.17.24：删除项记入 catDeleted 墓碑，加载后统一剔除 → 刷新不复活。
       var _tomb = (d.catDeleted && typeof d.catDeleted === 'object') ? cloneCatDeleted(d.catDeleted) : { dirs:[], groups:[], reasons:[] };
       state.catDeleted = _tomb;
       state.reasonCatalog = migrateReasonCatalog(d.reasonCatalog, (d.reasons && d.reasons.length) ? d.reasons : defaultReasons);
@@ -4636,7 +4659,7 @@ function loadData(){
       state.nextHonorId = d.nextHonorId || 1;
       state.nextTodoId = d.nextTodoId || 1;
       if(d.notices) state.notices = d.notices;
-      // v2.17.23 学分银行：读入并补齐形状（老数据无 creditBank 时保持默认结构）
+      // v2.17.24 学分银行：读入并补齐形状（老数据无 creditBank 时保持默认结构）
       if(d.creditBank) state.creditBank = cbNormalizeShape(d.creditBank);
       cbBankSafe();
       state.wipeAt = d.wipeAt || 0;   // v2.11.3 重置时间戳：拉取对齐判断的依据，必须随数据恢复
@@ -4659,23 +4682,23 @@ function loadData(){
           setTimeout(function(){ showToast('已按学分流水校准 ' + driftN + ' 名学生的学分', 'info'); }, 1300);
         }
       }
-      // v2.17.23 学分银行：启动即扫一遍预警（幂等），有新建/办结才落盘
+      // v2.17.24 学分银行：启动即扫一遍预警（幂等），有新建/办结才落盘
       if(cbScanAlerts() > 0) saveData();
     }catch(e){ console.error('Load failed',e); }
   }
 }
 
 function saveData(){
-  cbScanAlerts();   // v2.17.23 预警扫描挂在所有落盘前：加减分/撤销恢复/导入/云合并任一入口都会触发（幂等）
+  cbScanAlerts();   // v2.17.24 预警扫描挂在所有落盘前：加减分/撤销恢复/导入/云合并任一入口都会触发（幂等）
   localStorage.setItem(STORE_KEY, JSON.stringify({
     className: state.className,
-    classNameFull: state.classNameFull,   // v2.17.23 班级全称
+    classNameFull: state.classNameFull,   // v2.17.24 班级全称
     students: state.students,
     operations: state.operations,
     reasons: state.reasons,
     reasonScores: state.reasonScores || {},
     reasonCatalog: state.reasonCatalog || {},
-    catDeleted: state.catDeleted || { dirs: [], groups: [], reasons: [] },   // v2.17.23 删除墓碑随本地存储持久
+    catDeleted: state.catDeleted || { dirs: [], groups: [], reasons: [] },   // v2.17.24 删除墓碑随本地存储持久
     schemaVer: state.schemaVer || 0,
     nextId: state.nextId,
     nextOpId: state.nextOpId,
@@ -4702,7 +4725,7 @@ function saveData(){
     nextHonorId: state.nextHonorId,
     nextTodoId: state.nextTodoId,
     notices: state.notices,
-    creditBank: state.creditBank     // v2.17.23 学分银行
+    creditBank: state.creditBank     // v2.17.24 学分银行
   }));
 
   autoPushToCloud();
@@ -4832,7 +4855,7 @@ function smartMergeData(localData,remoteData){
   if(remoteData.reasonCatalog && typeof remoteData.reasonCatalog === 'object'){
     merged.reasonCatalog = mergeReasonCatalog(localData.reasonCatalog || {}, remoteData.reasonCatalog);
   }
-  // v2.17.23 删除墓碑合并：任一侧删过的方向/大类/原因，合并结果一律剔除（含分值表/平铺列表）→ 跨设备删除生效
+  // v2.17.24 删除墓碑合并：任一侧删过的方向/大类/原因，合并结果一律剔除（含分值表/平铺列表）→ 跨设备删除生效
   merged.catDeleted = { dirs:[], groups:[], reasons:[] };
   var _td = cloneCatDeleted(localData.catDeleted), _tr = cloneCatDeleted(remoteData.catDeleted);
   _td.dirs.concat(_tr.dirs).forEach(function(k){ catDelAdd(merged.catDeleted.dirs, k); });
@@ -4842,7 +4865,7 @@ function smartMergeData(localData,remoteData){
   merged.reasonScores = merged.reasonScores || {};
   applyCatTombstones(merged.reasonCatalog, merged.reasonScores, merged.catDeleted);
   merged.reasons = flattenReasonCatalog(merged.reasonCatalog);
-  // v2.17.23 学分银行合并：券包/流水/预警按 id 去重、冲突取更新者；两侧都没有则不动
+  // v2.17.24 学分银行合并：券包/流水/预警按 id 去重、冲突取更新者；两侧都没有则不动
   if(localData.creditBank || remoteData.creditBank){
     merged.creditBank = cbMergeBanks(localData.creditBank, remoteData.creditBank);
   }
@@ -4859,7 +4882,7 @@ function smartMergeData(localData,remoteData){
   merged.committee=cm;
   // simple fields
   if(!merged.className&&remoteData.className)merged.className=remoteData.className;
-  if(!merged.classNameFull&&remoteData.classNameFull)merged.classNameFull=remoteData.classNameFull;  // v2.17.23
+  if(!merged.classNameFull&&remoteData.classNameFull)merged.classNameFull=remoteData.classNameFull;  // v2.17.24
   if(!merged.classMotto&&remoteData.classMotto)merged.classMotto=remoteData.classMotto;
   if(!merged.classAvatar&&remoteData.classAvatar)merged.classAvatar=remoteData.classAvatar;
   // scheduleImage and classAvatar are synced via data.json (compressed);
@@ -5172,7 +5195,7 @@ function navigateTo(page){
   if(page==='profiles') renderProfiles();
   if(page==='worklogs') renderWorkLogs();
   if(page==='honors') renderHonors();
-  if(page==='bank') renderBankPage();   // v2.17.23 学分银行（班委白名单已拦截，教师专属）
+  if(page==='bank') renderBankPage();   // v2.17.24 学分银行（班委白名单已拦截，教师专属）
 if(page==='settings') renderSettings();
   // Highlight in more drawer if active page is in drawer
   document.querySelectorAll('.more-item').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
@@ -6205,7 +6228,7 @@ function addCustomTag(id){
   if(!s.tags) s.tags = [];
   if(s.tags.includes(tag)){ showToast('该标签已存在','warning'); return; }
   s.tags.push(tag);
-  if(isDormTag(tag)) fillStudentGenderFromDorm(s);   // v2.17.23 手填寝室号标签同样触发性别补写
+  if(isDormTag(tag)) fillStudentGenderFromDorm(s);   // v2.17.24 手填寝室号标签同样触发性别补写
   saveData();
   openDetailPanel(id);
   renderTable();
@@ -7138,7 +7161,7 @@ function dormNoOf(s){
   return '';
 }
 
-/* v2.17.23 宿舍→性别一致性：本班男生寝室 = 7栋214室，女生寝室 = 6栋801~806室。
+/* v2.17.24 宿舍→性别一致性：本班男生寝室 = 7栋214室，女生寝室 = 6栋801~806室。
    学生挂上对应寝室号标签、而档案「性别」为空时，自动按楼栋房号补写性别——寝室与档案不再可能打架
    （杜绝「住女寝的男生」）。已填写的性别不覆盖（班主任可在档案编辑里手动改）。规则随班级可调。 */
 var DORM_GENDER_RULES = [
@@ -7164,7 +7187,7 @@ function fillStudentGenderFromDorm(s){
   s.updatedAt = Date.now();
   return true;
 }
-/* v2.17.23 全校寝室→性别一致性维护通道：进档案页/寝室页时扫一遍，
+/* v2.17.24 全校寝室→性别一致性维护通道：进档案页/寝室页时扫一遍，
    凡寝室号命中规则且性别为空的自动补写（无变化的学校不落盘） */
 function fillAllDormGenders(){
   var changed = false;
@@ -7227,7 +7250,7 @@ function renderDorm(){
     if(!s.tags) return;
     var next = s.tags.map(function(t){ return normalizeDormTag(t); });
     if(JSON.stringify(next) !== JSON.stringify(s.tags)){ s.tags = next; s.updatedAt = Date.now(); changed = true; }
-    // v2.17.23 宿舍号已知但档案性别为空 → 按楼栋房号规则补写（7栋214=男 / 6栋801-806=女）
+    // v2.17.24 宿舍号已知但档案性别为空 → 按楼栋房号规则补写（7栋214=男 / 6栋801-806=女）
     if(fillStudentGenderFromDorm(s)) changed = true;
   });
   if(changed) saveData();
@@ -7336,7 +7359,7 @@ function addDormMember(id, no){
   s.tags = (s.tags||[]).filter(function(t){ return !isDormTag(t) && t !== DAY_TAG; });
   s.tags.push(no);
   s.updatedAt = Date.now();
-  fillStudentGenderFromDorm(s);   // v2.17.23 入寝即补写性别（仅档案性别为空时）
+  fillStudentGenderFromDorm(s);   // v2.17.24 入寝即补写性别（仅档案性别为空时）
   saveData();
   renderDorm();
   showToast(s.name + (old ? ' 已从 ' + old + ' 调至 ' : ' 已加入 ') + no, 'success');
@@ -7609,7 +7632,7 @@ function updateCreditBtnStates(){
   const hasReason = document.getElementById('creditReason').value !== '';
   const customInput = document.getElementById('customCredit');
   const amt = customInput ? parseInt(customInput.value, 10) : NaN;
-  // v2.17.23 去快捷 ±N 预设后，唯一提交入口是「应用」：需已选学生 + 已选原因 + 有分值
+  // v2.17.24 去快捷 ±N 预设后，唯一提交入口是「应用」：需已选学生 + 已选原因 + 有分值
   let valid = hasStudent && hasReason && !!customInput.value && !isNaN(amt) && amt !== 0;
   // v2.17.0/2.17.22 班委禁扣：负分（扣分）时禁用应用（逻辑层另有 cmMinusBlocked 兜底）
   let cmMinusLock = false;
@@ -8404,7 +8427,7 @@ initTheme();
 
 /* ==================== Student Profiles ==================== */
 var _profileSelectedId = null;
-/* v2.17.23 中文姓名按拼音音序（首字母 A→Z）排序：Intl.Collator('zh') 即拼音字典序，
+/* v2.17.24 中文姓名按拼音音序（首字母 A→Z）排序：Intl.Collator('zh') 即拼音字典序，
    旧版按学号/录入序排列，找人不直观。同音回退到学号位次。 */
 var _pyCollator = (typeof Intl !== 'undefined' && Intl.Collator)
   ? new Intl.Collator('zh-Hans-CN', { sensitivity: 'variant', numeric: true })
@@ -8434,7 +8457,7 @@ function ensureProfile(s){
   return s.profile;
 }
 function renderProfiles(){
-  fillAllDormGenders();   // v2.17.23 进档案页先全校同步一次寝室→性别（有改动才落盘）
+  fillAllDormGenders();   // v2.17.24 进档案页先全校同步一次寝室→性别（有改动才落盘）
   renderProfileList();
   if(_profileSelectedId !== null){
     const s = state.students.find(x=>x.id===_profileSelectedId);
@@ -8443,7 +8466,7 @@ function renderProfiles(){
 }
 function renderProfileList(){
   const kw = (document.getElementById('profileSearch')?.value || '').toLowerCase().trim();
-  // v2.17.23 左侧名单按姓名拼音音序排（A→Z），同音按学号
+  // v2.17.24 左侧名单按姓名拼音音序排（A→Z），同音按学号
   const list = sortStudentsByPinyin(state.students.filter(s => !kw || s.name.toLowerCase().includes(kw) || s.sid.toLowerCase().includes(kw)));
   const el = document.getElementById('profileList');
   const count = document.getElementById('profileCount');
@@ -8471,7 +8494,7 @@ function selectProfile(id){
   const s = state.students.find(x=>x.id===id);
   if(s) renderProfileDetail(s);
 }
-/* ---- v2.17.23 档案详情新版式辅助 ---- */
+/* ---- v2.17.24 档案详情新版式辅助 ---- */
 var _pfOpScope = 'term';   // 德育记录范围：term=本学期 / all=全部
 function pfSectionToggle(bodyId, chevId){
   const b = document.getElementById(bodyId), c = document.getElementById(chevId);
@@ -8520,7 +8543,7 @@ function studentHonorsOf(s){
 }
 function renderProfileDetail(s){
   const p = ensureProfile(s);
-  // v2.17.23 档案页兜底：寝室号已知、性别为空 → 按楼栋房号规则补写（7栋214=男 / 6栋801-806=女）
+  // v2.17.24 档案页兜底：寝室号已知、性别为空 → 按楼栋房号规则补写（7栋214=男 / 6栋801-806=女）
   if(fillStudentGenderFromDorm(s)) saveData();
   const el = document.getElementById('profileDetail');
   const tl = p.timeline.slice().sort((a,b)=>b.date.localeCompare(a.date) || b.id-a.id);
@@ -8812,7 +8835,7 @@ function exportMonthLogs(){
 var HONOR_LEVELS = ['校级','区级','市级','省级','国家级'];
 var HONOR_SCOPES = ['集体','个人'];
 var _honorLevel = '全部';
-/* v2.17.23 荣誉墙类型筛选：全部/集体/个人（班级荣誉与个人荣誉分区查看） */
+/* v2.17.24 荣誉墙类型筛选：全部/集体/个人（班级荣誉与个人荣誉分区查看） */
 var _honorScope = '全部';
 function setHonorScope(s){ _honorScope = s; renderHonors(); }
 function renderHonors(){
@@ -8932,10 +8955,10 @@ function deleteHonor(id){
   showToast('已删除','success');
 }
 
-/* ==================== v2.17.23 荣誉证书导出（canvas → PNG） ====================
+/* ==================== v2.17.24 荣誉证书导出（canvas → PNG） ====================
    个人荣誉：档案页按学生出证（exportHonorCert(id, 姓名)）；荣誉墙按人/集体出证。
    一张证书图片，可直接发班级群（集体）或家长群（个人）。 */
-function certClassName(){   // v2.17.23 证书等正式文书用班级全称（设置可配，留空回退班级名称）
+function certClassName(){   // v2.17.24 证书等正式文书用班级全称（设置可配，留空回退班级名称）
   return state.classNameFull || state.className || '';
 }
 function honorCertEntity(h, personName){
@@ -9000,7 +9023,7 @@ function drawHonorCertCanvas(h, personName){
     ctx.fillStyle = '#999'; ctx.font = '26px ' + F;
     certCenterText(ctx, h.desc, W / 2, yb + 204, W - 360, 40);
   }
-  // v2.17.23 落款：班级全称居中（在上）+ 日期居中（在下，纵向与班级全称对齐）
+  // v2.17.24 落款：班级全称居中（在上）+ 日期居中（在下，纵向与班级全称对齐）
   const dm = String(h.date || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
   const dtx = dm ? (dm[1] + ' 年 ' + Number(dm[2]) + ' 月 ' + Number(dm[3]) + ' 日') : (h.date || '');
   ctx.textAlign = 'center';
@@ -9013,7 +9036,7 @@ function drawHonorCertCanvas(h, personName){
 function exportHonorCert(id, personName){
   const h = state.honors.find(x => x.id === id);
   if(!h){ showToast('荣誉不存在','error'); return; }
-  // v2.17.23 班级全称为空时温柔提示一次（仅在该会话内首次提醒，避免重复打扰）
+  // v2.17.24 班级全称为空时温柔提示一次（仅在该会话内首次提醒，避免重复打扰）
   if(!state.classNameFull && !window.__cmFullNameToastShown){
     window.__cmFullNameToastShown = true;
     setTimeout(function(){
@@ -9044,7 +9067,7 @@ function renderSettings(){
   document.getElementById('classNameInput').value = state.className;
   const fullInput = document.getElementById('classNameFullInput');
   if(fullInput){
-    fullInput.value = state.classNameFull || '';   // v2.17.23
+    fullInput.value = state.classNameFull || '';   // v2.17.24
     // 渲染时同步状态提示
     const st = document.getElementById('classNameFullStatus');
     if(st){
@@ -9139,7 +9162,7 @@ function saveClassName(){
   const name = document.getElementById('classNameInput').value.trim();
   if(!name){ showToast('请输入班级名称','error'); return; }
   state.className = name;
-  // v2.17.23 首次保存班级名称时，若班级全称尚未填，自动同步（避免证书回退到简称）；用户可在下方编辑为正式全称
+  // v2.17.24 首次保存班级名称时，若班级全称尚未填，自动同步（避免证书回退到简称）；用户可在下方编辑为正式全称
   if(!state.classNameFull){
     state.classNameFull = name;
     const fullInput = document.getElementById('classNameFullInput');
@@ -9149,11 +9172,11 @@ function saveClassName(){
   document.getElementById('sidebarClassName').textContent = name;
   showToast('班级名称已保存' + (state.classNameFull === name && !document.getElementById('classNameFullInput').dataset.edited ? '（班级全称已自动同步为简称，后续请在下方改为正式全称，如「2026级幼儿保育2班」）' : ''),'success');
 }
-function saveClassNameFull(){   // v2.17.23 班级全称：荣誉证书等正式文件落款用
+function saveClassNameFull(){   // v2.17.24 班级全称：荣誉证书等正式文件落款用
   const name = document.getElementById('classNameFullInput').value.trim();
   state.classNameFull = name;
   saveData();
-  // v2.17.23 同步显示状态：已设→绿色提示用法；未设→提醒将用简称
+  // v2.17.24 同步显示状态：已设→绿色提示用法；未设→提醒将用简称
   const st = document.getElementById('classNameFullStatus');
   if(st){
     if(name){
@@ -9251,7 +9274,7 @@ function openReasonDirModal(){
   if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(name)){ showToast('方向名限中英文/数字，不能含符号与表情', 'error'); return; }
   if(state.reasonCatalog[name]){ showToast('方向「' + name + '」已存在', 'warning'); return; }
   state.reasonCatalog[name] = {};
-  catDelUndo('dirs', name);   // v2.17.23 重新添加同名方向视为放弃删除
+  catDelUndo('dirs', name);   // v2.17.24 重新添加同名方向视为放弃删除
   catRefresh();
   showToast('已新增方向：' + name, 'success');
 }
@@ -9264,7 +9287,7 @@ function openReasonGroupModal(dir){
   if(!state.reasonCatalog[dir]) state.reasonCatalog[dir] = {};
   if(state.reasonCatalog[dir][name]){ showToast('大类「' + name + '」已存在', 'warning'); return; }
   state.reasonCatalog[dir][name] = [];
-  catDelUndo('groups', dir + '|' + name);   // v2.17.23 重新添加同名大类视为放弃删除
+  catDelUndo('groups', dir + '|' + name);   // v2.17.24 重新添加同名大类视为放弃删除
   catRefresh();
   showToast('已新增大类：' + dir + ' → ' + name, 'success');
 }
@@ -9395,7 +9418,7 @@ function catSaveNewItem(){
   if(!state.reasonCatalog[dir]) state.reasonCatalog[dir] = {};
   if(!state.reasonCatalog[dir][group]) state.reasonCatalog[dir][group] = [];
   state.reasonCatalog[dir][group].push(name);
-  catDelUndo('reasons', name);   // v2.17.23 重新添加同名原因视为放弃删除
+  catDelUndo('reasons', name);   // v2.17.24 重新添加同名原因视为放弃删除
   var scoreStr = String(document.getElementById('catScoreInput').value || '').trim();
   if(scoreStr !== ''){
     var n = Number(scoreStr);
@@ -9412,7 +9435,7 @@ function askResetReasonCatalog(){
   if(!confirm('再次确认：自定义内容将被覆盖，不可撤销。')) return;
   state.reasonCatalog = defaultReasonCatalog();
   state.reasonScores = Object.assign({}, defaultReasonScores);
-  state.catDeleted = { dirs: [], groups: [], reasons: [] };   // v2.17.23 恢复预设后清空墓碑
+  state.catDeleted = { dirs: [], groups: [], reasons: [] };   // v2.17.24 恢复预设后清空墓碑
   catRefresh();
   showToast('已恢复制度预设目录（27 项）', 'success');
 }
@@ -9654,7 +9677,7 @@ function clearData(){
   state.honors = [];
   state.nextHonorId = 1;
   state.notices = { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 };
-  state.creditBank = cbDefaultBank();   // v2.17.23 学分银行随数据清空（品牌配置类保留）
+  state.creditBank = cbDefaultBank();   // v2.17.24 学分银行随数据清空（品牌配置类保留）
   state.selectedStudents = new Set();
   state.wipeAt = Date.now();   // v2.11.3 重置戳：其他设备拉取到更大的 wipeAt 会自动清空对齐，旧数据不复活
   saveData();
@@ -9751,7 +9774,7 @@ function renderAll(){
   const activePage = document.querySelector('.nav-item.active')?.dataset.page || 'dashboard';
   navigateTo(activePage);
   updateExportBadge();
-  updateCbAlertChip();   // v2.17.23 预警角标（随云端合并/跨标签同步刷新）
+  updateCbAlertChip();   // v2.17.24 预警角标（随云端合并/跨标签同步刷新）
 }
 
 /* ==================== 登录 & 密码（SHA-256 加盐哈希） ==================== */
@@ -10044,7 +10067,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ==================== Init ==================== */
-// v2.17.23 先加载本地数据，再执行班委模式限制/身份解析（此前 applyCommitteeRestrictions 先于 loadData 运行，
+// v2.17.24 先加载本地数据，再执行班委模式限制/身份解析（此前 applyCommitteeRestrictions 先于 loadData 运行，
 // 身份解析时学生名单为空 → 署名退化成匿名「通用班委」，选了身份也白选）
 loadData();
 // 登录拦截：未解锁时显示登录页；班委模式免密直达（受限视图）
@@ -10078,14 +10101,14 @@ autoSyncFromCloud().then(function(){
   // Re-render after sync to ensure DOM is updated
   renderScheduleImage();
   renderClassBrand();
-  // v2.17.23 云端首次拉到名单后补一次身份解析：本地无缓存、名单只在云端时，
+  // v2.17.24 云端首次拉到名单后补一次身份解析：本地无缓存、名单只在云端时，
   // 启动期 resolveCmIdentity 会因名单为空退化为匿名，这里补齐署名身份（幂等，仅匿名时触发）
   if(window.__cmRole === 'committee' && window.__cmIdentity && window.__cmIdentity.anonymous && state.students && state.students.length){
     applyCommitteeRestrictions();
   }
 });
 // Auto sync when tab becomes visible (mobile tab switching)
-/* v2.17.23 跨标签实时同步：班主任操作窗口（学分页/学生表加分）与公示常驻窗口
+/* v2.17.24 跨标签实时同步：班主任操作窗口（学分页/学生表加分）与公示常驻窗口
    （投屏/另一标签全屏给全班看）通常同浏览器多开、共享 localStorage。storage 事件
    让非来源标签自动 loadData + 重渲当前页 —— 加分/减分/撤销/恢复后，公示窗口的
    学分榜/进步榜/零扣分榜/统计图表即时更新，不再等切回标签或云端往返。

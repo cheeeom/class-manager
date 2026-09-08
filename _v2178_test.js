@@ -1,4 +1,4 @@
-/* v2.17.23 回归测试：学分银行（双轨账本/月度阶梯结算/兑换商店/阶梯预警/教师专属页）
+/* v2.17.24 回归测试：学分银行（双轨账本/月度阶梯结算/兑换商店/阶梯预警/教师专属页）
    覆盖：数据五处链路 + 币派生口径 + 结算定档 + 券去重/合并 + 预警建档升级自动办结 + UI 接入。
    运行：node _v2178_test.js */
 const fs = require('fs');
@@ -60,15 +60,15 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('版本三处同步 = v2.17.23（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.17\.23</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.23 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.17.23')) throw new Error('SW CACHE_NAME 未更新');
+t('版本三处同步 = v2.17.24（登录页/侧栏/SW CACHE_NAME）', () => {
+  if (!/login-version">v2\.17\.24</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.17\.24 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.17.24')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 数据五处链路 ===');
 t('state 默认含 creditBank（settings/wallets/ledger/nextLedgerId/alerts/nextVoucherId/lastSettleMonth）', () => {
-  const def = html.match(/creditBank: \{ settings:\{ autoCoin:true, alertEnabled:true \}, wallets:\{\}, ledger:\[\], nextLedgerId:1,[\s\S]*?createdAt:0 \},  \/\/ v2\.17\.23 学分银行/);
+  const def = html.match(/creditBank: \{ settings:\{ autoCoin:true, alertEnabled:true \}, wallets:\{\}, ledger:\[\], nextLedgerId:1,[\s\S]*?createdAt:0 \},  \/\/ v2\.17\.24 学分银行/);
   if (!def) throw new Error('state 默认缺 creditBank 结构');
   ['settings', 'wallets', 'ledger', 'nextLedgerId', 'alerts', 'nextAlertId', 'nextVoucherId', 'lastSettleMonth', 'createdAt'].forEach(k => has(def[0], k));
 });
@@ -112,6 +112,16 @@ t('pageTitles 含 bank=学分银行；navigateTo 分支 + renderBankPage 教师�
   if (!rp) throw new Error('renderBankPage 班委守卫缺失');
   has(html, 'symbol id="i-bank"');
   has(html, 'id="cbAlertChip"');
+});
+t('学分银行 tabs 滑块：initBankTabIndicator 定位（active 白字靠红滑块托底，防「点切换字变白看不见」）', () => {
+  has(html, 'function initBankTabIndicator(');
+  has(html, 'initBankTabIndicator();   // v2.17.24 重渲染后立即重算滑块位置');
+  has(html, 'id="cbBankTabs"');
+  has(html, 'initBankTabIndicator();\n});', 'resize 兜底缺失');
+  const fn = html.match(/function initBankTabIndicator\(\)\{[\s\S]*?\n\}/)[0];
+  has(fn, "ind.style.left = (tab.offsetLeft - 4) + 'px';");
+  has(fn, 'ind.style.width = tab.offsetWidth');
+  has(fn, 'tab.offsetWidth > 0', '未可见性保护');
 });
 t('refreshCreditViews 挂学分银行页与预警角标；renderAll 挂角标刷新', () => {
   has(html, "var bank = document.getElementById('page-bank');", 'refreshCreditViews 缺 bank 页');
@@ -284,7 +294,7 @@ t('renderBankPage/updateCbAlertChip 挂到 window 调用（refresh 体系 safe()
 });
 t('applyCreditDelta 双轨注释（加分自动等额发币由流水派生，无额外记账）', () => {
   const ac = html.match(/function applyCreditDelta\([\s\S]*?\n\}/)[0];
-  has(ac, 'v2.17.23 学分银行双轨');
+  has(ac, 'v2.17.24 学分银行双轨');
   has(ac, '无需额外记账');
 });
 
