@@ -1,5 +1,6 @@
-/* v2.17.19 回归测试：档案详情新版式 + 拼音排序 + 寝室→性别补写 + 德育记录本学期/折叠
-   + 荣誉墙类型筛选 + 证书导出。运行：node _v2177_test.js */
+/* v2.17.19/20 回归测试：档案详情新版式 + 拼音排序 + 寝室→性别补写 + 德育记录本学期/折叠
+   + 荣誉墙类型筛选 + 证书导出；v2.17.20 证书去红章/去班主任署名/日期右对齐空两格/班级全称落款。
+   运行：node _v2177_test.js */
 const fs = require('fs');
 const html = fs.readFileSync('index.html', 'utf8');
 
@@ -33,7 +34,7 @@ var DORM_GENDER_RULES = _m ? eval('(' + _m[1] + ')') : [];
 var dormNoOf = extractFn('dormNoOf');
 var normalizeDormTag = extractFn('normalizeDormTag');
 var isDormTag = extractFn('isDormTag');
-// v2.17.19 注入 const 常量依赖（DORM_RE 是 const，eval 抽函数没法闭包到）
+// v2.17.20 注入 const 常量依赖（DORM_RE 是 const，eval 抽函数没法闭包到）
 const _dormReMatch = html.match(/const DORM_RE = (\/[\s\S]*?\/);/);
 var DORM_RE = _dormReMatch ? eval(_dormReMatch[1]) : null;
 const dormGenderOf = extractFn('dormGenderOf');
@@ -41,17 +42,18 @@ const fillStudentGenderFromDorm = extractFn('fillStudentGenderFromDorm');
 const pinyinNameCmp = extractFn('pinyinNameCmp');
 const sortStudentsByPinyin = extractFn('sortStudentsByPinyin');
 const names = ['王小明','陈晨','赵敏','李雷','孙悦','张伟'];
+var state = { className: '26级幼保2班', classNameFull: '' };   // certClassName 依赖
 
 console.log('=== 语法检查 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 
-console.log('\n=== v2.17.19 版本三处同步 ===');
-t('登录页 / 侧栏 / SW CACHE_NAME = v2.17.19', () => {
-  if (!/login-version">v2\.17\.19</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.19 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.17.19')) throw new Error('SW CACHE_NAME 未更新');
+console.log('\n=== v2.17.20 版本三处同步 ===');
+t('登录页 / 侧栏 / SW CACHE_NAME = v2.17.20', () => {
+  if (!/login-version">v2\.17\.20</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.17\.20 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.17.20')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 拼音排序（左侧学生名单） ===');
@@ -136,6 +138,57 @@ t('每张荣誉卡含「📄 证书」按钮（点导出证书图片）', () => 
 });
 t('证书画布生成函数 + 导出函数就位', () => {
   ['function drawHonorCertCanvas(', 'function exportHonorCert(', 'function honorCertEntity('].forEach(m => has(html, m, '缺' + m));
+});
+
+console.log('\n=== v2.17.20 证书导出：去红章 / 去班主任署名 / 日期右对齐空两格 / 班级全称落款 ===');
+t('红章「班主任荣誉专用章」整块移除（不再出现专用章/红章描画）', () => {
+  if (html.indexOf('班主任荣誉专用章') >= 0) throw new Error('仍残留红章文案');
+  if (html.indexOf('专用章') >= 0) throw new Error('仍残留「专用章」');
+  if (html.indexOf('班主任\", 1180') >= 0) throw new Error('仍残留红章内文字');
+  const fn = html.match(/function drawHonorCertCanvas\([\s\S]*?\n\}/)[0];
+  if (fn.indexOf('arc(') >= 0) throw new Error('证书内仍有圆形描画（红章圆）');
+});
+t('证书内已无「班主任：」署名行', () => {
+  const fn = html.match(/function drawHonorCertCanvas\([\s\S]*?\n\}/)[0];
+  if (fn.indexOf('班主任') >= 0) throw new Error('证书内仍出现班主任字样');
+});
+t('班级全称落款：certClassName 取 classNameFull，留空回退 className', () => {
+  if (!html.includes('function certClassName(')) throw new Error('缺 certClassName');
+  const certClassName = extractFn('certClassName');
+  const oldFull = state.classNameFull, oldName = state.className;
+  state.classNameFull = '2026级幼儿保育2班'; state.className = '26级幼保2班';
+  eq(certClassName(), '2026级幼儿保育2班', '有全称取全称');
+  state.classNameFull = '';
+  eq(certClassName(), '26级幼保2班', '无全称回退班级名称');
+  state.classNameFull = oldFull; state.className = oldName;
+});
+t('证书绘制用 certClassName（顶部抬头 + 底部落款两处）', () => {
+  const fn = html.match(/function drawHonorCertCanvas\([\s\S]*?\n\}/)[0];
+  const cnt = fn.split('certClassName()').length - 1;
+  if (cnt < 2) throw new Error('证书应至少两处用班级全称，实际 ' + cnt + ' 处');
+  if (fn.indexOf('state.className') >= 0) throw new Error('证书内仍直读 state.className（不走全称）');
+});
+t('日期右对齐且尾部空两格（与班级全称右缘对齐）', () => {
+  const fn = html.match(/function drawHonorCertCanvas\([\s\S]*?\n\}/)[0];
+  if (!fn.includes("ctx.textAlign = 'right'")) throw new Error('日期未右对齐');
+  if (fn.indexOf('dtx + ') < 0 && fn.indexOf("'　　'") < 0) throw new Error('缺日期空两格拼接');
+  if (!fn.includes('　　')) throw new Error('缺全角空格×2（空两格）');
+});
+t('honorCertEntity 集体荣誉主语也用班级全称', () => {
+  const fn = html.match(/function honorCertEntity\([\s\S]*?\n\}/)[0];
+  if (fn.indexOf('certClassName()') < 0) throw new Error('集体主语未走 certClassName');
+});
+t('classNameFull 数据链路五处齐：默认 / 本地读 / saveData 手写 / 云白名单 / 云合并', () => {
+  if (!/classNameFull: ''/.test(html)) throw new Error('state 默认缺 classNameFull');
+  if (!/state\.classNameFull = d\.classNameFull/.test(html)) throw new Error('loadData 未读 classNameFull');
+  if (!/classNameFull: state\.classNameFull/.test(html)) throw new Error('saveData 手写清单缺 classNameFull');
+  if (!/'classNameFull'/.test(html.match(/const CLOUD_SYNC_FIELDS = \[[^\]]*\]/)[0])) throw new Error('云白名单缺 classNameFull');
+  if (!/merged\.classNameFull&&remoteData\.classNameFull/.test(html)) throw new Error('smartMergeData 未合并 classNameFull');
+});
+t('设置页有班级全称输入框 + 保存函数 + 渲染回填', () => {
+  if (!html.includes('id="classNameFullInput"')) throw new Error('设置页缺全称输入框');
+  if (!html.includes('function saveClassNameFull(')) throw new Error('缺 saveClassNameFull');
+  if (!/renderSettings\(\)\{[\s\S]*?classNameFullInput/.test(html)) throw new Error('renderSettings 未回填全称');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');
