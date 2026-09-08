@@ -42,6 +42,11 @@ const monthKeyOf = extractFn('monthKeyOf');
 const liveOps = extractFn('liveOps');   // v2.17.9 monthlySettlePlan 撤销过滤依赖
 const monthlySettlePlan = extractFn('monthlySettlePlan');
 const smartMergeData = extractFn('smartMergeData');
+// v2.17.16 smartMergeData 删除墓碑依赖（抽取自 index.html 真实实现）
+const cloneCatDeleted = extractFn('cloneCatDeleted');
+const catDelAdd = extractFn('catDelAdd');
+const applyCatTombstones = extractFn('applyCatTombstones');
+const flattenReasonCatalog = extractFn('flattenReasonCatalog');
 
 var state = {};
 

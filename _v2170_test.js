@@ -25,11 +25,11 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 
-console.log('\n=== v2.17.15 版本三处同步 ===');
-t('登录页 / 侧栏 / SW CACHE_NAME = v2.17.15', () => {
-  if (!/login-version">v2\.17\.15</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.15 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.17.15')) throw new Error('SW CACHE_NAME 未更新');
+console.log('\n=== v2.17.16 版本三处同步 ===');
+t('登录页 / 侧栏 / SW CACHE_NAME = v2.17.16', () => {
+  if (!/login-version">v2\.17\.16</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.17\.16 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.17.16')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 目录纯函数 ===');
@@ -83,7 +83,7 @@ t('state 默认 reasonCatalog + reasons 派生；CLOUD_SYNC_FIELDS/saveData 含 
   const sync = html.match(/const CLOUD_SYNC_FIELDS = \[([^\]]*)\]/);
   if (!sync[1].includes('reasonCatalog')) throw new Error('CLOUD_SYNC_FIELDS 缺 reasonCatalog');
   if (!html.includes('reasonCatalog: state.reasonCatalog || {},')) throw new Error('saveData 未落盘 reasonCatalog');
-  if (!html.includes('migrateReasonCatalog(d.reasonCatalog, state.reasons)')) throw new Error('loadData 未迁移目录');
+  if (!html.includes('migrateReasonCatalog(d.reasonCatalog, (d.reasons && d.reasons.length) ? d.reasons : defaultReasons)')) throw new Error('loadData 未迁移目录');
   if (!html.includes('syncReasonsFromCatalog();')) throw new Error('loadData 未派生 reasons');
 });
 t('smartMergeData 对 reasonCatalog 做结构并集', () => {

@@ -25,10 +25,12 @@ let code = html.slice(start, endAt);
 code = code.slice(0, code.indexOf('function configSyncPwd(){')) +
        code.slice(code.indexOf('// 推送前安全闸门'));
 
-// ---- 抽取 smartMergeData ----
+// ---- 抽取 sortOpsNewestFirst + smartMergeData ----
 const ms = html.indexOf('function smartMergeData');
 const me = html.indexOf('\nfunction ', ms + 10);
-const mergeCode = html.slice(ms, me > 0 ? me : undefined);
+const helperStart = html.indexOf('function sortOpsNewestFirst');
+if (helperStart < 0) { console.error('未找到 sortOpsNewestFirst（v2.17.7 缺失）'); process.exit(1); }
+const mergeCode = html.slice(helperStart, me > 0 ? me : undefined);
 
 // ---- 环境替身 ----
 const store = {};
@@ -51,6 +53,26 @@ global.cloudDataInfo = null;
 global.lastSyncTime = null;
 // v2.9.0 起 smartMergeData 依赖班委默认 8 岗常量（测试的外部符号桩）
 global.DEFAULT_COMMITTEE = {banzhang:null, fubanzhang:null, jilv:null, xuexi:null, tiyu:null, shenghuo:null, wenyi:null, xinli:null};
+// v2.17.16 smartMergeData 删除墓碑依赖：以模块作用域 const 注入（直 eval 的函数闭包可解析到模块层）
+function _sliceFn(name){
+  const s = html.indexOf('function ' + name);
+  if (s < 0) throw new Error('未找到函数 ' + name);
+  // 花括号配平：从函数行起，遇到闭合回深度 0 即结束（防止被注释块隔断的相邻函数卷入）
+  const lines = html.slice(s).split('\n');
+  let depth = 0, began = false, out = [];
+  for (const ln of lines) {
+    for (const ch of ln) { if (ch === '{') { depth++; began = true; } else if (ch === '}') depth--; }
+    out.push(ln);
+    if (began && depth === 0) break;
+  }
+  return eval('(' + out.join('\n') + ')');
+}
+const cloneCatDeleted = _sliceFn('cloneCatDeleted');
+const catDelAdd = _sliceFn('catDelAdd');
+const applyCatTombstones = _sliceFn('applyCatTombstones');
+const flattenReasonCatalog = _sliceFn('flattenReasonCatalog');
+const cloneReasonCatalog = _sliceFn('cloneReasonCatalog');
+const mergeReasonCatalog = _sliceFn('mergeReasonCatalog');
 
 // mock fetch：记录请求，按场景返回
 let reqLog = [];
@@ -61,7 +83,7 @@ global.fetch = (url, opts) => {
 };
 
 eval(stripFn + '\n' + code + '\n' + mergeCode +
-     '\nglobal.__api={encryptForCloud,decryptFromCloud,setSyncPwd,hasSyncPwd,checkPushSafety,buildCloudPayload,smartMergeData,getSyncPwd};' +
+     '\nglobal.__api={encryptForCloud,decryptFromCloud,setSyncPwd,hasSyncPwd,checkPushSafety,buildCloudPayload,smartMergeData,sortOpsNewestFirst,getSyncPwd};' +
      '\nglobal.__setResponder=f=>{responder=f}; global.__reqLog=()=>reqLog; global.__resetLog=()=>{reqLog=[]};');
 
 const api = global.__api;
@@ -209,6 +231,30 @@ const CLOUD_STUDENTS = [
     const rt = await api.decryptFromCloud(created);
     check('可解密回原始数据', JSON.stringify(rt.students) === JSON.stringify([{ id: 7, name: '重建用数据' }]));
   }
+
+  // =====================================================================
+  console.log('\n[场景 10] v2.17.7：云端合并后流水必须保持「最新在前」（防新记录被时间线吞掉）');
+  // =====================================================================
+  // 复刻真实现场：本地刚扣分（operations 最新在前），云端是旧快照。
+  // 旧版按 Object.keys(数字键升序) 重排会把数组反转成「最旧在前」→ 时间线只取队首 50 看不到新记录。
+  const lOps = [];
+  for (let i = 3; i >= 1; i--) lOps.push({ id: i, studentId: 1, studentName: 'A', amount: -1, reason: 'r', time: 1000 + i });
+  const newOps = [{ id: 5, studentId: 2, studentName: 'B', amount: -10, reason: '违禁品', time: 2005 },
+                  { id: 4, studentId: 2, studentName: 'B', amount: -10, reason: '违禁品', time: 2004 }];
+  const merged10 = api.smartMergeData(
+    { students: [{ id: 1 }, { id: 2 }], operations: newOps.concat(lOps), nextOpId: 9 },
+    { students: [{ id: 1 }, { id: 2 }], operations: lOps, nextOpId: 9 }
+  );
+  check('合并不丢新流水（3+2=5 条）', merged10.operations.length === 5, String(merged10.operations.length));
+  check('合并后队首是最新流水（id=5；旧版会被反转为 id=1）', merged10.operations[0].id === 5, String(merged10.operations[0].id));
+  check('时间线前 50 条能看到新流水', merged10.operations.slice(0, 50).some(o => o.id >= 4));
+  check('数组整体按时间「最新在前」', merged10.operations.every((o, idx) => idx === 0 || (Number(merged10.operations[idx - 1].time) || 0) >= (Number(o.time) || 0)));
+  const repaired = api.sortOpsNewestFirst([{ id: 1, time: 1 }, { id: 5, time: 5 }, { id: 4, time: 4 }]);
+  check('归一化：被反转的旧数据修复回最新在前', repaired[0].id === 5 && repaired[2].id === 1, JSON.stringify(repaired.map(o => o.id)));
+  check('归一化不原地改数组（返回副本）',
+    JSON.stringify(api.sortOpsNewestFirst([{ id: 1, time: 1 }])) === '[{"id":1,"time":1}]');
+  check('同时间流水按 id 大者在前（批量操作可预期）',
+    api.sortOpsNewestFirst([{ id: 3, time: 7 }, { id: 5, time: 7 }])[0].id === 5);
 
   console.log('\n========================================');
   console.log(` 通过 ${pass} 项，失败 ${fail} 项`);
