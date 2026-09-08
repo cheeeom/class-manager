@@ -582,3 +582,25 @@
 - [x] **视觉验证**：playwright 渲染（classNameFull='2026级幼儿保育2班'、honor scope=个人、张三、学习进步之星、2026-09-08）→ 抬头 + 落款均「2026级幼儿保育2班」居中,右下日期「2026 年 9 月 8 日」紧贴全称下方居中对齐；红章位 RGB=底色
 - [x] **升版**：v2.17.20 → v2.17.21（index/sw + 9 测试文件明文+转义双轮）；index.html v2.17.21 出现 42 处（原 39 + 3 新增注释）,sw 1 处
 - [x] **推送**：cm-push-incremental 三提交 → 远端 `b5d11c58`，19 文件字节级一致；gh api 远端 index.html 验证：login/sidebar=v2.17.21、classNameFullStatus×3 + __cmFullNameToastShown×2 + classNameFullInput×5 + saveClassNameFull×2 + certClassName()×5、v2.17.20 右对齐残留(dtx+'　　'、W-120,H-160)均=0、v2.17.21 居中绘制(certClassName(),W/2,H-150 / dtx,W/2,H-100)=1+1；线上 CDN 仍走 SW no-store 刷新生效，强刷告知
+
+### 2026-09-08（v2.17.22：学分操作界面去快捷分数预设 + 原因选择器固定到姓名搜索框右侧）
+
+- [x] **需求**：原因目录（v2.17.0 起）已能选原因并自动带分值，预设原因自带直接扣分；学分操作页原来的「姓名搜索框右侧」+1~+5/-1~-5 共 10 个快捷分数预设就冗余了。去掉这些预设；仅保留「自定义分值」输入框允许临时改分；原因选择器固定到姓名搜索框右侧
+- [x] **HTML 工具栏重排**（`#page-credits > .credit-op-main > .toolbar`）：
+  - **删除** `#quickBtnGroup`（+1~+5、-1~-5 共 10 个 `.quick-btn` 按钮）
+  - **顺序**：[`creditStudentInput` 姓名搜索] → [`rp-credit` 原因选择器] → [`customCredit` 分值输入] → [`customApplyBtn` 应用]
+  - 原因选择器现在紧邻搜索框右侧，弹出 ① 方向 → ② 大类 → ③ 原因 三级面板（min-width 300px / max-width 360px，下拉 z-index 80 > 搜索下拉 z-index 10）
+  - 占位文案：「分值（选原因自动带出，可改）」更清晰
+- [x] **`updateCreditBtnStates` 重写**（不再依赖 `#quickBtnGroup`）：
+  - 唯一提交入口是「应用」：`valid = 已选学生 && 已选原因 && 有分值 && 非 0`
+  - **班委禁扣**：`__cmRole==='committee' && !cmCanMinus() && amt<0` → `customApplyBtn.disabled=true` + `title='班主任已关闭班委扣分权限'`（正分仍可用）；逻辑层 `cmMinusBlocked()` 兜底保留
+  - 原 quick-btn CSS 还被学生表行内 `adjustCredit` 使用，**保留 `.quick-btn` / `.quick-btns` 不动**
+  - 三个负值入口函数 `quickCredit` / `customCreditApply` / `confirmBatchCredit` 保留（逻辑不变，只是 UI 少了一处调用）
+- [x] **测试**：
+  - `_v2170_test.js`：原「`updateCreditBtnStates` 含 button.minus」断言改为「不引用 quickBtnGroup + 含 cmMinusLock + amt<0 + 提示文案」；新增 v2.17.22 工具栏布局顺序断言（HTML 无 `#quickBtnGroup` + 4 个 id 出现顺序 creditStudentInput → rp-credit → customCredit → customApplyBtn）
+  - 其余 `_v2120` / `_v2130` / `_v2140`：`quickCredit` 函数保留，断言不受影响
+- [x] **视觉+交互验证**（playwright 注入 3 名学生 + 原因目录 4 项）：
+  - 截图确认布局一行：搜索→原因▾→分值→应用，无快捷按钮
+  - 选「迟到早退」自动带 `-2`，应用可点；班委角色负分应用禁用+提示，正分放行
+- [x] **升版**：v2.17.21 → v2.17.22（index/sw + 9 测试文件明文+转义双轮）；index.html v2.17.22 出现 44 处（原 42 + 2 新增注释）,sw 1 处；20 套件全绿（_v2170 = 33 项）
+- [ ] 推送 + 验证远端 CDN

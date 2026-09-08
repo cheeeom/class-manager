@@ -110,7 +110,7 @@ t('云端旧目录含已删项 → 合并后墓碑剔除，跨设备删除生效
 t('墓碑字段随 CLOUD_SYNC_FIELDS + saveData 持久', () => {
   has(html, "'catDeleted',", 'CLOUD_SYNC_FIELDS 含 catDeleted');
   has(html, 'catDeleted: state.catDeleted || { dirs: [], groups: [], reasons: [] },', 'saveData 落盘 catDeleted');
-  has(html, 'catDeleted: { dirs: [], groups: [], reasons: [] },   // v2.17.21', 'state 默认含空墓碑');
+  has(html, 'catDeleted: { dirs: [], groups: [], reasons: [] },   // v2.17.22', 'state 默认含空墓碑');
 });
 t('删除/重加闭环：删原因登记墓碑，重新添加同名原因清除墓碑', () => {
   has(html, "catDeletedAdd('reasons', name);", 'catDeleteReason 登记原因墓碑');
@@ -121,7 +121,7 @@ t('删除/重加闭环：删原因登记墓碑，重新添加同名原因清除�
   has(html, "catDelUndo('dirs', name);", '重加同名方向清墓碑');
 });
 t('恢复预设目录会清空墓碑', () => {
-  has(html, 'state.catDeleted = { dirs: [], groups: [], reasons: [] };   // v2.17.21 恢复预设后清空墓碑', 'askResetReasonCatalog 清墓碑');
+  has(html, 'state.catDeleted = { dirs: [], groups: [], reasons: [] };   // v2.17.22 恢复预设后清空墓碑', 'askResetReasonCatalog 清墓碑');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');
