@@ -1,4 +1,4 @@
-/* v2.17.20 回归测试：弹窗头部统一（.modal-header/.modal-close 补基础样式，× 圆键居右）——
+/* v2.17.21 回归测试：弹窗头部统一（.modal-header/.modal-close 补基础样式，× 圆键居右）——
    档案编辑/成长记录/工作留痕/荣誉四个弹窗的关闭键从此告别「标题下方左缘」，与全站 .panel-close 设计语言一致。
    运行：node _v2176_test.js */
 const fs = require('fs');
@@ -16,14 +16,14 @@ t('index.html 主 <script> 块可被完整编译（无语法错误）', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 
-console.log('\n=== v2.17.20 版本三处同步 ===');
-t('登录页 / 侧栏 / SW CACHE_NAME = v2.17.20', () => {
-  if (!/login-version">v2\.17\.20</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.20 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.17.20')) throw new Error('SW CACHE_NAME 未更新');
+console.log('\n=== v2.17.21 版本三处同步 ===');
+t('登录页 / 侧栏 / SW CACHE_NAME = v2.17.21', () => {
+  if (!/login-version">v2\.17\.21</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.17\.21 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.17.21')) throw new Error('SW CACHE_NAME 未更新');
 });
 
-console.log('\n=== 弹窗头部 CSS 基础样式（v2.17.20 修复点） ===');
+console.log('\n=== 弹窗头部 CSS 基础样式（v2.17.21 修复点） ===');
 t('.modal-header 已启用 flex 标题居左 + 关闭键居右', () => {
   has(html, '.modal-header{display:flex;align-items:center;justify-content:space-between', '缺 flex 布局');
   has(html, '.modal-header h3{margin:0}', '缺标题 margin 复位');
