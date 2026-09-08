@@ -668,7 +668,7 @@ tbody tr.highlight{
   box-shadow:0 0 0 3px rgba(166,58,43,0.1);
 }
 .modal textarea{min-height:120px;resize:vertical;font-family:monospace}
-/* v2.17.18 弹窗头部统一：.modal-header/.modal-close 此前只有暗色 border-color 一行、无基础样式，
+/* v2.17.19 弹窗头部统一：.modal-header/.modal-close 此前只有暗色 border-color 一行、无基础样式，
    × 键裸排到标题下方左缘 → 档案编辑/成长记录/工作留痕/荣誉四个弹窗「关闭键贴左上、观感破碎」。
    统一为 标题居左 + 圆形描边关闭键居右（与 .panel-close 同设计语言，hover 变红轻旋） */
 .modal-header{display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -1463,6 +1463,48 @@ html.dark .honor-level.hl-5{color:#D9A441}
 .tl-badge.tl-contact{background:rgba(185,106,31,0.12);color:var(--orange)}
 .tl-badge.tl-other{background:rgba(126,119,106,0.12);color:var(--text-muted)}
 .tl-body{flex:1;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px}
+/* v2.17.19 档案详情新版式：头部概要 + 德育记录(学分变动)/成长记录/学生荣誉 分卡排版 */
+.pf-summary{display:flex;align-items:center;gap:16px;padding:16px 18px;
+  background:linear-gradient(135deg,rgba(166,58,43,.055),rgba(201,162,39,.07));
+  border:1px solid var(--border);border-radius:14px;margin-bottom:6px;flex-wrap:wrap}
+.pf-avatar{width:58px;height:58px;border-radius:16px;flex:none;
+  background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700}
+.pf-name{font-size:20px;font-weight:700;margin:0}
+.pf-meta{font-size:12px;color:var(--text-muted);margin-top:3px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.pf-credit-box{text-align:center;margin-left:auto;flex:none}
+.pf-credit{font-size:38px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--text)}
+.pf-credit small{font-size:12px;font-weight:600;color:var(--text-muted)}
+.pf-chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.pf-chip.male{background:rgba(83,132,220,.14);color:#3b6fd4}
+.pf-chip.female{background:rgba(226,94,141,.14);color:#cf3f74}
+.pf-chip.neutral{background:rgba(126,119,106,.14);color:var(--text-muted)}
+.pf-dorm{display:inline-block;font-size:12px;color:var(--text-muted);background:var(--bg-secondary);padding:1px 8px;border-radius:6px}
+.pf-notes{border:1px dashed rgba(201,162,39,.55);border-radius:10px;padding:8px 12px;font-size:13.5px;
+  color:var(--text);white-space:pre-wrap;line-height:1.6;background:rgba(201,162,39,.06)}
+.pf-section{border:1px solid var(--border);border-radius:14px;background:var(--card-bg);overflow:hidden;margin-top:12px}
+.pf-section-head{display:flex;align-items:center;gap:8px;padding:11px 14px;cursor:pointer;user-select:none}
+.pf-section-head:hover{background:rgba(166,58,43,.03)}
+.pf-section-head h3{margin:0;font-size:15px;display:flex;align-items:center;gap:8px}
+.pf-chev{margin-left:auto;color:var(--text-muted);font-size:11px;transition:transform .25s}
+.pf-chev.open{transform:rotate(180deg)}
+.pf-seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-left:auto}
+.pf-seg span{padding:3px 10px;font-size:12px;cursor:pointer;color:var(--text-muted)}
+.pf-seg span.on{background:var(--primary);color:#fff}
+.pf-section-body{padding:4px 14px 14px}
+.deyu-scroll{max-height:250px;overflow-y:auto}
+.deyu-row{display:flex;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px dashed rgba(128,128,128,.16);font-size:13.5px}
+.deyu-row:last-child{border-bottom:none}
+.deyu-amt{font-weight:800;font-variant-numeric:tabular-nums;min-width:56px;text-align:right;flex:none}
+.deyu-why{flex:1;min-width:0;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.deyu-cm{font-size:11px;font-weight:600;color:#8a63d2;background:rgba(138,99,210,.1);border-radius:6px;padding:0 6px;flex:none}
+.deyu-time{font-size:12px;color:var(--text-muted);flex:none}
+.pf-empty{color:var(--text-muted);font-size:13px;padding:16px 4px;text-align:center}
+.pf-honor-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed rgba(128,128,128,.16)}
+.pf-honor-row:last-child{border-bottom:none}
+.pf-honor-row .btn{margin-left:auto;flex:none}
+html.dark .pf-summary{background:linear-gradient(135deg,rgba(166,58,43,.12),rgba(201,162,39,.1))}
+html.dark .pf-section-head:hover{background:rgba(255,255,255,.03)}
 html.dark .profile-list-item.active{background:rgba(166,58,43,0.2)}
 html.dark .tl-body{background:var(--bg)}
 @media(max-width:768px){
@@ -1896,7 +1938,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.18</div>
+      <div class="login-version">v2.17.19</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2012,7 +2054,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.18 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.19 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3496,7 +3538,7 @@ function flattenReasonCatalog(cat){
   return out;
 }
 // 目录结构并集（方向/大类并集，组内原因去重保序）。用于多设备合并：两边新增都保留；
-// v2.17.18 起删除项由 smartMergeData 中 catDeleted 墓碑剔除，不再复活。
+// v2.17.19 起删除项由 smartMergeData 中 catDeleted 墓碑剔除，不再复活。
 function mergeReasonCatalog(a, b){
   var out = cloneReasonCatalog(a || {});
   Object.keys(b || {}).forEach(function(dir){
@@ -3510,7 +3552,7 @@ function mergeReasonCatalog(a, b){
   });
   return out;
 }
-// ---- v2.17.18 删除墓碑：目录删除要真正持久（本地刷新 / 云合并都不复活） ----
+// ---- v2.17.19 删除墓碑：目录删除要真正持久（本地刷新 / 云合并都不复活） ----
 // 删方向/大类/原因时记入 state.catDeleted（随 CLOUD_SYNC_FIELDS 云同步）；
 // 加载与云端合并后统一 applyCatTombstones 剔除。重新添加同名项会清除对应墓碑。
 function cloneCatDeleted(t){
@@ -3746,7 +3788,7 @@ function revertCreditOp(student, op){
 /* 学分变更后统一刷新所有展示学分的视图。
    此前 applyCredit / applyCreditBulk / undoLastOp 只刷 renderCreditsPage，
    学生管理模块的表格不刷新 —— 这是「分数不一致」的直接观感来源。
-   v2.17.18：公示页（学分榜/进步榜/零扣分榜/概览统计/四个图表）纳入统一学分刷新——
+   v2.17.19：公示页（学分榜/进步榜/零扣分榜/概览统计/四个图表）纳入统一学分刷新——
    加分/减分/撤销/恢复/校快照后，只要公示页正开着（常驻/投屏），进步榜等立即同步，
    不再出现「同学加了分，进步榜/学分榜还是老样子」。 */
 function refreshCreditViews(){
@@ -3764,7 +3806,7 @@ function refreshCreditViews(){
   if(dash && dash.classList.contains('active')) safe(window.renderDashboard);
   var ana = document.getElementById('page-analytics');
   if(ana && ana.classList.contains('active')) safe(window.renderAnalytics);
-  var pub = document.getElementById('page-publicity');          // v2.17.18 公示页同步
+  var pub = document.getElementById('page-publicity');          // v2.17.19 公示页同步
   if(pub && pub.classList.contains('active')) safe(window.renderPublicity);
 }
 /* 学分等级：制度第六章（≥100 优秀 / 90-100 合格 / 80-90 一般 / <80 不合格） */
@@ -3816,7 +3858,7 @@ let state = {
   reasons: [...defaultReasons],
   reasonScores: {},
   reasonCatalog: defaultReasonCatalog(),   // v2.17.0 可编辑原因目录（模板 = REASON_CATALOG）
-  catDeleted: { dirs: [], groups: [], reasons: [] },   // v2.17.18 原因目录删除墓碑（刷新/云合并均不复活删除项）
+  catDeleted: { dirs: [], groups: [], reasons: [] },   // v2.17.19 原因目录删除墓碑（刷新/云合并均不复活删除项）
   sortDir: 'desc',
   selectedStudents: new Set(),
   nextId: 1,
@@ -3856,7 +3898,7 @@ function loadData(){
       state.students = d.students || [];
       state.operations = sortOpsNewestFirst(d.operations || []);   // v2.17.7 归一化：老合并可能把顺序反转成最旧在前
       // 原因模板：默认模板只参与首次/旧数据迁移（migrate 内部处理），已有目录尊重班主任增删。
-      // v2.17.18：删除项记入 catDeleted 墓碑，加载后统一剔除 → 刷新不复活。
+      // v2.17.19：删除项记入 catDeleted 墓碑，加载后统一剔除 → 刷新不复活。
       var _tomb = (d.catDeleted && typeof d.catDeleted === 'object') ? cloneCatDeleted(d.catDeleted) : { dirs:[], groups:[], reasons:[] };
       state.catDeleted = _tomb;
       state.reasonCatalog = migrateReasonCatalog(d.reasonCatalog, (d.reasons && d.reasons.length) ? d.reasons : defaultReasons);
@@ -3949,7 +3991,7 @@ function saveData(){
     reasons: state.reasons,
     reasonScores: state.reasonScores || {},
     reasonCatalog: state.reasonCatalog || {},
-    catDeleted: state.catDeleted || { dirs: [], groups: [], reasons: [] },   // v2.17.18 删除墓碑随本地存储持久
+    catDeleted: state.catDeleted || { dirs: [], groups: [], reasons: [] },   // v2.17.19 删除墓碑随本地存储持久
     schemaVer: state.schemaVer || 0,
     nextId: state.nextId,
     nextOpId: state.nextOpId,
@@ -4105,7 +4147,7 @@ function smartMergeData(localData,remoteData){
   if(remoteData.reasonCatalog && typeof remoteData.reasonCatalog === 'object'){
     merged.reasonCatalog = mergeReasonCatalog(localData.reasonCatalog || {}, remoteData.reasonCatalog);
   }
-  // v2.17.18 删除墓碑合并：任一侧删过的方向/大类/原因，合并结果一律剔除（含分值表/平铺列表）→ 跨设备删除生效
+  // v2.17.19 删除墓碑合并：任一侧删过的方向/大类/原因，合并结果一律剔除（含分值表/平铺列表）→ 跨设备删除生效
   merged.catDeleted = { dirs:[], groups:[], reasons:[] };
   var _td = cloneCatDeleted(localData.catDeleted), _tr = cloneCatDeleted(remoteData.catDeleted);
   _td.dirs.concat(_tr.dirs).forEach(function(k){ catDelAdd(merged.catDeleted.dirs, k); });
@@ -5472,6 +5514,7 @@ function addCustomTag(id){
   if(!s.tags) s.tags = [];
   if(s.tags.includes(tag)){ showToast('该标签已存在','warning'); return; }
   s.tags.push(tag);
+  if(isDormTag(tag)) fillStudentGenderFromDorm(s);   // v2.17.19 手填寝室号标签同样触发性别补写
   saveData();
   openDetailPanel(id);
   renderTable();
@@ -6404,6 +6447,41 @@ function dormNoOf(s){
   return '';
 }
 
+/* v2.17.19 宿舍→性别一致性：本班男生寝室 = 7栋214室，女生寝室 = 6栋801~806室。
+   学生挂上对应寝室号标签、而档案「性别」为空时，自动按楼栋房号补写性别——寝室与档案不再可能打架
+   （杜绝「住女寝的男生」）。已填写的性别不覆盖（班主任可在档案编辑里手动改）。规则随班级可调。 */
+var DORM_GENDER_RULES = [
+  { re: /^7栋-?214室$/, gender: '男' },
+  { re: /^6栋-?80[1-6]室$/, gender: '女' }
+];
+function dormGenderOf(no){
+  if(typeof no !== 'string') return '';
+  for(var i=0;i<DORM_GENDER_RULES.length;i++){
+    if(DORM_GENDER_RULES[i].re.test(no)) return DORM_GENDER_RULES[i].gender;
+  }
+  return '';
+}
+function fillStudentGenderFromDorm(s){
+  if(!s) return false;
+  var no = dormNoOf(s);
+  if(!no) return false;
+  var g = dormGenderOf(no);
+  if(!g) return false;
+  if(!s.profile){ s.profile = { gender:'', birth:'', guardian:'', phone:'', address:'', notes:'', timeline:[] }; }
+  if(s.profile.gender) return false;   // 已有性别不覆盖
+  s.profile.gender = g;
+  s.updatedAt = Date.now();
+  return true;
+}
+/* v2.17.19 全校寝室→性别一致性维护通道：进档案页/寝室页时扫一遍，
+   凡寝室号命中规则且性别为空的自动补写（无变化的学校不落盘） */
+function fillAllDormGenders(){
+  var changed = false;
+  state.students.forEach(function(s){ if(fillStudentGenderFromDorm(s)) changed = true; });
+  if(changed) saveData();
+  return changed;
+}
+
 function isDayBoarding(s){
   return ((s && s.tags) || []).indexOf(DAY_TAG) >= 0;
 }
@@ -6452,12 +6530,14 @@ function setDormFilter(g){
 }
 
 function renderDorm(){
-  // 1) 旧床号格式归一（只在发现变化时落盘一次）
+  // 1) 旧床号格式归一 + 寝室→性别补写（只在发现变化时落盘一次）
   var changed = false;
   state.students.forEach(function(s){
     if(!s.tags) return;
     var next = s.tags.map(function(t){ return normalizeDormTag(t); });
     if(JSON.stringify(next) !== JSON.stringify(s.tags)){ s.tags = next; s.updatedAt = Date.now(); changed = true; }
+    // v2.17.19 宿舍号已知但档案性别为空 → 按楼栋房号规则补写（7栋214=男 / 6栋801-806=女）
+    if(fillStudentGenderFromDorm(s)) changed = true;
   });
   if(changed) saveData();
 
@@ -6565,6 +6645,7 @@ function addDormMember(id, no){
   s.tags = (s.tags||[]).filter(function(t){ return !isDormTag(t) && t !== DAY_TAG; });
   s.tags.push(no);
   s.updatedAt = Date.now();
+  fillStudentGenderFromDorm(s);   // v2.17.19 入寝即补写性别（仅档案性别为空时）
   saveData();
   renderDorm();
   showToast(s.name + (old ? ' 已从 ' + old + ' 调至 ' : ' 已加入 ') + no, 'success');
@@ -7625,6 +7706,28 @@ initTheme();
 
 /* ==================== Student Profiles ==================== */
 var _profileSelectedId = null;
+/* v2.17.19 中文姓名按拼音音序（首字母 A→Z）排序：Intl.Collator('zh') 即拼音字典序，
+   旧版按学号/录入序排列，找人不直观。同音回退到学号位次。 */
+var _pyCollator = (typeof Intl !== 'undefined' && Intl.Collator)
+  ? new Intl.Collator('zh-Hans-CN', { sensitivity: 'variant', numeric: true })
+  : null;
+function pinyinNameCmp(a, b){
+  if(a === b) return 0;
+  var ca = String(a || ''), cb = String(b || '');
+  if(_pyCollator) return _pyCollator.compare(ca, cb);
+  try{ return ca.localeCompare(cb, 'zh-Hans-CN'); }catch(e){ return ca < cb ? -1 : 1; }
+}
+function sortStudentsByPinyin(list){
+  var arr = (list || []).slice();
+  arr.sort(function(x, y){
+    var c = pinyinNameCmp(x.name, y.name);
+    if(c !== 0) return c;
+    var sa = String(x.sid || ''), sb = String(y.sid || '');
+    if(sa === sb) return x.id - y.id;
+    return sa < sb ? -1 : 1;
+  });
+  return arr;
+}
 function ensureProfile(s){
   if(!s.profile){
     s.profile = { gender:'', birth:'', guardian:'', phone:'', address:'', notes:'', timeline:[] };
@@ -7633,6 +7736,7 @@ function ensureProfile(s){
   return s.profile;
 }
 function renderProfiles(){
+  fillAllDormGenders();   // v2.17.19 进档案页先全校同步一次寝室→性别（有改动才落盘）
   renderProfileList();
   if(_profileSelectedId !== null){
     const s = state.students.find(x=>x.id===_profileSelectedId);
@@ -7641,7 +7745,8 @@ function renderProfiles(){
 }
 function renderProfileList(){
   const kw = (document.getElementById('profileSearch')?.value || '').toLowerCase().trim();
-  const list = state.students.filter(s => !kw || s.name.toLowerCase().includes(kw) || s.sid.toLowerCase().includes(kw));
+  // v2.17.19 左侧名单按姓名拼音音序排（A→Z），同音按学号
+  const list = sortStudentsByPinyin(state.students.filter(s => !kw || s.name.toLowerCase().includes(kw) || s.sid.toLowerCase().includes(kw)));
   const el = document.getElementById('profileList');
   const count = document.getElementById('profileCount');
   if(count) count.textContent = `共 ${list.length} 人`;
@@ -7668,12 +7773,61 @@ function selectProfile(id){
   const s = state.students.find(x=>x.id===id);
   if(s) renderProfileDetail(s);
 }
+/* ---- v2.17.19 档案详情新版式辅助 ---- */
+var _pfOpScope = 'term';   // 德育记录范围：term=本学期 / all=全部
+function pfSectionToggle(bodyId, chevId){
+  const b = document.getElementById(bodyId), c = document.getElementById(chevId);
+  if(!b) return;
+  const open = b.style.display !== 'none';
+  b.style.display = open ? 'none' : '';
+  if(c){ c.textContent = '▾'; c.classList.toggle('open', !open); }
+}
+function setPfOpScope(sc){
+  _pfOpScope = sc;
+  if(_profileSelectedId != null){
+    const s = state.students.find(x => x.id === _profileSelectedId);
+    if(s) renderProfileDetail(s);
+  }
+}
+function pfSemesterStartTs(){
+  const d = new Date(), y = d.getFullYear(), m = d.getMonth() + 1;
+  let startY = y, mon = 9;
+  if(m >= 9){ mon = 9; }
+  else if(m >= 2){ mon = 2; }          // 春季学期粗略按 2/1 起算
+  else { startY = y - 1; mon = 9; }    // 1 月 → 上学期（上年 9/1）
+  return new Date(startY, mon - 1, 1).getTime();
+}
+function pfOpRowsHtml(s){
+  const ops = liveOps(state.operations).filter(o => {
+    if(!o || o.studentId !== s.id) return false;
+    if(_pfOpScope === 'term' && !(Number(o.time) >= pfSemesterStartTs())) return false;
+    return true;
+  });
+  if(ops.length === 0){
+    return '<div class="pf-empty">' + (_pfOpScope === 'term' ? '本学期暂无学分变动' : '暂无学分变动记录') + '</div>';
+  }
+  return ops.map(op => {
+    const amount = Number(op.amount) || 0;
+    const color = amount > 0 ? 'var(--success)' : 'var(--danger)';
+    const cm = (op.by === 'cm') ? ' <span class="deyu-cm">👩‍💼 ' + escapeHtml(op.byName || '通用班委') + '</span>' : '';
+    return '<div class="deyu-row">' +
+      '<span class="deyu-amt" style="color:' + color + '">' + (amount > 0 ? '+' : '') + amount + '</span>' +
+      '<span class="deyu-why">' + escapeHtml(op.reason || '未填原因') + cm + '</span>' +
+      '<span class="deyu-time">' + formatOpTime(op) + '</span>' +
+    '</div>';
+  }).join('');
+}
+function studentHonorsOf(s){
+  return state.honors.filter(h => h && h.scope === '个人' && (h.persons || []).indexOf(s.name) >= 0);
+}
 function renderProfileDetail(s){
   const p = ensureProfile(s);
+  // v2.17.19 档案页兜底：寝室号已知、性别为空 → 按楼栋房号规则补写（7栋214=男 / 6栋801-806=女）
+  if(fillStudentGenderFromDorm(s)) saveData();
   const el = document.getElementById('profileDetail');
   const tl = p.timeline.slice().sort((a,b)=>b.date.localeCompare(a.date) || b.id-a.id);
   const tlHtml = tl.length === 0
-    ? '<div style="color:var(--text-muted);font-size:13px;padding:16px 0">暂无成长记录，点击「添加记录」开始记录</div>'
+    ? '<div class="pf-empty">暂无成长记录，点上方按钮开始记录谈心/表扬/批评</div>'
     : tl.map(t=>{
         const typeCls = 'tl-' + t.type;
         const typeName = {talk:'谈心', praise:'表扬', critic:'批评', contact:'联系家长', other:'其他'}[t.type] || '其他';
@@ -7686,34 +7840,81 @@ function renderProfileDetail(s){
           </div>
         </div>`;
       }).join('');
+  const dorm = dormNoOf(s);
+  const gender = p.gender || (dorm ? dormGenderOf(dorm) : '');
+  const genderChip = gender
+    ? `<span class="pf-chip ${gender === '男' ? 'male' : gender === '女' ? 'female' : 'neutral'}">${escapeHtml(gender)}</span>`
+    : '<span class="pf-chip neutral">性别未填</span>';
+  const honors = studentHonorsOf(s).sort((a,b)=>b.date.localeCompare(a.date) || b.id-a.id);
+  const honorRows = honors.length === 0
+    ? '<div class="pf-empty">暂无个人荣誉</div>'
+    : honors.map(h=>{
+        const lvCls = 'hl-' + ({校级:1,区级:2,市级:3,省级:4,国家级:5}[h.level]||1);
+        return `<div class="pf-honor-row">
+          <span class="honor-level ${escapeAttr(lvCls)}">${escapeHtml(h.level)}</span>
+          <span style="flex:1;min-width:0"><b>${escapeHtml(h.title)}</b> · <span style="color:var(--text-muted);font-size:12px">${escapeHtml(h.date||'—')}</span></span>
+          <button class="btn btn-outline btn-sm" onclick="exportHonorCert(${h.id},${JSON.stringify(s.name)})">📄 证书</button>
+        </div>`;
+      }).join('');
   el.innerHTML = `
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:700">${escapeHtml(s.name.charAt(0))}</div>
-      <div style="flex:1">
-        <div style="font-size:18px;font-weight:700">${escapeHtml(s.name)}</div>
-        <div style="font-size:13px;color:var(--text-muted)">${escapeHtml(s.sid)} · 当前学分 <span class="score-badge ${s.credit<10?'low':s.credit<25?'mid':'high'}">${escapeHtml(s.credit)}</span></div>
+    <div class="pf-summary">
+      <div class="pf-avatar">${escapeHtml(s.name.charAt(0))}</div>
+      <div style="min-width:0">
+        <div class="pf-name">${escapeHtml(s.name)}</div>
+        <div class="pf-meta">
+          <span>${escapeHtml(s.sid || '')}</span>
+          ${genderChip}
+          ${dorm ? '<span class="pf-dorm">🏠 ' + escapeHtml(dorm) + '</span>' : ''}
+        </div>
+      </div>
+      <div class="pf-credit-box">
+        <div class="pf-credit">${Number(s.credit)||0}<small> 学分</small></div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">当前学分</div>
       </div>
       <button class="btn btn-primary btn-sm" onclick="openProfileEdit(${s.id})">✏️ 编辑资料</button>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px">
-      <div class="profile-info"><span>性别</span><b>${escapeHtml(p.gender || '—')}</b></div>
-      <div class="profile-info"><span>出生日期</span><b>${escapeHtml(p.birth || '—')}</b></div>
-      <div class="profile-info"><span>监护人</span><b>${escapeHtml(p.guardian || '—')}</b></div>
-      <div class="profile-info"><span>联系电话</span><b>${escapeHtml(p.phone || '—')}</b></div>
-      <div class="profile-info" style="grid-column:1/-1"><span>家庭住址</span><b>${escapeHtml(p.address || '—')}</b></div>
-      <div class="profile-info" style="grid-column:1/-1"><span>备注</span><b>${p.notes ? escapeHtml(p.notes) : '—'}</b></div>
-    </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <h3 style="margin:0;font-size:16px">🌱 成长记录（${tl.length}）</h3>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-outline btn-sm" onclick="openTimelineAdd(${s.id},'talk')">💬 谈心</button>
-        <button class="btn btn-outline btn-sm" onclick="openTimelineAdd(${s.id},'praise')">👍 表扬</button>
-        <button class="btn btn-outline btn-sm" onclick="openTimelineAdd(${s.id},'critic')">⚠️ 批评</button>
-        <button class="btn btn-outline btn-sm" onclick="openTimelineAdd(${s.id},'contact')">📞 联系家长</button>
-        <button class="btn btn-outline btn-sm" onclick="openTimelineAdd(${s.id},'other')">📝 其他</button>
+    <div class="pf-notes">${p.notes ? escapeHtml(p.notes) : '备注：无（可填写特异体质、需特别关心等事项）'}</div>
+
+    <div class="pf-section">
+      <div class="pf-section-head" onclick="pfSectionToggle('pfDevyBody','pfDevyChev')">
+        <h3>📊 德育记录（学分变动）</h3>
+        <span class="pf-seg" onclick="event.stopPropagation()">
+          <span class="${_pfOpScope==='term'?'on':''}" onclick="setPfOpScope('term')">本学期</span>
+          <span class="${_pfOpScope==='all'?'on':''}" onclick="setPfOpScope('all')">全部</span>
+        </span>
+        <span class="pf-chev open" id="pfDevyChev">▾</span>
+      </div>
+      <div class="pf-section-body" id="pfDevyBody">
+        <div class="deyu-scroll">${pfOpRowsHtml(s)}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:8px">仅显示 ${_pfOpScope==='term'?'本学期':'全部'}流水 · 详细操作与撤销请到 <a href="javascript:void(0)" onclick="navigateTo('credits')" style="color:var(--primary)">学分页</a></div>
       </div>
     </div>
-    <div class="profile-timeline">${tlHtml}</div>`;
+
+    <div class="pf-section">
+      <div class="pf-section-head" onclick="pfSectionToggle('pfGrowthBody','pfGrowthChev')">
+        <h3>🌱 成长记录（${tl.length}）</h3>
+        <span class="pf-chev open" id="pfGrowthChev">▾</span>
+      </div>
+      <div class="pf-section-body" id="pfGrowthBody">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+          <button class="btn btn-outline btn-sm" onclick="openTimelineAdd(${s.id},'talk')">💬 谈心</button>
+          <button class="btn btn-outline btn-sm" onclick="openTimelineAdd(${s.id},'praise')">👍 表扬</button>
+          <button class="btn btn-outline btn-sm" onclick="openTimelineAdd(${s.id},'critic')">⚠️ 批评</button>
+          <button class="btn btn-outline btn-sm" onclick="openTimelineAdd(${s.id},'contact')">📞 联系家长</button>
+          <button class="btn btn-outline btn-sm" onclick="openTimelineAdd(${s.id},'other')">📝 其他</button>
+        </div>
+        <div class="profile-timeline">${tlHtml}</div>
+      </div>
+    </div>
+
+    <div class="pf-section">
+      <div class="pf-section-head" onclick="pfSectionToggle('pfHonorBody','pfHonorChev')">
+        <h3>🏅 学生荣誉（${honors.length}）</h3>
+        <a href="javascript:void(0)" style="font-size:12px;color:var(--primary)" onclick="event.stopPropagation();navigateTo('honors')">去荣誉墙管理</a>
+        <span class="pf-chev" id="pfHonorChev">▾</span>
+      </div>
+      <div class="pf-section-body" id="pfHonorBody" style="display:none">${honorRows}</div>
+    </div>`;
 }
 function openProfileEdit(id){
   const s = state.students.find(x=>x.id===id);
@@ -7913,14 +8114,26 @@ function exportMonthLogs(){
 var HONOR_LEVELS = ['校级','区级','市级','省级','国家级'];
 var HONOR_SCOPES = ['集体','个人'];
 var _honorLevel = '全部';
+/* v2.17.19 荣誉墙类型筛选：全部/集体/个人（班级荣誉与个人荣誉分区查看） */
+var _honorScope = '全部';
+function setHonorScope(s){ _honorScope = s; renderHonors(); }
 function renderHonors(){
   const levelsEl = document.getElementById('honorLevels');
   if(levelsEl){
-    levelsEl.innerHTML = ['全部'].concat(HONOR_LEVELS).map(l=>{
-      return `<button class="btn btn-sm ${l===_honorLevel?'btn-primary':''}" onclick="setHonorLevel('${l}')">${l}</button>`;
-    }).join('');
+    levelsEl.innerHTML =
+      '<span style="font-size:11px;color:var(--text-muted)">类型</span>' +
+      ['全部'].concat(HONOR_SCOPES).map(l=>{
+        return `<button class="btn btn-sm ${l===_honorScope?'btn-primary':''}" onclick="setHonorScope('${l}')">${l}</button>`;
+      }).join('') +
+      '<span style="width:1px;height:16px;background:var(--border);margin:0 4px"></span>' +
+      '<span style="font-size:11px;color:var(--text-muted)">等级</span>' +
+      ['全部'].concat(HONOR_LEVELS).map(l=>{
+        return `<button class="btn btn-sm ${l===_honorLevel?'btn-primary':''}" onclick="setHonorLevel('${l}')" title="${l==='全部'?'不限等级':l}">${l==='全部'?'不限':l}</button>`;
+      }).join('');
   }
-  const list = state.honors.filter(h=>_honorLevel==='全部' || h.level===_honorLevel)
+  const list = state.honors.filter(h =>
+      (_honorScope==='全部' || h.scope===_honorScope) &&
+      (_honorLevel==='全部' || h.level===_honorLevel))
     .sort((a,b)=>b.date.localeCompare(a.date) || b.id-a.id);
   const stats = document.getElementById('honorStats');
   if(stats){
@@ -7955,6 +8168,7 @@ function renderHonors(){
       ${personsHtml}
       ${h.desc ? `<div style="margin-top:8px;font-size:13px;color:var(--text-secondary);line-height:1.5">${escapeHtml(h.desc)}</div>` : ''}
       <div style="display:flex;gap:6px;margin-top:12px;justify-content:flex-end">
+        <button class="btn btn-sm" onclick="exportHonorCert(${h.id})" title="导出证书图片，可直接发班级群/家长群">📄 证书</button>
         <button class="btn btn-sm" onclick="openHonorEdit(${h.id})"><svg class="ic ic-sm"><use href="#i-pen"/></svg></button>
         <button class="btn btn-sm" style="color:var(--danger)" onclick="deleteHonor(${h.id})"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button>
       </div>
@@ -8018,6 +8232,114 @@ function deleteHonor(id){
   saveData();
   renderHonors();
   showToast('已删除','success');
+}
+
+/* ==================== v2.17.19 荣誉证书导出（canvas → PNG） ====================
+   个人荣誉：档案页按学生出证（exportHonorCert(id, 姓名)）；荣誉墙按人/集体出证。
+   一张证书图片，可直接发班级群（集体）或家长群（个人）。 */
+function honorCertEntity(h, personName){
+  if(h.scope === '个人'){
+    const ps = (personName ? [personName] : ((h.persons||[]).filter(Boolean)));
+    return { subject: ps.length ? ps.join('、') : '同学', plural: ps.length !== 1 };
+  }
+  return { subject: state.className || '本班', plural: false };
+}
+function certCenterText(ctx, text, x, startY, maxW, lh){
+  if(!text) return startY;
+  const chars = String(text).split('');
+  let line = '', y = startY;
+  for(let i = 0; i < chars.length; i++){
+    const test = line + chars[i];
+    if(ctx.measureText(test).width > maxW && line){ ctx.fillText(line, x, y); y += lh; line = chars[i]; }
+    else line = test;
+  }
+  if(line) ctx.fillText(line, x, y);
+  return y + lh;
+}
+function drawHonorCertCanvas(h, personName){
+  const W = 1500, H = 1062;
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  const F = '"KaiTi","楷体","STKaiti","Microsoft YaHei",sans-serif';
+  // 底
+  const g = ctx.createLinearGradient(0, 0, W, H);
+  g.addColorStop(0, '#fefcf5'); g.addColorStop(1, '#f8eed6');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  // 双线金框 + 角饰
+  ctx.strokeStyle = '#b8933a'; ctx.lineWidth = 8;
+  ctx.strokeRect(28, 28, W - 56, H - 56);
+  ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(184,147,58,.5)';
+  ctx.strokeRect(52, 52, W - 104, H - 104);
+  ctx.fillStyle = '#b8933a';
+  [[52,52],[W-52,52],[52,H-52],[W-52,H-52]].forEach(function(p){
+    ctx.save(); ctx.translate(p[0], p[1]); ctx.rotate(Math.PI / 4);
+    ctx.fillRect(-11, -11, 22, 22); ctx.restore();
+  });
+  ctx.textAlign = 'center';
+  // 顶部落款 + 标题
+  ctx.fillStyle = '#8a6d3b'; ctx.font = '34px ' + F;
+  ctx.fillText(state.className || '', W / 2, 118);
+  ctx.fillStyle = '#9e2b25'; ctx.font = '700 118px ' + F;
+  ctx.fillText('荣 誉 证 书', W / 2, 262);
+  ctx.fillStyle = '#b8933a';
+  ctx.fillRect(W / 2 - 292, 296, 162, 3); ctx.fillRect(W / 2 + 130, 296, 162, 3);
+  ctx.font = '24px ' + F; ctx.fillText('✦ 荣 誉 ✦', W / 2, 344);
+  const e = honorCertEntity(h, personName);
+  // 获得者
+  ctx.fillStyle = '#3a3a3a'; ctx.font = '700 60px ' + F;
+  ctx.fillText(e.subject, W / 2, 452);
+  ctx.font = '38px ' + F; ctx.fillStyle = '#555';
+  let yb = certCenterText(ctx, '在「' + (h.title || '') + '」中表现优异', W / 2, 540, W - 340, 50);
+  ctx.fillStyle = '#c8102e'; ctx.font = '800 92px ' + F;
+  ctx.fillText((h.level || '') + '荣誉', W / 2, yb + 84);
+  ctx.fillStyle = '#777'; ctx.font = '30px ' + F;
+  ctx.fillText('特发此证，以资鼓励', W / 2, yb + 158);
+  if(h.desc){
+    ctx.fillStyle = '#999'; ctx.font = '26px ' + F;
+    certCenterText(ctx, h.desc, W / 2, yb + 204, W - 360, 40);
+  }
+  // 红章
+  ctx.save();
+  ctx.strokeStyle = 'rgba(200,16,46,.85)'; ctx.lineWidth = 6;
+  ctx.beginPath(); ctx.arc(1180, 560, 108, 0, Math.PI * 2); ctx.stroke();
+  ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(1180, 560, 94, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = 'rgba(200,16,46,.85)'; ctx.textAlign = 'center';
+  ctx.font = '700 28px ' + F; ctx.fillText('班主任', 1180, 528);
+  ctx.font = '800 62px ' + F; ctx.fillText('荣誉', 1180, 592);
+  ctx.font = '700 22px ' + F; ctx.fillText('专用章', 1180, 632);
+  ctx.restore();
+  // 日期 + 落款
+  const dm = String(h.date || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  ctx.textAlign = 'left'; ctx.fillStyle = '#666'; ctx.font = '30px ' + F;
+  ctx.fillText(dm ? (dm[1] + ' 年 ' + Number(dm[2]) + ' 月 ' + Number(dm[3]) + ' 日') : (h.date || ''), 150, H - 118);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#555';
+  ctx.fillText(state.className || '', W - 120, H - 168);
+  ctx.fillText('班主任：', W - 120, H - 112);
+  return cv;
+}
+function exportHonorCert(id, personName){
+  const h = state.honors.find(x => x.id === id);
+  if(!h){ showToast('荣誉不存在','error'); return; }
+  try{
+    const cv = drawHonorCertCanvas(h, personName);
+    const base = (h.scope === '个人' && personName) ? personName
+      : (h.scope === '个人' ? ((h.persons && h.persons[0]) || '个人') : (state.className || '班级'));
+    const fn = String(base + '-' + (h.title || '荣誉') + '-荣誉证书').replace(/[\\/:*?"<>|\s]+/g, '').slice(0, 80) + '.png';
+    cv.toBlob(function(blob){
+      if(!blob){ showToast('生成失败，请重试','error'); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fn;
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+      showToast('证书已生成，请查收下载','success');
+    }, 'image/png');
+  }catch(err){
+    console.error(err);
+    showToast('导出失败：' + err.message, 'error');
+  }
 }
 
 function renderSettings(){
@@ -8193,7 +8515,7 @@ function openReasonDirModal(){
   if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(name)){ showToast('方向名限中英文/数字，不能含符号与表情', 'error'); return; }
   if(state.reasonCatalog[name]){ showToast('方向「' + name + '」已存在', 'warning'); return; }
   state.reasonCatalog[name] = {};
-  catDelUndo('dirs', name);   // v2.17.18 重新添加同名方向视为放弃删除
+  catDelUndo('dirs', name);   // v2.17.19 重新添加同名方向视为放弃删除
   catRefresh();
   showToast('已新增方向：' + name, 'success');
 }
@@ -8206,7 +8528,7 @@ function openReasonGroupModal(dir){
   if(!state.reasonCatalog[dir]) state.reasonCatalog[dir] = {};
   if(state.reasonCatalog[dir][name]){ showToast('大类「' + name + '」已存在', 'warning'); return; }
   state.reasonCatalog[dir][name] = [];
-  catDelUndo('groups', dir + '|' + name);   // v2.17.18 重新添加同名大类视为放弃删除
+  catDelUndo('groups', dir + '|' + name);   // v2.17.19 重新添加同名大类视为放弃删除
   catRefresh();
   showToast('已新增大类：' + dir + ' → ' + name, 'success');
 }
@@ -8337,7 +8659,7 @@ function catSaveNewItem(){
   if(!state.reasonCatalog[dir]) state.reasonCatalog[dir] = {};
   if(!state.reasonCatalog[dir][group]) state.reasonCatalog[dir][group] = [];
   state.reasonCatalog[dir][group].push(name);
-  catDelUndo('reasons', name);   // v2.17.18 重新添加同名原因视为放弃删除
+  catDelUndo('reasons', name);   // v2.17.19 重新添加同名原因视为放弃删除
   var scoreStr = String(document.getElementById('catScoreInput').value || '').trim();
   if(scoreStr !== ''){
     var n = Number(scoreStr);
@@ -8354,7 +8676,7 @@ function askResetReasonCatalog(){
   if(!confirm('再次确认：自定义内容将被覆盖，不可撤销。')) return;
   state.reasonCatalog = defaultReasonCatalog();
   state.reasonScores = Object.assign({}, defaultReasonScores);
-  state.catDeleted = { dirs: [], groups: [], reasons: [] };   // v2.17.18 恢复预设后清空墓碑
+  state.catDeleted = { dirs: [], groups: [], reasons: [] };   // v2.17.19 恢复预设后清空墓碑
   catRefresh();
   showToast('已恢复制度预设目录（27 项）', 'success');
 }
@@ -8984,7 +9306,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ==================== Init ==================== */
-// v2.17.18 先加载本地数据，再执行班委模式限制/身份解析（此前 applyCommitteeRestrictions 先于 loadData 运行，
+// v2.17.19 先加载本地数据，再执行班委模式限制/身份解析（此前 applyCommitteeRestrictions 先于 loadData 运行，
 // 身份解析时学生名单为空 → 署名退化成匿名「通用班委」，选了身份也白选）
 loadData();
 // 登录拦截：未解锁时显示登录页；班委模式免密直达（受限视图）
@@ -9018,14 +9340,14 @@ autoSyncFromCloud().then(function(){
   // Re-render after sync to ensure DOM is updated
   renderScheduleImage();
   renderClassBrand();
-  // v2.17.18 云端首次拉到名单后补一次身份解析：本地无缓存、名单只在云端时，
+  // v2.17.19 云端首次拉到名单后补一次身份解析：本地无缓存、名单只在云端时，
   // 启动期 resolveCmIdentity 会因名单为空退化为匿名，这里补齐署名身份（幂等，仅匿名时触发）
   if(window.__cmRole === 'committee' && window.__cmIdentity && window.__cmIdentity.anonymous && state.students && state.students.length){
     applyCommitteeRestrictions();
   }
 });
 // Auto sync when tab becomes visible (mobile tab switching)
-/* v2.17.18 跨标签实时同步：班主任操作窗口（学分页/学生表加分）与公示常驻窗口
+/* v2.17.19 跨标签实时同步：班主任操作窗口（学分页/学生表加分）与公示常驻窗口
    （投屏/另一标签全屏给全班看）通常同浏览器多开、共享 localStorage。storage 事件
    让非来源标签自动 loadData + 重渲当前页 —— 加分/减分/撤销/恢复后，公示窗口的
    学分榜/进步榜/零扣分榜/统计图表即时更新，不再等切回标签或云端往返。
