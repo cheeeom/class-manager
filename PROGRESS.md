@@ -652,3 +652,18 @@
   - 通知草稿自动生成含 `【2026级幼儿保育2班·学分预警通知】` 抬头 + 班级全称
 - [x] **升版**：v2.17.22 → v2.17.23（index/sw + 9 测试文件明文+转义双轮）；19 套件全绿（_v2178=24 项）
 - [x] **推送**：见下一次 commit
+
+### 2026-09-08（v2.17.24：修学分银行 tabs「点切换字变白看不见」）
+
+- [x] **现象**：学分银行顶部 5 个 tab，点击切换后 active 文字变白、浅色卡片背景上看不见
+- [x] **根因**：全局 `.tab.active{color:#fff}`（白字）依赖 JS 把红色渐变滑块 `.tab-indicator`（z-index:1，文字 z-index:2）定位到该 tab 下方（`left=offsetLeft-4 / width=offsetWidth`）。renderBankPage 只渲染了空的 indicator、**没写定位逻辑** → 滑块宽 0 不可见 → 白字裸落在浅背景上
+- [x] **修复**：
+  - 新增 `initBankTabIndicator()`：取 `#cbBankTabs .tab.active` 与 `.tab-indicator`，`offsetWidth>0` 保护下重算 `left/width`（与 `initStudentTabIndicator` 同款）
+  - `renderBankPage` 末尾（innerHTML 赋值后）立即调用 —— 整页重渲染（进页/切 tab/任一银行操作后的 cbPersist 重绘）都会重算
+  - tabs 容器加 `id="cbBankTabs"` + `max-width:100%;overflow-x:auto`（5 个 tab 在窄屏可横向滚动，indicator 是 .tabs 内 absolute 定位会跟随滚动）
+  - `window resize` 监听兜底（仅银行页 active 时重算；横竖屏/窗口缩放后 tab 位置变化）
+  - 预警中心 tab 的数量角标颜色改为条件式：active 时 `#fff`（红底上）、非 active 时 `#c53030`（浅底上），避免红数字落在红滑块上看不清
+- [x] **测试**：`_v2178_test.js` 新增 1 项（initBankTabIndicator 存在 + renderBankPage 末尾调用 + cbBankTabs id + left/width 计算式 + offsetWidth>0 保护 + resize 兜底），25 项全过；19 套件全绿
+- [x] **视觉验证**（playwright 逐个点击 5 个 tab）：每个 tab 的 computed color=白 & 滑块 left/width 与 tab offsetLeft-4/offsetWidth 误差 ≤1px 全部 ✅；预警中心截图确认红底白字清晰
+- [x] **升版**：v2.17.23 → v2.17.24（index/sw + 10 测试文件明文+转义双轮）；19 套件全绿
+- [x] **推送**：cm-push-incremental 单提交 → 远端待记录；gh api 远端特征串验证
