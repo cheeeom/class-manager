@@ -604,3 +604,51 @@
   - 选「迟到早退」自动带 `-2`，应用可点；班委角色负分应用禁用+提示，正分放行
 - [x] **升版**：v2.17.21 → v2.17.22（index/sw + 9 测试文件明文+转义双轮）；index.html v2.17.22 出现 44 处（原 42 + 2 新增注释）,sw 1 处；20 套件全绿（_v2170 = 33 项）
 - [x] **推送**：cm-push-incremental 三提交 → 远端 `4eb9bae2`，19 文件字节级一致；gh api 远端 index.html 验证：login/sidebar=v2.17.22、`#quickBtnGroup`=0、4 个工具栏 id 顺序齐、v2.17.22 布局注释×1、`cmMinusLock`×3；线上 SW no-store 刷新生效
+
+### 2026-09-08（v2.17.23：学分银行 — 双轨账本/阶梯奖励/兑换商店/阶梯预警/教师专属）
+
+- [x] **设计**（老板确认）：4 个问题 AskUserQuestion 拍板——① 双轨账本（表现分 + 学分币） ② 任何加分自动等额发币 ③ 手动「结算本月」按钮 ④ 仅班主任可见。完整档位（卓越≥110 / 优秀100-109 / 良好90-99 / 常规60-89 / <60 预警区）+ 商店 6 券（免迟到 10 / 共进午餐 30 / 一日班长 20 / 电影 50 / 劳动豁免 15 / 同桌 8）+ 预警 4 档（黄/橙/红/深红，<60 通报家长/手抄手册/请家长/停课回家）
+- [x] **数据层（5 处链路 + 云合并）**——`state.creditBank = { settings, wallets, ledger, nextLedgerId, alerts, nextAlertId, nextVoucherId, lastSettleMonth, createdAt }`：
+  - **state 默认**：`notices` 后插入，结构齐 9 字段
+  - **loadData**：`d.creditBank` → `cbNormalizeShape` 补齐形状 → `cbBankSafe` 兜底；末尾 `cbScanAlerts() > 0 ? saveData()`（启动预警）
+  - **saveData**：手写清单加 `creditBank: state.creditBank`；顶部 `cbScanAlerts()`（任一落盘入口都触发建档/办结）
+  - **CLOUD_SYNC_FIELDS**：白名单加 `'creditBank'`
+  - **smartMergeData**：`if(localData.creditBank||remoteData.creditBank) merged.creditBank = cbMergeBanks(l,r)`（纯函数：券按 usedAt|time、流水按 time、预警按 resolvedAt|time 取更新者；计数器取大；lastSettleMonth 字典序取大）
+  - **clearData**：`state.creditBank = cbDefaultBank()`（品牌配置类保留，data 类重置）
+- [x] **币派生口径**（核心架构选择，**不是事件账本**）：`cbCoinMap(ops, ledger) = Σ{amount>0 && state!=='revoked'} + Σledger.delta`
+  - 撤销加分 → 流水退出有效集 → 币自动回退；恢复 → 自动补回
+  - 扣分不动币；银行类事件（兑换扣/退还退）单独写 ledger
+  - 与 v2.17.9 学分自愈同源，天然免疫「本地撤销/云合并/校准回退」漂移（v2.17.5/2.17.7 反例教训）
+  - `applyCreditDelta` 仅加一行注释说明派生规则，**无业务逻辑改动**
+- [x] **月度结算（手动，每月一次）**：`cbDoSettle()` 按当月表现分定档 ——
+  - 卓越(≥110) → 免迟到券+电影点播券+午餐券 各 1 张（source='settle'）
+  - 优秀(100-109) → 一日班长券
+  - 良好(90-99) → 本月兑换商店 9 折（`wallet.discountMonth`）
+  - 常规(60-89) / <60 预警区 → 无
+  - 写入 `lastSettleMonth` 防重发；同源同月同券去重（cbGiveVoucher 内部 `pendingItems.some` 排除已退）
+- [x] **兑换商店 + 核销/退还闭环**：
+  - `cbRedeem`：月限检查（`cbStoreUsedCount`） → 币余额检查（`cbCoinsOf`） → 9 折应用（`cbStoreItemCost`）→ 写 voucher + ledger redeem(-cost) → toast
+  - `cbUseVoucher`：status unused→used, usedAt=now
+  - `cbRefundVoucher`：unused→refunded, redeem 退币写 ledger refund(+cost), settle 退券不退税
+- [x] **阶梯预警台账**：`cbScanAlerts()` 幂等扫描
+  - ≥60 → 自动办结全部未决（status='resolved', resolvedAt=now, note 标回升自动办结）
+  - 否则按当前档建档：同档同月一条 / 恶化升级才追加 / 同月不降级补录
+  - `cbAlertMark` 提供 「已通知家长」「办结」 两个动作；`cbAlertDraft` 一键生成致家长通知文案（带班级全称）
+- [x] **教师专属页 + 入口**：
+  - 侧栏 `<div class="nav-item" data-page="bank">` + 移动 more-drawer 对应项；`COMMITTEE_PAGES` 不含 `bank` → 班委自动 cm-hide；`navigateTo` 二次拦截 + `renderBankPage` 第三次兜底
+  - 顶栏新增 `cbAlertChip` 角标（未处理预警 N → 内联显示红 chip + click 跳转 bank·预警中心）
+  - 新增 `<symbol id="i-bank">`（古典银行建筑图标）
+  - `pageTitles['bank']='学分银行'`；`navigateTo` 加 `if(page==='bank') renderBankPage();`
+  - `refreshCreditViews` 加 bank 页 active 时全量渲染 + `updateCbAlertChip`；`renderAll` 挂角标刷新
+- [x] **测试**：
+  - 新增 `_v2178_test.js` 24 项：版本三处同步 + 5 处链路字符串断言 + 双轨派生边界（扣分不计/撤销不计/银行流水叠加）+ 撤销后币自动回退 + 定档 9 边界 + 结算发券 5 名学生端到端 + 同源同月去重 + 档位 4 边界 + 建档幂等 + 恶化升级 + 同月不降级 + ≥60 自动办结 + 合并券去重/折扣月取大 + 流水/预警并集 + 计数器取大
+  - 19 套件全绿（原 18 + 新 _v2178）
+- [x] **视觉+交互验证**（playwright 注入 3 名学生：张三 55 分预警/李四 130 分 30 币/王五 108 分 8 币）：
+  - 顶栏红色「学分预警 1」chip 显示
+  - 侧栏 bank 入口高亮；切到预警中心：4 档徽章图例 + 张三黄色预警行 + 三个动作按钮
+  - 概览：4 统计卡 + 月度阶梯奖励结算卡（5 档规则列）+ 币排行（李四 20 币 / 王五 8 币 / 张三 0 币 + 黄徽章）
+  - 兑换商店：学生下拉 + 6 张商品卡（甲折显示原价划线 + 9 折实付）；兑换免迟到券 → 弹「李四 兑换成功 -10 币」+ ledger 出现 redeem -10 + 券包新增 status=unused + 币扣到 20
+  - 月度结算 1 次 → 李四（130 卓越）得 lateFree/movie/lunch + 王五（108 优秀）得 dayMonitor = 4 张；`lastSettleMonth='2026-09'`
+  - 通知草稿自动生成含 `【2026级幼儿保育2班·学分预警通知】` 抬头 + 班级全称
+- [x] **升版**：v2.17.22 → v2.17.23（index/sw + 9 测试文件明文+转义双轮）；19 套件全绿（_v2178=24 项）
+- [x] **推送**：见下一次 commit

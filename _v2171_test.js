@@ -24,15 +24,15 @@ t('index.html 主 <script> 块可被完整编译（新增体检代码无语法�
   if (!n) throw new Error('未找到主脚本块');
 });
 
-console.log('\n=== v2.17.22 版本三处同步 ===');
-t('登录页 / 侧栏 / SW CACHE_NAME = v2.17.22', () => {
-  if (!/login-version">v2\.17\.22</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.22 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.17.22')) throw new Error('SW CACHE_NAME 未更新');
+console.log('\n=== v2.17.23 版本三处同步 ===');
+t('登录页 / 侧栏 / SW CACHE_NAME = v2.17.23', () => {
+  if (!/login-version">v2\.17\.23</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.17\.23 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.17.23')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 体检纯函数 computeCreditAudit ===');
-const liveOps = eval('(' + grab('function liveOps(ops)') + ')');   // v2.17.22
+const liveOps = eval('(' + grab('function liveOps(ops)') + ')');   // v2.17.23
 const sumCreditsByStudent = eval('(' + grab('function sumCreditsByStudent(operations)') + ')');
 const computeCreditAudit = eval('(' + grab('function computeCreditAudit(students, operations)') + ')');
 const applyCreditBaseFix = eval('(' + grab('function applyCreditBaseFix(student, newBase, operations)') + ')');
