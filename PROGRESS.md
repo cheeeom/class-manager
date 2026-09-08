@@ -569,3 +569,16 @@
 - [x] **升版**：v2.17.19 → v2.17.20（index/sw + 9 测试文件明文+转义双轮）；index.html v2.17.20 出现 39 处（31 原 + 8 新增），sw 1 处
 - [x] **视觉验证**：playwright 渲染证书 PNG（classNameFull='2026级幼儿保育2班'、honor scope=个人）→ 抬头 + 落款均显示「2026级幼儿保育2班」，右下日期「2026 年 9 月 1 日」可见比班级名右缘缩两格；红章位置 (1180,560) 像素 RGB=(249,242,223)=底色，确认无红色描画；底部无「班主任：」文字
 - [x] **推送**：cm-push-incremental 三提交 → 远端 `e81c4a79`，19 文件字节级一致；直接 gh api 拉远端 index.html：login/sidebar=v2.17.20、certClassName×1 + classNameFullInput×3 + saveClassNameFull×2 + classNameFull:×2 + 班级全称×8 + certClassName()×5、红章/专用章均=0；线上 CDN (cheeeom.github.io) 当前 max-age=600 缓存仍回 v2.17.19 — SW no-store 路径刷新后取新；强刷生效
+
+### 2026-09-08（v2.17.21：证书落款改回居中 + 班级全称自动镜像 + UI 显眼化）
+
+- [x] **反馈修正**：老板发截图指出 ① 班级全称未生效（显示的是简称「26幼2班」）② 底部布局应是「班级名称在上、日期在下、两者居中对齐」（不是 v2.17.20 理解的右对齐空两格）
+- [x] **证书绘制调整**：把 v2.17.20 右对齐落款改成居中——`textAlign='center'` + `x=W/2`,班级全称 `y=H-150` fontSize 32、日期 `y=H-100` fontSize 30,两者纵向对齐
+- [x] **解决「全称没出来」**:
+  - **saveClassName 自动镜像**：保存班级名称时若 `state.classNameFull` 为空,自动同步成同名（避免证书回退到简称）；toast 提示「班级全称已自动同步为简称,后续请在下方改为正式全称,如「2026级幼儿保育2班」」
+  - **设置页 UI 显眼化**：班级全称区块加红虚线边框 + 🏅 图标 + 标题；新增 `classNameFullStatus` 状态行——已设时显示绿色「✅ 当前证书落款全称:XXX」,未设时显示灰色「⚠️ 班级全称为空,证书将使用上方班级名称（简称）」；输入框 placeholder 改为「如:2026级幼儿保育2班」
+  - **导出函数温柔提示一次**：exportHonorCert 检测 classNameFull 空时弹一条 info toast 引导去设置（`__cmFullNameToastShown` 会话内单次,不重复打扰）
+- [x] **测试**：`_v2177_test.js` 在 v2.17.20 8 项基础上调整为 v2.17.21 居中布局断言 + 新增 2 项（saveClassName 镜像 + 导出提示开关）,共 26 项全过
+- [x] **视觉验证**：playwright 渲染（classNameFull='2026级幼儿保育2班'、honor scope=个人、张三、学习进步之星、2026-09-08）→ 抬头 + 落款均「2026级幼儿保育2班」居中,右下日期「2026 年 9 月 8 日」紧贴全称下方居中对齐；红章位 RGB=底色
+- [x] **升版**：v2.17.20 → v2.17.21（index/sw + 9 测试文件明文+转义双轮）；index.html v2.17.21 出现 42 处（原 39 + 3 新增注释）,sw 1 处
+- [ ] 推送 + 验证远端 CDN
