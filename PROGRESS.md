@@ -744,3 +744,22 @@
 - [x] **实测**（playwright）：navigateTo('settings') → 区块可见且为设置页最后一个 section；徽标 🏷️ v2.17.30；作者 chee；notes 5 条；零 JS 错误
 - [x] **升版**：v2.17.29 → v2.17.30（index/sw + 测试文件明文+转义双轮；设置页徽标随 replace 自动跟版）
 - [x] **推送**：见下一次 commit
+
+### 2026-09-09（v2.17.31：月度奖励按「当月净增」五档 + 预警中心迁学生页 + 学分彩徽章 + 移除行内快捷操作）
+
+- [x] **需求**（老板原话三连 + 追加一条）：①「月度阶梯奖励结算要按照每月净增分值结算，重新优化设计」②「预警中心要迁移至学生管理页面」③「学生学分要以颜色区分…分值越高的同学有什么颜色可以区分和展示标记，以110分以上为例」④ 追加「顺便移除学生管理里面的快速操作和对应的学分预设按钮」
+- [x] **决策**（老板拍板）：净增 **五档 +10/+20/+30/+50/+70**，奖励随档递进（币 20/30/45/60/80 + 券单由少到多，t5 巅峰封顶送全目录上架券各 1）；预警中心 = 学生页第 3 页签；徽章 = 浅底 + 档位字章；应用范围 = 全站统一
+- [x] **① 按「当月净增」五档结算**（替换 110/150/200 三档）：
+  - 常量 `CB_NET_TIERS`（t1 进取 +10 币20 券[lateFree] / t2 勤学 +20 币30 三券 / t3 优秀 +30 币45 四券 / t4 卓越 +50 币60 五券 / t5 巅峰 ≥70 币80 coupons:null=动态全目录）；旧 `CB_SETTLE_COINS / CB_SETTLE_LV1/LV2_COUPONS` 三档常量整体删除
+  - 纯函数：`cbMonthOfTs(ts)` ts→'YYYY-MM'（坏值兜底当月）；`cbMonthNetOf(sid,month,ops)` = Σ 当月未撤销 ops（每笔 op 自带 time、撤销仅打 state='revoked' → 净增可精确派生；无时间戳/他人/跨月不计、负净增如实返回）；`cbSettleTier(net)` 净增五档（<10 含 0/负 → none，与总分预警区解耦）
+  - `cbDoSettle` 按净增定档发币发券（撤销流水自然回落）；settleHist 快照改 `{net:1, counts{t1..t5}, coins{t1..t5}, vouchers}`；概览渲染旧三档快照 `oldMap={t1:'lv1',t2:'',t3:'',t4:'lv2',t5:'lv3'}` + `h.net===1` 判别兼容；同月一次防重复不变
+  - UI：结算确认框（cbDoSettleUI）列五档 + 净增 ≥10 前 8 名预览；概览卡副标题「按『当月净增』+10 起奖、+70 五档封顶」+「净增 <10（含 0 / 负）：无奖励」；结算历史表改五列头 进取10+/勤学20+/优秀30+/卓越50+/巅峰70+；模块头设计注释同步
+- [x] **② 预警中心 → 学生管理页**：学生页加第 3 页签 `data-tab="alerts"`（🚨 预警中心）+ `#tab-alerts` 容器（紧随 import 页签）；`switchStudentTab` 通用化（list/import/alerts 显隐 + 滑块 + 切 alerts 即 `cbRenderStudentAlerts()`）；`cbRenderStudentAlerts` = 原银行预警分支整体移植（状态 chips / 预警卡 / 已通知·办结·📋通知草稿 / 档位图例 / 空态）；顶部 🚨 角标 onclick 改 `goStudentAlerts()`（navigateTo('students') + switchStudentTab('alerts')）；学分银行页签瘦身为 概览/商店/券包/流水 4 个、删整支 `cbBankTab==='alerts'` 分支与「阶梯预警」副标题文案；cbPersist / cbAlertStatusTo / cbAlertAct 钩子全部指向学生页渲染（学生页 active 且页签可见才刷）
+- [x] **③ 学分彩徽章 cbCreditBadge（全站统一，100 制分档）**：<60 沿用预警档深底白字「N 分 · 档位」+ title「低于及格线 60 → …」提示；60-109 浅蓝灰纯分值（不喧宾、不挡数字阅读）；110-149 琥珀橙浅底 +「进取」；150-199 金黄浅底 +「卓越」；≥200 红金渐变 +「巅峰 👑」；小数先四舍五入、非数字兜底 0。接入点：学生表行 / 详情面板「当前学分」/ 银行排行行 / 公示榜行（pubTopRow/pubProgRow/pubStaminaRow ×2）；`.score-badge` 死 CSS 删除；`creditLevel`（学分页搜索下拉）同步五档（lv-top/lv-elite/lv-strive + lv-yellow/lv-orange/lv-red/lv-dark）
+- [x] **④ 图表与统计口径五档统一**：分析页统计卡 及格率 (≥60) / 进取率 (≥110)；drawRangeChart / drawPieChart / drawPubDist 桶对齐 预警/常规/进取/卓越/巅峰（60/110/150/200 界）——原先 dashboard 四档（<80/80-89/90-99/≥100，100 分制下毫无区分度）与学分/预警两套语言并存的问题消除
+- [x] **⑤ 行内快捷操作移除**（追加需求）：学生表删除「快速操作」表头列与 +1/+5/-1/-5 行内按钮组、`function adjustCredit(id,amount,e)` 整体删除（空态 colspan 6→5、`.quick-btns/.quick-btn*` CSS 一并清理；学分操作统一走右上角「批量操作」/ 学分记录页）
+- [x] **测试**：修复被系统性重构打穿的 6 套旧件——_v290（creditLevel 五档断言 + CB_ALERT_MIN/CB_ALERT_TIERS/cbTierOf 真实抽取）；_v2110 / _v2160（scope/global 补 cbCreditBadge stub，渲染依赖；徽章语义由 _v2184 锁）；_v2150（去 adjustCredit 断言 ×2 + drawRangeChart/drawPieChart 四档→五档 + 及格率≥60/进取率≥110）；_v2178/_v2179/_v2180（CB_SETTLE_* → CB_NET_TIERS、结算/快照断言重写为净增 ops 场景、补 cbMonthNetOf/cbMonthOfTs 抽取、券单按 t1..t5 对齐）；新增 `_v2184_test.js` 21 项（cbMonthOfTs/cbMonthNetOf 净增口径 / CB_NET_TIERS 结构 / cbCreditBadge 五档渲染全边界 / 学生页预警页签接线 / 顶部角标直达 / 银行四页签瘦身 / cbPersist·cbAlertAct 钩子 / 快速操作与 adjustCredit 零残留 / settleHist 新旧快照兼容映射）
+- [x] **实测**（playwright，http 服务 + localStorage 种子 205/165/112/100/45/25 分、creditBase=credit 防自愈拉平）：学生表徽章 巅峰👑/卓越/进取/常规/橙色预警(45)/深红预警(25) 全对；表内无「快速操作」/adjustCredit；切「🚨 预警中心」页签 → chips「全部 2」、黄/橙/红/深红图例齐、预警戊橙卡（当时学分 45）+ 深红己卡；银行页 4 页签无预警、副标题瘦身、概览净增五档说明与奖励列表渲染正常；侧栏+登录页版本 v2.17.31；零 JS 错误（file:// 种子踩坑：creditBase 不与快照一致会被学分自愈拉平 → 种子补 creditBase=credit）
+- [x] **回归**：27 套件全绿（24 套版本系列 + _v2184 新 21 项 + crypto/sync/v290/xss）
+- [x] **升版**：v2.17.30 → v2.17.31（index 仅 3 处活动标记：登录页 / 侧栏 / 设置页 🏷️ 徽标 + sw.js CACHE_NAME —— index 内 ~100 处 v2.17.30 历史注释一律不动；测试文件 14 套用 node 脚本做 **token 级**升版断言，HTML 内容断言里指向代码注释的 v2.17.30 保留不回改；设置页「近版更新速览」文案手动换成 v2.17.31 五条并同步 _v2183 断言）
+- [x] **推送**：见下一次 commit

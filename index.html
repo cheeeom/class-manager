@@ -573,16 +573,6 @@ tbody tr.highlight{
   0%{background:rgba(166,58,43,0.2)}
   100%{background:transparent}
 }
-.score-badge{
-  display:inline-block;
-  padding:2px 10px;border-radius:12px;
-  font-size:13px;font-weight:600;
-  background:rgba(166,58,43,0.1);
-  color:var(--primary-dark);
-}
-.score-badge.low{background:rgba(180,35,24,0.1);color:var(--danger)}
-.score-badge.mid{background:rgba(192,138,45,0.15);color:#B8860B}
-.score-badge.high{background:rgba(47,125,91,0.1);color:var(--success)}
 
 /* Student tags in table */
 .student-tags{display:inline-flex;gap:4px;margin-left:8px;vertical-align:middle}
@@ -599,13 +589,6 @@ tbody tr.highlight{
 .stag-orange{background:rgba(185,106,31,0.12);color:var(--orange)}
 .stag-red{background:rgba(180,35,24,0.12);color:var(--red)}
 .stag-gray{background:rgba(126,119,106,0.12);color:#7E776A}
-
-.quick-btns{display:flex;gap:4px}
-.quick-btn{width:28px;height:28px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}.quick-btn:disabled{opacity:0.4;cursor:not-allowed}
-.quick-btn.plus{background:rgba(47,125,91,0.12);color:var(--success)}
-.quick-btn.minus{background:rgba(180,35,24,0.1);color:var(--danger)}
-.quick-btn:hover{transform:scale(1.15)}
-.quick-btn:active{transform:scale(0.9)}
 
 .action-btn{
   width:28px;height:28px;border-radius:6px;
@@ -1178,10 +1161,13 @@ tbody tr.highlight{
 .dorm-filter div{padding:8px 18px;font-size:13px;cursor:pointer;color:var(--text-secondary);background:var(--card-bg)}
 .dorm-filter div.active{background:var(--primary);color:#fff;font-weight:600}
 .credit-badge{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;margin-left:6px;vertical-align:1px}
-.credit-badge.lv-good{background:rgba(47,125,91,0.12);color:var(--success)}
-.credit-badge.lv-fair{background:rgba(185,106,31,0.12);color:var(--orange)}
-.credit-badge.lv-mid{background:rgba(107,91,149,0.12);color:var(--purple)}
-.credit-badge.lv-bad{background:rgba(180,35,24,0.12);color:var(--red)}
+.credit-badge.lv-top{background:linear-gradient(135deg,#fbe3d0,#f7e08b);color:#a3301e}
+.credit-badge.lv-elite{background:rgba(240,195,50,0.22);color:#7d6410}
+.credit-badge.lv-strive{background:rgba(240,147,43,0.18);color:#8a5310}
+.credit-badge.lv-yellow{background:rgba(183,121,31,0.16);color:#8a5a10}
+.credit-badge.lv-orange{background:rgba(192,86,33,0.16);color:#a0441a}
+.credit-badge.lv-red{background:rgba(197,48,48,0.14);color:#a52a2a}
+.credit-badge.lv-dark{background:rgba(123,17,19,0.16);color:#6d0f11}
 .member-row{display:flex;align-items:center;justify-content:space-between;padding:9px 4px;border-bottom:1px solid var(--border);font-size:14px}
 .member-row:last-child{border-bottom:none}
 .member-row .mr-name{font-weight:600}
@@ -1947,7 +1933,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.30</div>
+      <div class="login-version">v2.17.31</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2066,14 +2052,14 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.30 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.31 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
   <div class="main">
     <header class="topbar">
       <h1 id="pageTitle">工作台首页</h1>
-      <span id="cbAlertChip" onclick="navigateTo('bank')" title="学分预警待处理 · 点击进入「学分银行 → 预警中心」" style="display:none;align-items:center;gap:6px;cursor:pointer;padding:5px 12px;border-radius:999px;background:rgba(197,48,48,.1);color:#c53030;font-size:13px;font-weight:600;margin-left:12px;border:1px solid rgba(197,48,48,.3);white-space:nowrap">🚨 学分预警 <b>0</b></span>
+      <span id="cbAlertChip" onclick="goStudentAlerts()" title="学分预警待处理 · 点击进入「学生管理 → 🚨 预警中心」" style="display:none;align-items:center;gap:6px;cursor:pointer;padding:5px 12px;border-radius:999px;background:rgba(197,48,48,.1);color:#c53030;font-size:13px;font-weight:600;margin-left:12px;border:1px solid rgba(197,48,48,.3);white-space:nowrap">🚨 学分预警 <b>0</b></span>
       <div class="topbar-right">
         <button class="btn-icon" title="刷新数据" onclick="refreshData()"><svg class="ic ic-sm"><use href="#i-refresh"/></svg><span class="icon-label">刷新</span></button>
         <button class="btn-icon" id="topExportBtn" title="导出数据到文件" onclick="exportData()"><svg class="ic ic-sm"><use href="#i-export"/></svg><span class="icon-label">导出</span></button>
@@ -2173,6 +2159,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="tabs" id="studentTabs">
           <div class="tab active" data-tab="list">学生列表</div>
           <div class="tab" data-tab="import">批量导入</div>
+          <div class="tab" data-tab="alerts" title="学分预警中心（v2.17.31 自学分银行迁入）">🚨 预警中心</div>
           <div class="tab-indicator"></div>
         </div>
 
@@ -2195,7 +2182,6 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
                   <th>姓名</th>
                   <th>学号</th>
                   <th id="creditTh" class="th-sort" onclick="toggleSort()" title="点击排序：学分 ↓ → 学分 ↑ → 恢复按序号" style="cursor:pointer">学分 <span class="sort-icon" id="sortIcon">⇅</span></th>
-                  <th>快速操作</th>
                   <th>操作</th>
                 </tr>
               </thead>
@@ -2232,6 +2218,8 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           </div>
           <div id="rosterPreview"></div>
         </div>
+
+        <div id="tab-alerts" style="display:none"></div>
       </div>
 
       <!-- Committee Page -->
@@ -2772,17 +2760,17 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.17.30</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.17.31</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 设置页新增「关于本系统」版本信息说明<br>
-              · 兑换商店：选学生候选按学分币由多到少排序；选人不再默认选中，点搜索框出候选、实时筛选、可清除<br>
-              · 学分操作新增「🏠 按寝室加减分」：全寝室批量操作，每人独立流水可单独撤销<br>
-              · 学分银行二期：学生银行档案 / 月度结算统计 / 流水·预警双筛选<br>
-              · 月度阶梯奖励三档结算（110/150/200），Lv2 卓越档含劳动整改豁免券
+              · 月度阶梯奖励改为按「当月净增」结算，五档递进：+10 进取 / +20 勤学 / +30 优秀 / +50 卓越 / ≥+70 巅峰（封顶送全目录券）<br>
+              · 预警中心迁至「学生管理 → 🚨 预警中心」页签，顶部 🚨 角标一键直达<br>
+              · 学分全站彩色徽章：&lt;60 沿用预警深底白字；110+ 进取 / 150+ 卓越 / 200+ 巅峰 👑，醒目不碍读值<br>
+              · 学生管理移除行内 +1/+5/-1/-5 快捷按钮（防误触，操作统一走批量/学分记录页）<br>
+              · 数据分析与公示图表档位语言统一为五档（预警/常规/进取/卓越/巅峰）
             </div>
           </div>
         </div>
@@ -3966,14 +3954,17 @@ function refreshCreditViews(){
   if(bank && bank.classList.contains('active')) safe(window.renderBankPage);
   safe(window.updateCbAlertChip);                               // v2.17.30 预警角标
 }
-/* 学分等级：制度第六章（≥100 优秀 / 90-100 合格 / 80-90 一般 / <80 不合格） */
+/* 学分档位小章（学分记录页搜索下拉用；v2.17.31 与 cbCreditBadge 同构：
+   ≥200 巅峰 / 150-199 卓越 / 110-149 进取 / 60-109 无章 / <60 预警档章） */
 function creditLevel(credit){
   var c = Number(credit);
-  if(isNaN(c)) return {label:'', cls:''};
-  if(c >= 100) return {label:'优秀', cls:'lv-good'};
-  if(c >= 90)  return {label:'合格', cls:'lv-fair'};
-  if(c >= 80)  return {label:'一般', cls:'lv-mid'};
-  return {label:'不合格', cls:'lv-bad'};
+  if(isNaN(c)) return { label:'', cls:'' };
+  if(c >= 200) return { label:'巅峰', cls:'lv-top' };
+  if(c >= 150) return { label:'卓越', cls:'lv-elite' };
+  if(c >= 110) return { label:'进取', cls:'lv-strive' };
+  if(c >= CB_ALERT_MIN) return { label:'', cls:'' };
+  var t = cbTierOf(c) || CB_ALERT_TIERS[CB_ALERT_TIERS.length - 1];
+  return { label: t.label, cls: 'lv-' + t.level };
 }
 const presetTags = ['寝室长','班委','课代表','特长生','需关注'];
 const tagColorMap = {
@@ -4059,8 +4050,8 @@ let state = {
       同源，天然免疫「本地撤销/云合并/校准回退」类漂移（v2.17.5/2.17.7 反例教训）。
    ② 兑换商店：用币兑换特权券（免迟到券/共进午餐/一日班长/电影点播/劳动豁免/同桌一日），
       兑换即扣币并生成券包条目；班主任核销(使用)/退还(退币)闭环。
-   ③ 月度结算（手动按钮，每月一次）：按当月表现分定档发月度奖励 ——
-      卓越≥110 → 免迟到券+电影点播券+午餐券；优秀100-109 → 一日班长券；良好90-99 → 本月兑换9折。
+   ③ 月度结算（手动按钮，每月一次）：v2.17.31 起按「当月净增分值」五档定档发奖励 ——
+      +10 进取 / +20 勤学 / +30 优秀 / +50 卓越 / ≥+70 巅峰（封顶送全目录上架券各 1 张）；净增 <10（含 0/负）无奖励。
    ④ 阶梯预警：50-59 通报家长(黄) / 40-49 手抄《学生手册》(橙) / 30-39 请家长来校(红) /
       <30 停课回家教育(深红)；同档同月一条、恶化才升级；回升≥60 自动办结；首页角标提醒。
    ⑤ 教师专属：page-bank 不在班委白名单（导航自动隐藏 + navigateTo 二次拦截）。 */
@@ -4079,12 +4070,18 @@ const CB_STORE = [
 ];
 // 商品类别（自定义商品可选其一，也可自填新类别）
 const CB_CATS = ['特权', '餐饮', '娱乐', '学习', '实物', '其他'];
-/* v2.17.30 月度阶梯奖励（老板拍板：110 起奖 / 200 封顶 / 3 档 / 币+券双轨）
-   Lv1 进取 110-149 ｜ Lv2 卓越 150-199 ｜ Lv3 巅峰 ≥200（封顶，一次给全目录各 1 张）
-   60-109 常规区（100 为基础分）无奖励；<60 预警区无奖励并触发阶梯预警。 */
-const CB_SETTLE_COINS = { lv1: 20, lv2: 50, lv3: 120 };
-const CB_SETTLE_LV1_COUPONS = ['lateFree'];
-const CB_SETTLE_LV2_COUPONS = ['lateFree', 'dayMonitor', 'laborWaive'];   // v2.17.30 电影点播券 → 劳动整改豁免券
+/* v2.17.31 月度阶梯奖励（老板拍板重设：按「当月净增分值」结算，5 档递进）
+   当月净增 = 当月内发生且未撤销的加减分净额（只看当月表现，历史累计不参与定档）。
+   t1 进取 +10 ｜ t2 勤学 +20 ｜ t3 优秀 +30 ｜ t4 卓越 +50 ｜ t5 巅峰 ≥+70（封顶）
+   t5 一次给全目录上架券各 1 张；t4 及以下按档内券单发（由少到多递进）。
+   净增 <10（含 0 与负）无奖励；总分 <60 的阶梯预警仍按总分走，与此无关。 */
+const CB_NET_TIERS = [
+  { key:'t1', label:'进取', min:10, coin:20, coupons:['lateFree'] },
+  { key:'t2', label:'勤学', min:20, coin:30, coupons:['lateFree', 'dayMonitor', 'laborWaive'] },
+  { key:'t3', label:'优秀', min:30, coin:45, coupons:['lateFree', 'dayMonitor', 'laborWaive', 'seatMate'] },
+  { key:'t4', label:'卓越', min:50, coin:60, coupons:['lateFree', 'dayMonitor', 'laborWaive', 'seatMate', 'lunch'] },
+  { key:'t5', label:'巅峰', min:70, coin:80, coupons:null }        // 全目录动态取（cbSettleLv3Coupons）
+];
 // 预警档位（阈值按降序命中；min 为该档下限）
 const CB_ALERT_TIERS = [
   { level:'yellow', label:'黄色预警', act:'通报家长',         advice:'通报家长，家校协同督促改进',    min:50 },
@@ -4349,14 +4346,37 @@ function cbMonthKey(d){
    ≥200 Lv3 巅峰（封顶）｜150-199 Lv2 卓越｜110-149 Lv1 进取｜60-109 常规（无奖励）｜<60 预警区（无奖励）
    返回 { key, label, min, coin 奖励币, coupons 奖励券 key 列表 }。
    Lv3 的券 = 当前目录全部上架商品各 1 张（老师新增的自定义商品也包含，真正的「巅峰礼包」）。 */
-function cbSettleTier(credit){
-  var c = Number(credit);
-  if(!isFinite(c)) c = 0;
-  if(c >= 200) return { key:'lv3', label:'巅峰', min:200, coin: CB_SETTLE_COINS.lv3, coupons: null };
-  if(c >= 150) return { key:'lv2', label:'卓越', min:150, coin: CB_SETTLE_COINS.lv2, coupons: CB_SETTLE_LV2_COUPONS.slice() };
-  if(c >= 110) return { key:'lv1', label:'进取', min:110, coin: CB_SETTLE_COINS.lv1, coupons: CB_SETTLE_LV1_COUPONS.slice() };
-  if(c >= CB_ALERT_MIN) return { key:'none', label:'常规', min:CB_ALERT_MIN, coin: 0, coupons: [] };
-  return { key:'low', label:'预警区', min:0, coin: 0, coupons: [] };
+/* v2.17.31 净增结算定档（纯函数）：入参 = 当月净增分值，返回五档之一或 none。
+   ≥70 t5 巅峰 ｜ 50-69 t4 卓越 ｜ 30-49 t3 优秀 ｜ 20-29 t2 勤学 ｜ 10-19 t1 进取 ｜ <10 无奖励 */
+function cbSettleTier(net){
+  var n = Number(net);
+  if(!isFinite(n)) n = 0;
+  for(var i = CB_NET_TIERS.length - 1; i >= 0; i--){
+    if(n >= CB_NET_TIERS[i].min) return CB_NET_TIERS[i];
+  }
+  return { key:'none', label:'无奖励', min:0, coin:0, coupons: [] };
+}
+// 时间戳 → 'YYYY-MM'（缺省当前月）
+function cbMonthOfTs(ts){
+  var t = ts ? new Date(ts) : new Date();
+  if(isNaN(t.getTime())) t = new Date();
+  return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0');
+}
+/* v2.17.31 当月净增分值（纯函数）：Σ 当月发生且未撤销 ops 的净额。
+   op.time 为该笔操作的发生时间（撤销只是打 state='revoked' 标记，原 time 保留）；
+   当月内加分又撤销 → 净额自然回落。无时间戳的老记录不参与当月统计。 */
+function cbMonthNetOf(sid, month, ops){
+  var key = cbWalletKey(sid);
+  var src = ops || state.operations || [];
+  var net = 0;
+  src.forEach(function(o){
+    if(!o || o.state === 'revoked') return;
+    if(String(o.studentId) !== key) return;
+    if(o.time == null) return;
+    if(cbMonthOfTs(o.time) !== month) return;
+    net += Number(o.amount) || 0;
+  });
+  return net;
 }
 /* Lv3 封顶档券单：目录里所有上架商品各 1 张（需要读 state，故与纯函数 cbSettleTier 分开） */
 function cbSettleLv3Coupons(){
@@ -4454,33 +4474,35 @@ function cbUseVoucher(sid, vid){
   v.usedAt = Date.now();
   showToast('已核销：' + v.name + '（' + cbSname(sid) + '）', 'success');
 }
-/* 手动「结算本月」：全体按当前表现分定档发月度奖励。返回发放条数 */
+/* 手动「结算本月」：全体按当月净增分值定档发月度奖励（v2.17.31 净增五档）。返回发放条数 */
 function cbDoSettle(){
   var b = cbBankSafe();
   var month = cbMonthKey();
   if(b.lastSettleMonth === month) return 0;
   var n = 0;
-  // v2.17.30 月度统计（写 settleHist 快照）：coins 为该档实发币总额（计人头），vouchers 为实发券总张数
-  var stat = { month: month, at: Date.now(), counts: { lv1: 0, lv2: 0, lv3: 0 },
-               coins: { lv1: 0, lv2: 0, lv3: 0 }, vouchers: 0 };
+  // v2.17.31 月度统计（写 settleHist 快照）：counts/coins 按五档 t1..t5，vouchers 为实发券总张数
+  var stat = { month: month, at: Date.now(), net: 1,
+               counts: { t1: 0, t2: 0, t3: 0, t4: 0, t5: 0 },
+               coins: { t1: 0, t2: 0, t3: 0, t4: 0, t5: 0 }, vouchers: 0 };
   (state.students || []).forEach(function(s){
-    var t = cbSettleTier(Number(s.credit) || 0);
+    var net = cbMonthNetOf(s.id, month);            // v2.17.31 当月净增定档
+    var t = cbSettleTier(net);
     var coupons = t.coupons;
-    if(t.key === 'lv3') coupons = cbSettleLv3Coupons();   // 封顶档：全目录各 1 张
-    if(t.key === 'lv1' || t.key === 'lv2' || t.key === 'lv3'){
+    if(t.key === 't5') coupons = cbSettleLv3Coupons();   // 封顶档：全目录各 1 张
+    if(t.key !== 'none'){
       stat.counts[t.key]++;
       stat.coins[t.key] += t.coin;
     }
     if(!coupons || coupons.length === 0){
       if(t.coin > 0){
-        cbPushLedger('settle', s.id, t.coin, t.label + '奖', '月度' + t.label + '奖励（' + month + '）');
+        cbPushLedger('settle', s.id, t.coin, t.label + '奖', '月度' + t.label + '奖励（' + month + ' 净增 ' + (net > 0 ? '+' : '') + net + '）');
         n++;
       }
       return;
     }
     // 发币（币永久累计，可在商店自由兑换）
     if(t.coin > 0){
-      cbPushLedger('settle', s.id, t.coin, t.label + '奖', '月度' + t.label + '奖励（' + month + '）');
+      cbPushLedger('settle', s.id, t.coin, t.label + '奖', '月度' + t.label + '奖励（' + month + ' 净增 ' + (net > 0 ? '+' : '') + net + '）');
       n++;
     }
     // 发券（白送的奖励券当月有效，跨月自动失效留痕）
@@ -4492,8 +4514,8 @@ function cbDoSettle(){
   });
   b.lastSettleMonth = month;
   if(!b.createdAt) b.createdAt = Date.now();
-  if(n > 0 || stat.counts.lv1 + stat.counts.lv2 + stat.counts.lv3 > 0){
-    // v2.17.30 写月度统计快照（同月覆盖，留最新一次结算；仅结算过才建档）
+  if(n > 0){
+    // v2.17.31 写月度统计快照（同月覆盖，留最新一次结算；有奖励才建档）
     var hist = b.settleHist = Array.isArray(b.settleHist) ? b.settleHist : [];
     var idx = hist.findIndex(function(h){ return h && h.month === month; });
     if(idx >= 0) hist.splice(idx, 1);
@@ -4717,7 +4739,7 @@ function cbLedgerPickSid(id){ cbLedgerSid = String(id); renderBankPage(); }
 function cbLedgerSidClear(){ cbLedgerSid = ''; renderBankPage(); }
 function cbLedgerTypeTo(v){ cbLedgerType = v || ''; renderBankPage(); }
 /* ============ v2.17.30 预警中心：按状态筛选 ============ */
-function cbAlertStatusTo(s){ cbAlertStatus = s || ''; renderBankPage(); }
+function cbAlertStatusTo(s){ cbAlertStatus = s || ''; cbRenderStudentAlerts(); }   // v2.17.31 迁学生管理页
 function cbCopyText(txt){
   var done = function(){ showToast('已复制，可直接粘贴发送', 'success'); };
   if(navigator.clipboard && navigator.clipboard.writeText){
@@ -4935,6 +4957,10 @@ function cbPersist(){
   updateCbAlertChip();
   var p = document.getElementById('page-bank');
   if(p && p.classList.contains('active')) renderBankPage();
+  // v2.17.31 学生管理页预警页签同步刷新（预警操作/云同步后状态即时可见）
+  var sp = document.getElementById('page-students');
+  var at = document.getElementById('tab-alerts');
+  if(sp && sp.classList.contains('active') && at && at.style.display !== 'none') cbRenderStudentAlerts();
   // v2.17.30 档案弹窗内操作（核销/退还/办结）后自动刷新弹窗内容
   var pm = document.getElementById('cbBankProfileModal');
   if(pm && pm.classList.contains('show') && cbProfileSid) cbOpenBankProfile(cbProfileSid);
@@ -4942,15 +4968,21 @@ function cbPersist(){
 function cbDoSettleUI(){
   var month = cbMonthKey();
   if((state.creditBank && state.creditBank.lastSettleMonth) === month){ showToast(month + ' 已结算过，下月再结算', 'warning'); return; }
-  if(!confirm('结算 ' + month + ' 月度阶梯奖励？\n\n按全体学生当前表现分定档：\n'
-    + '· Lv3 巅峰（≥200，封顶）：' + CB_SETTLE_COINS.lv3 + ' 币 + 全目录券各 1 张\n'
-    + '· Lv2 卓越（150-199）：' + CB_SETTLE_COINS.lv2 + ' 币 + 免迟到 / 一日班长 / 劳动整改豁免\n'
-    + '· Lv1 进取（110-149）：' + CB_SETTLE_COINS.lv1 + ' 币 + 免迟到券\n'
-    + '· 常规（60-109，100 为基础分）：无奖励\n'
-    + '· 预警区（<60）：无奖励，按阶梯预警处理\n\n'
-    + '币永久累计；奖励券当月有效，跨月自动失效。每人每月仅结算一次。')) return;
+  // v2.17.31 预览：当月净增分布
+  var nets = (state.students || []).map(function(s){ return { name: s.name, net: cbMonthNetOf(s.id, month), s: s }; });
+  nets.sort(function(a, b){ return b.net - a.net; });
+  var preview = nets.filter(function(x){ return x.net >= 10; }).slice(0, 8)
+    .map(function(x){ return x.name + '（净增 ' + (x.net > 0 ? '+' : '') + x.net + ' → ' + cbSettleTier(x.net).label + '）'; }).join('\n');
+  var msg = '结算 ' + month + ' 月度阶梯奖励？\n\n按「当月净增分值」定档（当月加减净变化，撤销的不算）：\n'
+    + CB_NET_TIERS.slice().reverse().map(function(t){
+        return '· ' + t.label + '（净增 ≥' + t.min + '）：' + t.coin + ' 币' + (t.key === 't5' ? ' + 全目录券各 1 张' : (t.coupons && t.coupons.length ? ' + ' + t.coupons.map(function(k){ return (cbStoreItemByKey(k) || {}).name || k; }).join(' / ') : ''));
+      }).join('\n')
+    + '\n· 净增 <10（含 0 / 负）：无奖励\n\n'
+    + (preview ? '本次预计获奖（净增 ≥10，前 8 名）：\n' + preview + '\n\n' : '')
+    + '币永久累计；奖励券当月有效，跨月自动失效。每人每月仅结算一次。';
+  if(!confirm(msg)) return;
   var n = cbDoSettle();
-  showToast(n > 0 ? month + ' 结算完成：' + n + ' 项奖励已发放' : '本月无符合条件的奖励', n > 0 ? 'success' : 'info');
+  showToast(n > 0 ? month + ' 结算完成：' + n + ' 项奖励已发放' : '本月无符合条件的奖励（净增均 <10）', n > 0 ? 'success' : 'info');
   cbPersist();
 }
 function cbRedeemUI(key){
@@ -4982,6 +5014,7 @@ function cbRefundVoucherUI(sid, vid){
 function cbAlertAct(sid, aid, to){
   cbAlertMark(sid, aid, to);
   cbPersist();
+  cbRenderStudentAlerts();   // v2.17.31 学生管理页预警页签操作后即时刷新
 }
 function cbAlertCopy(sid, aid){
   var t = cbAlertDraft(sid, aid);
@@ -4991,6 +5024,22 @@ function cbAlertCopy(sid, aid){
 function cbLevelBadge(level, label){
   var c = CB_LEVEL_COLORS[level] || '#888';
   return '<span style="display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;color:#fff;background:' + c + '">' + (label || level) + '</span>';
+}
+/* v2.17.31 学分展示徽章（全站统一，100 制总分分档）：
+   <60 沿用预警档深底白字（黄/橙/红/深红，血统一致、最醒目=最危险）
+   60-109 常规浅底蓝灰（不喧宾）；110-149 进取琥珀橙 +「进取」；150-199 卓越金黄 +「卓越」；
+   ≥200 巅峰红金渐变 +「巅峰 👑」。徽章统一浅底深字展示分值，颜色分级醒目但不影响数字阅读。 */
+function cbCreditBadge(credit){
+  var c = Math.round(Number(credit) || 0);
+  if(!isFinite(c)) c = 0;
+  if(c < CB_ALERT_MIN){
+    var t = cbTierOf(c) || { level:'dark', label:'深红预警' };
+    return '<span style="display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;color:#fff;background:' + (CB_LEVEL_COLORS[t.level] || '#7b1113') + '" title="低于及格线 60 → ' + t.label + '">' + c + ' 分 · ' + t.label + '</span>';
+  }
+  if(c >= 200) return '<span style="display:inline-block;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:700;color:#a3301e;background:linear-gradient(135deg,#fbe3d0,#f7d9a8 55%,#f7e08b);border:1px solid rgba(166,58,43,.4)" title="巅峰 ≥200">' + c + ' 分 · 巅峰 👑</span>';
+  if(c >= 150) return '<span style="display:inline-block;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:700;color:#7d6410;background:rgba(240,195,50,0.22);border:1px solid rgba(212,165,30,.45)" title="卓越 150-199">' + c + ' 分 · 卓越</span>';
+  if(c >= 110) return '<span style="display:inline-block;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:700;color:#8a5310;background:rgba(240,147,43,0.18);border:1px solid rgba(205,120,35,.45)" title="进取 110-149">' + c + ' 分 · 进取</span>';
+  return '<span style="display:inline-block;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:600;color:#3d5a80;background:rgba(80,120,180,0.12);border:1px solid rgba(90,130,180,.3)" title="常规 60-109">' + c + ' 分</span>';
 }
 function cbVoucherChip(sid, v){
   var src = v.source === 'redeem' ? '🛒兑换' : '🎁月奖';
@@ -5040,9 +5089,8 @@ function renderBankPage(){
   var settled = bank.lastSettleMonth === month;
   var tabs = [
     { k:'overview', t:'🏦 概览' }, { k:'store', t:'🛒 兑换商店' }, { k:'vouchers', t:'🎟 券包与核销' },
-    { k:'ledger', t:'🧾 币流水' },
-    // active 时数字随白字（红滑块上），非 active 时红色更醒目
-    { k:'alerts', t:'🚨 预警中心' + (pend ? ' <b style="color:' + (cbBankTab === 'alerts' ? '#fff' : '#c53030') + '">' + pend + '</b>' : '') }
+    { k:'ledger', t:'🧾 币流水' }
+    // v2.17.31 预警中心已迁至「学生管理 → 🚨 预警中心」页签（顶部 🚨 角标直达）
   ];
   var tabHtml = '<div class="tabs" id="cbBankTabs" style="margin-bottom:14px;max-width:100%;overflow-x:auto">';
   tabs.forEach(function(tb){
@@ -5064,40 +5112,49 @@ function renderBankPage(){
       // v2.17.30 点排行行 → 学生银行档案
       rows += '<tr style="cursor:pointer" onclick="cbOpenBankProfile(' + s.id + ')" title="查看 ' + cbEsc(s.name) + ' 的银行档案">' +
               '<td style="padding:6px 8px">' + (i + 1) + '</td><td style="padding:6px 8px"><b>' + cbEsc(s.name) + '</b> <span style="font-size:11px;color:var(--text-muted)">📊</span></td>' +
-              '<td style="padding:6px 8px">' + credit + ' 分</td>' +
+              '<td style="padding:6px 8px">' + cbCreditBadge(credit) + '</td>' +
               '<td style="padding:6px 8px"><b>' + c + '</b> 币</td>' +
               '<td style="padding:6px 8px">' + warn + '</td></tr>';
     });
     var settleState = settled
       ? '<span style="color:#2f7d32;font-weight:600">✓ ' + month + ' 已结算</span>'
       : '<span style="color:#c05621;font-weight:600">本月未结算</span>';
-    var rewards = [
-      'Lv3 巅峰（≥200 分，封顶）：<b>' + CB_SETTLE_COINS.lv3 + ' 币</b> + 全目录券各 1 张',
-      'Lv2 卓越（150-199 分）：<b>' + CB_SETTLE_COINS.lv2 + ' 币</b> + 免迟到券 / 一日班长券 / 劳动整改豁免券',
-      'Lv1 进取（110-149 分）：<b>' + CB_SETTLE_COINS.lv1 + ' 币</b> + 免迟到券',
-      '常规（60-109 分，100 为基础分）：无奖励',
-      '&lt;60 分：进入阶梯预警（见预警中心）',
-      '<span style="color:var(--text-muted)">币永久累计可自由兑换；奖励券当月有效，跨月自动失效留痕</span>'
-    ].map(function(x){ return '<div>· ' + x + '</div>'; }).join('');
-    // v2.17.30 月度结算历史统计（settleHist 快照，最新在前）
-    var tierName = { lv1: '进取', lv2: '卓越', lv3: '巅峰' };
+    var rewards = CB_NET_TIERS.slice().reverse().map(function(t){
+        return (t.key === 't5' ? '巅峰（净增 ≥' + t.min + '，封顶）：' : (t.label + '（净增 ≥' + t.min + '）：')) + '<b>' + t.coin + ' 币</b>' +
+               (t.key === 't5' ? ' + 全目录券各 1 张' : ' + ' + (t.coupons || []).map(function(k){ return (cbStoreItemByKey(k) || {}).name || k; }).join(' / '));
+      }).concat([
+        '净增 &lt;10（含 0 / 负）：无奖励',
+        '<span style="color:var(--text-muted)">只看当月表现：当月加减净变化 ≥10 起奖，撤销的不算，历史累计分不参与定档。币永久累计可自由兑换；奖励券当月有效，跨月自动失效留痕</span>'
+      ]).map(function(x){ return '<div>· ' + x + '</div>'; }).join('');
+    // v2.17.31 月度结算历史统计（settleHist 快照，最新在前；旧三档记录按 lv1→进取/lv2→卓越/lv3→巅峰 兼容映射）
     var hist = (bank.settleHist || []).slice(0, 12);
+    var hc = function(h, k){
+      if(!h || !h.counts) return 0;
+      if(h.net === 1) return h.counts[k] || 0;                     // 新五档快照
+      var oldMap = { t1: 'lv1', t2: '', t3: '', t4: 'lv2', t5: 'lv3' };
+      return oldMap[k] ? (h.counts[oldMap[k]] || 0) : 0;           // 旧三档快照
+    };
     var histHtml = hist.length
-      ? '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
-        '<tr style="color:var(--text-muted);font-size:12px;text-align:left">' +
-        '<th style="padding:5px 8px;font-weight:500">月份</th><th style="padding:5px 8px;font-weight:500">进取 110+</th>' +
-        '<th style="padding:5px 8px;font-weight:500">卓越 150+</th><th style="padding:5px 8px;font-weight:500">巅峰 200+</th>' +
-        '<th style="padding:5px 8px;font-weight:500">发币</th><th style="padding:5px 8px;font-weight:500">发券</th></tr>' +
+      ? '<table style="width:100%;border-collapse:collapse;font-size:12.5px">' +
+        '<tr style="color:var(--text-muted);font-size:11.5px;text-align:left">' +
+        '<th style="padding:5px 7px;font-weight:500">月份</th><th style="padding:5px 7px;font-weight:500">进取10+</th>' +
+        '<th style="padding:5px 7px;font-weight:500">勤学20+</th><th style="padding:5px 7px;font-weight:500">优秀30+</th>' +
+        '<th style="padding:5px 7px;font-weight:500">卓越50+</th><th style="padding:5px 7px;font-weight:500">巅峰70+</th>' +
+        '<th style="padding:5px 7px;font-weight:500">发币</th><th style="padding:5px 7px;font-weight:500">发券</th></tr>' +
         hist.map(function(h){
+          var sumCoin = h.net === 1
+            ? (h.coins ? (h.coins.t1 || 0) + (h.coins.t2 || 0) + (h.coins.t3 || 0) + (h.coins.t4 || 0) + (h.coins.t5 || 0) : 0)
+            : (h.coins ? (h.coins.lv1 || 0) + (h.coins.lv2 || 0) + (h.coins.lv3 || 0) : 0);
           return '<tr>' +
-                 '<td style="padding:5px 8px"><b>' + cbEsc(h.month || '') + '</b></td>' +
-                 '<td style="padding:5px 8px">' + (h.counts ? h.counts.lv1 || 0 : 0) + ' 人</td>' +
-                 '<td style="padding:5px 8px">' + (h.counts ? h.counts.lv2 || 0 : 0) + ' 人</td>' +
-                 '<td style="padding:5px 8px">' + (h.counts ? h.counts.lv3 || 0 : 0) + ' 人</td>' +
-                 '<td style="padding:5px 8px;font-weight:600;color:#b7791f">' + ((h.coins ? (h.coins.lv1 || 0) + (h.coins.lv2 || 0) + (h.coins.lv3 || 0) : 0)) + ' 币</td>' +
-                 '<td style="padding:5px 8px">' + (h.vouchers || 0) + ' 张</td></tr>';
+                 '<td style="padding:5px 7px"><b>' + cbEsc(h.month || '') + '</b></td>' +
+                 ['t1', 't2', 't3', 't4', 't5'].map(function(k){
+                   var c = hc(h, k);
+                   return '<td style="padding:5px 7px' + (c ? '' : ';color:var(--text-muted)') + '">' + (c ? c + ' 人' : '—') + '</td>';
+                 }).join('') +
+                 '<td style="padding:5px 7px;font-weight:600;color:#b7791f">' + sumCoin + ' 币</td>' +
+                 '<td style="padding:5px 7px">' + (h.vouchers || 0) + ' 张</td></tr>';
         }).join('') + '</table>'
-      : '<div style="font-size:12px;color:var(--text-muted)">暂无历史记录 —— 本月起每次「结算」都会自动存档每月各档人数与发币/发券统计。</div>';
+      : '<div style="font-size:12px;color:var(--text-muted)">暂无历史记录 —— 结算后自动存档每月各档人数与发币/发券统计。</div>';
     var rankHint = '<span style="font-size:11px;color:var(--text-muted);font-weight:400;margin-left:6px">点任意一行查看该生完整银行档案</span>';
     body =
       '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px">' +
@@ -5108,7 +5165,7 @@ function renderBankPage(){
       '</div>' +
       '<div class="card" style="padding:16px 18px;margin-bottom:14px">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">' +
-      '<div><b>💰 月度阶梯奖励结算</b><div style="font-size:12px;color:var(--text-muted);margin-top:4px">每月点一次：110 分起奖、200 分封顶，按当月表现分定档发「学分币 + 特权券」</div></div>' +
+      '<div><b>💰 月度阶梯奖励结算</b><div style="font-size:12px;color:var(--text-muted);margin-top:4px">每月点一次：按「当月净增」+10 起奖、+70 五档封顶，发「学分币 + 特权券」</div></div>' +
       '<button class="btn ' + (settled ? 'btn-outline' : 'btn-primary') + '" onclick="cbDoSettleUI()"' + (settled ? ' title="本月已结算"' : '') + '>' + (settled ? '✓ 已结算 ' + month : '结算 ' + month) + '</button>' +
       '</div>' +
       '<div style="margin-top:12px;padding:12px 14px;background:rgba(166,58,43,0.05);border-radius:10px;font-size:13px;line-height:1.9">' + rewards + '</div>' +
@@ -5254,46 +5311,10 @@ function renderBankPage(){
            (lRows
              ? '<div class="card" style="padding:10px 16px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><tr style="color:var(--text-muted);font-size:12px;text-align:left"><th style="padding:6px 8px;font-weight:500">学生</th><th style="padding:6px 8px;font-weight:500">类型</th><th style="padding:6px 8px;font-weight:500">项目</th><th style="padding:6px 8px;font-weight:500">变动</th><th style="padding:6px 8px;font-weight:500">时间</th></tr>' + lRows + '</table></div>'
              : cbEmpty('没有符合条件的流水' + ((allLedger.length && led.length === 0) ? ' —— 换个筛选条件试试' : '（加分发币随学分流水自动计入）')));
-  } else if(cbBankTab === 'alerts'){
-    var allAlerts = (bank.alerts || []).slice().sort(function(a, b){ return (b.time || 0) - (a.time || 0); });
-    // v2.17.30 状态筛选 chips（含计数），cbAlertStatus 重渲染间保持
-    var ac = { pending: 0, notified: 0, resolved: 0 };
-    allAlerts.forEach(function(a){ if(ac[a.status] != null) ac[a.status]++; });
-    var chips = [
-      { v: '', l: '全部', n: allAlerts.length },
-      { v: 'pending', l: '● 待处理', n: ac.pending },
-      { v: 'notified', l: '● 已通知家长', n: ac.notified },
-      { v: 'resolved', l: '○ 已办结', n: ac.resolved }
-    ].map(function(c){
-      return '<div class="cb-chip' + (cbAlertStatus === c.v ? ' on' : '') + '" onclick="cbAlertStatusTo(\'' + c.v + '\')">' + c.l + ' <b>' + c.n + '</b></div>';
-    }).join('');
-    var alerts = allAlerts.filter(function(a){ return !cbAlertStatus || a.status === cbAlertStatus; });
-    var aRows = '';
-    alerts.forEach(function(a){
-      var stMap = { pending: '<span style="color:#c05621">● 待处理</span>', notified: '<span style="color:#b7791f">● 已通知家长</span>', resolved: '<span style="color:var(--text-muted)">○ 已办结</span>' };
-      var st = stMap[a.status] || a.status;
-      var acts = '';
-      if(a.status === 'pending') acts += '<button class="btn btn-outline btn-sm" style="padding:2px 10px;font-size:12px" onclick="cbAlertAct(\'' + a.sid + '\',' + a.id + ',\'notified\')">已通知家长</button> ';
-      if(a.status !== 'resolved') acts += '<button class="btn btn-primary btn-sm" style="padding:2px 10px;font-size:12px" onclick="cbAlertAct(\'' + a.sid + '\',' + a.id + ',\'resolved\')">办结</button> ';
-      acts += '<button class="btn btn-outline btn-sm" style="padding:2px 10px;font-size:12px" onclick="cbAlertCopy(\'' + a.sid + '\',' + a.id + ')" title="生成致家长通知草稿并复制">📋 通知草稿</button>';
-      aRows += '<div class="card" style="padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-left:4px solid ' + (CB_LEVEL_COLORS[a.level] || '#ccc') + '">' +
-               '<div style="min-width:220px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' + cbEsc(a.sname || '') + ' ' + cbLevelBadge(a.level, a.label) + ' <span style="font-size:12px;color:var(--text-muted)">' + a.month + ' · ' + a.act + '</span></div>' +
-               '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">当时学分 ' + a.credit + ' 分 · ' + st + (a.note ? ' · ' + cbEsc(a.note) : '') + '</div></div>' +
-               '<div style="display:flex;gap:6px;flex-wrap:wrap">' + acts + '</div></div>';
-    });
-    var legend = '';
-    CB_ALERT_TIERS.forEach(function(t){
-      legend += '<span style="margin-right:10px">' + cbLevelBadge(t.level, t.label) + ' <span style="font-size:12px;color:var(--text-muted)">' + t.min + '-' + (t.level === 'dark' ? '30' : (CB_ALERT_TIERS[cbTierSeverity(t.level) - 1] ? CB_ALERT_TIERS[cbTierSeverity(t.level) - 1].min : CB_ALERT_MIN)) + ' 分 · ' + t.act + '</span></span>';
-    });
-    body = '<div class="card" style="padding:12px 16px;margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">' + chips + '</div>' +
-           '<div class="card" style="padding:14px 18px;margin-bottom:12px;font-size:12px;color:var(--text-muted);line-height:1.9">' +
-           '阶梯预警（按当前表现分实时扫描，同档同月一条、恶化升级才叠加）：<br>' + legend +
-           '<br>回升至 ≥' + CB_ALERT_MIN + ' 分自动办结留痕；「通知草稿」一键生成致家长文案。</div>' +
-           (aRows ? aRows : cbEmpty(allAlerts.length === 0 ? '暂无预警 🎉 全员表现分均 ≥ ' + CB_ALERT_MIN + ' 分' : '该状态下暂无预警'));
   }
   var html = '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px">' +
              '<div><h2 style="margin:0;font-size:20px">🏦 学分银行</h2>' +
-             '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">双轨账本 · 阶梯奖励 · 兑换商店 · 阶梯预警（仅班主任可见）</div></div>' +
+             '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">双轨账本 · 阶梯奖励 · 兑换商店（仅班主任可见）</div></div>' +
              '<span style="font-size:12px;color:var(--text-muted)">数据随学分流水自动同步 · ' + (state.classNameFull || state.className || '') + '</span></div>' +
              tabHtml + '<div id="cbBankBody">' + body + '</div>';
   el.innerHTML = html;
@@ -6484,15 +6505,74 @@ function renderStudents(){
 
 document.querySelectorAll('#studentTabs .tab').forEach(tab=>{
   tab.addEventListener('click',()=>{
-    document.querySelectorAll('#studentTabs .tab').forEach(t=>t.classList.remove('active'));
-    tab.classList.add('active');
-    const indicator = document.querySelector('#studentTabs .tab-indicator');
-    indicator.style.left = tab.offsetLeft - 4 + 'px';
-    indicator.style.width = tab.offsetWidth + 'px';
-    document.getElementById('tab-list').style.display = tab.dataset.tab === 'list' ? '' : 'none';
-    document.getElementById('tab-import').style.display = tab.dataset.tab === 'import' ? '' : 'none';
+    switchStudentTab(tab.dataset.tab);
   });
 });
+/* v2.17.31 学生管理页页签切换（list / import / alerts 通用），切预警页签时实时渲染预警中心 */
+function switchStudentTab(tabName){
+  var t = tabName || 'list';
+  document.querySelectorAll('#studentTabs .tab').forEach(x=>x.classList.remove('active'));
+  var tabEl = document.querySelector('#studentTabs .tab[data-tab="' + t + '"]');
+  if(tabEl) tabEl.classList.add('active');
+  var indicator = document.querySelector('#studentTabs .tab-indicator');
+  if(indicator && tabEl && tabEl.offsetWidth > 0){
+    indicator.style.left = tabEl.offsetLeft - 4 + 'px';
+    indicator.style.width = tabEl.offsetWidth + 'px';
+  }
+  var map = { list: 'tab-list', import: 'tab-import', alerts: 'tab-alerts' };
+  Object.keys(map).forEach(function(k){
+    var el = document.getElementById(map[k]);
+    if(el) el.style.display = (k === t) ? '' : 'none';
+  });
+  if(t === 'alerts') cbRenderStudentAlerts();   // v2.17.31 预警中心迁入学生管理页
+}
+/* v2.17.31 预警中心（学生管理页 🚨 页签渲染）：状态筛选 chips + 预警卡 + 档位图例。
+   数据源 state.creditBank.alerts（v2.17.26 迁出学分银行前的同款逻辑整体移植） */
+function cbRenderStudentAlerts(){
+  var host = document.getElementById('tab-alerts');
+  if(!host) return;
+  var bank = cbBankSafe();
+  var allAlerts = (bank.alerts || []).slice().sort(function(a, b){ return (b.time || 0) - (a.time || 0); });
+  var ac = { pending: 0, notified: 0, resolved: 0 };
+  allAlerts.forEach(function(a){ if(ac[a.status] != null) ac[a.status]++; });
+  var chips = [
+    { v: '', l: '全部', n: allAlerts.length },
+    { v: 'pending', l: '● 待处理', n: ac.pending },
+    { v: 'notified', l: '● 已通知家长', n: ac.notified },
+    { v: 'resolved', l: '○ 已办结', n: ac.resolved }
+  ].map(function(c){
+    return '<div class="cb-chip' + (cbAlertStatus === c.v ? ' on' : '') + '" onclick="cbAlertStatusTo(\'' + c.v + '\')">' + c.l + ' <b>' + c.n + '</b></div>';
+  }).join('');
+  var alerts = allAlerts.filter(function(a){ return !cbAlertStatus || a.status === cbAlertStatus; });
+  var aRows = '';
+  alerts.forEach(function(a){
+    var stMap = { pending: '<span style="color:#c05621">● 待处理</span>', notified: '<span style="color:#b7791f">● 已通知家长</span>', resolved: '<span style="color:var(--text-muted)">○ 已办结</span>' };
+    var st = stMap[a.status] || a.status;
+    var acts = '';
+    if(a.status === 'pending') acts += '<button class="btn btn-outline btn-sm" style="padding:2px 10px;font-size:12px" onclick="cbAlertAct(\'' + a.sid + '\',' + a.id + ',\'notified\')">已通知家长</button> ';
+    if(a.status !== 'resolved') acts += '<button class="btn btn-primary btn-sm" style="padding:2px 10px;font-size:12px" onclick="cbAlertAct(\'' + a.sid + '\',' + a.id + ',\'resolved\')">办结</button> ';
+    acts += '<button class="btn btn-outline btn-sm" style="padding:2px 10px;font-size:12px" onclick="cbAlertCopy(\'' + a.sid + '\',' + a.id + ')" title="生成致家长通知草稿并复制">📋 通知草稿</button>';
+    aRows += '<div class="card" style="padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-left:4px solid ' + (CB_LEVEL_COLORS[a.level] || '#ccc') + '">' +
+             '<div style="min-width:220px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' + cbEsc(a.sname || '') + ' ' + cbLevelBadge(a.level, a.label) + ' <span style="font-size:12px;color:var(--text-muted)">' + a.month + ' · ' + a.act + '</span></div>' +
+             '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">当时学分 ' + a.credit + ' 分 · ' + st + (a.note ? ' · ' + cbEsc(a.note) : '') + '</div></div>' +
+             '<div style="display:flex;gap:6px;flex-wrap:wrap">' + acts + '</div></div>';
+  });
+  var legend = '';
+  CB_ALERT_TIERS.forEach(function(t){
+    legend += '<span style="margin-right:10px">' + cbLevelBadge(t.level, t.label) + ' <span style="font-size:12px;color:var(--text-muted)">' + t.min + '-' + (t.level === 'dark' ? '30' : (CB_ALERT_TIERS[cbTierSeverity(t.level) - 1] ? CB_ALERT_TIERS[cbTierSeverity(t.level) - 1].min : CB_ALERT_MIN)) + ' 分 · ' + t.act + '</span></span>';
+  });
+  host.innerHTML =
+    '<div class="card" style="padding:12px 16px;margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">' + chips + '</div>' +
+    '<div class="card" style="padding:14px 18px;margin-bottom:12px;font-size:12px;color:var(--text-muted);line-height:1.9">' +
+    '阶梯预警（按当前表现分实时扫描，同档同月一条、恶化升级才叠加）：<br>' + legend +
+    '<br>回升至 ≥' + CB_ALERT_MIN + ' 分自动办结留痕；「通知草稿」一键生成致家长文案。</div>' +
+    (aRows ? aRows : cbEmpty(allAlerts.length === 0 ? '暂无预警 🎉 全员表现分均 ≥ ' + CB_ALERT_MIN + ' 分' : '该状态下暂无预警'));
+}
+/* v2.17.31 顶部 🚨 预警角标 → 直接跳学生管理页「预警中心」页签 */
+function goStudentAlerts(){
+  navigateTo('students');
+  switchStudentTab('alerts');
+}
 
 function initStudentTabIndicator(){
   const firstTab = document.querySelector('#studentTabs .tab.active');
@@ -6548,7 +6628,7 @@ function renderTable(){
   const count = document.getElementById('studentCount');
 
   if(list.length === 0){
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">
       <div class="icon">👥</div>
       <div class="text">${state.students.length === 0 ? '暂无学生数据' : '未找到匹配的学生'}</div>
       ${state.students.length === 0 ? '<button class="btn btn-primary btn-sm" onclick="loadSampleData()">加载示例数据</button>' : ''}
@@ -6558,8 +6638,7 @@ function renderTable(){
   }
 
   count.textContent = `共 ${list.length} 名学生`;
-  tbody.innerHTML = list.map(s=>{
-    const cls = s.credit < 10 ? 'low' : s.credit < 25 ? 'mid' : 'high';
+    tbody.innerHTML = list.map(s=>{
     const checked = state.selectedStudents.has(s.id) ? 'checked' : '';
     const tagsHtml = (s.tags && s.tags.length > 0)
       ? `<span class="student-tags">${s.tags.map(t=>`<span class="stag ${escapeAttr(getTagClass(t))}">${escapeHtml(t)}</span>`).join('')}</span>`
@@ -6568,15 +6647,7 @@ function renderTable(){
       <td class="checkbox-cell"><input type="checkbox" ${checked} onchange="toggleSelect(${s.id}, this.checked)"></td>
       <td style="cursor:pointer" onclick="openDetailPanel(${s.id})">${escapeHtml(s.name)}${tagsHtml}</td>
       <td style="color:var(--text-muted)">${escapeHtml(s.sid)}</td>
-      <td><span class="score-badge ${cls}">${s.credit}</span></td>
-      <td>
-        <div class="quick-btns">
-          <button class="quick-btn plus" onclick="adjustCredit(${s.id},1,event)" title="+1">+1</button>
-          <button class="quick-btn plus" onclick="adjustCredit(${s.id},5,event)" title="+5">+5</button>
-          <button class="quick-btn minus" onclick="adjustCredit(${s.id},-1,event)" title="-1">-1</button>
-          <button class="quick-btn minus" onclick="adjustCredit(${s.id},-5,event)" title="-5">-5</button>
-        </div>
-      </td>
+      <td>${cbCreditBadge(Number(s.credit) || 0)}</td>
       <td>
         <button class="action-btn" onclick="openDetailPanel(${s.id})" title="详情"><svg class="ic ic-sm"><use href="#i-clip"/></svg></button>
         <button class="action-btn del" onclick="deleteStudent(${s.id})" title="删除"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button>
@@ -6599,19 +6670,7 @@ function toggleSelectAll(el){
   });
 }
 
-function adjustCredit(id, amount, e){
-  if(e) e.stopPropagation();
-  const student = state.students.find(s=>s.id===id);
-  if(!student) return;
-  const reason = state.reasons[0] || '其他';
-  applyCreditDelta(student, amount, reason);   // v2.15.0：统一入口，快照+流水+版本戳原子一致
-  saveData();
-  const row = document.querySelector(`tr[data-id="${id}"]`);
-  if(row){ row.classList.remove('highlight'); void row.offsetWidth; row.classList.add('highlight'); }
-  refreshCreditViews();                        // v2.15.0：学生表/学分页/档案页一起刷
-  showToast(`${student.name} ${amount>0?'+':''}${amount} 学分`, amount > 0 ? 'success' : 'warning');
-}
-
+// v2.17.31 行内快速加减分按钮（+1/+5/-1/-5）已整体移除（防误触，学分操作统一走右上角「批量操作」/学分记录页）
 function deleteStudent(id){
   const student = state.students.find(s=>s.id===id);
   if(!student) return;
@@ -6869,7 +6928,6 @@ function openDetailPanel(id){
   if(!s) return;
   document.getElementById('detailName').textContent = s.name;
   const ops = state.operations.filter(o=>o.studentId===id && !(o.state==='revoked')).slice(0,20);   // v2.17.9 已撤销不显示
-  const cls = s.credit < 10 ? 'low' : s.credit < 25 ? 'mid' : 'high';
   const tags = s.tags || [];
   // ⚠️ 标签内容由用户自由输入（addCustomTag），绝不能拼进 onclick 的字符串字面量——
   //    单引号属性上下文可被 ') 闭合后注入。统一改传索引（v2.8.1 修复）。
@@ -6883,7 +6941,7 @@ function openDetailPanel(id){
 
   document.getElementById('detailBody').innerHTML = `
     <div class="info-row"><span class="label">学号</span><span class="value">${escapeHtml(s.sid)}</span></div>
-    <div class="info-row"><span class="label">当前学分</span><span class="value"><span class="score-badge ${cls}">${s.credit}</span></span></div>
+    <div class="info-row"><span class="label">当前学分</span><span class="value">${cbCreditBadge(Number(s.credit) || 0)}</span></div>
     <div class="info-row"><span class="label">排名</span><span class="value">${getRank(id)}</span></div>
     <div class="tag-editor">
       <h4 style="margin:20px 0 8px;font-size:15px">标签管理</h4>
@@ -8953,8 +9011,8 @@ function renderAnalytics(){
     <div class="stat-mini"><div class="label">中位数</div><div class="value">${median}</div></div>
     <div class="stat-mini"><div class="label">标准差</div><div class="value">${std.toFixed(2)}</div></div>
     <div class="stat-mini"><div class="label">极差</div><div class="value">${Math.max(...credits)-Math.min(...credits)}</div></div>
-    <div class="stat-mini"><div class="label">合格率 (≥90)</div><div class="value">${(credits.filter(c=>c>=90).length/credits.length*100).toFixed(0)}%</div></div>
-    <div class="stat-mini"><div class="label">优秀率 (≥100)</div><div class="value">${(credits.filter(c=>c>=100).length/credits.length*100).toFixed(0)}%</div></div>
+    <div class="stat-mini"><div class="label">及格率 (≥60)</div><div class="value">${(credits.filter(c=>c>=CB_ALERT_MIN).length/credits.length*100).toFixed(0)}%</div></div>
+    <div class="stat-mini"><div class="label">进取率 (≥110)</div><div class="value">${(credits.filter(c=>c>=110).length/credits.length*100).toFixed(0)}%</div></div>
   `;
 
   drawRangeChart(credits);
@@ -8984,13 +9042,15 @@ function drawRangeChart(credits){
     return;
   }
 
-  // v2.15.1：制度基准已是 100 分（≥100 优秀 / 90-99 合格 / 80-89 一般 / <80 不合格）。
+  // v2.17.31：档位语言已统一为五档（预警/常规/进取/卓越/巅峰）
   // 旧分段 0-10/11-20/…/41+ 在 100 分制下会把全班塞进同一根柱子，等于没有信息。
+  // v2.17.31：档位对齐预警 + 结算五档语言（<60 预警 / 60-109 常规 / 110-149 进取 / 150-199 卓越 / ≥200 巅峰）
   const buckets = [
-    {label:'<80 不合格', min:-Infinity, max:80,       color1:'#B42318', color2:'#D98A76'},
-    {label:'80-89 一般', min:80,        max:90,       color1:'#6B5B95', color2:'#BEB4D6'},
-    {label:'90-99 合格', min:90,        max:100,      color1:'#C08A2D', color2:'#E3C98F'},
-    {label:'≥100 优秀',  min:100,       max:Infinity, color1:'#2F7D5B', color2:'#A5CBB7'}
+    {label:'预警', min:-Infinity, max:60,        color1:'#B42318', color2:'#D98A76'},
+    {label:'常规', min:60,        max:110,       color1:'#3B6E8F', color2:'#9CC0D9'},
+    {label:'进取', min:110,       max:150,       color1:'#C0762B', color2:'#E8C39A'},
+    {label:'卓越', min:150,       max:200,       color1:'#C9971B', color2:'#F0DA8E'},
+    {label:'巅峰', min:200,       max:Infinity,  color1:'#A3301E', color2:'#F0A87E'}
   ];
   buckets.forEach(b => b.count = credits.filter(c => c >= b.min && c < b.max).length);
   const maxB = Math.max(...buckets.map(b=>b.count), 1);
@@ -9068,10 +9128,11 @@ function drawPieChart(credits){
 
   // v2.15.1：改为制度四档（100 分基准），与 creditLevel 口径一致
   const segments = [
-    {label:'<80 不合格', min:-Infinity, max:80,       color:'#C4523F'},
-    {label:'80-89 一般', min:80,        max:90,       color:'#6B5B95'},
-    {label:'90-99 合格', min:90,        max:100,      color:'#C08A2D'},
-    {label:'≥100 优秀',  min:100,       max:Infinity, color:'#2F7D5B'}
+    {label:'预警', min:-Infinity, max:60,        color:'#C4523F'},
+    {label:'常规', min:60,        max:110,       color:'#3B6E8F'},
+    {label:'进取', min:110,       max:150,       color:'#C0762B'},
+    {label:'卓越', min:150,       max:200,       color:'#C9971B'},
+    {label:'巅峰', min:200,       max:Infinity,  color:'#A3301E'}
   ];
   segments.forEach(s => s.count = credits.filter(c => c >= s.min && c < s.max).length);
   const total = credits.length;
@@ -12469,14 +12530,14 @@ function pubRankRow(row, i){
   return '<div class="pub-rank"><span class="pub-no '+noCls+'">'+(i+1)+'</span>' +
     '<span class="pub-name">'+escapeHtml(pubDisplayName(row))+'</span>' +
     '<span class="pub-tag" style="background:rgba(47,125,91,0.12);color:#2F7D5B;margin-right:2px">'+lv.label+'</span>' +
-    '<span class="pub-score">'+row.credit+' 分</span></div>';
+    '<span class="pub-score">'+cbCreditBadge(Number(row.credit)||0)+'</span></div>';
 }
 function pubDeltaRow(row, i){
   var cls = i===0 ? 'top1' : i===1 ? 'top2' : i===2 ? 'top3' : '';
   return '<div class="pub-rank"><span class="pub-no '+cls+'">'+(i+1)+'</span>' +
     '<span class="pub-name">'+escapeHtml(pubDisplayName(row))+'</span>' +
     '<span class="pub-delta" style="color:'+(row.net>0?'var(--success)':'var(--danger)')+'">'+(row.net>0?'+':'')+row.net+'</span>' +
-    '<span class="pub-score">'+row.credit+' 分</span></div>';
+    '<span class="pub-score">'+cbCreditBadge(Number(row.credit)||0)+'</span></div>';
 }
 // v2.16.1 零扣分续航榜行：entry = {row:学生行, days:距上次扣分天数|null(从未扣分)}
 function pubStaminaRow(entry, i){
@@ -12487,7 +12548,7 @@ function pubStaminaRow(entry, i){
     : '<span class="pub-tag" style="background:rgba(233,196,106,0.16);color:#B7791F;margin-right:2px">'+entry.days+' 天</span>';
   return '<div class="pub-rank"><span class="pub-no '+noCls+'">'+(i+1)+'</span>' +
     '<span class="pub-name">'+escapeHtml(pubDisplayName(r))+'</span>' + tag +
-    '<span class="pub-score">'+r.credit+' 分</span></div>';
+    '<span class="pub-score">'+cbCreditBadge(Number(r.credit)||0)+'</span></div>';
 }
 function pubCard(title, sub, innerHtml){ return '<div class="pub-board-col"><div class="pub-board-title">'+title+'<span class="pub-board-sub">'+sub+'</span></div>'+innerHtml+'</div>'; }
 function renderPubBoards(data){
@@ -12619,11 +12680,12 @@ function drawPubDaily(id, operations){
 function drawPubDist(id, students){
   pubCanvasReady(id, function(ctx, W, H){
     if(!students || !students.length){ ctx.fillStyle='#A0988C'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('暂无数据', W/2, H/2); return; }
-    var buckets=[
-      {label:'<80 不合格', min:-Infinity, max:80,  c1:'#B42318', c2:'#D98A76'},
-      {label:'80-89 一般', min:80, max:90,  c1:'#6B5B95', c2:'#BEB4D6'},
-      {label:'90-99 合格', min:90, max:100, c1:'#C08A2D', c2:'#E3C98F'},
-      {label:'≥100 优秀',  min:100, max:Infinity, c1:'#2F7D5B', c2:'#A5CBB7'}
+    var buckets = [
+      {label:'预警', min:-Infinity, max:60,   c1:'#B42318', c2:'#D98A76'},
+      {label:'常规', min:60, max:110,  c1:'#3B6E8F', c2:'#9CC0D9'},
+      {label:'进取', min:110, max:150, c1:'#C0762B', c2:'#E8C39A'},
+      {label:'卓越', min:150, max:200, c1:'#C9971B', c2:'#F0DA8E'},
+      {label:'巅峰', min:200, max:Infinity, c1:'#A3301E', c2:'#F0A87E'}
     ];
     buckets.forEach(function(b){ b.count = students.filter(function(s){ var c=pubCredit(s); return c>=b.min && c<b.max; }).length; });
     var mx=Math.max.apply(null,buckets.map(function(b){return b.count;}))||1;
