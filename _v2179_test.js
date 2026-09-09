@@ -1,5 +1,5 @@
-/* v2.17.30 回归测试：月度阶梯奖励重设（110/150/200 三档）+ 兑换商店自定义目录
-   覆盖：三档奖励（币+券）/ 商店目录 CRUD（改价·改限·上下架·删除）/ 类别筛选 / 姓名学号快速筛选 /
+/* v2.18.0 回归测试：月度阶梯奖励（当月净增五档 10/20/30/50/70）+ 兑换商店自定义目录
+   覆盖：净增五档奖励（币+券）/ 商店目录 CRUD（改价·改限·上下架·删除）/ 类别筛选 / 姓名学号快速筛选 /
         奖励券当月有效自动失效（商店买的不过期）/ 目录随云同步 / 商品详情与编辑弹窗。
    运行：node _v2179_test.js */
 const fs = require('fs');
@@ -31,9 +31,9 @@ function extractFn(name) {
 // —— 模块级常量（eval 抽出的函数闭包按名引用）——
 const CB_STORE = eval('(' + (html.match(/const CB_STORE = (\[[\s\S]*?\n\]);/) || [, '[]'])[1] + ')');
 const CB_CATS = eval('(' + (html.match(/const CB_CATS = (\[[^\n]*\]);/) || [, '[]'])[1] + ')');
-const CB_SETTLE_COINS = eval('(' + (html.match(/const CB_SETTLE_COINS = (\{[^\n]*\});/) || [, '{}'])[1] + ')');
-const CB_SETTLE_LV1_COUPONS = eval('(' + (html.match(/const CB_SETTLE_LV1_COUPONS = (\[[^\n]*\]);/) || [, '[]'])[1] + ')');
-const CB_SETTLE_LV2_COUPONS = eval('(' + (html.match(/const CB_SETTLE_LV2_COUPONS = (\[[^\n]*\]);/) || [, '[]'])[1] + ')');
+// v2.18.0 净增五档（旧三档 CB_SETTLE_COINS / CB_SETTLE_LV1/LV2_COUPONS 已移除）
+const CB_NET_TIERS = eval('(' + (html.match(/const CB_NET_TIERS = (\[[\s\S]*?\n\]);/) || [, '[]'])[1] + ')');
+const tierOf = function (k) { const t = CB_NET_TIERS.find(function (x) { return x.key === k; }); return t || { coin: 0, coupons: [] }; };
 const CB_ALERT_MIN = 60;
 
 var state = { className: '', classNameFull: '', students: [], operations: [], creditBank: null };
@@ -76,49 +76,47 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('版本三处同步 = v2.17.30（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.17\.30</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.30 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.17.30')) throw new Error('SW CACHE_NAME 未更新');
+t('版本三处同步 = v2.18.0（登录页/侧栏/SW CACHE_NAME）', () => {
+  if (!/login-version">v2\.18\.0</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.18.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 
-console.log('\n=== 三档奖励规则（老板口径：100=基础分 / 110 起奖 / 200 封顶）===');
-t('常量就位：CB_SETTLE_COINS 三档 + Lv1/Lv2 券单 + 6 类预设目录 + 类别表', () => {
-  ok(CB_SETTLE_COINS.lv1 > 0 && CB_SETTLE_COINS.lv2 > CB_SETTLE_COINS.lv1 && CB_SETTLE_COINS.lv3 > CB_SETTLE_COINS.lv2,
-    '三档币应递增：' + JSON.stringify(CB_SETTLE_COINS));
-  ok(CB_SETTLE_LV1_COUPONS.length >= 1 && CB_SETTLE_LV2_COUPONS.length > CB_SETTLE_LV1_COUPONS.length, '券单应递进');
+console.log('\n=== v2.18.0 净增五档奖励规则（老板口径：当月净增 ≥10 起奖 / ≥70 封顶）===');
+t('常量就位：CB_NET_TIERS 五档币/券单递进 + 6 类预设目录 + 类别表', () => {
+  eq(CB_NET_TIERS.length, 5, '应为五档');
+  const coins = CB_NET_TIERS.map(x => x.coin);
+  ok(coins.every(c => c > 0) && coins.every((c, i) => i === 0 || c > coins[i - 1]), '五档币应递增：' + JSON.stringify(coins));
+  eq(CB_NET_TIERS[0].coupons.length, 1, 't1 起步 1 券');
+  ok(CB_NET_TIERS.slice(0, 4).every((x, i) => i === 0 || x.coupons.length > CB_NET_TIERS[i - 1].coupons.length), '券单应逐档递进');
+  eq(CB_NET_TIERS[4].coupons, null, 't5 全目录动态取');
   eq(CB_STORE.length, 6, '预设 6 券');
   eq(CB_CATS.length, 6, '6 个类别');
   CB_STORE.forEach(it => { ok(it.cat && it.detail, '预设券缺 cat/detail：' + it.key); });
 });
-t('61-100（含 100 基础分）无奖励：不发币不发券', () => {
-  [61, 80, 99, 100, 109].forEach(c => {
-    const tt = cbSettleTier(c);
-    eq(tt.key, 'none', c + ' 应为常规区');
+t('净增 <10（含 0 与负）无奖励：不发币不发券（只看当月净增，与总分/预警区无关）', () => {
+  [0, 5, 9, -3, -60].forEach(net => {
+    const tt = cbSettleTier(net);
+    eq(tt.key, 'none', net + ' 应为无奖励');
     eq(tt.coin, 0); eq((tt.coupons || []).length, 0);
   });
 });
-t('<60 预警区：无奖励（只走阶梯预警）', () => {
-  [0, 29, 45, 59].forEach(c => {
-    const tt = cbSettleTier(c);
-    eq(tt.key, 'low', c + ' 应为预警区');
-    eq(tt.coin, 0); eq((tt.coupons || []).length, 0);
-  });
+t('10/20/30/50/70 门槛命中：刚好踩线即进档', () => {
+  eq(cbSettleTier(10).key, 't1'); eq(cbSettleTier(20).key, 't2'); eq(cbSettleTier(30).key, 't3');
+  eq(cbSettleTier(50).key, 't4'); eq(cbSettleTier(70).key, 't5');
+  eq(cbSettleTier(9.9).key, 'none'); eq(cbSettleTier(19.9).key, 't1');
+  eq(cbSettleTier(29.9).key, 't2'); eq(cbSettleTier(49.9).key, 't3'); eq(cbSettleTier(69.9).key, 't4');
+  eq(cbSettleTier(500).key, 't5', '70 以上封顶仍是 t5');
+  eq(cbSettleTier(500).coin, tierOf('t5').coin, '封顶不再加码');
 });
-t('110/150/200 门槛命中：刚好踩线即进档', () => {
-  eq(cbSettleTier(110).key, 'lv1'); eq(cbSettleTier(150).key, 'lv2'); eq(cbSettleTier(200).key, 'lv3');
-  eq(cbSettleTier(109.9).key, 'none'); eq(cbSettleTier(149.9).key, 'lv1'); eq(cbSettleTier(199.9).key, 'lv2');
-  eq(cbSettleTier(500).key, 'lv3', '200 以上封顶仍是 lv3');
-  eq(cbSettleTier(500).coin, CB_SETTLE_COINS.lv3, '封顶不再加码');
-});
-t('Lv3 券单 = 当前上架目录全量（动态，不含已下架）', () => {
-  state = freshState([{ id: 1, name: '甲', credit: 200 }]);
+t('t5 封顶券单 = 当前上架目录全量（动态，不含已下架）', () => {
+  state = freshState([{ id: 1, name: '甲', credit: 100 }]);
   const all = cbStoreItems().map(it => it.key);
   eq(cbSettleLv3Coupons().join(','), all.join(','));
   cbToggleStoreItem('movie');
   const after = cbStoreItems().map(it => it.key);
   ok(after.indexOf('movie') < 0, '下架后应移出上架目录');
-  eq(cbSettleLv3Coupons().join(','), after.join(','), '下架商品不再随 Lv3 发放');
+  eq(cbSettleLv3Coupons().join(','), after.join(','), '下架商品不再随 t5 发放');
   cbToggleStoreItem('movie');
 });
 
@@ -320,11 +318,12 @@ t('商店说明文案已更新：店买券不过期 / 月奖券当月有效', ()
   has(html, '商店买的券不过期', '缺店买券说明');
   has(html, '月度奖励白送的券当月有效', '缺月奖券说明');
 });
-t('结算说明与确认框已改为三档口径（110 起 / 200 封顶 / 100 为基础分）', () => {
-  has(html, '110 分起奖、200 分封顶');
-  has(html, 'Lv3 巅峰（≥200，封顶）');
-  has(html, '常规（60-109，100 为基础分）：无奖励');
-  has(html, '奖励券当月有效，跨月自动失效');
+t('结算说明与确认框已改为净增五档口径（+10 起奖 / +70 封顶 / 净增<10 无奖励）', () => {
+  has(html, '按「当月净增」+10 起奖、+70 五档封顶', '缺结算卡副标题');
+  has(html, '净增 &lt;10（含 0 / 负）：无奖励', '概览缺无奖励说明');
+  has(html, '净增 <10（含 0 / 负）：无奖励', '结算确认框缺无奖励说明');
+  has(html, '奖励券当月有效，跨月自动失效', '缺跨月失效说明');
+  if (html.indexOf('110 分起奖、200 分封顶') >= 0) throw new Error('旧三档文案残留');
 });
 
 console.log('\n=== 币与兑换基础（回归防 regressions）===');
@@ -346,10 +345,10 @@ t('cbStoreUsedCount 只算当月 redeem 未退还券', () => {
   cbVouchers(1)[0].status = 'refunded';
   eq(cbStoreUsedCount(1, 'lunch', m), 0, '已退还释放额度');
 });
-t('币派生不受 v2.17.30 改动影响：Σ有效加分 + Σ银行流水', () => {
+t('币派生不受净增改档影响：Σ有效加分 + Σ银行流水', () => {
   state = freshState([{ id: 1, name: '甲', credit: 100 }], [{ id: 1, studentId: 1, amount: 10 }, { id: 2, studentId: 1, amount: -4 }]);
-  cbPushLedger('settle', 1, CB_SETTLE_COINS.lv3, '巅峰奖', '');
-  eq(cbCoinMap(state.operations, state.creditBank.ledger)['1'], 10 + CB_SETTLE_COINS.lv3);
+  cbPushLedger('settle', 1, tierOf('t5').coin, '巅峰奖', '');
+  eq(cbCoinMap(state.operations, state.creditBank.ledger)['1'], 10 + tierOf('t5').coin);
 });
 
 console.log(`\n结果：${pass} 通过，${fail} 失败`);

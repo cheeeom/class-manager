@@ -114,9 +114,8 @@ t('applyCreditDelta：首次写入自动补 creditBase', () => {
   const src = grab('function applyCreditDelta(student, amount, reason, opts)');
   if (!src.includes('ensureCreditBase([student], state.operations)')) throw new Error('未补基线');
 });
-t('四个写入点全部改为走统一入口（不再裸写 credit）', () => {
+t('统一写入入口（不再裸写 credit）：applyCreditBulk / applyCredit / confirmBatchCredit 全走 applyCreditDelta（adjustCredit 行内快捷按钮已随 v2.18.0 整体移除）', () => {
   const fns = {
-    adjustCredit: grab('function adjustCredit(id, amount, e)'),
     applyCreditBulk: grab('function applyCreditBulk(ids, amount, reason)'),
     applyCredit: grab('function applyCredit(id, amount, reason)'),
     confirmBatchCredit: grab('function confirmBatchCredit()')
@@ -188,8 +187,8 @@ t('refreshCreditViews 内部 try/catch 包裹，单页渲染失败不阻断其�
     if (!src.includes('console.warn')) throw new Error('未做容错');
   }
 });
-t('学分变更后调用 refreshCreditViews（adjustCredit / applyCredit / applyCreditBulk / confirmBatchCredit）', () => {
-  ['function adjustCredit(id, amount, e)', 'function applyCredit(id, amount, reason)',
+t('学分变更后调用 refreshCreditViews（applyCredit / applyCreditBulk / confirmBatchCredit）', () => {
+  ['function applyCredit(id, amount, reason)',
    'function applyCreditBulk(ids, amount, reason)', 'function confirmBatchCredit()'].forEach(sig => {
     if (!grab(sig).includes('refreshCreditViews()')) throw new Error(sig + ' 未刷新全部视图');
   });
@@ -251,22 +250,30 @@ t('分布图：改为自适应 8 档（旧的固定 10 分一档在 100 分制�
   if (fn.includes('bucketSize')) throw new Error('仍残留 bucketSize 旧逻辑');
   if (!fn.includes('bucketLabel')) throw new Error('缺少区间标签函数');
 });
-t('区间柱状图：改为制度四档 <80 / 80-89 / 90-99 / ≥100', () => {
+t('区间柱状图：v2.18.0 起五档（预警<60 / 常规 60-109 / 进取 110-149 / 卓越 150-199 / 巅峰 ≥200）', () => {
   const fn = grab('function drawRangeChart(credits)');
-  ['<80 不合格', '80-89 一般', '90-99 合格', '≥100 优秀'].forEach(s => {
-    if (!fn.includes(s)) throw new Error('缺少档位: ' + s);
+  const code = fn.replace(/\s+/g, ' ');
+  ["label:'预警', min:-Infinity, max:60", "label:'常规', min:60, max:110",
+   "label:'进取', min:110, max:150", "label:'卓越', min:150, max:200",
+   "label:'巅峰', min:200, max:Infinity"].forEach(s => {
+    if (code.indexOf(s) < 0) throw new Error('缺少档位: ' + s);
   });
+  if (code.indexOf('<80 不合格') >= 0) throw new Error('仍残留旧四档文案');
 });
-t('饼图分段同步改为制度四档', () => {
+t('饼图分段同步改为五档（预警/常规/进取/卓越/巅峰）', () => {
   const fn = grab('function drawPieChart(credits)');
-  ['<80 不合格', '80-89 一般', '90-99 合格', '≥100 优秀'].forEach(s => {
-    if (!fn.includes(s)) throw new Error('缺少档位: ' + s);
+  const code = fn.replace(/\s+/g, ' ');
+  ["label:'预警', min:-Infinity, max:60", "label:'常规', min:60, max:110",
+   "label:'进取', min:110, max:150", "label:'卓越', min:150, max:200",
+   "label:'巅峰', min:200, max:Infinity"].forEach(s => {
+    if (code.indexOf(s) < 0) throw new Error('缺少档位: ' + s);
   });
+  if (code.indexOf('<80 不合格') >= 0) throw new Error('仍残留旧四档文案');
 });
-t('合格率/优秀率口径改为 ≥90 / ≥100（旧的 ≥10 / ≥25 已失效）', () => {
-  if (!html.includes('合格率 (≥90)')) throw new Error('合格率未改');
-  if (!html.includes('优秀率 (≥100)')) throw new Error('优秀率未改');
-  if (html.includes('及格率 (≥10)') || html.includes('优秀率 (≥25)')) throw new Error('旧口径残留');
+t('及格率/进取率口径改为 ≥60 / ≥110（旧的 ≥90 / ≥100 已失效）', () => {
+  if (!html.includes('及格率 (≥60)')) throw new Error('及格率未改');
+  if (!html.includes('进取率 (≥110)')) throw new Error('进取率未改');
+  if (html.includes('合格率 (≥90)') || html.includes('优秀率 (≥100)')) throw new Error('旧口径残留');
 });
 
 console.log('\n=== v2.17.30 学分全局同步（所有学分模块一个系统） ===');
@@ -290,11 +297,11 @@ t('撤销/恢复分值同步：afterOpStateChange 统一走 reconcile + saveData
 });
 
 console.log('\n=== 版本号 ===');
-t('v2.17.30 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
-  if (!/login-version">v2\.17\.30</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.30 ·/.test(html)) throw new Error('侧栏版本号未更新');
+t('v2.18.0 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
+  if (!/login-version">v2\.18\.0</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
   const sw = fs.readFileSync('sw.js', 'utf8');
-  if (!sw.includes('class-manager-v2.17.30')) throw new Error('SW CACHE_NAME 未更新');
+  if (!sw.includes('class-manager-v2.18.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

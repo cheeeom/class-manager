@@ -1933,7 +1933,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.31</div>
+      <div class="login-version">v2.18.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2052,7 +2052,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.31 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.18.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2159,7 +2159,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="tabs" id="studentTabs">
           <div class="tab active" data-tab="list">学生列表</div>
           <div class="tab" data-tab="import">批量导入</div>
-          <div class="tab" data-tab="alerts" title="学分预警中心（v2.17.31 自学分银行迁入）">🚨 预警中心</div>
+          <div class="tab" data-tab="alerts" title="学分预警中心（v2.18.0 自学分银行迁入）">🚨 预警中心</div>
           <div class="tab-indicator"></div>
         </div>
 
@@ -2760,7 +2760,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.17.31</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.0</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
@@ -3954,7 +3954,7 @@ function refreshCreditViews(){
   if(bank && bank.classList.contains('active')) safe(window.renderBankPage);
   safe(window.updateCbAlertChip);                               // v2.17.30 预警角标
 }
-/* 学分档位小章（学分记录页搜索下拉用；v2.17.31 与 cbCreditBadge 同构：
+/* 学分档位小章（学分记录页搜索下拉用；v2.18.0 与 cbCreditBadge 同构：
    ≥200 巅峰 / 150-199 卓越 / 110-149 进取 / 60-109 无章 / <60 预警档章） */
 function creditLevel(credit){
   var c = Number(credit);
@@ -4050,7 +4050,7 @@ let state = {
       同源，天然免疫「本地撤销/云合并/校准回退」类漂移（v2.17.5/2.17.7 反例教训）。
    ② 兑换商店：用币兑换特权券（免迟到券/共进午餐/一日班长/电影点播/劳动豁免/同桌一日），
       兑换即扣币并生成券包条目；班主任核销(使用)/退还(退币)闭环。
-   ③ 月度结算（手动按钮，每月一次）：v2.17.31 起按「当月净增分值」五档定档发奖励 ——
+   ③ 月度结算（手动按钮，每月一次）：v2.18.0 起按「当月净增分值」五档定档发奖励 ——
       +10 进取 / +20 勤学 / +30 优秀 / +50 卓越 / ≥+70 巅峰（封顶送全目录上架券各 1 张）；净增 <10（含 0/负）无奖励。
    ④ 阶梯预警：50-59 通报家长(黄) / 40-49 手抄《学生手册》(橙) / 30-39 请家长来校(红) /
       <30 停课回家教育(深红)；同档同月一条、恶化才升级；回升≥60 自动办结；首页角标提醒。
@@ -4070,7 +4070,7 @@ const CB_STORE = [
 ];
 // 商品类别（自定义商品可选其一，也可自填新类别）
 const CB_CATS = ['特权', '餐饮', '娱乐', '学习', '实物', '其他'];
-/* v2.17.31 月度阶梯奖励（老板拍板重设：按「当月净增分值」结算，5 档递进）
+/* v2.18.0 月度阶梯奖励（老板拍板重设：按「当月净增分值」结算，5 档递进）
    当月净增 = 当月内发生且未撤销的加减分净额（只看当月表现，历史累计不参与定档）。
    t1 进取 +10 ｜ t2 勤学 +20 ｜ t3 优秀 +30 ｜ t4 卓越 +50 ｜ t5 巅峰 ≥+70（封顶）
    t5 一次给全目录上架券各 1 张；t4 及以下按档内券单发（由少到多递进）。
@@ -4346,7 +4346,7 @@ function cbMonthKey(d){
    ≥200 Lv3 巅峰（封顶）｜150-199 Lv2 卓越｜110-149 Lv1 进取｜60-109 常规（无奖励）｜<60 预警区（无奖励）
    返回 { key, label, min, coin 奖励币, coupons 奖励券 key 列表 }。
    Lv3 的券 = 当前目录全部上架商品各 1 张（老师新增的自定义商品也包含，真正的「巅峰礼包」）。 */
-/* v2.17.31 净增结算定档（纯函数）：入参 = 当月净增分值，返回五档之一或 none。
+/* v2.18.0 净增结算定档（纯函数）：入参 = 当月净增分值，返回五档之一或 none。
    ≥70 t5 巅峰 ｜ 50-69 t4 卓越 ｜ 30-49 t3 优秀 ｜ 20-29 t2 勤学 ｜ 10-19 t1 进取 ｜ <10 无奖励 */
 function cbSettleTier(net){
   var n = Number(net);
@@ -4362,7 +4362,7 @@ function cbMonthOfTs(ts){
   if(isNaN(t.getTime())) t = new Date();
   return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0');
 }
-/* v2.17.31 当月净增分值（纯函数）：Σ 当月发生且未撤销 ops 的净额。
+/* v2.18.0 当月净增分值（纯函数）：Σ 当月发生且未撤销 ops 的净额。
    op.time 为该笔操作的发生时间（撤销只是打 state='revoked' 标记，原 time 保留）；
    当月内加分又撤销 → 净额自然回落。无时间戳的老记录不参与当月统计。 */
 function cbMonthNetOf(sid, month, ops){
@@ -4474,18 +4474,18 @@ function cbUseVoucher(sid, vid){
   v.usedAt = Date.now();
   showToast('已核销：' + v.name + '（' + cbSname(sid) + '）', 'success');
 }
-/* 手动「结算本月」：全体按当月净增分值定档发月度奖励（v2.17.31 净增五档）。返回发放条数 */
+/* 手动「结算本月」：全体按当月净增分值定档发月度奖励（v2.18.0 净增五档）。返回发放条数 */
 function cbDoSettle(){
   var b = cbBankSafe();
   var month = cbMonthKey();
   if(b.lastSettleMonth === month) return 0;
   var n = 0;
-  // v2.17.31 月度统计（写 settleHist 快照）：counts/coins 按五档 t1..t5，vouchers 为实发券总张数
+  // v2.18.0 月度统计（写 settleHist 快照）：counts/coins 按五档 t1..t5，vouchers 为实发券总张数
   var stat = { month: month, at: Date.now(), net: 1,
                counts: { t1: 0, t2: 0, t3: 0, t4: 0, t5: 0 },
                coins: { t1: 0, t2: 0, t3: 0, t4: 0, t5: 0 }, vouchers: 0 };
   (state.students || []).forEach(function(s){
-    var net = cbMonthNetOf(s.id, month);            // v2.17.31 当月净增定档
+    var net = cbMonthNetOf(s.id, month);            // v2.18.0 当月净增定档
     var t = cbSettleTier(net);
     var coupons = t.coupons;
     if(t.key === 't5') coupons = cbSettleLv3Coupons();   // 封顶档：全目录各 1 张
@@ -4515,7 +4515,7 @@ function cbDoSettle(){
   b.lastSettleMonth = month;
   if(!b.createdAt) b.createdAt = Date.now();
   if(n > 0){
-    // v2.17.31 写月度统计快照（同月覆盖，留最新一次结算；有奖励才建档）
+    // v2.18.0 写月度统计快照（同月覆盖，留最新一次结算；有奖励才建档）
     var hist = b.settleHist = Array.isArray(b.settleHist) ? b.settleHist : [];
     var idx = hist.findIndex(function(h){ return h && h.month === month; });
     if(idx >= 0) hist.splice(idx, 1);
@@ -4739,7 +4739,7 @@ function cbLedgerPickSid(id){ cbLedgerSid = String(id); renderBankPage(); }
 function cbLedgerSidClear(){ cbLedgerSid = ''; renderBankPage(); }
 function cbLedgerTypeTo(v){ cbLedgerType = v || ''; renderBankPage(); }
 /* ============ v2.17.30 预警中心：按状态筛选 ============ */
-function cbAlertStatusTo(s){ cbAlertStatus = s || ''; cbRenderStudentAlerts(); }   // v2.17.31 迁学生管理页
+function cbAlertStatusTo(s){ cbAlertStatus = s || ''; cbRenderStudentAlerts(); }   // v2.18.0 迁学生管理页
 function cbCopyText(txt){
   var done = function(){ showToast('已复制，可直接粘贴发送', 'success'); };
   if(navigator.clipboard && navigator.clipboard.writeText){
@@ -4957,7 +4957,7 @@ function cbPersist(){
   updateCbAlertChip();
   var p = document.getElementById('page-bank');
   if(p && p.classList.contains('active')) renderBankPage();
-  // v2.17.31 学生管理页预警页签同步刷新（预警操作/云同步后状态即时可见）
+  // v2.18.0 学生管理页预警页签同步刷新（预警操作/云同步后状态即时可见）
   var sp = document.getElementById('page-students');
   var at = document.getElementById('tab-alerts');
   if(sp && sp.classList.contains('active') && at && at.style.display !== 'none') cbRenderStudentAlerts();
@@ -4968,7 +4968,7 @@ function cbPersist(){
 function cbDoSettleUI(){
   var month = cbMonthKey();
   if((state.creditBank && state.creditBank.lastSettleMonth) === month){ showToast(month + ' 已结算过，下月再结算', 'warning'); return; }
-  // v2.17.31 预览：当月净增分布
+  // v2.18.0 预览：当月净增分布
   var nets = (state.students || []).map(function(s){ return { name: s.name, net: cbMonthNetOf(s.id, month), s: s }; });
   nets.sort(function(a, b){ return b.net - a.net; });
   var preview = nets.filter(function(x){ return x.net >= 10; }).slice(0, 8)
@@ -5014,7 +5014,7 @@ function cbRefundVoucherUI(sid, vid){
 function cbAlertAct(sid, aid, to){
   cbAlertMark(sid, aid, to);
   cbPersist();
-  cbRenderStudentAlerts();   // v2.17.31 学生管理页预警页签操作后即时刷新
+  cbRenderStudentAlerts();   // v2.18.0 学生管理页预警页签操作后即时刷新
 }
 function cbAlertCopy(sid, aid){
   var t = cbAlertDraft(sid, aid);
@@ -5025,7 +5025,7 @@ function cbLevelBadge(level, label){
   var c = CB_LEVEL_COLORS[level] || '#888';
   return '<span style="display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;color:#fff;background:' + c + '">' + (label || level) + '</span>';
 }
-/* v2.17.31 学分展示徽章（全站统一，100 制总分分档）：
+/* v2.18.0 学分展示徽章（全站统一，100 制总分分档）：
    <60 沿用预警档深底白字（黄/橙/红/深红，血统一致、最醒目=最危险）
    60-109 常规浅底蓝灰（不喧宾）；110-149 进取琥珀橙 +「进取」；150-199 卓越金黄 +「卓越」；
    ≥200 巅峰红金渐变 +「巅峰 👑」。徽章统一浅底深字展示分值，颜色分级醒目但不影响数字阅读。 */
@@ -5090,7 +5090,7 @@ function renderBankPage(){
   var tabs = [
     { k:'overview', t:'🏦 概览' }, { k:'store', t:'🛒 兑换商店' }, { k:'vouchers', t:'🎟 券包与核销' },
     { k:'ledger', t:'🧾 币流水' }
-    // v2.17.31 预警中心已迁至「学生管理 → 🚨 预警中心」页签（顶部 🚨 角标直达）
+    // v2.18.0 预警中心已迁至「学生管理 → 🚨 预警中心」页签（顶部 🚨 角标直达）
   ];
   var tabHtml = '<div class="tabs" id="cbBankTabs" style="margin-bottom:14px;max-width:100%;overflow-x:auto">';
   tabs.forEach(function(tb){
@@ -5126,7 +5126,7 @@ function renderBankPage(){
         '净增 &lt;10（含 0 / 负）：无奖励',
         '<span style="color:var(--text-muted)">只看当月表现：当月加减净变化 ≥10 起奖，撤销的不算，历史累计分不参与定档。币永久累计可自由兑换；奖励券当月有效，跨月自动失效留痕</span>'
       ]).map(function(x){ return '<div>· ' + x + '</div>'; }).join('');
-    // v2.17.31 月度结算历史统计（settleHist 快照，最新在前；旧三档记录按 lv1→进取/lv2→卓越/lv3→巅峰 兼容映射）
+    // v2.18.0 月度结算历史统计（settleHist 快照，最新在前；旧三档记录按 lv1→进取/lv2→卓越/lv3→巅峰 兼容映射）
     var hist = (bank.settleHist || []).slice(0, 12);
     var hc = function(h, k){
       if(!h || !h.counts) return 0;
@@ -6508,7 +6508,7 @@ document.querySelectorAll('#studentTabs .tab').forEach(tab=>{
     switchStudentTab(tab.dataset.tab);
   });
 });
-/* v2.17.31 学生管理页页签切换（list / import / alerts 通用），切预警页签时实时渲染预警中心 */
+/* v2.18.0 学生管理页页签切换（list / import / alerts 通用），切预警页签时实时渲染预警中心 */
 function switchStudentTab(tabName){
   var t = tabName || 'list';
   document.querySelectorAll('#studentTabs .tab').forEach(x=>x.classList.remove('active'));
@@ -6524,9 +6524,9 @@ function switchStudentTab(tabName){
     var el = document.getElementById(map[k]);
     if(el) el.style.display = (k === t) ? '' : 'none';
   });
-  if(t === 'alerts') cbRenderStudentAlerts();   // v2.17.31 预警中心迁入学生管理页
+  if(t === 'alerts') cbRenderStudentAlerts();   // v2.18.0 预警中心迁入学生管理页
 }
-/* v2.17.31 预警中心（学生管理页 🚨 页签渲染）：状态筛选 chips + 预警卡 + 档位图例。
+/* v2.18.0 预警中心（学生管理页 🚨 页签渲染）：状态筛选 chips + 预警卡 + 档位图例。
    数据源 state.creditBank.alerts（v2.17.26 迁出学分银行前的同款逻辑整体移植） */
 function cbRenderStudentAlerts(){
   var host = document.getElementById('tab-alerts');
@@ -6568,7 +6568,7 @@ function cbRenderStudentAlerts(){
     '<br>回升至 ≥' + CB_ALERT_MIN + ' 分自动办结留痕；「通知草稿」一键生成致家长文案。</div>' +
     (aRows ? aRows : cbEmpty(allAlerts.length === 0 ? '暂无预警 🎉 全员表现分均 ≥ ' + CB_ALERT_MIN + ' 分' : '该状态下暂无预警'));
 }
-/* v2.17.31 顶部 🚨 预警角标 → 直接跳学生管理页「预警中心」页签 */
+/* v2.18.0 顶部 🚨 预警角标 → 直接跳学生管理页「预警中心」页签 */
 function goStudentAlerts(){
   navigateTo('students');
   switchStudentTab('alerts');
@@ -6670,7 +6670,7 @@ function toggleSelectAll(el){
   });
 }
 
-// v2.17.31 行内快速加减分按钮（+1/+5/-1/-5）已整体移除（防误触，学分操作统一走右上角「批量操作」/学分记录页）
+// v2.18.0 行内快速加减分按钮（+1/+5/-1/-5）已整体移除（防误触，学分操作统一走右上角「批量操作」/学分记录页）
 function deleteStudent(id){
   const student = state.students.find(s=>s.id===id);
   if(!student) return;
@@ -9042,9 +9042,9 @@ function drawRangeChart(credits){
     return;
   }
 
-  // v2.17.31：档位语言已统一为五档（预警/常规/进取/卓越/巅峰）
+  // v2.18.0：档位语言已统一为五档（预警/常规/进取/卓越/巅峰）
   // 旧分段 0-10/11-20/…/41+ 在 100 分制下会把全班塞进同一根柱子，等于没有信息。
-  // v2.17.31：档位对齐预警 + 结算五档语言（<60 预警 / 60-109 常规 / 110-149 进取 / 150-199 卓越 / ≥200 巅峰）
+  // v2.18.0：档位对齐预警 + 结算五档语言（<60 预警 / 60-109 常规 / 110-149 进取 / 150-199 卓越 / ≥200 巅峰）
   const buckets = [
     {label:'预警', min:-Infinity, max:60,        color1:'#B42318', color2:'#D98A76'},
     {label:'常规', min:60,        max:110,       color1:'#3B6E8F', color2:'#9CC0D9'},

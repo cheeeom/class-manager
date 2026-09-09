@@ -27,13 +27,13 @@ function extractFn(name) {
   return eval('(' + buf.join('\n') + ')');
 }
 // 模块级常量
-const CB_SETTLE_COINS = eval('(' + (html.match(/const CB_SETTLE_COINS = (\{[^\n]*\});/) || [, '{}'])[1] + ')');
 const CB_ALERT_MIN = 60;
+// v2.18.0 净增五档（旧 CB_SETTLE_COINS / CB_SETTLE_LV1/LV2_COUPONS 已移除）
+const CB_NET_TIERS = eval('(' + (html.match(/const CB_NET_TIERS = (\[[\s\S]*?\n\]);/) || [, '[]'])[1] + ')');
 const CB_STORE = eval('(' + (html.match(/const CB_STORE = (\[[\s\S]*?\n\]);/) || [, '[]'])[1] + ')');
 const CB_ALERT_TIERS = eval('(' + (html.match(/const CB_ALERT_TIERS = (\[[\s\S]*?\n\]);/) || [, '[]'])[1] + ')');
 const CB_LEVEL_COLORS = eval('(' + (html.match(/const CB_LEVEL_COLORS = (\{[^\n]*\});/) || [, '{}'])[1] + ')');
-const CB_SETTLE_LV1_COUPONS = eval('(' + (html.match(/const CB_SETTLE_LV1_COUPONS = (\[[^\n]*\]);/) || [, '[]'])[1] + ')');
-const CB_SETTLE_LV2_COUPONS = eval('(' + (html.match(/const CB_SETTLE_LV2_COUPONS = (\[[^\n]*\]);/) || [, '[]'])[1] + ')');
+const tierCoin = function (k) { const t = CB_NET_TIERS.find(function (x) { return x.key === k; }); return t ? t.coin : 0; };
 
 var state = { className: '', classNameFull: '', students: [], operations: [], creditBank: null };
 const cbDefaultBank = extractFn('cbDefaultBank');
@@ -53,6 +53,8 @@ const cbGiveVoucher = extractFn('cbGiveVoucher');
 const cbSname = extractFn('cbSname');
 const cbPushLedger = extractFn('cbPushLedger');
 const cbDoSettle = extractFn('cbDoSettle');
+const cbMonthNetOf = extractFn('cbMonthNetOf');   // v2.18.0 cbDoSettle 闭包依赖
+const cbMonthOfTs = extractFn('cbMonthOfTs');     // cbMonthNetOf 闭包依赖
 const cbBankProfileOf = extractFn('cbBankProfileOf');
 const cbTierOf = extractFn('cbTierOf');
 const cbLedgerTypeName = extractFn('cbLedgerTypeName');
@@ -65,10 +67,10 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('版本三处同步 = v2.17.30（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.17\.30</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.30 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.17.30')) throw new Error('SW CACHE_NAME 未更新');
+t('版本三处同步 = v2.18.0（登录页/侧栏/SW CACHE_NAME）', () => {
+  if (!/login-version">v2\.18\.0</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.18.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== settleHist 数据层（月度结算统计快照）===');
@@ -84,13 +86,22 @@ t('cbNormalizeShape 保留老数据 settleHist', () => {
   const n = cbNormalizeShape({ settleHist: [{ month: '2026-08', at: 1 }] });
   eq(n.settleHist.length, 1);
 });
-t('cbDoSettle 写快照：各档人数/实发币/发券 + 同月不重复建档', () => {
+t('cbDoSettle 写快照（v2.18.0 净增五档）：各档人数/实发币/发券 + 同月不重复建档', () => {
+  const now = Date.now();
   state = freshState([
-    { id: 1, name: '甲', credit: 230 },   // lv3：币 + 全目录券
-    { id: 2, name: '乙', credit: 170 },   // lv2：币 + 3 券
-    { id: 3, name: '丙', credit: 120 },   // lv1：币 + 1 券
-    { id: 4, name: '丁', credit: 100 },   // 常规区
-    { id: 5, name: '戊', credit: 42 }     // 预警区
+    { id: 1, name: '甲', credit: 100 },   // 当月净增 +80 → t5 巅峰
+    { id: 2, name: '乙', credit: 100 },   // +60 → t4 卓越
+    { id: 3, name: '丙', credit: 100 },   // +35 → t3 优秀
+    { id: 4, name: '丁', credit: 100 },   // +22 → t2 勤学
+    { id: 5, name: '戊', credit: 100 },   // +15 → t1 进取
+    { id: 6, name: '己', credit: 100 }    // +5  → 无奖励（不进快照）
+  ], [
+    { id: 1, studentId: 1, amount: 80, time: now },
+    { id: 2, studentId: 2, amount: 60, time: now },
+    { id: 3, studentId: 3, amount: 35, time: now },
+    { id: 4, studentId: 4, amount: 22, time: now },
+    { id: 5, studentId: 5, amount: 15, time: now },
+    { id: 6, studentId: 6, amount: 5,  time: now }
   ]);
   const month = cbMonthKey();
   cbDoSettle();
@@ -98,10 +109,14 @@ t('cbDoSettle 写快照：各档人数/实发币/发券 + 同月不重复建档'
   eq(hist.length, 1, '建档一条');
   const h = hist[0];
   eq(h.month, month);
-  eq(h.counts.lv3, 1); eq(h.counts.lv2, 1); eq(h.counts.lv1, 1);
-  eq(h.coins.lv3, CB_SETTLE_COINS.lv3, 'lv3 实发币 = 1 人 × 档额');
-  eq(h.coins.lv2, CB_SETTLE_COINS.lv2);
-  eq(h.coins.lv1, CB_SETTLE_COINS.lv1);
+  eq(h.net, 1, '新快照带 net:1 标记');
+  eq(h.counts.t1, 1); eq(h.counts.t2, 1); eq(h.counts.t3, 1); eq(h.counts.t4, 1); eq(h.counts.t5, 1);
+  eq(h.coins.t5, tierCoin('t5'), 't5 实发币 = 1 人 × 档额');
+  eq(h.coins.t4, tierCoin('t4'));
+  eq(h.coins.t3, tierCoin('t3'));
+  eq(h.coins.t2, tierCoin('t2'));
+  eq(h.coins.t1, tierCoin('t1'));
+  eq(h.vouchers, 6 + 5 + 4 + 3 + 1, '实发券：全目录6 + t4五 + t3四 + t2三 + t1一');
   ok(h.at > 0);
   cbDoSettle();
   eq(state.creditBank.settleHist.length, 1, '同月重复结算不追加建档');
