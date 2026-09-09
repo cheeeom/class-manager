@@ -668,7 +668,7 @@ tbody tr.highlight{
   box-shadow:0 0 0 3px rgba(166,58,43,0.1);
 }
 .modal textarea{min-height:120px;resize:vertical;font-family:monospace}
-/* v2.17.25 弹窗头部统一：.modal-header/.modal-close 此前只有暗色 border-color 一行、无基础样式，
+/* v2.17.26 弹窗头部统一：.modal-header/.modal-close 此前只有暗色 border-color 一行、无基础样式，
    × 键裸排到标题下方左缘 → 档案编辑/成长记录/工作留痕/荣誉四个弹窗「关闭键贴左上、观感破碎」。
    统一为 标题居左 + 圆形描边关闭键居右（与 .panel-close 同设计语言，hover 变红轻旋） */
 .modal-header{display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -1463,7 +1463,7 @@ html.dark .honor-level.hl-5{color:#D9A441}
 .tl-badge.tl-contact{background:rgba(185,106,31,0.12);color:var(--orange)}
 .tl-badge.tl-other{background:rgba(126,119,106,0.12);color:var(--text-muted)}
 .tl-body{flex:1;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px}
-/* v2.17.25 档案详情新版式：头部概要 + 德育记录(学分变动)/成长记录/学生荣誉 分卡排版 */
+/* v2.17.26 档案详情新版式：头部概要 + 德育记录(学分变动)/成长记录/学生荣誉 分卡排版 */
 .pf-summary{display:flex;align-items:center;gap:16px;padding:16px 18px;
   background:linear-gradient(135deg,rgba(166,58,43,.055),rgba(201,162,39,.07));
   border:1px solid var(--border);border-radius:14px;margin-bottom:6px;flex-wrap:wrap}
@@ -1895,7 +1895,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .pub-empty{color:var(--text-muted);font-size:13px;padding:14px 4px;text-align:center}
 .pub-fold{cursor:pointer;color:var(--text-muted);font-size:12px;margin-top:2px;display:inline-block}
 .pub-fold:hover{color:var(--primary)}
-/* v2.17.25 学分银行：类别筛选胶囊 / 搜索匹配下拉 */
+/* v2.17.26 学分银行：类别筛选胶囊 / 搜索匹配下拉 */
 .cb-chip{padding:5px 14px;border-radius:999px;font-size:13px;cursor:pointer;color:var(--text-secondary);background:var(--bg-secondary);border:1px solid transparent;transition:all .15s;user-select:none;white-space:nowrap}
 .cb-chip:hover{color:var(--primary)}
 .cb-chip.on{background:var(--primary);color:#fff;font-weight:600}
@@ -1947,7 +1947,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.17.25</div>
+      <div class="login-version">v2.17.26</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2066,7 +2066,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.17.25 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.17.26 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2345,7 +2345,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <div class="credit-op-grid">
             <div class="credit-op-main">
               <div class="toolbar">
-                <!-- v2.17.25 布局：姓名搜索 → 原因选择器（固定紧邻搜索框右侧）→ 自定义分值 → 应用
+                <!-- v2.17.26 布局：姓名搜索 → 原因选择器（固定紧邻搜索框右侧）→ 自定义分值 → 应用
                      去掉了原「姓名右侧」的 ±1~±5 快捷预设——原因目录每项自带分值，选原因即自动带出，不再需要盲按分值 -->
                 <div class="search-select-wrapper" style="position:relative;z-index:10;max-width:200px">
                   <input type="text" id="creditStudentInput" placeholder="输入姓名搜索..." autocomplete="off"
@@ -2578,7 +2578,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="card" style="padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap" id="honorStats"></div>
         <div id="honorList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px"></div>
       </div>
-      <!-- v2.17.25 学分银行：内容由 renderBankPage() 整页渲染（教师专属，班委白名单不含 page-bank） -->
+      <!-- v2.17.26 学分银行：内容由 renderBankPage() 整页渲染（教师专属，班委白名单不含 page-bank） -->
       <div class="page" id="page-bank"></div>
 <div class="page" id="page-notices">
         <div class="tabs" id="noticeTabs">
@@ -2781,7 +2781,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
   </div>
 </div>
 
-<!-- v2.17.25 Modal: 学分银行 · 商品详情 -->
+<!-- v2.17.26 Modal: 学分银行 · 商品详情 -->
 <div class="modal-overlay" id="cbItemDetailModal">
   <div class="modal" style="width:94%;max-width:520px">
     <div class="modal-header">
@@ -2796,7 +2796,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
   </div>
 </div>
 
-<!-- v2.17.25 Modal: 学分银行 · 商品编辑 / 新增 -->
+<!-- v2.17.26 Modal: 学分银行 · 商品编辑 / 新增 -->
 <div class="modal-overlay" id="cbItemEditorModal">
   <div class="modal" style="width:94%;max-width:560px">
     <div class="modal-header">
@@ -2843,6 +2843,21 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       <button class="btn btn-outline" id="cbItemEditDel" style="color:#c53030;border-color:#c53030">删除商品</button>
       <button class="btn btn-outline" id="cbItemEditToggle">下架（商店不再显示）</button>
       <button class="btn btn-primary" onclick="cbSaveItemForm()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- v2.17.26 Modal: 学分银行 · 学生银行档案 -->
+<div class="modal-overlay" id="cbBankProfileModal">
+  <div class="modal" style="width:94%;max-width:780px">
+    <div class="modal-header">
+      <h3 style="margin:0" id="cbBankProfileTitle">🧑🎓 银行档案</h3>
+      <button class="modal-close" onclick="closeModal('cbBankProfileModal')">×</button>
+    </div>
+    <div class="modal-body" id="cbBankProfileBody" style="max-height:70vh;overflow-y:auto"></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="cbProfileRefresh()">🔄 刷新</button>
+      <button class="btn btn-outline" onclick="closeModal('cbBankProfileModal')">关闭</button>
     </div>
   </div>
 </div>
@@ -3617,7 +3632,7 @@ function flattenReasonCatalog(cat){
   return out;
 }
 // 目录结构并集（方向/大类并集，组内原因去重保序）。用于多设备合并：两边新增都保留；
-// v2.17.25 起删除项由 smartMergeData 中 catDeleted 墓碑剔除，不再复活。
+// v2.17.26 起删除项由 smartMergeData 中 catDeleted 墓碑剔除，不再复活。
 function mergeReasonCatalog(a, b){
   var out = cloneReasonCatalog(a || {});
   Object.keys(b || {}).forEach(function(dir){
@@ -3631,7 +3646,7 @@ function mergeReasonCatalog(a, b){
   });
   return out;
 }
-// ---- v2.17.25 删除墓碑：目录删除要真正持久（本地刷新 / 云合并都不复活） ----
+// ---- v2.17.26 删除墓碑：目录删除要真正持久（本地刷新 / 云合并都不复活） ----
 // 删方向/大类/原因时记入 state.catDeleted（随 CLOUD_SYNC_FIELDS 云同步）；
 // 加载与云端合并后统一 applyCatTombstones 剔除。重新添加同名项会清除对应墓碑。
 function cloneCatDeleted(t){
@@ -3855,7 +3870,7 @@ function applyCreditDelta(student, amount, reason, opts){
     if(cmi.post) op.byPost = cmi.post;
   }
   state.operations.unshift(op);
-  // v2.17.25 学分银行双轨：加分自动等额发币由「币=Σ有效加分流水+银行流水」派生，
+  // v2.17.26 学分银行双轨：加分自动等额发币由「币=Σ有效加分流水+银行流水」派生，
   // 此处无需额外记账——撤销→流水退出有效集→币自动回退；恢复→自动补回（与 credit 同源自愈）
   return op;
 }
@@ -3869,7 +3884,7 @@ function revertCreditOp(student, op){
 /* 学分变更后统一刷新所有展示学分的视图。
    此前 applyCredit / applyCreditBulk / undoLastOp 只刷 renderCreditsPage，
    学生管理模块的表格不刷新 —— 这是「分数不一致」的直接观感来源。
-   v2.17.25：公示页（学分榜/进步榜/零扣分榜/概览统计/四个图表）纳入统一学分刷新——
+   v2.17.26：公示页（学分榜/进步榜/零扣分榜/概览统计/四个图表）纳入统一学分刷新——
    加分/减分/撤销/恢复/校快照后，只要公示页正开着（常驻/投屏），进步榜等立即同步，
    不再出现「同学加了分，进步榜/学分榜还是老样子」。 */
 function refreshCreditViews(){
@@ -3887,11 +3902,11 @@ function refreshCreditViews(){
   if(dash && dash.classList.contains('active')) safe(window.renderDashboard);
   var ana = document.getElementById('page-analytics');
   if(ana && ana.classList.contains('active')) safe(window.renderAnalytics);
-  var pub = document.getElementById('page-publicity');          // v2.17.25 公示页同步
+  var pub = document.getElementById('page-publicity');          // v2.17.26 公示页同步
   if(pub && pub.classList.contains('active')) safe(window.renderPublicity);
-  var bank = document.getElementById('page-bank');              // v2.17.25 学分银行页同步（币随加分/撤销自动联动）
+  var bank = document.getElementById('page-bank');              // v2.17.26 学分银行页同步（币随加分/撤销自动联动）
   if(bank && bank.classList.contains('active')) safe(window.renderBankPage);
-  safe(window.updateCbAlertChip);                               // v2.17.25 预警角标
+  safe(window.updateCbAlertChip);                               // v2.17.26 预警角标
 }
 /* 学分等级：制度第六章（≥100 优秀 / 90-100 合格 / 80-90 一般 / <80 不合格） */
 function creditLevel(credit){
@@ -3937,13 +3952,13 @@ const DEFAULT_COMMITTEE = {banzhang:null, fubanzhang:null, jilv:null, xuexi:null
 
 let state = {
   className: '高一（1）班',
-  classNameFull: '',   // v2.17.25 班级全称（荣誉证书等正式文书用；留空则回退 className）
+  classNameFull: '',   // v2.17.26 班级全称（荣誉证书等正式文书用；留空则回退 className）
   students: [],
   operations: [],
   reasons: [...defaultReasons],
   reasonScores: {},
   reasonCatalog: defaultReasonCatalog(),   // v2.17.0 可编辑原因目录（模板 = REASON_CATALOG）
-  catDeleted: { dirs: [], groups: [], reasons: [] },   // v2.17.25 原因目录删除墓碑（刷新/云合并均不复活删除项）
+  catDeleted: { dirs: [], groups: [], reasons: [] },   // v2.17.26 原因目录删除墓碑（刷新/云合并均不复活删除项）
   sortDir: 'desc',
   selectedStudents: new Set(),
   nextId: 1,
@@ -3972,12 +3987,13 @@ let state = {
   notices: { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 },
   creditBank: { settings:{ autoCoin:true, alertEnabled:true }, wallets:{}, ledger:[], nextLedgerId:1,
                 alerts:[], nextAlertId:1, nextVoucherId:1, lastSettleMonth:'', createdAt:0,
-                store:{ items:[], nextItemId:1 } },  // v2.17.25 商店目录（老师可增删改；items 空时首次自动种入预设 6 券）
+                settleHist: [],  // v2.17.26 月度结算统计快照（每次结算写一条，按月去重）
+                store:{ items:[], nextItemId:1 } },  // v2.17.26 商店目录（老师可增删改；items 空时首次自动种入预设 6 券）
   wipeAt: 0,  // v2.11.3 数据重置时间戳：清空数据时更新，其他设备拉取到更大的 wipeAt 会强制清空对齐
   schemaVer: 2   // 原因目录/分值表 schema 版本：<1 补预设原因、<2 去「违禁品」重名项（v2.17.8），之后尊重班主任增删
 };
 
-/* ==================== v2.17.25 学分银行（双轨账本） ====================
+/* ==================== v2.17.26 学分银行（双轨账本） ====================
    设计（老板确认版）：
    ① 双轨：表现分 credit 照旧；学分币 = 「Σ有效加分流水」+「银行流水」派生 ——
       任何加分自动等额发币；扣分不动币；撤销加分 → 该流水退出有效集 → 币自动回退；
@@ -3991,10 +4007,10 @@ let state = {
       <30 停课回家教育(深红)；同档同月一条、恶化才升级；回升≥60 自动办结；首页角标提醒。
    ⑤ 教师专属：page-bank 不在班委白名单（导航自动隐藏 + navigateTo 二次拦截）。 */
 
-/* v2.17.25 兑换商店商品目录（默认种子）。老师可在商店页增删改：
+/* v2.17.26 兑换商店商品目录（默认种子）。老师可在商店页增删改：
    改价格/月限/描述、下架（on:false）、新增自定义商品（builtin:false）。
    实时的、老师改过的目录存在 state.creditBank.store.items（随云同步），
-   本常量只在「首次进入 v2.17.25 且无目录」时作为种子写入一次。 */
+   本常量只在「首次进入 v2.17.26 且无目录」时作为种子写入一次。 */
 const CB_STORE = [
   { key:'lateFree',   icon:'🎟', name:'免迟到券',        cost:10, limit:1, cat:'特权', desc:'免除一次迟到扣分',      detail:'发生迟到时出示本券，由班主任核销，该次迟到不计扣分。每人每月限购 1 张。' },
   { key:'lunch',      icon:'🍚', name:'与班主任共进午餐', cost:30, limit:2, cat:'餐饮', desc:'预约一次食堂共进午餐',  detail:'与班主任预约时间，到食堂共进午餐一次。可聊学习、生活、班级事务。每人每月限购 2 张。' },
@@ -4005,7 +4021,7 @@ const CB_STORE = [
 ];
 // 商品类别（自定义商品可选其一，也可自填新类别）
 const CB_CATS = ['特权', '餐饮', '娱乐', '学习', '实物', '其他'];
-/* v2.17.25 月度阶梯奖励（老板拍板：110 起奖 / 200 封顶 / 3 档 / 币+券双轨）
+/* v2.17.26 月度阶梯奖励（老板拍板：110 起奖 / 200 封顶 / 3 档 / 币+券双轨）
    Lv1 进取 110-149 ｜ Lv2 卓越 150-199 ｜ Lv3 巅峰 ≥200（封顶，一次给全目录各 1 张）
    60-109 常规区（100 为基础分）无奖励；<60 预警区无奖励并触发阶梯预警。 */
 const CB_SETTLE_COINS = { lv1: 20, lv2: 50, lv3: 120 };
@@ -4025,9 +4041,9 @@ const CB_LEVEL_COLORS = { yellow:'#b7791f', orange:'#c05621', red:'#c53030', dar
 function cbDefaultBank(){
   return { settings:{ autoCoin:true, alertEnabled:true }, wallets:{}, ledger:[], nextLedgerId:1,
            alerts:[], nextAlertId:1, nextVoucherId:1, lastSettleMonth:'', createdAt:0,
-           store:{ items:[], nextItemId:1 } };
+           settleHist: [], store:{ items:[], nextItemId:1 } };
 }
-/* v2.17.25 商品目录：实时的、老师改过的目录存在 state.creditBank.store.items。
+/* v2.17.26 商品目录：实时的、老师改过的目录存在 state.creditBank.store.items。
    首次进入（items 为空）自动种入 CB_STORE 预设 6 券（builtin:true 标记，可改可下架）。
    返回「上架中」的商品（on !== false）。 */
 function cbStoreItems(){
@@ -4057,7 +4073,7 @@ function cbStoreCats(){
   cbStoreItems().forEach(function(it){ if(it && it.cat) set[it.cat] = 1; });
   return Object.keys(set);
 }
-/* v2.17.25 商品目录增删改：
+/* v2.17.26 商品目录增删改：
    - 新增：obj 无 key 或 key 不在目录 → 新建（key='c'+自增，builtin:false）
    - 编辑：key 命中 → 覆盖 name/icon/cat/cost/limit/desc/detail/on，保留 builtin
    已发出的券自带 name/icon 快照，改价改名不会让历史券显示错乱。 */
@@ -4120,6 +4136,7 @@ function cbBankSafe(){
   b.nextVoucherId = Number(b.nextVoucherId) || 1;
   b.lastSettleMonth = b.lastSettleMonth || '';
   b.createdAt = Number(b.createdAt) || 0;
+  if(!Array.isArray(b.settleHist)) b.settleHist = [];   // v2.17.26 月度结算统计快照
   if(!b.store || typeof b.store !== 'object') b.store = { items: [], nextItemId: 1 };
   if(!Array.isArray(b.store.items)) b.store.items = [];
   b.store.nextItemId = Number(b.store.nextItemId) || 1;
@@ -4137,6 +4154,7 @@ function cbNormalizeShape(b){
   n.nextVoucherId = Number(b && b.nextVoucherId) || 1;
   n.lastSettleMonth = (b && b.lastSettleMonth) || '';
   n.createdAt = Number(b && b.createdAt) || 0;
+  n.settleHist = (b && Array.isArray(b.settleHist)) ? b.settleHist : [];
   n.store = (b && b.store && Array.isArray(b.store.items))
     ? { items: b.store.items, nextItemId: Number(b.store.nextItemId) || 1 }
     : { items: [], nextItemId: 1 };
@@ -4193,7 +4211,7 @@ function cbMergeBanks(localBank, remoteBank){
   m.nextLedgerId = Math.max(l.nextLedgerId, r.nextLedgerId);
   m.nextAlertId = Math.max(l.nextAlertId, r.nextAlertId);
   m.nextVoucherId = Math.max(l.nextVoucherId, r.nextVoucherId);
-  // v2.17.25 商品目录：按 key 并集，同 key 取 upd（最后编辑时间）大者；新增/下架/删除都随云同步
+  // v2.17.26 商品目录：按 key 并集，同 key 取 upd（最后编辑时间）大者；新增/下架/删除都随云同步
   var im = {};
   (l.store && Array.isArray(l.store.items) ? l.store.items : []).forEach(function(it){
     if(it && it.key) im[it.key] = it;
@@ -4210,6 +4228,16 @@ function cbMergeBanks(localBank, remoteBank){
   };
   m.lastSettleMonth = (String(l.lastSettleMonth || '') > String(r.lastSettleMonth || ''))
     ? l.lastSettleMonth : r.lastSettleMonth;
+  // v2.17.26 月度结算统计快照：按月并集，同月取 at（结算时刻）大者
+  var hm = {};
+  (l.settleHist || []).forEach(function(h){ if(h && h.month) hm[h.month] = h; });
+  (r.settleHist || []).forEach(function(h){
+    if(!h || !h.month) return;
+    var lh = hm[h.month];
+    if(!lh || (Number(h.at) || 0) > (Number(lh.at) || 0)) hm[h.month] = h;
+  });
+  m.settleHist = Object.keys(hm).map(function(k){ return hm[k]; })
+    .sort(function(a, b){ return String(b.month).localeCompare(String(a.month)); });
   return m;
 }
 function cbWalletKey(sid){ return String(sid); }
@@ -4259,7 +4287,7 @@ function cbMonthKey(d){
   var t = d ? new Date(d) : new Date();
   return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0');
 }
-/* v2.17.25 月度结算定档（纯函数，3 档 + 无奖励区 + 预警区）：
+/* v2.17.26 月度结算定档（纯函数，3 档 + 无奖励区 + 预警区）：
    ≥200 Lv3 巅峰（封顶）｜150-199 Lv2 卓越｜110-149 Lv1 进取｜60-109 常规（无奖励）｜<60 预警区（无奖励）
    返回 { key, label, min, coin 奖励币, coupons 奖励券 key 列表 }。
    Lv3 的券 = 当前目录全部上架商品各 1 张（老师新增的自定义商品也包含，真正的「巅峰礼包」）。 */
@@ -4303,7 +4331,7 @@ function cbPushLedger(type, sid, delta, item, note, t){
 // 发券（settle 白送 / redeem 商店购）。同人·同券·同源·同月去重防重发
 function cbGiveVoucher(sid, key, source, month, cost, note){
   var b = cbBankSafe();
-  var it = cbStoreItemByKey(key);   // v2.17.25 走实时目录（老师改过名/价也能对上）
+  var it = cbStoreItemByKey(key);   // v2.17.26 走实时目录（老师改过名/价也能对上）
   if(!it) return null;
   var dup = cbVouchers(sid).some(function(v){
     return v.key === key && v.source === source && v.month === month && v.status !== 'refunded';
@@ -4333,7 +4361,7 @@ function cbStoreItemCost(sid, it){
 function cbRedeem(sid, key){
   var s = (state.students || []).find(function(x){ return String(x.id) === String(sid); });
   if(!s){ showToast('请先选择学生', 'warning'); return null; }
-  var it = cbStoreItemByKey(key);   // v2.17.25 实时目录；下架商品不可再兑换
+  var it = cbStoreItemByKey(key);   // v2.17.26 实时目录；下架商品不可再兑换
   if(!it) return null;
   if(it.on === false){ showToast(it.name + ' 已下架，暂不可兑换', 'warning'); return null; }
   var month = cbMonthKey();
@@ -4374,10 +4402,17 @@ function cbDoSettle(){
   var month = cbMonthKey();
   if(b.lastSettleMonth === month) return 0;
   var n = 0;
+  // v2.17.26 月度统计（写 settleHist 快照）：coins 为该档实发币总额（计人头），vouchers 为实发券总张数
+  var stat = { month: month, at: Date.now(), counts: { lv1: 0, lv2: 0, lv3: 0 },
+               coins: { lv1: 0, lv2: 0, lv3: 0 }, vouchers: 0 };
   (state.students || []).forEach(function(s){
     var t = cbSettleTier(Number(s.credit) || 0);
     var coupons = t.coupons;
     if(t.key === 'lv3') coupons = cbSettleLv3Coupons();   // 封顶档：全目录各 1 张
+    if(t.key === 'lv1' || t.key === 'lv2' || t.key === 'lv3'){
+      stat.counts[t.key]++;
+      stat.coins[t.key] += t.coin;
+    }
     if(!coupons || coupons.length === 0){
       if(t.coin > 0){
         cbPushLedger('settle', s.id, t.coin, t.label + '奖', '月度' + t.label + '奖励（' + month + '）');
@@ -4394,14 +4429,21 @@ function cbDoSettle(){
     coupons.forEach(function(k){
       var it = cbStoreItemByKey(k);
       if(!it || it.on === false) return;   // 已下架/已删除的商品不再发放
-      if(cbGiveVoucher(s.id, k, 'settle', month, 0, '月度' + t.label + '奖励')) n++;
+      if(cbGiveVoucher(s.id, k, 'settle', month, 0, '月度' + t.label + '奖励')){ n++; stat.vouchers++; }
     });
   });
   b.lastSettleMonth = month;
   if(!b.createdAt) b.createdAt = Date.now();
+  if(n > 0 || stat.counts.lv1 + stat.counts.lv2 + stat.counts.lv3 > 0){
+    // v2.17.26 写月度统计快照（同月覆盖，留最新一次结算；仅结算过才建档）
+    var hist = b.settleHist = Array.isArray(b.settleHist) ? b.settleHist : [];
+    var idx = hist.findIndex(function(h){ return h && h.month === month; });
+    if(idx >= 0) hist.splice(idx, 1);
+    hist.unshift(stat);
+  }
   return n;
 }
-/* v2.17.25 奖励券当月有效：source='settle' 且 month < 当前月 且未核销 → 置为 expired（留痕、不退币）。
+/* v2.17.26 奖励券当月有效：source='settle' 且 month < 当前月 且未核销 → 置为 expired（留痕、不退币）。
    商店花币买的券（source='redeem'）**永久有效**——花真金白银买的不作废，直到核销或主动退还。
    返回过期张数；幂等，可重复调用。 */
 function cbExpireCoupons(){
@@ -4492,6 +4534,132 @@ function cbLedgerTypeName(t){
   var map = { redeem:'商店兑换', refund:'退还退币', settle:'月度奖励', adjust:'手动调整' };
   return map[t] || t || '';
 }
+/* ============ v2.17.26 学生银行档案（个人维度聚合，弹窗 cbBankProfileModal 用） ============ */
+function cbBankProfileOf(sid){
+  var key = cbWalletKey(sid);
+  var b = cbBankSafe();
+  var s = (state.students || []).find(function(x){ return String(x.id) === String(sid); });
+  var credit = Number(s && s.credit) || 0;
+  var vs = cbVouchers(sid).slice().sort(function(a, x){ return (x.time || 0) - (a.time || 0); });
+  var vStat = { unused: 0, used: 0, refunded: 0, expired: 0 };
+  vs.forEach(function(v){ if(vStat[v.status] != null) vStat[v.status]++; });
+  var lg = (b.ledger || []).filter(function(e){ return String(e.sid) === key; });
+  var al = (b.alerts || []).filter(function(a){ return String(a.sid) === key; })
+    .sort(function(a, x){ return (x.time || 0) - (a.time || 0); });
+  var opCoin = 0;
+  (state.operations || []).forEach(function(o){
+    if(String(o.studentId) === key && o.amount > 0 && o.state !== 'revoked') opCoin += o.amount;
+  });
+  var lgCoin = 0;
+  lg.forEach(function(e){ lgCoin += e.delta; });
+  return { sid: key, s: s, name: (s && s.name) || cbSname(sid) || ('学生#' + sid),
+           credit: credit, tier: cbTierOf(credit),
+           coin: opCoin + lgCoin, opCoin: opCoin, lgCoin: lgCoin,
+           vouchers: vs, vStat: vStat, ledger: lg, alerts: al };
+}
+// 打开学生银行档案弹窗（入口：概览排行行 / 券包页卡片 / 商店当前学生）
+function cbOpenBankProfile(sid){
+  var p = cbBankProfileOf(sid);
+  if(!p.s){ showToast('请先选择在册学生', 'warning'); return; }
+  cbProfileSid = p.sid;
+  var t = document.getElementById('cbBankProfileTitle');
+  if(t) t.textContent = '🧑🎓 银行档案 · ' + p.name;
+  var host = document.getElementById('cbBankProfileBody');
+  if(!host) return;
+  var w = p.tier ? cbLevelBadge(p.tier.level, p.tier.label)
+                 : '<span style="font-size:12px;color:#2f7d32">学分正常</span>';
+  var vs = p.vStat;
+  var statChips = [
+    ['未用', vs.unused, 'var(--text-secondary)'], ['已核销', vs.used, '#2f7d32'],
+    ['已退还', vs.refunded, 'var(--text-muted)'], ['已过期', vs.expired, 'var(--text-muted)']
+  ].map(function(x){
+    return '<div style="flex:1;min-width:64px;text-align:center;padding:8px 6px;border-radius:10px;background:var(--bg-secondary)">' +
+           '<div style="font-size:18px;font-weight:700">' + x[1] + '</div>' +
+           '<div style="font-size:11px;color:' + x[2] + '">' + x[0] + '</div></div>';
+  }).join('');
+  // 币收支明细
+  var lgHtml = p.ledger.length
+    ? '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+      '<tr style="color:var(--text-muted);font-size:12px;text-align:left"><th style="padding:5px 8px;font-weight:500">类型</th><th style="padding:5px 8px;font-weight:500">项目</th><th style="padding:5px 8px;font-weight:500">变动</th><th style="padding:5px 8px;font-weight:500">时间</th></tr>' +
+      p.ledger.map(function(e){
+        var col = e.delta >= 0 ? '#2f7d32' : '#c53030';
+        return '<tr><td style="padding:5px 8px">' + cbEsc(cbLedgerTypeName(e.type)) + '</td>' +
+               '<td style="padding:5px 8px">' + cbEsc(e.item || (e.note || '')) + '</td>' +
+               '<td style="padding:5px 8px;color:' + col + ';font-weight:600">' + (e.delta > 0 ? '+' : '') + e.delta + '</td>' +
+               '<td style="padding:5px 8px;color:var(--text-muted);font-size:12px">' + cbFmtTime(e.time) + '</td></tr>';
+      }).join('') + '</table>'
+    : '<div style="font-size:13px;color:var(--text-muted)">暂无银行收支（加分发币随学分流水自动计入，不在此列）</div>';
+  // 券包
+  var chipHtml = p.vouchers.length
+    ? p.vouchers.map(function(v){ return cbVoucherChip(p.sid, v); }).join('')
+    : '<div style="font-size:13px;color:var(--text-muted)">暂无券：去「兑换商店」用币兑换，或月度结算达标自动发放</div>';
+  // 预警记录
+  var alertHtml = p.alerts.length
+    ? p.alerts.map(function(a){
+        var stMap = { pending: '<span style="color:#c05621">● 待处理</span>', notified: '<span style="color:#b7791f">● 已通知家长</span>', resolved: '<span style="color:var(--text-muted)">○ 已办结</span>' };
+        var acts = '';
+        if(a.status === 'pending') acts += '<button class="btn btn-outline btn-sm" style="padding:1px 8px;font-size:12px" onclick="cbAlertAct(\'' + a.sid + '\',' + a.id + ',\'notified\')">已通知家长</button> ';
+        if(a.status !== 'resolved') acts += '<button class="btn btn-primary btn-sm" style="padding:1px 8px;font-size:12px" onclick="cbAlertAct(\'' + a.sid + '\',' + a.id + ',\'resolved\')">办结</button> ';
+        acts += '<button class="btn btn-outline btn-sm" style="padding:1px 8px;font-size:12px" onclick="cbAlertCopy(\'' + a.sid + '\',' + a.id + ')" title="生成致家长通知草稿并复制">📋 草稿</button>';
+        return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px 4px;border-bottom:1px dashed var(--border)">' +
+               '<div style="font-size:13px">' + cbLevelBadge(a.level, a.label) +
+               ' <span style="font-size:12px;color:var(--text-muted)">' + a.month + ' · 当时 ' + a.credit + ' 分 · ' + a.act + '</span><br>' +
+               '<span style="font-size:12px;color:var(--text-muted)">' + stMap[a.status] + (a.note ? ' · ' + cbEsc(a.note) : '') + '</span></div>' +
+               '<div>' + acts + '</div></div>';
+      }).join('')
+    : '<div style="font-size:13px;color:var(--text-muted)">无预警记录 🎉</div>';
+  host.innerHTML =
+    '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--border)">' +
+    '<div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#c0392b,#e08a5c);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;flex:none">' + cbEsc((p.name || '?').slice(0, 1)) + '</div>' +
+    '<div style="flex:1;min-width:200px"><div style="font-size:17px;font-weight:700">' + cbEsc(p.name) + '</div>' +
+    '<div style="font-size:12px;color:var(--text-muted);margin-top:2px">' + w +
+    (p.s && p.s.sid != null && p.s.sid !== '' ? ' · 学号 ' + cbEsc(String(p.s.sid)) : '') + '</div></div>' +
+    '<div style="text-align:right"><div style="font-size:11px;color:var(--text-muted)">当前学分币</div>' +
+    '<div style="font-size:30px;font-weight:800;color:#b7791f">' + p.coin + '<span style="font-size:13px;color:var(--text-muted)"> 币</span></div>' +
+    '<div style="font-size:11px;color:var(--text-muted)">= 加分发币 ' + p.opCoin + ' + 银行收支 ' + (p.lgCoin >= 0 ? '+' : '') + p.lgCoin + '</div></div></div>' +
+    '<div style="display:flex;gap:8px;margin-bottom:14px">' + statChips + '</div>' +
+    '<div class="card" style="padding:12px 14px;margin-bottom:10px"><div style="font-weight:600;font-size:14px;margin-bottom:8px">🧾 银行收支明细</div>' + lgHtml + '</div>' +
+    '<div class="card" style="padding:12px 14px;margin-bottom:10px"><div style="font-weight:600;font-size:14px;margin-bottom:8px">🎟 券包（' + p.vouchers.length + ' 张）</div><div>' + chipHtml + '</div></div>' +
+    '<div class="card" style="padding:12px 14px"><div style="font-weight:600;font-size:14px;margin-bottom:4px">🚨 预警记录（' + p.alerts.length + ' 条）</div>' + alertHtml + '</div>';
+  openModal('cbBankProfileModal');
+}
+function cbProfileRefresh(){
+  if(cbProfileSid) cbOpenBankProfile(cbProfileSid);
+}
+/* ============ v2.17.26 币流水：按学生 / 按类型筛选 ============ */
+function cbLedgerSearchInput(q){
+  var box = document.getElementById('cbLedgerMatch');
+  if(!box) return;
+  q = String(q || '').trim();
+  if(!q){ box.style.display = 'none'; box.innerHTML = ''; return; }
+  var list = (state.students || []).filter(function(s){
+    return ((s.name || '').indexOf(q) >= 0) || (String(s.sid == null ? '' : s.sid).indexOf(q) >= 0) || (String(s.id) === q);
+  }).slice(0, 6);
+  if(list.length === 0){
+    box.innerHTML = '<div class="cb-match" style="cursor:default;color:var(--text-muted)">没有匹配的学生</div>';
+    box.style.display = '';
+    return;
+  }
+  box.innerHTML = list.map(function(s){
+    var on = String(s.id) === cbLedgerSid ? ' cb-match-on' : '';
+    return '<div class="cb-match' + on + '" onclick="cbLedgerPickSid(' + s.id + ')">' + cbEsc(s.name) +
+           (s.sid != null && String(s.sid) !== '' ? ' <span style="font-size:12px;color:var(--text-muted)">学号 ' + cbEsc(String(s.sid)) + '</span>' : '') +
+           '<span style="margin-left:auto;font-size:12px;color:var(--text-muted)">查看</span></div>';
+  }).join('');
+  box.style.display = '';
+}
+function cbLedgerSearchKey(e){
+  if(e && e.key === 'Enter'){
+    var box = document.getElementById('cbLedgerMatch');
+    var first = box && box.querySelector('div[onclick]');
+    if(first && box.style.display !== 'none'){ first.click(); e.preventDefault(); }
+  }
+}
+function cbLedgerPickSid(id){ cbLedgerSid = String(id); renderBankPage(); }
+function cbLedgerSidClear(){ cbLedgerSid = ''; renderBankPage(); }
+function cbLedgerTypeTo(v){ cbLedgerType = v || ''; renderBankPage(); }
+/* ============ v2.17.26 预警中心：按状态筛选 ============ */
+function cbAlertStatusTo(s){ cbAlertStatus = s || ''; renderBankPage(); }
 function cbCopyText(txt){
   var done = function(){ showToast('已复制，可直接粘贴发送', 'success'); };
   if(navigator.clipboard && navigator.clipboard.writeText){
@@ -4513,11 +4681,16 @@ function cbCopyFallback(txt){
 var cbBankTab = 'overview';    // overview | store | vouchers | ledger | alerts
 var cbStoreSid = '';           // 商店当前选中学生
 var cbBankCat = '';            // 商店当前类别筛选（'' = 全部）
+// v2.17.26 二期筛选/档案状态（重渲染间保持）
+var cbProfileSid = '';         // 学生档案弹窗当前学生（操作后自动刷新）
+var cbLedgerSid = '';          // 币流水：学生筛选（'' = 全部）
+var cbLedgerType = '';         // 币流水：类型筛选（'' = 全部；redeem/refund/settle/adjust）
+var cbAlertStatus = '';        // 预警中心：状态筛选（'' = 全部；pending/notified/resolved）
 function cbBankTabTo(t){
   cbBankTab = t;
   renderBankPage();
 }
-/* v2.17.25 tabs 滑块定位：全局 .tab.active 是白字（.tab.active{color:#fff}），
+/* v2.17.26 tabs 滑块定位：全局 .tab.active 是白字（.tab.active{color:#fff}），
    白色能看见全靠红色渐变滑块 .tab-indicator 垫在下面（z-index:1 滑块 / z-index:2 文字）。
    银行页是整页 innerHTML 重渲染，滑块必须每次重算 left/width，
    否则「点一下 tab，字变白看不见」（页面初次进入/切页后同理）。 */
@@ -4538,7 +4711,7 @@ window.addEventListener('resize', function(){
   if(p && p.classList.contains('active')) initBankTabIndicator();
 });
 function cbStoreSidPick(v){ cbStoreSid = String(v || ''); }
-/* v2.17.25 商店：姓名 / 学号快速筛选（输入即匹配，回车选第一个） */
+/* v2.17.26 商店：姓名 / 学号快速筛选（输入即匹配，回车选第一个） */
 function cbStoreSearchInput(q){
   var box = document.getElementById('cbStoreMatch');
   if(!box) return;
@@ -4681,6 +4854,9 @@ function cbPersist(){
   updateCbAlertChip();
   var p = document.getElementById('page-bank');
   if(p && p.classList.contains('active')) renderBankPage();
+  // v2.17.26 档案弹窗内操作（核销/退还/办结）后自动刷新弹窗内容
+  var pm = document.getElementById('cbBankProfileModal');
+  if(pm && pm.classList.contains('show') && cbProfileSid) cbOpenBankProfile(cbProfileSid);
 }
 function cbDoSettleUI(){
   var month = cbMonthKey();
@@ -4804,7 +4980,9 @@ function renderBankPage(){
       var credit = Number(s.credit) || 0;
       var tier = cbTierOf(credit);
       var warn = tier ? cbLevelBadge(tier.level, tier.label) : '';
-      rows += '<tr><td style="padding:6px 8px">' + (i + 1) + '</td><td style="padding:6px 8px">' + cbEsc(s.name) + '</td>' +
+      // v2.17.26 点排行行 → 学生银行档案
+      rows += '<tr style="cursor:pointer" onclick="cbOpenBankProfile(' + s.id + ')" title="查看 ' + cbEsc(s.name) + ' 的银行档案">' +
+              '<td style="padding:6px 8px">' + (i + 1) + '</td><td style="padding:6px 8px"><b>' + cbEsc(s.name) + '</b> <span style="font-size:11px;color:var(--text-muted)">📊</span></td>' +
               '<td style="padding:6px 8px">' + credit + ' 分</td>' +
               '<td style="padding:6px 8px"><b>' + c + '</b> 币</td>' +
               '<td style="padding:6px 8px">' + warn + '</td></tr>';
@@ -4820,6 +4998,26 @@ function renderBankPage(){
       '&lt;60 分：进入阶梯预警（见预警中心）',
       '<span style="color:var(--text-muted)">币永久累计可自由兑换；奖励券当月有效，跨月自动失效留痕</span>'
     ].map(function(x){ return '<div>· ' + x + '</div>'; }).join('');
+    // v2.17.26 月度结算历史统计（settleHist 快照，最新在前）
+    var tierName = { lv1: '进取', lv2: '卓越', lv3: '巅峰' };
+    var hist = (bank.settleHist || []).slice(0, 12);
+    var histHtml = hist.length
+      ? '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+        '<tr style="color:var(--text-muted);font-size:12px;text-align:left">' +
+        '<th style="padding:5px 8px;font-weight:500">月份</th><th style="padding:5px 8px;font-weight:500">进取 110+</th>' +
+        '<th style="padding:5px 8px;font-weight:500">卓越 150+</th><th style="padding:5px 8px;font-weight:500">巅峰 200+</th>' +
+        '<th style="padding:5px 8px;font-weight:500">发币</th><th style="padding:5px 8px;font-weight:500">发券</th></tr>' +
+        hist.map(function(h){
+          return '<tr>' +
+                 '<td style="padding:5px 8px"><b>' + cbEsc(h.month || '') + '</b></td>' +
+                 '<td style="padding:5px 8px">' + (h.counts ? h.counts.lv1 || 0 : 0) + ' 人</td>' +
+                 '<td style="padding:5px 8px">' + (h.counts ? h.counts.lv2 || 0 : 0) + ' 人</td>' +
+                 '<td style="padding:5px 8px">' + (h.counts ? h.counts.lv3 || 0 : 0) + ' 人</td>' +
+                 '<td style="padding:5px 8px;font-weight:600;color:#b7791f">' + ((h.coins ? (h.coins.lv1 || 0) + (h.coins.lv2 || 0) + (h.coins.lv3 || 0) : 0)) + ' 币</td>' +
+                 '<td style="padding:5px 8px">' + (h.vouchers || 0) + ' 张</td></tr>';
+        }).join('') + '</table>'
+      : '<div style="font-size:12px;color:var(--text-muted)">暂无历史记录 —— 本月起每次「结算」都会自动存档每月各档人数与发币/发券统计。</div>';
+    var rankHint = '<span style="font-size:11px;color:var(--text-muted);font-weight:400;margin-left:6px">点任意一行查看该生完整银行档案</span>';
     body =
       '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px">' +
       '<div class="card" style="padding:14px 16px"><div style="font-size:12px;color:var(--text-muted)">全班学分币总量</div><div style="font-size:24px;font-weight:700">' + totalCoin + ' <span style="font-size:13px;color:var(--text-muted)">币</span></div></div>' +
@@ -4834,8 +5032,10 @@ function renderBankPage(){
       '</div>' +
       '<div style="margin-top:12px;padding:12px 14px;background:rgba(166,58,43,0.05);border-radius:10px;font-size:13px;line-height:1.9">' + rewards + '</div>' +
       '</div>' +
+      '<div class="card" style="padding:16px 18px;margin-bottom:14px">' +
+      '<div style="font-weight:600;margin-bottom:8px">📅 月度结算历史（v2.17.26 起记录）</div>' + histHtml + '</div>' +
       '<div class="card" style="padding:16px 18px">' +
-      '<div style="font-weight:600;margin-bottom:6px">🏆 学分币排行（币 = 历史有效加分累计 + 银行收支）</div>' +
+      '<div style="font-weight:600;margin-bottom:6px">🏆 学分币排行（币 = 历史有效加分累计 + 银行收支）' + rankHint + '</div>' +
       '<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">加分自动等额发币；撤销加分该流水退出有效集、币自动回退；兑换扣币、退还退币。</div>' +
       '<div style="max-height:340px;overflow-y:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">' +
       '<tr style="color:var(--text-muted);font-size:12px;text-align:left"><th style="padding:6px 8px;font-weight:500">#</th><th style="padding:6px 8px;font-weight:500">姓名</th><th style="padding:6px 8px;font-weight:500">表现分</th><th style="padding:6px 8px;font-weight:500">学分币</th><th style="padding:6px 8px;font-weight:500">预警</th></tr>' +
@@ -4848,7 +5048,7 @@ function renderBankPage(){
       var selS = studs.find(function(x){ return String(x.id) === cbStoreSid; });
       var selCoin = coin[cbWalletKey(cbStoreSid)] || 0;
       var discount = cbWallet(cbStoreSid).discountMonth === month;
-      // v2.17.25 类别筛选 chips（全部 + 目录里出现过的类别）
+      // v2.17.26 类别筛选 chips（全部 + 目录里出现过的类别）
       var cats = cbStoreCats();
       var catHtml = '<div class="cb-chip' + (cbBankCat ? '' : ' on') + '" onclick="cbBankCatTo(\'\')">全部</div>';
       cats.forEach(function(c){
@@ -4885,6 +5085,7 @@ function renderBankPage(){
         '<div id="cbStoreMatch" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;margin-top:4px;max-height:250px;overflow-y:auto;z-index:30;box-shadow:0 6px 20px rgba(0,0,0,.12)"></div>' +
         '</div>' +
         '<div style="font-size:13px">' + cbEsc(selS ? selS.name : '') + ' 余额 <b style="color:#b7791f;font-size:15px">' + selCoin + '</b> 币' + (discount ? '<span style="margin-left:8px;color:#2f7d32;font-size:12px">★ 9 折生效中</span>' : '') + '</div>' +
+        '<button class="btn btn-outline btn-sm" onclick="cbOpenBankProfile(' + cbStoreSid + ')" title="查看该生银行档案">📊 档案</button>' +
         '<button class="btn btn-primary btn-sm" onclick="cbOpenItemEditor(\'\')">＋ 新增商品</button>' +
         '</div>' +
         '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">' + catHtml + '</div>' +
@@ -4906,7 +5107,9 @@ function renderBankPage(){
         chips += cbVoucherChip(s.id, v);
       });
       vRows += '<div class="card" style="padding:12px 16px;margin-bottom:10px">' +
-               '<div style="font-weight:600;margin-bottom:6px">' + cbEsc(s.name) + ' <span style="font-size:12px;color:var(--text-muted)">' + (coin[cbWalletKey(s.id)] || 0) + ' 币</span></div>' +
+               '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px">' +
+               '<div style="font-weight:600">' + cbEsc(s.name) + ' <span style="font-size:12px;color:var(--text-muted)">' + (coin[cbWalletKey(s.id)] || 0) + ' 币</span></div>' +
+               '<button class="btn btn-outline btn-sm" style="padding:2px 10px;font-size:12px" onclick="cbOpenBankProfile(' + s.id + ')">📊 档案</button></div>' +
                '<div>' + (chips || '<span style="font-size:12px;color:var(--text-muted)">无生效券</span>') + '</div>' +
                (refunded.length ? '<div style="margin-top:6px;font-size:11px;color:var(--text-muted)">已退还 ' + refunded.length + ' 张</div>' : '') +
                '</div>';
@@ -4915,8 +5118,20 @@ function renderBankPage(){
            '券来源：🎁 月度奖励（结算自动发放，白送）/ 🛒 商店兑换（扣币）。核销＝实际使用（免迟到/午餐/班长/电影/豁免/同桌）；未使用可退还，兑换券退还退币。</div>' +
            (vAny ? vRows : cbEmpty('还没有任何券：去「兑换商店」用币兑换，或先「结算本月」发放奖励券'));
   } else if(cbBankTab === 'ledger'){
+    var allLedger = (bank.ledger || []);
+    // v2.17.26 筛选状态：cbLedgerSid（学生） + cbLedgerType（类型），重渲染后保持
+    var shownName = '';
+    if(cbLedgerSid){
+      var ls = studs.find(function(x){ return String(x.id) === cbLedgerSid; });
+      shownName = ls ? cbEsc(ls.name) : cbLedgerSid;
+    }
+    var led = allLedger.filter(function(e){
+      if(cbLedgerSid && String(e.sid) !== cbLedgerSid) return false;
+      if(cbLedgerType && e.type !== cbLedgerType) return false;
+      return true;
+    });
     var lRows = '';
-    (bank.ledger || []).forEach(function(e){
+    led.forEach(function(e){
       var sign = e.delta > 0 ? '+' : '';
       var col = e.delta >= 0 ? '#2f7d32' : '#c53030';
       lRows += '<tr><td style="padding:6px 8px">' + cbEsc(e.sname || '') + '</td>' +
@@ -4925,13 +5140,47 @@ function renderBankPage(){
                '<td style="padding:6px 8px;color:' + col + ';font-weight:600">' + sign + e.delta + '</td>' +
                '<td style="padding:6px 8px;color:var(--text-muted);font-size:12px">' + cbFmtTime(e.time) + '</td></tr>';
     });
-    body = '<div class="card" style="padding:14px 18px;margin-bottom:12px;font-size:12px;color:var(--text-muted);line-height:1.8">' +
+    var typeSel = ['', 'redeem', 'refund', 'settle', 'adjust'].map(function(t){
+      var label = t ? cbLedgerTypeName(t) : '全部类型';
+      return '<option value="' + t + '"' + (cbLedgerType === t ? ' selected' : '') + '>' + label + '</option>';
+    }).join('');
+    var sumD = led.reduce(function(a, e){ return a + e.delta; }, 0);
+    var filterBar =
+      '<div class="card" style="padding:12px 16px;margin-bottom:12px">' +
+      '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">' +
+      '<b style="font-size:14px">🧾 币流水</b>' +
+      '<div style="position:relative;flex:1;min-width:180px;max-width:260px">' +
+      '<input id="cbLedgerSearch" autocomplete="off" placeholder="姓名 / 学号筛选该生流水…" value="' + (shownName || '') + '" ' +
+      'oninput="cbLedgerSearchInput(this.value)" onkeydown="cbLedgerSearchKey(event)" ' +
+      'style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:10px;font-size:13px">' +
+      '<div id="cbLedgerMatch" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;margin-top:4px;max-height:220px;overflow-y:auto;z-index:30;box-shadow:0 6px 20px rgba(0,0,0,.12)"></div></div>' +
+      '<select id="cbLedgerTypeSel" onchange="cbLedgerTypeTo(this.value)" style="padding:7px 10px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:var(--card-bg)">' + typeSel + '</select>' +
+      (cbLedgerSid || cbLedgerType
+        ? '<button class="btn btn-outline btn-sm" onclick="cbLedgerSidClear()">✕ 清除筛选</button>' : '') +
+      '<span style="font-size:12px;color:var(--text-muted)">共 ' + led.length + ' 条' +
+      (cbLedgerSid ? ' · ' + shownName : '') + (cbLedgerType ? ' · ' + cbLedgerTypeName(cbLedgerType) : '') +
+      ' · 合计 <b style="color:' + (sumD >= 0 ? '#2f7d32' : '#c53030') + '">' + (sumD > 0 ? '+' : '') + sumD + '</b> 币</span>' +
+      '</div></div>';
+    body = filterBar +
+           '<div class="card" style="padding:14px 18px;margin-bottom:12px;font-size:12px;color:var(--text-muted);line-height:1.8">' +
            '币余额口径：<b>币 = 历史有效加分流水合计（自动等额发币） + 银行收支</b>。加分/撤销/恢复的币变动随学分流水自动联动，不在此列；此处仅记录兑换扣币、退还退币等银行类收支。</div>' +
            (lRows
              ? '<div class="card" style="padding:10px 16px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><tr style="color:var(--text-muted);font-size:12px;text-align:left"><th style="padding:6px 8px;font-weight:500">学生</th><th style="padding:6px 8px;font-weight:500">类型</th><th style="padding:6px 8px;font-weight:500">项目</th><th style="padding:6px 8px;font-weight:500">变动</th><th style="padding:6px 8px;font-weight:500">时间</th></tr>' + lRows + '</table></div>'
-             : cbEmpty('暂无银行收支记录（加分发币随学分流水自动计入）'));
+             : cbEmpty('没有符合条件的流水' + ((allLedger.length && led.length === 0) ? ' —— 换个筛选条件试试' : '（加分发币随学分流水自动计入）')));
   } else if(cbBankTab === 'alerts'){
-    var alerts = (bank.alerts || []).slice().sort(function(a, b){ return (b.time || 0) - (a.time || 0); });
+    var allAlerts = (bank.alerts || []).slice().sort(function(a, b){ return (b.time || 0) - (a.time || 0); });
+    // v2.17.26 状态筛选 chips（含计数），cbAlertStatus 重渲染间保持
+    var ac = { pending: 0, notified: 0, resolved: 0 };
+    allAlerts.forEach(function(a){ if(ac[a.status] != null) ac[a.status]++; });
+    var chips = [
+      { v: '', l: '全部', n: allAlerts.length },
+      { v: 'pending', l: '● 待处理', n: ac.pending },
+      { v: 'notified', l: '● 已通知家长', n: ac.notified },
+      { v: 'resolved', l: '○ 已办结', n: ac.resolved }
+    ].map(function(c){
+      return '<div class="cb-chip' + (cbAlertStatus === c.v ? ' on' : '') + '" onclick="cbAlertStatusTo(\'' + c.v + '\')">' + c.l + ' <b>' + c.n + '</b></div>';
+    }).join('');
+    var alerts = allAlerts.filter(function(a){ return !cbAlertStatus || a.status === cbAlertStatus; });
     var aRows = '';
     alerts.forEach(function(a){
       var stMap = { pending: '<span style="color:#c05621">● 待处理</span>', notified: '<span style="color:#b7791f">● 已通知家长</span>', resolved: '<span style="color:var(--text-muted)">○ 已办结</span>' };
@@ -4949,10 +5198,11 @@ function renderBankPage(){
     CB_ALERT_TIERS.forEach(function(t){
       legend += '<span style="margin-right:10px">' + cbLevelBadge(t.level, t.label) + ' <span style="font-size:12px;color:var(--text-muted)">' + t.min + '-' + (t.level === 'dark' ? '30' : (CB_ALERT_TIERS[cbTierSeverity(t.level) - 1] ? CB_ALERT_TIERS[cbTierSeverity(t.level) - 1].min : CB_ALERT_MIN)) + ' 分 · ' + t.act + '</span></span>';
     });
-    body = '<div class="card" style="padding:14px 18px;margin-bottom:12px;font-size:12px;color:var(--text-muted);line-height:1.9">' +
+    body = '<div class="card" style="padding:12px 16px;margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">' + chips + '</div>' +
+           '<div class="card" style="padding:14px 18px;margin-bottom:12px;font-size:12px;color:var(--text-muted);line-height:1.9">' +
            '阶梯预警（按当前表现分实时扫描，同档同月一条、恶化升级才叠加）：<br>' + legend +
            '<br>回升至 ≥' + CB_ALERT_MIN + ' 分自动办结留痕；「通知草稿」一键生成致家长文案。</div>' +
-           (aRows ? aRows : cbEmpty('暂无预警 🎉 全员表现分均 ≥ ' + CB_ALERT_MIN + ' 分'));
+           (aRows ? aRows : cbEmpty(allAlerts.length === 0 ? '暂无预警 🎉 全员表现分均 ≥ ' + CB_ALERT_MIN + ' 分' : '该状态下暂无预警'));
   }
   var html = '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px">' +
              '<div><h2 style="margin:0;font-size:20px">🏦 学分银行</h2>' +
@@ -4960,7 +5210,7 @@ function renderBankPage(){
              '<span style="font-size:12px;color:var(--text-muted)">数据随学分流水自动同步 · ' + (state.classNameFull || state.className || '') + '</span></div>' +
              tabHtml + '<div id="cbBankBody">' + body + '</div>';
   el.innerHTML = html;
-  initBankTabIndicator();   // v2.17.25 重渲染后立即重算滑块位置（active 白字的红底）
+  initBankTabIndicator();   // v2.17.26 重渲染后立即重算滑块位置（active 白字的红底）
 }
 function updateCbAlertChip(){
   var chip = document.getElementById('cbAlertChip');
@@ -4982,11 +5232,11 @@ function loadData(){
     try{
       const d = JSON.parse(raw);
       state.className = d.className || state.className;
-      state.classNameFull = d.classNameFull || state.classNameFull;   // v2.17.25 班级全称
+      state.classNameFull = d.classNameFull || state.classNameFull;   // v2.17.26 班级全称
       state.students = d.students || [];
       state.operations = sortOpsNewestFirst(d.operations || []);   // v2.17.7 归一化：老合并可能把顺序反转成最旧在前
       // 原因模板：默认模板只参与首次/旧数据迁移（migrate 内部处理），已有目录尊重班主任增删。
-      // v2.17.25：删除项记入 catDeleted 墓碑，加载后统一剔除 → 刷新不复活。
+      // v2.17.26：删除项记入 catDeleted 墓碑，加载后统一剔除 → 刷新不复活。
       var _tomb = (d.catDeleted && typeof d.catDeleted === 'object') ? cloneCatDeleted(d.catDeleted) : { dirs:[], groups:[], reasons:[] };
       state.catDeleted = _tomb;
       state.reasonCatalog = migrateReasonCatalog(d.reasonCatalog, (d.reasons && d.reasons.length) ? d.reasons : defaultReasons);
@@ -5047,7 +5297,7 @@ function loadData(){
       state.nextHonorId = d.nextHonorId || 1;
       state.nextTodoId = d.nextTodoId || 1;
       if(d.notices) state.notices = d.notices;
-      // v2.17.25 学分银行：读入并补齐形状（老数据无 creditBank 时保持默认结构）
+      // v2.17.26 学分银行：读入并补齐形状（老数据无 creditBank 时保持默认结构）
       if(d.creditBank) state.creditBank = cbNormalizeShape(d.creditBank);
       cbBankSafe();
       state.wipeAt = d.wipeAt || 0;   // v2.11.3 重置时间戳：拉取对齐判断的依据，必须随数据恢复
@@ -5070,25 +5320,25 @@ function loadData(){
           setTimeout(function(){ showToast('已按学分流水校准 ' + driftN + ' 名学生的学分', 'info'); }, 1300);
         }
       }
-      // v2.17.25 学分银行：启动即扫一遍预警（幂等），有新建/办结才落盘
-      // v2.17.25 顺带把跨月的月度奖励券置为已过期留痕（商店花币买的券不过期）
+      // v2.17.26 学分银行：启动即扫一遍预警（幂等），有新建/办结才落盘
+      // v2.17.26 顺带把跨月的月度奖励券置为已过期留痕（商店花币买的券不过期）
       if(cbScanAlerts() > 0 || cbExpireCoupons() > 0) saveData();
     }catch(e){ console.error('Load failed',e); }
   }
 }
 
 function saveData(){
-  cbScanAlerts();     // v2.17.25 预警扫描挂在所有落盘前：加减分/撤销恢复/导入/云合并任一入口都会触发（幂等）
-  cbExpireCoupons();  // v2.17.25 月度奖励券跨月自动失效留痕（商店花币买的券不过期）
+  cbScanAlerts();     // v2.17.26 预警扫描挂在所有落盘前：加减分/撤销恢复/导入/云合并任一入口都会触发（幂等）
+  cbExpireCoupons();  // v2.17.26 月度奖励券跨月自动失效留痕（商店花币买的券不过期）
   localStorage.setItem(STORE_KEY, JSON.stringify({
     className: state.className,
-    classNameFull: state.classNameFull,   // v2.17.25 班级全称
+    classNameFull: state.classNameFull,   // v2.17.26 班级全称
     students: state.students,
     operations: state.operations,
     reasons: state.reasons,
     reasonScores: state.reasonScores || {},
     reasonCatalog: state.reasonCatalog || {},
-    catDeleted: state.catDeleted || { dirs: [], groups: [], reasons: [] },   // v2.17.25 删除墓碑随本地存储持久
+    catDeleted: state.catDeleted || { dirs: [], groups: [], reasons: [] },   // v2.17.26 删除墓碑随本地存储持久
     schemaVer: state.schemaVer || 0,
     nextId: state.nextId,
     nextOpId: state.nextOpId,
@@ -5115,7 +5365,7 @@ function saveData(){
     nextHonorId: state.nextHonorId,
     nextTodoId: state.nextTodoId,
     notices: state.notices,
-    creditBank: state.creditBank     // v2.17.25 学分银行
+    creditBank: state.creditBank     // v2.17.26 学分银行
   }));
 
   autoPushToCloud();
@@ -5245,7 +5495,7 @@ function smartMergeData(localData,remoteData){
   if(remoteData.reasonCatalog && typeof remoteData.reasonCatalog === 'object'){
     merged.reasonCatalog = mergeReasonCatalog(localData.reasonCatalog || {}, remoteData.reasonCatalog);
   }
-  // v2.17.25 删除墓碑合并：任一侧删过的方向/大类/原因，合并结果一律剔除（含分值表/平铺列表）→ 跨设备删除生效
+  // v2.17.26 删除墓碑合并：任一侧删过的方向/大类/原因，合并结果一律剔除（含分值表/平铺列表）→ 跨设备删除生效
   merged.catDeleted = { dirs:[], groups:[], reasons:[] };
   var _td = cloneCatDeleted(localData.catDeleted), _tr = cloneCatDeleted(remoteData.catDeleted);
   _td.dirs.concat(_tr.dirs).forEach(function(k){ catDelAdd(merged.catDeleted.dirs, k); });
@@ -5255,7 +5505,7 @@ function smartMergeData(localData,remoteData){
   merged.reasonScores = merged.reasonScores || {};
   applyCatTombstones(merged.reasonCatalog, merged.reasonScores, merged.catDeleted);
   merged.reasons = flattenReasonCatalog(merged.reasonCatalog);
-  // v2.17.25 学分银行合并：券包/流水/预警按 id 去重、冲突取更新者；两侧都没有则不动
+  // v2.17.26 学分银行合并：券包/流水/预警按 id 去重、冲突取更新者；两侧都没有则不动
   if(localData.creditBank || remoteData.creditBank){
     merged.creditBank = cbMergeBanks(localData.creditBank, remoteData.creditBank);
   }
@@ -5272,7 +5522,7 @@ function smartMergeData(localData,remoteData){
   merged.committee=cm;
   // simple fields
   if(!merged.className&&remoteData.className)merged.className=remoteData.className;
-  if(!merged.classNameFull&&remoteData.classNameFull)merged.classNameFull=remoteData.classNameFull;  // v2.17.25
+  if(!merged.classNameFull&&remoteData.classNameFull)merged.classNameFull=remoteData.classNameFull;  // v2.17.26
   if(!merged.classMotto&&remoteData.classMotto)merged.classMotto=remoteData.classMotto;
   if(!merged.classAvatar&&remoteData.classAvatar)merged.classAvatar=remoteData.classAvatar;
   // scheduleImage and classAvatar are synced via data.json (compressed);
@@ -5585,7 +5835,7 @@ function navigateTo(page){
   if(page==='profiles') renderProfiles();
   if(page==='worklogs') renderWorkLogs();
   if(page==='honors') renderHonors();
-  if(page==='bank') renderBankPage();   // v2.17.25 学分银行（班委白名单已拦截，教师专属）
+  if(page==='bank') renderBankPage();   // v2.17.26 学分银行（班委白名单已拦截，教师专属）
 if(page==='settings') renderSettings();
   // Highlight in more drawer if active page is in drawer
   document.querySelectorAll('.more-item').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
@@ -6618,7 +6868,7 @@ function addCustomTag(id){
   if(!s.tags) s.tags = [];
   if(s.tags.includes(tag)){ showToast('该标签已存在','warning'); return; }
   s.tags.push(tag);
-  if(isDormTag(tag)) fillStudentGenderFromDorm(s);   // v2.17.25 手填寝室号标签同样触发性别补写
+  if(isDormTag(tag)) fillStudentGenderFromDorm(s);   // v2.17.26 手填寝室号标签同样触发性别补写
   saveData();
   openDetailPanel(id);
   renderTable();
@@ -7551,7 +7801,7 @@ function dormNoOf(s){
   return '';
 }
 
-/* v2.17.25 宿舍→性别一致性：本班男生寝室 = 7栋214室，女生寝室 = 6栋801~806室。
+/* v2.17.26 宿舍→性别一致性：本班男生寝室 = 7栋214室，女生寝室 = 6栋801~806室。
    学生挂上对应寝室号标签、而档案「性别」为空时，自动按楼栋房号补写性别——寝室与档案不再可能打架
    （杜绝「住女寝的男生」）。已填写的性别不覆盖（班主任可在档案编辑里手动改）。规则随班级可调。 */
 var DORM_GENDER_RULES = [
@@ -7577,7 +7827,7 @@ function fillStudentGenderFromDorm(s){
   s.updatedAt = Date.now();
   return true;
 }
-/* v2.17.25 全校寝室→性别一致性维护通道：进档案页/寝室页时扫一遍，
+/* v2.17.26 全校寝室→性别一致性维护通道：进档案页/寝室页时扫一遍，
    凡寝室号命中规则且性别为空的自动补写（无变化的学校不落盘） */
 function fillAllDormGenders(){
   var changed = false;
@@ -7640,7 +7890,7 @@ function renderDorm(){
     if(!s.tags) return;
     var next = s.tags.map(function(t){ return normalizeDormTag(t); });
     if(JSON.stringify(next) !== JSON.stringify(s.tags)){ s.tags = next; s.updatedAt = Date.now(); changed = true; }
-    // v2.17.25 宿舍号已知但档案性别为空 → 按楼栋房号规则补写（7栋214=男 / 6栋801-806=女）
+    // v2.17.26 宿舍号已知但档案性别为空 → 按楼栋房号规则补写（7栋214=男 / 6栋801-806=女）
     if(fillStudentGenderFromDorm(s)) changed = true;
   });
   if(changed) saveData();
@@ -7749,7 +7999,7 @@ function addDormMember(id, no){
   s.tags = (s.tags||[]).filter(function(t){ return !isDormTag(t) && t !== DAY_TAG; });
   s.tags.push(no);
   s.updatedAt = Date.now();
-  fillStudentGenderFromDorm(s);   // v2.17.25 入寝即补写性别（仅档案性别为空时）
+  fillStudentGenderFromDorm(s);   // v2.17.26 入寝即补写性别（仅档案性别为空时）
   saveData();
   renderDorm();
   showToast(s.name + (old ? ' 已从 ' + old + ' 调至 ' : ' 已加入 ') + no, 'success');
@@ -8022,7 +8272,7 @@ function updateCreditBtnStates(){
   const hasReason = document.getElementById('creditReason').value !== '';
   const customInput = document.getElementById('customCredit');
   const amt = customInput ? parseInt(customInput.value, 10) : NaN;
-  // v2.17.25 去快捷 ±N 预设后，唯一提交入口是「应用」：需已选学生 + 已选原因 + 有分值
+  // v2.17.26 去快捷 ±N 预设后，唯一提交入口是「应用」：需已选学生 + 已选原因 + 有分值
   let valid = hasStudent && hasReason && !!customInput.value && !isNaN(amt) && amt !== 0;
   // v2.17.0/2.17.22 班委禁扣：负分（扣分）时禁用应用（逻辑层另有 cmMinusBlocked 兜底）
   let cmMinusLock = false;
@@ -8817,7 +9067,7 @@ initTheme();
 
 /* ==================== Student Profiles ==================== */
 var _profileSelectedId = null;
-/* v2.17.25 中文姓名按拼音音序（首字母 A→Z）排序：Intl.Collator('zh') 即拼音字典序，
+/* v2.17.26 中文姓名按拼音音序（首字母 A→Z）排序：Intl.Collator('zh') 即拼音字典序，
    旧版按学号/录入序排列，找人不直观。同音回退到学号位次。 */
 var _pyCollator = (typeof Intl !== 'undefined' && Intl.Collator)
   ? new Intl.Collator('zh-Hans-CN', { sensitivity: 'variant', numeric: true })
@@ -8847,7 +9097,7 @@ function ensureProfile(s){
   return s.profile;
 }
 function renderProfiles(){
-  fillAllDormGenders();   // v2.17.25 进档案页先全校同步一次寝室→性别（有改动才落盘）
+  fillAllDormGenders();   // v2.17.26 进档案页先全校同步一次寝室→性别（有改动才落盘）
   renderProfileList();
   if(_profileSelectedId !== null){
     const s = state.students.find(x=>x.id===_profileSelectedId);
@@ -8856,7 +9106,7 @@ function renderProfiles(){
 }
 function renderProfileList(){
   const kw = (document.getElementById('profileSearch')?.value || '').toLowerCase().trim();
-  // v2.17.25 左侧名单按姓名拼音音序排（A→Z），同音按学号
+  // v2.17.26 左侧名单按姓名拼音音序排（A→Z），同音按学号
   const list = sortStudentsByPinyin(state.students.filter(s => !kw || s.name.toLowerCase().includes(kw) || s.sid.toLowerCase().includes(kw)));
   const el = document.getElementById('profileList');
   const count = document.getElementById('profileCount');
@@ -8884,7 +9134,7 @@ function selectProfile(id){
   const s = state.students.find(x=>x.id===id);
   if(s) renderProfileDetail(s);
 }
-/* ---- v2.17.25 档案详情新版式辅助 ---- */
+/* ---- v2.17.26 档案详情新版式辅助 ---- */
 var _pfOpScope = 'term';   // 德育记录范围：term=本学期 / all=全部
 function pfSectionToggle(bodyId, chevId){
   const b = document.getElementById(bodyId), c = document.getElementById(chevId);
@@ -8933,7 +9183,7 @@ function studentHonorsOf(s){
 }
 function renderProfileDetail(s){
   const p = ensureProfile(s);
-  // v2.17.25 档案页兜底：寝室号已知、性别为空 → 按楼栋房号规则补写（7栋214=男 / 6栋801-806=女）
+  // v2.17.26 档案页兜底：寝室号已知、性别为空 → 按楼栋房号规则补写（7栋214=男 / 6栋801-806=女）
   if(fillStudentGenderFromDorm(s)) saveData();
   const el = document.getElementById('profileDetail');
   const tl = p.timeline.slice().sort((a,b)=>b.date.localeCompare(a.date) || b.id-a.id);
@@ -9225,7 +9475,7 @@ function exportMonthLogs(){
 var HONOR_LEVELS = ['校级','区级','市级','省级','国家级'];
 var HONOR_SCOPES = ['集体','个人'];
 var _honorLevel = '全部';
-/* v2.17.25 荣誉墙类型筛选：全部/集体/个人（班级荣誉与个人荣誉分区查看） */
+/* v2.17.26 荣誉墙类型筛选：全部/集体/个人（班级荣誉与个人荣誉分区查看） */
 var _honorScope = '全部';
 function setHonorScope(s){ _honorScope = s; renderHonors(); }
 function renderHonors(){
@@ -9345,10 +9595,10 @@ function deleteHonor(id){
   showToast('已删除','success');
 }
 
-/* ==================== v2.17.25 荣誉证书导出（canvas → PNG） ====================
+/* ==================== v2.17.26 荣誉证书导出（canvas → PNG） ====================
    个人荣誉：档案页按学生出证（exportHonorCert(id, 姓名)）；荣誉墙按人/集体出证。
    一张证书图片，可直接发班级群（集体）或家长群（个人）。 */
-function certClassName(){   // v2.17.25 证书等正式文书用班级全称（设置可配，留空回退班级名称）
+function certClassName(){   // v2.17.26 证书等正式文书用班级全称（设置可配，留空回退班级名称）
   return state.classNameFull || state.className || '';
 }
 function honorCertEntity(h, personName){
@@ -9413,7 +9663,7 @@ function drawHonorCertCanvas(h, personName){
     ctx.fillStyle = '#999'; ctx.font = '26px ' + F;
     certCenterText(ctx, h.desc, W / 2, yb + 204, W - 360, 40);
   }
-  // v2.17.25 落款：班级全称居中（在上）+ 日期居中（在下，纵向与班级全称对齐）
+  // v2.17.26 落款：班级全称居中（在上）+ 日期居中（在下，纵向与班级全称对齐）
   const dm = String(h.date || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
   const dtx = dm ? (dm[1] + ' 年 ' + Number(dm[2]) + ' 月 ' + Number(dm[3]) + ' 日') : (h.date || '');
   ctx.textAlign = 'center';
@@ -9426,7 +9676,7 @@ function drawHonorCertCanvas(h, personName){
 function exportHonorCert(id, personName){
   const h = state.honors.find(x => x.id === id);
   if(!h){ showToast('荣誉不存在','error'); return; }
-  // v2.17.25 班级全称为空时温柔提示一次（仅在该会话内首次提醒，避免重复打扰）
+  // v2.17.26 班级全称为空时温柔提示一次（仅在该会话内首次提醒，避免重复打扰）
   if(!state.classNameFull && !window.__cmFullNameToastShown){
     window.__cmFullNameToastShown = true;
     setTimeout(function(){
@@ -9457,7 +9707,7 @@ function renderSettings(){
   document.getElementById('classNameInput').value = state.className;
   const fullInput = document.getElementById('classNameFullInput');
   if(fullInput){
-    fullInput.value = state.classNameFull || '';   // v2.17.25
+    fullInput.value = state.classNameFull || '';   // v2.17.26
     // 渲染时同步状态提示
     const st = document.getElementById('classNameFullStatus');
     if(st){
@@ -9552,7 +9802,7 @@ function saveClassName(){
   const name = document.getElementById('classNameInput').value.trim();
   if(!name){ showToast('请输入班级名称','error'); return; }
   state.className = name;
-  // v2.17.25 首次保存班级名称时，若班级全称尚未填，自动同步（避免证书回退到简称）；用户可在下方编辑为正式全称
+  // v2.17.26 首次保存班级名称时，若班级全称尚未填，自动同步（避免证书回退到简称）；用户可在下方编辑为正式全称
   if(!state.classNameFull){
     state.classNameFull = name;
     const fullInput = document.getElementById('classNameFullInput');
@@ -9562,11 +9812,11 @@ function saveClassName(){
   document.getElementById('sidebarClassName').textContent = name;
   showToast('班级名称已保存' + (state.classNameFull === name && !document.getElementById('classNameFullInput').dataset.edited ? '（班级全称已自动同步为简称，后续请在下方改为正式全称，如「2026级幼儿保育2班」）' : ''),'success');
 }
-function saveClassNameFull(){   // v2.17.25 班级全称：荣誉证书等正式文件落款用
+function saveClassNameFull(){   // v2.17.26 班级全称：荣誉证书等正式文件落款用
   const name = document.getElementById('classNameFullInput').value.trim();
   state.classNameFull = name;
   saveData();
-  // v2.17.25 同步显示状态：已设→绿色提示用法；未设→提醒将用简称
+  // v2.17.26 同步显示状态：已设→绿色提示用法；未设→提醒将用简称
   const st = document.getElementById('classNameFullStatus');
   if(st){
     if(name){
@@ -9664,7 +9914,7 @@ function openReasonDirModal(){
   if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(name)){ showToast('方向名限中英文/数字，不能含符号与表情', 'error'); return; }
   if(state.reasonCatalog[name]){ showToast('方向「' + name + '」已存在', 'warning'); return; }
   state.reasonCatalog[name] = {};
-  catDelUndo('dirs', name);   // v2.17.25 重新添加同名方向视为放弃删除
+  catDelUndo('dirs', name);   // v2.17.26 重新添加同名方向视为放弃删除
   catRefresh();
   showToast('已新增方向：' + name, 'success');
 }
@@ -9677,7 +9927,7 @@ function openReasonGroupModal(dir){
   if(!state.reasonCatalog[dir]) state.reasonCatalog[dir] = {};
   if(state.reasonCatalog[dir][name]){ showToast('大类「' + name + '」已存在', 'warning'); return; }
   state.reasonCatalog[dir][name] = [];
-  catDelUndo('groups', dir + '|' + name);   // v2.17.25 重新添加同名大类视为放弃删除
+  catDelUndo('groups', dir + '|' + name);   // v2.17.26 重新添加同名大类视为放弃删除
   catRefresh();
   showToast('已新增大类：' + dir + ' → ' + name, 'success');
 }
@@ -9808,7 +10058,7 @@ function catSaveNewItem(){
   if(!state.reasonCatalog[dir]) state.reasonCatalog[dir] = {};
   if(!state.reasonCatalog[dir][group]) state.reasonCatalog[dir][group] = [];
   state.reasonCatalog[dir][group].push(name);
-  catDelUndo('reasons', name);   // v2.17.25 重新添加同名原因视为放弃删除
+  catDelUndo('reasons', name);   // v2.17.26 重新添加同名原因视为放弃删除
   var scoreStr = String(document.getElementById('catScoreInput').value || '').trim();
   if(scoreStr !== ''){
     var n = Number(scoreStr);
@@ -9825,7 +10075,7 @@ function askResetReasonCatalog(){
   if(!confirm('再次确认：自定义内容将被覆盖，不可撤销。')) return;
   state.reasonCatalog = defaultReasonCatalog();
   state.reasonScores = Object.assign({}, defaultReasonScores);
-  state.catDeleted = { dirs: [], groups: [], reasons: [] };   // v2.17.25 恢复预设后清空墓碑
+  state.catDeleted = { dirs: [], groups: [], reasons: [] };   // v2.17.26 恢复预设后清空墓碑
   catRefresh();
   showToast('已恢复制度预设目录（27 项）', 'success');
 }
@@ -10067,7 +10317,7 @@ function clearData(){
   state.honors = [];
   state.nextHonorId = 1;
   state.notices = { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 };
-  state.creditBank = cbDefaultBank();   // v2.17.25 学分银行随数据清空（品牌配置类保留）
+  state.creditBank = cbDefaultBank();   // v2.17.26 学分银行随数据清空（品牌配置类保留）
   state.selectedStudents = new Set();
   state.wipeAt = Date.now();   // v2.11.3 重置戳：其他设备拉取到更大的 wipeAt 会自动清空对齐，旧数据不复活
   saveData();
@@ -10164,7 +10414,7 @@ function renderAll(){
   const activePage = document.querySelector('.nav-item.active')?.dataset.page || 'dashboard';
   navigateTo(activePage);
   updateExportBadge();
-  updateCbAlertChip();   // v2.17.25 预警角标（随云端合并/跨标签同步刷新）
+  updateCbAlertChip();   // v2.17.26 预警角标（随云端合并/跨标签同步刷新）
 }
 
 /* ==================== 登录 & 密码（SHA-256 加盐哈希） ==================== */
@@ -10457,7 +10707,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ==================== Init ==================== */
-// v2.17.25 先加载本地数据，再执行班委模式限制/身份解析（此前 applyCommitteeRestrictions 先于 loadData 运行，
+// v2.17.26 先加载本地数据，再执行班委模式限制/身份解析（此前 applyCommitteeRestrictions 先于 loadData 运行，
 // 身份解析时学生名单为空 → 署名退化成匿名「通用班委」，选了身份也白选）
 loadData();
 // 登录拦截：未解锁时显示登录页；班委模式免密直达（受限视图）
@@ -10491,14 +10741,14 @@ autoSyncFromCloud().then(function(){
   // Re-render after sync to ensure DOM is updated
   renderScheduleImage();
   renderClassBrand();
-  // v2.17.25 云端首次拉到名单后补一次身份解析：本地无缓存、名单只在云端时，
+  // v2.17.26 云端首次拉到名单后补一次身份解析：本地无缓存、名单只在云端时，
   // 启动期 resolveCmIdentity 会因名单为空退化为匿名，这里补齐署名身份（幂等，仅匿名时触发）
   if(window.__cmRole === 'committee' && window.__cmIdentity && window.__cmIdentity.anonymous && state.students && state.students.length){
     applyCommitteeRestrictions();
   }
 });
 // Auto sync when tab becomes visible (mobile tab switching)
-/* v2.17.25 跨标签实时同步：班主任操作窗口（学分页/学生表加分）与公示常驻窗口
+/* v2.17.26 跨标签实时同步：班主任操作窗口（学分页/学生表加分）与公示常驻窗口
    （投屏/另一标签全屏给全班看）通常同浏览器多开、共享 localStorage。storage 事件
    让非来源标签自动 loadData + 重渲当前页 —— 加分/减分/撤销/恢复后，公示窗口的
    学分榜/进步榜/零扣分榜/统计图表即时更新，不再等切回标签或云端往返。
