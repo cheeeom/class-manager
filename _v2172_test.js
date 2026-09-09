@@ -29,11 +29,11 @@ t('index.html 主 <script> 块可被完整编译（选择器改造无语法错�
   if (!n) throw new Error('未找到主脚本块');
 });
 
-console.log('\n=== v2.18.0 版本三处同步 ===');
-t('登录页 / 侧栏 / SW CACHE_NAME = v2.18.0', () => {
-  if (!/login-version">v2\.18\.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.18.0')) throw new Error('SW CACHE_NAME 未更新');
+console.log('\n=== v2.18.1 版本三处同步 ===');
+t('登录页 / 侧栏 / SW CACHE_NAME = v2.18.1', () => {
+  if (!/login-version">v2\.18\.1</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.1 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.18.1')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== v2.17.30 热修：内联事件 this 陷阱 ===');
