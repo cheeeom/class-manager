@@ -1,4 +1,4 @@
-/* v2.17.28 回归测试：兑换商店学生选择器改造（无默认 + 点选候选名单）+ 学分操作「按寝室加减分」
+/* v2.17.29 回归测试：兑换商店学生选择器改造（无默认 + 点选候选名单）+ 学分操作「按寝室加减分」
    运行：node _v2181_test.js */
 const fs = require('fs');
 const html = fs.readFileSync('index.html', 'utf8');
@@ -32,10 +32,10 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('版本三处同步 = v2.17.28（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.17\.28</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.28 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.17.28')) throw new Error('SW CACHE_NAME 未更新');
+t('版本三处同步 = v2.17.29（登录页/侧栏/SW CACHE_NAME）', () => {
+  if (!/login-version">v2\.17\.29</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.17\.29 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.17.29')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== ① 兑换商店：无默认选中 + 点搜索框出候选名单 ===');
@@ -52,7 +52,7 @@ t('未选学生时显示引导提示、不显示默认姓名', () => {
 t('点搜索框（focus）→ 全体候选；输入实时筛选；回车选第一个', () => {
   has(html, 'onfocus="cbStoreFocus(this)"', '缺 focus 展开处理');
   has(html, 'onblur="setTimeout', '缺 blur 收起');
-  has(html, '(state.students || []).slice(0, 60)', '空关键词应列全体候选');
+  has(html, ': cands.slice(0, 60);', '空关键词应列全体候选');
   has(html, 'function cbStoreFocus(el)', '缺 cbStoreFocus');
   has(html, "if(s && el.value === s.name) el.value = '';", 'focus 时应先清掉已选名字再列全体');
   has(html, 'cbStoreSearchKey(event)', '回车逻辑保留');
