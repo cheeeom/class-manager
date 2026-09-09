@@ -1,5 +1,5 @@
 /* v2.17.19/20 回归测试：档案详情新版式 + 拼音排序 + 寝室→性别补写 + 德育记录本学期/折叠
-   + 荣誉墙类型筛选 + 证书导出；v2.17.29 证书去红章/去班主任署名/日期右对齐空两格/班级全称落款。
+   + 荣誉墙类型筛选 + 证书导出；v2.17.30 证书去红章/去班主任署名/日期右对齐空两格/班级全称落款。
    运行：node _v2177_test.js */
 const fs = require('fs');
 const html = fs.readFileSync('index.html', 'utf8');
@@ -34,7 +34,7 @@ var DORM_GENDER_RULES = _m ? eval('(' + _m[1] + ')') : [];
 var dormNoOf = extractFn('dormNoOf');
 var normalizeDormTag = extractFn('normalizeDormTag');
 var isDormTag = extractFn('isDormTag');
-// v2.17.29 注入 const 常量依赖（DORM_RE 是 const，eval 抽函数没法闭包到）
+// v2.17.30 注入 const 常量依赖（DORM_RE 是 const，eval 抽函数没法闭包到）
 const _dormReMatch = html.match(/const DORM_RE = (\/[\s\S]*?\/);/);
 var DORM_RE = _dormReMatch ? eval(_dormReMatch[1]) : null;
 const dormGenderOf = extractFn('dormGenderOf');
@@ -49,11 +49,11 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 
-console.log('\n=== v2.17.29 版本三处同步 ===');
-t('登录页 / 侧栏 / SW CACHE_NAME = v2.17.29', () => {
-  if (!/login-version">v2\.17\.29</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.29 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.17.29')) throw new Error('SW CACHE_NAME 未更新');
+console.log('\n=== v2.17.30 版本三处同步 ===');
+t('登录页 / 侧栏 / SW CACHE_NAME = v2.17.30', () => {
+  if (!/login-version">v2\.17\.30</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.17\.30 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.17.30')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 拼音排序（左侧学生名单） ===');
@@ -140,7 +140,7 @@ t('证书画布生成函数 + 导出函数就位', () => {
   ['function drawHonorCertCanvas(', 'function exportHonorCert(', 'function honorCertEntity('].forEach(m => has(html, m, '缺' + m));
 });
 
-console.log('\n=== v2.17.29 证书导出：去红章 / 去班主任署名 / 日期右对齐空两格 / 班级全称落款 ===');
+console.log('\n=== v2.17.30 证书导出：去红章 / 去班主任署名 / 日期右对齐空两格 / 班级全称落款 ===');
 t('红章「班主任荣誉专用章」整块移除（不再出现专用章/红章描画）', () => {
   if (html.indexOf('班主任荣誉专用章') >= 0) throw new Error('仍残留红章文案');
   if (html.indexOf('专用章') >= 0) throw new Error('仍残留「专用章」');
@@ -168,7 +168,7 @@ t('证书绘制用 certClassName（顶部抬头 + 底部落款两处）', () => 
   if (cnt < 2) throw new Error('证书应至少两处用班级全称，实际 ' + cnt + ' 处');
   if (fn.indexOf('state.className') >= 0) throw new Error('证书内仍直读 state.className（不走全称）');
 });
-t('v2.17.29 落款居中布局：班级全称在上（H/2, H-150）+ 日期在下（H/2, H-100），两者对齐', () => {
+t('v2.17.30 落款居中布局：班级全称在上（H/2, H-150）+ 日期在下（H/2, H-100），两者对齐', () => {
   const fn = html.match(/function drawHonorCertCanvas\([\s\S]*?\n\}/)[0];
   if (!/ctx\.fillText\(certClassName\(\), W \/ 2, H - 150\)/.test(fn)) throw new Error('班级全称未居中绘制');
   if (!/ctx\.fillText\(dtx, W \/ 2, H - 100\)/.test(fn)) throw new Error('日期未居中绘制');
@@ -192,11 +192,11 @@ t('设置页有班级全称输入框 + 保存函数 + 渲染回填 + 状态提�
   if (!/renderSettings\(\)\{[\s\S]*?classNameFullInput/.test(html)) throw new Error('renderSettings 未回填全称');
   if (!html.includes('id="classNameFullStatus"')) throw new Error('缺状态提示 id');
 });
-t('v2.17.29 saveClassName 自动镜像：保存班级名称时若 classNameFull 空则同步', () => {
+t('v2.17.30 saveClassName 自动镜像：保存班级名称时若 classNameFull 空则同步', () => {
   const fn = html.match(/function saveClassName\(\)\{[\s\S]*?\n\}/)[0];
   if (!/if\(!state\.classNameFull\)\{[\s\S]*?state\.classNameFull = name/.test(fn)) throw new Error('saveClassName 未做自动镜像');
 });
-t('v2.17.29 exportHonorCert 全称为空时温柔提示一次（不重复打扰）', () => {
+t('v2.17.30 exportHonorCert 全称为空时温柔提示一次（不重复打扰）', () => {
   if (!/__cmFullNameToastShown/.test(html)) throw new Error('导出函数未加一次性提示开关');
   if (!/班级全称未设置|班级全称为空/.test(html)) throw new Error('缺全称为空引导文案');
 });
