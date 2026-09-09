@@ -1,4 +1,4 @@
-/* v2.17.29 回归测试：兑换商店候选名单默认按币由多到少排序（空态全体 + 输入筛选一致）
+/* v2.17.30 回归测试：兑换商店候选名单默认按币由多到少排序（空态全体 + 输入筛选一致）
    运行：node _v2182_test.js */
 const fs = require('fs');
 const html = fs.readFileSync('index.html', 'utf8');
@@ -12,10 +12,10 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('版本三处同步 = v2.17.29（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.17\.29</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.29 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.17.29')) throw new Error('SW CACHE_NAME 未更新');
+t('版本三处同步 = v2.17.30（登录页/侧栏/SW CACHE_NAME）', () => {
+  if (!/login-version">v2\.17\.30</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.17\.30 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.17.30')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 候选名单按币降序 ===');
