@@ -719,3 +719,16 @@
 - [x] **回归**：22 套件全绿（20 套版本系列 + crypto/sync/v290/xss）
 - [x] **升版**：v2.17.27 → v2.17.28（index/sw + 测试文件明文+转义双轮；PROGRESS.md 不盲替、手动追加本段）
 - [x] **推送**：见下一次 commit
+
+### 2026-09-09（v2.17.29：兑换商店候选名单按币由多到少排序）
+
+- [x] **需求**（老板原话）：兑换商店的默认搜索框应该按照学分币多少进行排序，由多到少
+- [x] **改动**（`cbStoreSearchInput` 重构）：
+  - 币 map（cbCoinMap）**提前算一次**，候选排序依据与行内币显示共用，不再渲染时才算
+  - 候选全集先拷贝 `cands = students.slice()` 后统一排序：**主键币降序**（`cm[b]-cm[a]`）+ **次键 id 升序**保稳；空关键词（全体，上限 60）与输入筛选态（匹配集，上限 8）都作用于已排序的 cands → 两种形态下都是币多在前
+  - 原有无默认选中 / focus 展开 / 实时筛选 / ✕ 清除 / 未选锁定 行为零改动
+- [x] **测试**：新增 `_v2182_test.js` 7 项（版本三处同步 / 主 <script> 可编译 / cbCoinMap 先于排序 / 两态共用排序后 cands / **比较器纯逻辑验证**：从 index 抽取 sort 回调直接喂虚构币 map 跑排序，币降序+同币 id 升序全对 / 行内币同 map / v2.17.28 行为回归冒烟）；_v2181 一处旧断言更新（`(state.students||[]).slice(0,60)` → `cands.slice(0,60)`，语义未变实现重构）；25 套件全绿
+- [x] **实测**（playwright，localStorage 种子 5 人 币 120/80/55/20/0）：点搜索框 focus → 候选 甲120→乙80→丙55→丁20→戊0 按币降序 ✅；输入「0」命中 5 个学号前缀匹配集内仍降序 ✅；零 JS 错误。踩坑：① `state` 是顶层 `let` 不挂 window，evaluate 取不到 → 改 localStorage seed + reload ② tab 面板显隐是 CSS class，剥祖先 display 要设 block 而非空串 ③ 无头页 el.focus() 事件不可靠 → 用 playwright `page.focus()` ④ python http.server 的 `--directory` 只认 Windows 盘符路径 `/d/...` 会 404
+- [x] **回归**：25 套件全绿（21 套版本系列 + _v2182 新 7 项 + crypto/sync/v290/xss）
+- [x] **升版**：v2.17.28 → v2.17.29（index/sw + 测试文件明文+转义双轮；PROGRESS.md 不盲替、手动追加本段；_v2182 测试名里的「v2.17.28 行为」手动保留不被误升）
+- [x] **推送**：见下一次 commit

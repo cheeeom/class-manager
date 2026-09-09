@@ -25,11 +25,11 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 
-console.log('\n=== v2.17.28 版本三处同步 ===');
-t('登录页 / 侧栏 / SW CACHE_NAME = v2.17.28', () => {
-  if (!/login-version">v2\.17\.28</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.28 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.17.28')) throw new Error('SW CACHE_NAME 未更新');
+console.log('\n=== v2.17.29 版本三处同步 ===');
+t('登录页 / 侧栏 / SW CACHE_NAME = v2.17.29', () => {
+  if (!/login-version">v2\.17\.29</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.17\.29 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.17.29')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 目录纯函数 ===');
@@ -160,14 +160,14 @@ t('三个负值入口都接了 cmMinusBlocked', () => {
     if (!html.slice(i, i + 700).includes(line)) throw new Error(sig + ' 未接扣分拦截');
   });
 });
-t('v2.17.28 updateCreditBtnStates：不再引用快捷按钮组，负分（班委禁扣）时禁用应用按钮', () => {
+t('v2.17.29 updateCreditBtnStates：不再引用快捷按钮组，负分（班委禁扣）时禁用应用按钮', () => {
   const fn = html.match(/function updateCreditBtnStates\(\)\{[\s\S]*?\n\}/)[0];
   if (fn.includes('quickBtnGroup')) throw new Error('仍残留快捷按钮组逻辑');
   if (!fn.includes('cmMinusLock')) throw new Error('缺班委禁扣判定');
   if (!/amt < 0/.test(fn)) throw new Error('缺负分判定');
   if (!fn.includes('班主任已关闭班委扣分权限')) throw new Error('缺禁扣提示');
 });
-t('v2.17.28 学分操作页不再有 ±快捷预设按钮组（原因自带分值）', () => {
+t('v2.17.29 学分操作页不再有 ±快捷预设按钮组（原因自带分值）', () => {
   if (html.includes('id="quickBtnGroup"')) throw new Error('仍残留快捷按钮组 HTML');
   // 工具栏顺序：姓名搜索 → rp-credit（原因）→ customCredit → 应用
   const iS = html.indexOf('id="creditStudentInput"');

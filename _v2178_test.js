@@ -1,4 +1,4 @@
-/* v2.17.28 回归测试：学分银行（双轨账本/月度阶梯结算/兑换商店/阶梯预警/教师专属页）
+/* v2.17.29 回归测试：学分银行（双轨账本/月度阶梯结算/兑换商店/阶梯预警/教师专属页）
    覆盖：数据五处链路 + 币派生口径 + 结算定档 + 券去重/合并 + 预警建档升级自动办结 + UI 接入。
    运行：node _v2178_test.js */
 const fs = require('fs');
@@ -56,7 +56,7 @@ const cbGiveVoucher = extractFn('cbGiveVoucher');
 const cbDoSettle = extractFn('cbDoSettle');
 const cbScanAlerts = extractFn('cbScanAlerts');
 const cbPendingAlertCount = extractFn('cbPendingAlertCount');
-// v2.17.28：商品目录（cbGiveVoucher / cbDoSettle 已改为读实时目录）
+// v2.17.29：商品目录（cbGiveVoucher / cbDoSettle 已改为读实时目录）
 const cbStoreItems = extractFn('cbStoreItems');
 const cbStoreAll = extractFn('cbStoreAll');
 const cbStoreItemByKey = extractFn('cbStoreItemByKey');
@@ -71,10 +71,10 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('版本三处同步 = v2.17.28（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.17\.28</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.28 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.17.28')) throw new Error('SW CACHE_NAME 未更新');
+t('版本三处同步 = v2.17.29（登录页/侧栏/SW CACHE_NAME）', () => {
+  if (!/login-version">v2\.17\.29</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.17\.29 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.17.29')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 数据五处链路 ===');
@@ -126,7 +126,7 @@ t('pageTitles 含 bank=学分银行；navigateTo 分支 + renderBankPage 教师�
 });
 t('学分银行 tabs 滑块：initBankTabIndicator 定位（active 白字靠红滑块托底，防「点切换字变白看不见」）', () => {
   has(html, 'function initBankTabIndicator(');
-  has(html, 'initBankTabIndicator();   // v2.17.28 重渲染后立即重算滑块位置');
+  has(html, 'initBankTabIndicator();   // v2.17.29 重渲染后立即重算滑块位置');
   has(html, 'id="cbBankTabs"');
   has(html, 'initBankTabIndicator();\n});', 'resize 兜底缺失');
   const fn = html.match(/function initBankTabIndicator\(\)\{[\s\S]*?\n\}/)[0];
@@ -175,7 +175,7 @@ t('撤销加分后币自动回退（流水退出有效集即派生消失）', ()
 });
 
 console.log('\n=== 月度结算定档与发放（cbSettleTier / cbDoSettle） ===');
-t('cbSettleTier 分档边界（v2.17.28 三档）：≥200 巅峰 / 150-199 卓越 / 110-149 进取 / 60-109 常规 / <60 预警区', () => {
+t('cbSettleTier 分档边界（v2.17.29 三档）：≥200 巅峰 / 150-199 卓越 / 110-149 进取 / 60-109 常规 / <60 预警区', () => {
   eq(cbSettleTier(260).key, 'lv3', '260 封顶档');
   eq(cbSettleTier(200).key, 'lv3'); eq(cbSettleTier(199).key, 'lv2');
   eq(cbSettleTier(150).key, 'lv2'); eq(cbSettleTier(149).key, 'lv1');
@@ -212,7 +212,7 @@ t('结算本月：lv3 全目录券+120币 / lv2 3券+50币 / lv1 1券+20币 / �
   const l1 = state.creditBank.ledger.filter(e => String(e.sid) === '1')[0];
   eq(l1.delta, CB_SETTLE_COINS.lv3, 'lv3 发币');
   const v2 = cbVouchers(2).filter(v => v.status !== 'refunded');
-  eq(v2.map(v => v.key).sort().join(','), 'dayMonitor,laborWaive,lateFree', 'lv2 三券（v2.17.28 电影点播→劳动整改豁免）');
+  eq(v2.map(v => v.key).sort().join(','), 'dayMonitor,laborWaive,lateFree', 'lv2 三券（v2.17.29 电影点播→劳动整改豁免）');
   eq(state.creditBank.ledger.filter(e => String(e.sid) === '2')[0].delta, CB_SETTLE_COINS.lv2);
   const v3 = cbVouchers(3).filter(v => v.status !== 'refunded');
   eq(v3.length, 1); eq(v3[0].key, 'lateFree'); eq(v3[0].source, 'settle');
@@ -323,7 +323,7 @@ t('renderBankPage/updateCbAlertChip 挂到 window 调用（refresh 体系 safe()
 });
 t('applyCreditDelta 双轨注释（加分自动等额发币由流水派生，无额外记账）', () => {
   const ac = html.match(/function applyCreditDelta\([\s\S]*?\n\}/)[0];
-  has(ac, 'v2.17.28 学分银行双轨');
+  has(ac, 'v2.17.29 学分银行双轨');
   has(ac, '无需额外记账');
 });
 
