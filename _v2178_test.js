@@ -1,4 +1,4 @@
-/* v2.17.24 回归测试：学分银行（双轨账本/月度阶梯结算/兑换商店/阶梯预警/教师专属页）
+/* v2.17.28 回归测试：学分银行（双轨账本/月度阶梯结算/兑换商店/阶梯预警/教师专属页）
    覆盖：数据五处链路 + 币派生口径 + 结算定档 + 券去重/合并 + 预警建档升级自动办结 + UI 接入。
    运行：node _v2178_test.js */
 const fs = require('fs');
@@ -29,8 +29,12 @@ function extractFn(name) {
 // —— 模块级常量依赖（eval 抽出的函数闭包按名引用，须以同名 const 提供）——
 const _storeM = html.match(/const CB_STORE = (\[[\s\S]*?\n\]);/);
 const CB_STORE = _storeM ? eval('(' + _storeM[1] + ')') : [];
-const _settleM = html.match(/const CB_SETTLE_EXCELLENT_COUPONS = (\[[^\n]*\]);/);
-const CB_SETTLE_EXCELLENT_COUPONS = _settleM ? eval('(' + _settleM[1] + ')') : [];
+const _coinsM = html.match(/const CB_SETTLE_COINS = (\{[^\n]*\});/);
+const CB_SETTLE_COINS = _coinsM ? eval('(' + _coinsM[1] + ')') : { lv1: 20, lv2: 50, lv3: 120 };
+const _lv1M = html.match(/const CB_SETTLE_LV1_COUPONS = (\[[^\n]*\]);/);
+const CB_SETTLE_LV1_COUPONS = _lv1M ? eval('(' + _lv1M[1] + ')') : [];
+const _lv2M = html.match(/const CB_SETTLE_LV2_COUPONS = (\[[^\n]*\]);/);
+const CB_SETTLE_LV2_COUPONS = _lv2M ? eval('(' + _lv2M[1] + ')') : [];
 const _tierM = html.match(/const CB_ALERT_TIERS = (\[[\s\S]*?\n\]);/);
 const CB_ALERT_TIERS = _tierM ? eval('(' + _tierM[1] + ')') : [];
 const CB_ALERT_MIN = 60;
@@ -52,6 +56,13 @@ const cbGiveVoucher = extractFn('cbGiveVoucher');
 const cbDoSettle = extractFn('cbDoSettle');
 const cbScanAlerts = extractFn('cbScanAlerts');
 const cbPendingAlertCount = extractFn('cbPendingAlertCount');
+// v2.17.28：商品目录（cbGiveVoucher / cbDoSettle 已改为读实时目录）
+const cbStoreItems = extractFn('cbStoreItems');
+const cbStoreAll = extractFn('cbStoreAll');
+const cbStoreItemByKey = extractFn('cbStoreItemByKey');
+const cbSettleLv3Coupons = extractFn('cbSettleLv3Coupons');
+const cbSname = extractFn('cbSname');
+const cbPushLedger = extractFn('cbPushLedger');
 function freshState(students, ops) {
   return { className: '', classNameFull: '', students: students || [], operations: ops || [], creditBank: cbDefaultBank() };
 }
@@ -60,23 +71,23 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('版本三处同步 = v2.17.24（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.17\.24</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.24 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.17.24')) throw new Error('SW CACHE_NAME 未更新');
+t('版本三处同步 = v2.17.28（登录页/侧栏/SW CACHE_NAME）', () => {
+  if (!/login-version">v2\.17\.28</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.17\.28 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.17.28')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 数据五处链路 ===');
-t('state 默认含 creditBank（settings/wallets/ledger/nextLedgerId/alerts/nextVoucherId/lastSettleMonth）', () => {
-  const def = html.match(/creditBank: \{ settings:\{ autoCoin:true, alertEnabled:true \}, wallets:\{\}, ledger:\[\], nextLedgerId:1,[\s\S]*?createdAt:0 \},  \/\/ v2\.17\.24 学分银行/);
+t('state 默认含 creditBank（settings/wallets/ledger/alerts/store…）', () => {
+  const def = html.match(/creditBank: \{ settings:\{ autoCoin:true, alertEnabled:true \}, wallets:\{\}, ledger:\[\], nextLedgerId:1,[\s\S]*?createdAt:0,[\s\S]*?store:\{ items:\[\], nextItemId:1 \} \},/);
   if (!def) throw new Error('state 默认缺 creditBank 结构');
-  ['settings', 'wallets', 'ledger', 'nextLedgerId', 'alerts', 'nextAlertId', 'nextVoucherId', 'lastSettleMonth', 'createdAt'].forEach(k => has(def[0], k));
+  ['settings', 'wallets', 'ledger', 'nextLedgerId', 'alerts', 'nextAlertId', 'nextVoucherId', 'lastSettleMonth', 'createdAt', 'store'].forEach(k => has(def[0], k));
 });
 t('loadData 读取 d.creditBank 并 cbNormalizeShape / cbBankSafe 补齐', () => {
   const ld = html.match(/function loadData\(\)\{[\s\S]*?\n\}/)[0];
   has(ld, 'if(d.creditBank) state.creditBank = cbNormalizeShape(d.creditBank);');
   has(ld, 'cbBankSafe();');
-  has(ld, 'if(cbScanAlerts() > 0) saveData();', '启动预警扫描缺失');
+  has(ld, 'if(cbScanAlerts() > 0', '启动预警扫描缺失');
 });
 t('saveData 手写清单含 creditBank', () => {
   const sd = html.match(/function saveData\(\)\{[\s\S]*?autoPushToCloud\(\);[\s\S]*?\n\}/)[0];
@@ -115,7 +126,7 @@ t('pageTitles 含 bank=学分银行；navigateTo 分支 + renderBankPage 教师�
 });
 t('学分银行 tabs 滑块：initBankTabIndicator 定位（active 白字靠红滑块托底，防「点切换字变白看不见」）', () => {
   has(html, 'function initBankTabIndicator(');
-  has(html, 'initBankTabIndicator();   // v2.17.24 重渲染后立即重算滑块位置');
+  has(html, 'initBankTabIndicator();   // v2.17.28 重渲染后立即重算滑块位置');
   has(html, 'id="cbBankTabs"');
   has(html, 'initBankTabIndicator();\n});', 'resize 兜底缺失');
   const fn = html.match(/function initBankTabIndicator\(\)\{[\s\S]*?\n\}/)[0];
@@ -164,37 +175,55 @@ t('撤销加分后币自动回退（流水退出有效集即派生消失）', ()
 });
 
 console.log('\n=== 月度结算定档与发放（cbSettleTier / cbDoSettle） ===');
-t('cbSettleTier 分档边界：≥110 卓越 / 100-109 优秀 / 90-99 良好 / 60-89 常规 / <60 预警区', () => {
-  eq(cbSettleTier(115).key, 'excellent'); eq(cbSettleTier(110).key, 'excellent');
-  eq(cbSettleTier(109).key, 'good'); eq(cbSettleTier(100).key, 'good');
-  eq(cbSettleTier(99).key, 'fair'); eq(cbSettleTier(90).key, 'fair');
-  eq(cbSettleTier(89).key, 'regular'); eq(cbSettleTier(60).key, 'regular');
-  eq(cbSettleTier(59).key, 'low'); eq(cbSettleTier(0).key, 'low');
+t('cbSettleTier 分档边界（v2.17.28 三档）：≥200 巅峰 / 150-199 卓越 / 110-149 进取 / 60-109 常规 / <60 预警区', () => {
+  eq(cbSettleTier(260).key, 'lv3', '260 封顶档');
+  eq(cbSettleTier(200).key, 'lv3'); eq(cbSettleTier(199).key, 'lv2');
+  eq(cbSettleTier(150).key, 'lv2'); eq(cbSettleTier(149).key, 'lv1');
+  eq(cbSettleTier(110).key, 'lv1'); eq(cbSettleTier(109).key, 'none', '109 无奖励');
+  eq(cbSettleTier(100).key, 'none', '100 为基础分，无奖励');
+  eq(cbSettleTier(60).key, 'none'); eq(cbSettleTier(59).key, 'low');
+  eq(cbSettleTier(0).key, 'low');
+  // 币：lv1/lv2/lv3 递增，常规区与预警区 0
+  eq(cbSettleTier(110).coin, CB_SETTLE_COINS.lv1);
+  eq(cbSettleTier(150).coin, CB_SETTLE_COINS.lv2);
+  eq(cbSettleTier(200).coin, CB_SETTLE_COINS.lv3);
+  eq(cbSettleTier(100).coin, 0, '基础分区不发币');
+  eq(cbSettleTier(30).coin, 0, '预警区不发币');
+  eq(cbSettleTier(110).coupons.join(','), CB_SETTLE_LV1_COUPONS.join(','));
+  eq(cbSettleTier(150).coupons.join(','), CB_SETTLE_LV2_COUPONS.join(','));
+  eq(cbSettleTier(200).coupons, null, 'lv3 券单由 cbSettleLv3Coupons 动态取全目录');
 });
-t('结算本月：卓越3券 / 优秀班长券 / 良好9折 / 常规与预警区无；同月防重复', () => {
+t('结算本月：lv3 全目录券+120币 / lv2 3券+50币 / lv1 1券+20币 / 常规与预警区无；同月防重复', () => {
   state = freshState([
-    { id: 1, name: '甲', credit: 115 },
-    { id: 2, name: '乙', credit: 105 },
-    { id: 3, name: '丙', credit: 95 },
-    { id: 4, name: '丁', credit: 70 },
+    { id: 1, name: '甲', credit: 250 },
+    { id: 2, name: '乙', credit: 170 },
+    { id: 3, name: '丙', credit: 120 },
+    { id: 4, name: '丁', credit: 100 },
     { id: 5, name: '戊', credit: 55 }
   ]);
   const month = cbMonthKey();
+  const allKeys = cbStoreItems().map(it => it.key);
   const n = cbDoSettle();
-  eq(n, 5, '发放条数（卓越3+优秀1+良好1）');
+  eq(n, 1 + allKeys.length + 1 + 3 + 1 + 1, '发放条数（币各 1 + 券各若干）');
   const v1 = cbVouchers(1).filter(v => v.status !== 'refunded');
-  eq(v1.length, 3, '卓越券数');
-  eq(v1.map(v => v.key).sort().join(','), 'lateFree,lunch,movie', '三券齐备');
-  eq(v1.every(v => v.source === 'settle' && v.month === month && v.status === 'unused'), true);
-  const v2 = cbVouchers(2);
-  eq(v2.length, 1); eq(v2[0].key, 'dayMonitor'); eq(v2[0].source, 'settle');
-  eq(cbVouchers(3).length, 0, '良好不发券');
-  eq(cbWallet(3).discountMonth, month, '良好 9 折月');
-  eq(cbVouchers(4).length, 0); eq(cbWallet(4).discountMonth, '', '常规无折扣');
-  eq(cbVouchers(5).length, 0);
+  eq(v1.length, allKeys.length, 'lv3 全目录各 1 张');
+  eq(v1.map(v => v.key).sort().join(','), allKeys.slice().sort().join(','), '券单 = 上架目录');
+  eq(v1.every(v => v.source === 'settle' && v.month === month && v.status === 'unused' && v.cost === 0), true, '白送券 cost=0');
+  const l1 = state.creditBank.ledger.filter(e => String(e.sid) === '1')[0];
+  eq(l1.delta, CB_SETTLE_COINS.lv3, 'lv3 发币');
+  const v2 = cbVouchers(2).filter(v => v.status !== 'refunded');
+  eq(v2.map(v => v.key).sort().join(','), 'dayMonitor,laborWaive,lateFree', 'lv2 三券（v2.17.28 电影点播→劳动整改豁免）');
+  eq(state.creditBank.ledger.filter(e => String(e.sid) === '2')[0].delta, CB_SETTLE_COINS.lv2);
+  const v3 = cbVouchers(3).filter(v => v.status !== 'refunded');
+  eq(v3.length, 1); eq(v3[0].key, 'lateFree'); eq(v3[0].source, 'settle');
+  eq(state.creditBank.ledger.filter(e => String(e.sid) === '3')[0].delta, CB_SETTLE_COINS.lv1);
+  eq(cbVouchers(4).length, 0, '100 分常规区不发券');
+  eq(state.creditBank.ledger.filter(e => String(e.sid) === '4').length, 0, '常规区不发币');
+  eq(cbWallet(4).discountMonth, '', '常规区无折扣');
+  eq(cbVouchers(5).length, 0, '预警区不发券');
   eq(state.creditBank.lastSettleMonth, month);
   eq(cbDoSettle(), 0, '同月重复结算返回 0');
-  eq(cbVouchers(1).length, 3, '重复结算不重发');
+  eq(cbVouchers(1).filter(v => v.status !== 'refunded').length, allKeys.length, '重复结算不重发');
 });
 t('cbGiveVoucher 同人同券同源同月去重（防重发）', () => {
   state = freshState([{ id: 7, name: '庚', credit: 100 }]);
@@ -294,7 +323,7 @@ t('renderBankPage/updateCbAlertChip 挂到 window 调用（refresh 体系 safe()
 });
 t('applyCreditDelta 双轨注释（加分自动等额发币由流水派生，无额外记账）', () => {
   const ac = html.match(/function applyCreditDelta\([\s\S]*?\n\}/)[0];
-  has(ac, 'v2.17.24 学分银行双轨');
+  has(ac, 'v2.17.28 学分银行双轨');
   has(ac, '无需额外记账');
 });
 

@@ -21,15 +21,15 @@ function grab(sig) {
   if (!m) throw new Error('未找到函数: ' + sig);
   return m[0];
 }
-const liveOps = eval('(' + grab('function liveOps(ops)') + ')');   // v2.17.23 撤销过滤依赖
+const liveOps = eval('(' + grab('function liveOps(ops)') + ')');   // v2.17.28 撤销过滤依赖
 const sumCreditsByStudent = eval('(' + grab('function sumCreditsByStudent(operations)') + ')');
 const ensureCreditBase   = eval('(' + grab('function ensureCreditBase(students, operations)') + ')');
 const reconcileCreditDrift = eval('(' + grab('function reconcileCreditDrift(students, operations)') + ')');
 // smartMergeData 内部引用若干全局常量，为纯函数测试提供最小 stub
 global.DEFAULT_COMMITTEE = {};
-const sortOpsNewestFirst = eval('(' + grab('function sortOpsNewestFirst(ops)') + ')');   // v2.17.23 被 smartMergeData 调用
+const sortOpsNewestFirst = eval('(' + grab('function sortOpsNewestFirst(ops)') + ')');   // v2.17.28 被 smartMergeData 调用
 const smartMergeData     = eval('(' + grab('function smartMergeData(localData,remoteData)') + ')');
-// v2.17.23 smartMergeData 删除墓碑依赖（抽取自 index.html 真实实现）
+// v2.17.28 smartMergeData 删除墓碑依赖（抽取自 index.html 真实实现）
 const cloneCatDeleted = eval('(' + grab('function cloneCatDeleted(t)') + ')');
 const catDelAdd = eval('(' + grab('function catDelAdd(list, key)') + ')');
 const applyCatTombstones = eval('(' + grab('function applyCatTombstones(cat, scores, tomb)') + ')');
@@ -125,7 +125,7 @@ t('四个写入点全部改为走统一入口（不再裸写 credit）', () => {
     if (!fns[k].includes('applyCreditDelta')) throw new Error(k + ' 未走统一入口');
   });
 });
-t('v2.17.23 撤销路径：软删标记 + 学分按有效流水重算（不再物理 shift，云端校准不复活）', () => {
+t('v2.17.28 撤销路径：软删标记 + 学分按有效流水重算（不再物理 shift，云端校准不复活）', () => {
   const src = grab('function undoLastOp()');
   ['liveOps(state.operations)', 'revokeCreditOp(live[0].id)'].forEach(s => { if (!src.includes(s)) throw new Error('缺少: ' + s); });
   const rv = grab('function revokeCreditOp(opId)');
@@ -269,7 +269,7 @@ t('合格率/优秀率口径改为 ≥90 / ≥100（旧的 ≥10 / ≥25 已失�
   if (html.includes('及格率 (≥10)') || html.includes('优秀率 (≥25)')) throw new Error('旧口径残留');
 });
 
-console.log('\n=== v2.17.23 学分全局同步（所有学分模块一个系统） ===');
+console.log('\n=== v2.17.28 学分全局同步（所有学分模块一个系统） ===');
 t('refreshCreditViews 纳入公示页：加分/撤销后公示榜与统计即时刷新', () => {
   const m = html.match(/function refreshCreditViews\(\)\{[\s\S]*?\n\}/);
   if (!m) throw new Error('refreshCreditViews 未找到');
@@ -290,11 +290,11 @@ t('撤销/恢复分值同步：afterOpStateChange 统一走 reconcile + saveData
 });
 
 console.log('\n=== 版本号 ===');
-t('v2.17.23 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
-  if (!/login-version">v2\.17\.23</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.23 ·/.test(html)) throw new Error('侧栏版本号未更新');
+t('v2.17.28 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
+  if (!/login-version">v2\.17\.28</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.17\.28 ·/.test(html)) throw new Error('侧栏版本号未更新');
   const sw = fs.readFileSync('sw.js', 'utf8');
-  if (!sw.includes('class-manager-v2.17.23')) throw new Error('SW CACHE_NAME 未更新');
+  if (!sw.includes('class-manager-v2.17.28')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

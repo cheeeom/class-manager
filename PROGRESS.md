@@ -701,3 +701,21 @@
 - [x] **测试**：_v2178 Lv2 三券断言更新；21 套件全绿；实测 170 分 → dayMonitor/laborWaive/lateFree，230 分 → 全目录含 movie
 - [x] **升版**：v2.17.26 → v2.17.27（index/sw + 测试文件双轮）
 - [x] **推送**：见下一次 commit
+
+### 2026-09-09（v2.17.28：商店学生选择器无默认 + 学分操作「按寝室加减分」）
+
+- [x] **需求**（老板原话两条）：① 兑换商店为什么有默认「刘梓萱（白驿）」的名字，去掉——点搜索框出现候选名单、实时筛选；② 学分操作里新增「按寝室加分」，点击选择寝室、全寝室批量操作加分
+- [x] **① 商店选择器改造**：
+  - 去默认：`var cbStoreSid = ''` 空起步；渲染时仅当有残留且学生不存在才清空（`if(cbStoreSid && !studs.some(...)) cbStoreSid=''`），**绝不回填第一个学生**；未选态不显示任何姓名/余额/档案，改显「👆 点搜索框选择要兑换的学生」引导 + ✕ 清除
+  - 点选交互：搜索框 `onfocus=cbStoreFocus`（已选中则先清名字再展开）→ 空关键词列全体候选（slice 60）；输入姓名/学号/id 实时筛选（slice 8）回车选第一个（cbStoreSearchKey 保留）；onblur 延时收起（保留点击候选行的时间窗）
+  - 锁定兑换：`var can = !!selS && selCoin >= cost && remain > 0`，未选学生时按钮禁用、提示「请先在上方选择学生」
+- [x] **② 按寝室加减分**（学分操作区入口按钮 🏠，结算按钮前）：
+  - 寝室派生沿用**学生档案 tags 里的寝室标签**（`\d+栋-?\d+室`，DORM_RE），非独立字段；`dormRoomMap()` 只收带寝室标签的学生、按房间分组；`dormRoomSort()` 栋/室自然序排序
+  - 弹窗 dormCreditModal：寝室列表点选（再点取消、选中高亮 var(--primary) 边框）+ 已选寝室/成员 chip 预览 + 原因选择器（dormReason 接入 RP 体系：'creditReason','batchReason','dormReason' selects 列表 + initReasonPicker('rp-dorm',…) 分值联动）+ 确认按钮（未选寝室 disabled）
+  - 提交：确认文案实时预览「将给 N 名学生统一操作，每人一条独立流水，可单独撤销」；`dormCreditConfirm()` 逐人走 `applyCreditDelta(s, amount, reason)` 统一入口（扣分同样过 cmMinusBlocked 班委开关）→ saveData → 关弹窗 → toast 汇总 → refreshCreditViews 一次刷新
+  - 空态引导：没有学生挂寝室标签时弹窗给「还没有任何学生挂了寝室标签 / 去「学生管理」…」提示
+- [x] **测试**：新增 `_v2181_test.js` 15 项（版本三处同步/无默认选中五断言/focus 展开/清除回未选/未选锁定/余额判空/入口按钮/弹窗字段齐/dormReason 入体系/dormRoomMap 纯逻辑含空标签剔除/确认走统一入口/确认钮联动/空态文案）；一处断言修正——「独立流水提示」实际承载在 dormCreditRenderSel（选寝室实时预览），非 dormCreditConfirm，测试目标函数改对
+- [x] **实测**（playwright）：① 进商店默认空 + 引导提示；点搜索框出全体候选 5 人；输入「刘」实时收窄；回车选中；✕ 清除回未选态、按钮恢复禁用 ② 按寝室列表 6栋-801室(2人)/6栋-802室(2人)；选 801 + 原因「寝室卫生优秀」+5 → 两人各一条独立 +5 流水、币 100→105，无 JS 错误
+- [x] **回归**：22 套件全绿（20 套版本系列 + crypto/sync/v290/xss）
+- [x] **升版**：v2.17.27 → v2.17.28（index/sw + 测试文件明文+转义双轮；PROGRESS.md 不盲替、手动追加本段）
+- [x] **推送**：见下一次 commit
