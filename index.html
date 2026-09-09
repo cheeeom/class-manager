@@ -1575,6 +1575,7 @@ html.dark .tl-body{background:var(--bg)}
 }
 .login-tip-icon{font-size:18px}
 .login-version{position:absolute;bottom:18px;left:36px;font-size:12px;opacity:0.5;letter-spacing:1px;z-index:1}
+.login-credit{position:absolute;bottom:40px;left:36px;font-size:11px;opacity:0.45;letter-spacing:1px;z-index:1;font-family:var(--font-display)}
 .login-vertical{
   position:absolute;top:44px;right:30px;
   writing-mode:vertical-rl;
@@ -1655,7 +1656,8 @@ html.dark .tl-body{background:var(--bg)}
   .login-pwd-display{height:48px;font-size:18px}
   .login-keypad{gap:8px}
   .key{height:46px;font-size:18px}
-  .login-version{position:static;margin-top:12px;text-align:center}
+  .login-version{position:static;margin-top:4px;text-align:center}
+  .login-credit{position:static;margin-top:10px;text-align:center;font-size:11px;opacity:0.5;letter-spacing:1px}
   .login-logo{width:48px;height:48px;font-size:22px;margin-bottom:14px}
   .login-divider{margin:14px 0}
   .login-tip{font-size:12px;padding:8px 12px}
@@ -1933,7 +1935,8 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div>请输入密码解锁工作台</div>
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
-      <div class="login-version">v2.18.0</div>
+      <div class="login-credit">开发者 · chee</div>
+      <div class="login-version">v2.18.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2052,7 +2055,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.18.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.18.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2250,12 +2253,9 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="seating-toolbar">
           <div class="section-title" style="margin-bottom:0"><span class="dot"></span>座次表</div>
           <span style="flex:1"></span>
-          <div class="tabs" style="margin-bottom:0">
-            <div class="tab active" data-seat-mode="view" onclick="setSeatMode('view')">查看模式</div>
-            <div class="tab" data-seat-mode="edit" onclick="setSeatMode('edit')">编辑模式</div>
-            <div class="tab-indicator" id="seatTabIndicator"></div>
-          </div>
-          <button class="btn btn-primary btn-sm" onclick="autoSeat()">&#x1F3B2; 一键排座</button>
+          <button class="btn btn-outline btn-sm" onclick="autoSeat('random')" title="打乱顺序随机排座">🎲 随机</button>
+          <button class="btn btn-primary btn-sm" onclick="autoSeat('credit')" title="按学分从高到低，依次前排入座">🎓 按学分排座</button>
+          <button class="btn btn-outline btn-sm" onclick="autoSeat('name')" title="按姓名拼音顺序排座">🔤 按姓名</button>
           <button class="btn btn-outline btn-sm" onclick="clearSeating()">清空座位</button>
           <div class="seat-config-inline">
             <label>列</label>
@@ -2266,6 +2266,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <button class="btn btn-primary btn-sm" onclick="saveSeatLayoutInline()">应用</button>
           </div>
         </div>
+        <div style="font-size:12px;color:var(--text-muted);text-align:center;margin:2px 0 8px">💡 点座位卡片即可安排 / 更换学生；已占座卡片右上角 ✕ 可移除</div>
         <div class="seating-teacher">📚 讲 台 📚</div>
         <div class="seating-grid" id="seatingGrid"></div>
       </div>
@@ -2760,7 +2761,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.0</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.1</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
@@ -2770,7 +2771,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
               · 预警中心迁至「学生管理 → 🚨 预警中心」页签，顶部 🚨 角标一键直达<br>
               · 学分全站彩色徽章：&lt;60 沿用预警深底白字；110+ 进取 / 150+ 卓越 / 200+ 巅峰 👑，醒目不碍读值<br>
               · 学生管理移除行内 +1/+5/-1/-5 快捷按钮（防误触，操作统一走批量/学分记录页）<br>
-              · 数据分析与公示图表档位语言统一为五档（预警/常规/进取/卓越/巅峰）
+              · 座次表默认点卡片即可安排 / 更换学生，候选按学分高到低排序，一键「🎓 按学分排座」高分坐前排；登录页标注开发者 chee
             </div>
           </div>
         </div>
@@ -5931,7 +5932,7 @@ function navigateTo(page){
   if(page==='students'){renderStudents();initStudentTabIndicator();}
   if(page==='committee') renderCommittee();
   if(page==='dorm') renderDorm();
-  if(page==='seating'){syncInlineSeatInputs();renderSeating();initSeatIndicator();}
+  if(page==='seating'){syncInlineSeatInputs();renderSeating();}
   if(page==='duty'){renderDuty();renderDutyToday();renderWaterDuty();renderDutyProgress();renderPunishments();}
   if(page==='attendance') renderAttendance();
   if(page==='grades') renderGrades();
@@ -7235,32 +7236,7 @@ function confirmStudentSelectRemove(){
 }
 
 /* ==================== Seating ==================== */
-let seatMode = 'view';
-
-function setSeatMode(mode){
-  seatMode = mode;
-  document.querySelectorAll('[data-seat-mode]').forEach(t=>{
-    t.classList.toggle('active', t.dataset.seatMode === mode);
-  });
-  const indicator = document.getElementById('seatTabIndicator');
-  const activeTab = document.querySelector(`[data-seat-mode="${mode}"]`);
-  if(indicator && activeTab){
-    indicator.style.left = activeTab.offsetLeft - 4 + 'px';
-    indicator.style.width = activeTab.offsetWidth + 'px';
-  }
-  renderSeating();
-}
-
-// 指示器初始化移到 setSeatMode 和 navigateTo 中调用
-function initSeatIndicator(){
-  const activeTab = document.querySelector('[data-seat-mode="view"]');
-  const indicator = document.getElementById('seatTabIndicator');
-  if(activeTab && indicator && activeTab.offsetWidth > 0){
-    indicator.style.left = activeTab.offsetLeft - 4 + 'px';
-    indicator.style.width = activeTab.offsetWidth + 'px';
-  }
-}
-
+/* v2.18.1：移除「查看/编辑」模式切换——点座位卡片默认即可安排（seatMode/setSeatMode/initSeatIndicator 已删） */
 function renderSeating(){
   const grid = document.getElementById('seatingGrid');
   const { cols, rows, seats } = state.seating;
@@ -7292,17 +7268,12 @@ function renderSeating(){
 }
 
 function seatClick(row, col, studentId){
-  if(seatMode !== 'edit'){
-    if(studentId){
-      const s = state.students.find(st=>st.id===studentId);
-      if(s) showToast(`${s.name} - R${row+1}C${col+1}`, 'info');
-    }
-    return;
-  }
-  // Edit mode: open student select
+  // v2.18.1：默认可安排——点卡片直接弹候选名单（空位=安排 / 已占=更换），不再要求先切编辑模式
   document.getElementById('studentSelectTitle').textContent = studentId ? '更换座位' : '安排座位';
   const occupiedIds = state.seating.seats.map(s=>s.studentId);
   _studentPickerPool = state.students.filter(s=>!occupiedIds.includes(s.id) || s.id===studentId);
+  // v2.18.1：候选按学分从高到低排序——学分高者优先挑座
+  _studentPickerPool.sort((a,b)=>(Number(b.credit)||0)-(Number(a.credit)||0));
   _studentPickerMark = studentId || null;
   document.getElementById('studentSelectRemove').style.display = studentId ? '' : 'none';
   const modal = document.getElementById('studentSelectModal');
@@ -7320,22 +7291,20 @@ function removeSeat(row, col){
   showToast('已移除座位','info');
 }
 
-function autoSeat(){
+function autoSeat(strategy){
   if(state.students.length === 0){
     showToast('请先添加学生','error');
     return;
   }
   const { cols, rows } = state.seating;
   const totalSeats = cols * rows;
-  const strategy = prompt('排座策略：\n1 = 随机排座\n2 = 按学分高低（高→前）\n3 = 按姓名拼音\n\n请输入策略编号（默认1）：', '1');
-  if(!strategy) return;
   let sorted = [...state.students];
-  const mode = (strategy || '1').trim();
-  if(mode === '2'){ sorted.sort((a,b) => b.credit - a.credit); }
-  else if(mode === '3'){ sorted.sort((a,b) => a.name.localeCompare(b.name, 'zh')); }
+  const mode = (strategy === 'credit' || strategy === 'name') ? strategy : 'random';
+  if(mode === 'credit'){ sorted.sort((a,b) => (Number(b.credit)||0) - (Number(a.credit)||0)); } // v2.18.1 学分高→前
+  else if(mode === 'name'){ sorted.sort((a,b) => String(a.name||'').localeCompare(String(b.name||''), 'zh')); }
   else { for(let i = sorted.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [sorted[i], sorted[j]] = [sorted[j], sorted[i]]; } }
-  const strategyName = {'1':'随机','2':'按学分高低','3':'按姓名拼音'}[mode] || '随机';
-  if(!confirm(`将按「${strategyName}」策略安排 ${sorted.length} 名学生到 ${totalSeats} 个座位，确认继续？`)) return;
+  const strategyName = {'random':'随机','credit':'按学分从高到低','name':'按姓名拼音'}[mode];
+  if(!confirm(`将按「${strategyName}」排座：${sorted.length} 名学生从第一排依次填入 ${totalSeats} 个座位，确认继续？`)) return;
   state.seating.seats = [];
   let idx = 0;
   for(let r = 0; r < rows; r++){

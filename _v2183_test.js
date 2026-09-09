@@ -12,10 +12,10 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('版本三处同步 = v2.18.0（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.18\.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.18.0')) throw new Error('SW CACHE_NAME 未更新');
+t('版本三处同步 = v2.18.1（登录页/侧栏/SW CACHE_NAME）', () => {
+  if (!/login-version">v2\.18\.1</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.1 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.18.1')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 设置页「关于本系统」区块 ===');
@@ -29,10 +29,10 @@ t('区块存在于设置页最底部（跨电脑指南之后）', () => {
 t('开发作者 = chee', () => {
   has(html, '开发作者：<b style="color:var(--primary)">chee</b>', '缺作者署名');
 });
-t('版本徽标与全局版本一致（v2.18.0，随升版自动跟版）', () => {
-  has(html, '🏷️ v2.18.0</span>', '设置页版本徽标未跟版');
+t('版本徽标与全局版本一致（v2.18.1，随升版自动跟版）', () => {
+  has(html, '🏷️ v2.18.1</span>', '设置页版本徽标未跟版');
 });
-t('近版更新速览内容齐（v2.18.0 本期五条：净增五档 / 预警迁学生页 / 彩徽章 / 快捷按钮移除 / 图表五档）', () => {
+t('近版更新速览内容齐（v2.18.1 本期五条：净增五档 / 预警迁学生页 / 彩徽章 / 快捷按钮移除 / 座次直排+chee标注）', () => {
   has(html, 'id="settingsReleaseNotes"', '缺 notes 容器');
   has(html, '近版更新速览', '缺标题');
   has(html, '按「当月净增」结算', '缺净增结算说明');
@@ -40,7 +40,8 @@ t('近版更新速览内容齐（v2.18.0 本期五条：净增五档 / 预警迁
   has(html, '预警中心迁至「学生管理', '缺预警迁移说明');
   has(html, '学分全站彩色徽章', '缺徽章说明');
   has(html, '行内 +1/+5/-1/-5', '缺快捷按钮移除说明');
-  has(html, '预警/常规/进取/卓越/巅峰', '缺图表五档说明');
+  has(html, '点座位卡片即可安排 / 更换学生', '缺座次说明');
+  has(html, '登录页标注开发者 chee', '缺登录页作者说明');
 });
 t('区块风格沿用 settings-section / 主色徽标（样式一致性冒烟）', () => {
   const seg = html.slice(html.indexOf('id="settingsAbout"') - 200, html.indexOf('id="settingsReleaseNotes"') + 400);
