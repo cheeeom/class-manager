@@ -31,6 +31,9 @@ const pubDisplayName = eval('(' + grab('function pubDisplayName(s)') + ')');
 global.pubCredit = s => { const n = Number(s.credit); return isNaN(n) ? 0 : n; };
 const computePublicityData = eval('(' + grab('function computePublicityData(students, operations, rangeKind, nowDate)') + ')');
 global.state = {};
+// v2.18.0 公示榜行改走 cbCreditBadge 徽章（pubStaminaRow/pubTopRow 等调用）；
+// 本套件只断言续航语义与分值文本，徽章颜色/档位语义由 _v2184 专测
+global.cbCreditBadge = c => (Math.round(Number(c) || 0)) + ' 分';
 
 console.log('\n=== 周期边界 ===');
 t('today：取当日 00:00', () => {
@@ -305,11 +308,11 @@ t('canvas 冒烟环境：四图一海报函数全部可执行不抛异常', () =
 global.document = __orig.doc; global.requestAnimationFrame = __orig.raf; global.state = __orig.state;
 
 console.log('\n=== 版本号 ===');
-t('v2.17.30 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
-  if (!/login-version">v2\.17\.30</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.17\.30 ·/.test(html)) throw new Error('侧栏版本号未更新');
+t('v2.18.0 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
+  if (!/login-version">v2\.18\.0</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
   const sw = fs.readFileSync('sw.js', 'utf8');
-  if (!sw.includes('class-manager-v2.17.30')) throw new Error('SW CACHE_NAME 未更新');
+  if (!sw.includes('class-manager-v2.18.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

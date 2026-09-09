@@ -33,6 +33,8 @@ const scope = {
   escapeHtml: s => String(s), escapeAttr: s => String(s), getTagClass: () => '',
   genSid: () => '2026999', syncCommitteeTags() {},
   confirm: () => true,
+  // v2.18.0 学分列改走 cbCreditBadge 徽章；本套件只断言排序与名单，徽章语义由 _v2184 专测
+  cbCreditBadge: c => (Math.round(Number(c) || 0)) + ' 分',
 };
 scope.renderTable = function (...a) { return run('renderTable', ...a); };
 scope.updateSortUi = function (...a) { return run('updateSortUi', ...a); };

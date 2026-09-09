@@ -42,6 +42,10 @@ const monthKeyOf = extractFn('monthKeyOf');
 const liveOps = extractFn('liveOps');   // v2.17.9 monthlySettlePlan 撤销过滤依赖
 const monthlySettlePlan = extractFn('monthlySettlePlan');
 const smartMergeData = extractFn('smartMergeData');
+// v2.18.0 creditLevel 依赖：预警档位常量与命中函数（真实抽取，供 eval 包装函数运行期引用）
+const CB_ALERT_MIN = extractConst('CB_ALERT_MIN');
+const CB_ALERT_TIERS = extractConst('CB_ALERT_TIERS');
+const cbTierOf = extractFn('cbTierOf');
 // v2.17.16 smartMergeData 删除墓碑依赖（抽取自 index.html 真实实现）
 const cloneCatDeleted = extractFn('cloneCatDeleted');
 const catDelAdd = extractFn('catDelAdd');
@@ -166,14 +170,19 @@ t('走读生不进寝室聚合', () => {
 });
 
 console.log('=== 4. 学分模块：制度对齐 ===');
-t('学分等级判定（制度第六章）', () => {
-  eq(creditLevel(105).label, '优秀');
-  eq(creditLevel(100).label, '优秀');
-  eq(creditLevel(95).label, '合格');
-  eq(creditLevel(90).label, '合格');
-  eq(creditLevel(85).label, '一般');
-  eq(creditLevel(80).label, '一般');
-  eq(creditLevel(79).label, '不合格');
+t('学分档位小章（v2.18.0 五档：预警四档深色章 / 常规无章 / 进取·卓越·巅峰章）', () => {
+  eq(creditLevel(205).label, '巅峰');   eq(creditLevel(205).cls, 'lv-top');
+  eq(creditLevel(200).label, '巅峰');
+  eq(creditLevel(150).label, '卓越');   eq(creditLevel(150).cls, 'lv-elite');
+  eq(creditLevel(149).label, '进取');   eq(creditLevel(149).cls, 'lv-strive');
+  eq(creditLevel(110).label, '进取');
+  eq(creditLevel(109).label, '');        // 常规 60-109：无章
+  eq(creditLevel(100).label, '');
+  eq(creditLevel(60).label, '');
+  eq(creditLevel(59).label, '黄色预警'); eq(creditLevel(59).cls, 'lv-yellow');
+  eq(creditLevel(40).label, '橙色预警'); eq(creditLevel(40).cls, 'lv-orange');
+  eq(creditLevel(30).label, '红色预警'); eq(creditLevel(30).cls, 'lv-red');
+  eq(creditLevel(29).label, '深红预警'); eq(creditLevel(29).cls, 'lv-dark');
 });
 t('制度分值：迟到-2 / 旷课-5 / 作弊-8 / 月度全勤+3 / 校级获奖+5', () => {
   eq(defaultReasonScores['迟到早退'], -2);
