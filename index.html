@@ -1936,7 +1936,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.18.1</div>
+      <div class="login-version">v2.18.2</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2055,7 +2055,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.18.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.18.2 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2761,13 +2761,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.1</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.2</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 月度阶梯奖励改为按「当月净增」结算，五档递进：+10 进取 / +20 勤学 / +30 优秀 / +50 卓越 / ≥+70 巅峰（封顶送全目录券）<br>
+              · 零扣分榜改为按「未扣分天数」排名（右侧直接显示天数 / 从未扣分），不再与学分挂钩<br>
               · 预警中心迁至「学生管理 → 🚨 预警中心」页签，顶部 🚨 角标一键直达<br>
               · 学分全站彩色徽章：&lt;60 沿用预警深底白字；110+ 进取 / 150+ 卓越 / 200+ 巅峰 👑，醒目不碍读值<br>
               · 学生管理移除行内 +1/+5/-1/-5 快捷按钮（防误触，操作统一走批量/学分记录页）<br>
@@ -12454,13 +12454,15 @@ function computePublicityData(students, operations, rangeKind, nowDate){
       if(oid != null && (!lastSub[oid] || o.time > lastSub[oid])) lastSub[oid] = o.time;
     }
   });
+  // v2.18.2 排名只认「未扣分天数」（并列按学号），不再以学分为次键
+  var sidSort = function(x,y){ return String(x.sid == null ? '' : x.sid).localeCompare(String(y.sid == null ? '' : y.sid)); };
   var zero = rows.map(function(r){
     return { row:r, days: lastSub[r.id] != null ? Math.max(0, Math.floor((nowTs - lastSub[r.id])/DAYMS)) : null };
   }).sort(function(a,b){
-    if(a.days === null && b.days === null) return creditSort(a.row, b.row);
+    if(a.days === null && b.days === null) return sidSort(a.row, b.row);
     if(a.days === null) return -1;                       // 从未扣分：续航榜首
     if(b.days === null) return 1;
-    return (b.days - a.days) || creditSort(a.row, b.row);  // 天数长者在先
+    return (b.days - a.days) || sidSort(a.row, b.row);   // 天数长者在先，并列按学号
   }).slice(0,10);
   return {
     count:n, touched:rows.filter(function(r){return r.touched;}).length,
@@ -12508,16 +12510,15 @@ function pubDeltaRow(row, i){
     '<span class="pub-delta" style="color:'+(row.net>0?'var(--success)':'var(--danger)')+'">'+(row.net>0?'+':'')+row.net+'</span>' +
     '<span class="pub-score">'+cbCreditBadge(Number(row.credit)||0)+'</span></div>';
 }
-// v2.16.1 零扣分续航榜行：entry = {row:学生行, days:距上次扣分天数|null(从未扣分)}
+// v2.18.2 零扣分续航榜行：entry = {row:学生行, days:距上次扣分天数|null(从未扣分)}
+// 右侧直接展示「未扣分天数」为排名依据（不按学分排名、右侧改天数）
 function pubStaminaRow(entry, i){
-  var r = entry.row;
   var noCls = i===0 ? 'top1' : i===1 ? 'top2' : i===2 ? 'top3' : '';
-  var tag = entry.days === null
-    ? '<span class="pub-tag" style="background:rgba(47,125,91,0.12);color:#2F7D5B;margin-right:2px">从未扣分</span>'
-    : '<span class="pub-tag" style="background:rgba(233,196,106,0.16);color:#B7791F;margin-right:2px">'+entry.days+' 天</span>';
+  var right = entry.days === null
+    ? '<span class="pub-score" style="color:#2F7D5B;font-weight:700">从未扣分</span>'
+    : '<span class="pub-score" style="color:#B7791F;font-weight:700">'+entry.days+' 天</span>';
   return '<div class="pub-rank"><span class="pub-no '+noCls+'">'+(i+1)+'</span>' +
-    '<span class="pub-name">'+escapeHtml(pubDisplayName(r))+'</span>' + tag +
-    '<span class="pub-score">'+cbCreditBadge(Number(r.credit)||0)+'</span></div>';
+    '<span class="pub-name">'+escapeHtml(pubDisplayName(entry.row))+'</span>' + right + '</div>';
 }
 function pubCard(title, sub, innerHtml){ return '<div class="pub-board-col"><div class="pub-board-title">'+title+'<span class="pub-board-sub">'+sub+'</span></div>'+innerHtml+'</div>'; }
 function renderPubBoards(data){
@@ -12528,7 +12529,7 @@ function renderPubBoards(data){
   html += pubCard('🏆 学分榜 Top10', '当前总分', data.top.length ? data.top.map(pubRankRow).join('') : '<div class="pub-empty">暂无学生</div>');
   html += pubCard('📈 进步榜 Top10', pubRangeName(pubRange)+'净增', data.prog.length ? data.prog.map(pubDeltaRow).join('') : '<div class="pub-empty">本周期暂无加分</div>');
   html += '</div><div class="pub-board-row">';
-  html += pubCard('🌟 零扣分榜 Top10', '未扣分续航 · 距上次扣分最久', data.zero.length ? data.zero.map(pubStaminaRow).join('') : '<div class="pub-empty">暂无学生</div>');
+  html += pubCard('🌟 零扣分榜 Top10', '按未扣分天数排名 · 从未扣分居首', data.zero.length ? data.zero.map(pubStaminaRow).join('') : '<div class="pub-empty">暂无学生</div>');
   html += pubCard('🏅 单项之星', pubRangeName(pubRange), '<div class="pub-rank"><span class="pub-name">加分次数最多</span><span class="pub-score">'+(data.starAdd?escapeHtml(pubDisplayName(data.starAdd))+' · '+data.starAddN+' 次':'—')+'</span></div><div class="pub-rank"><span class="pub-name">单笔加分最高</span><span class="pub-score">'+(data.maxSingle && data.maxSingle.v>0?escapeHtml(pubDisplayName(data.maxSingle))+' · +'+data.maxSingle.v:'—')+'</span></div>');
   html += '</div>';
   // 退步榜：默认折叠

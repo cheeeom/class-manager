@@ -127,7 +127,7 @@ t('退步榜：净增 <0 升序 → 只有小红(-3)', () => {
 t('零扣分榜 v2.16.1（续航语义）：从未扣分者居前（小明/小刚/小美），今天刚扣分的小红垫底（0 天）', () => {
   const d = computePublicityData(stu, ops, 'month');
   const names = d.zero.map(z => z.row.sid).join(',');
-  eq(names, 'A001,A003,A004,A002');   // 从未扣分按学分+学号排前；小红今天 -3 → 0 天垫底
+  eq(names, 'A001,A003,A004,A002');   // 从未扣分并列按学号排前（v2.18.2 起不再以学分为次键）；小红今天 -3 → 0 天垫底
   eq(d.zero[0].days, null);
   eq(d.zero[3].days, 0);
 });
@@ -275,13 +275,20 @@ global.escapeHtml = s => String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;').r
  'function drawPubPoster(ctx, W, H, data, range, avatar)'].forEach(smokeEval);
 // 零扣分续航榜行渲染（纯 HTML 字符串，直接断言）
 const pubStaminaRow = eval('(' + grab('function pubStaminaRow(entry, i)') + ')');
-t('pubStaminaRow：从未扣分 → 「从未扣分」标签 + 姓名 + 学分', () => {
+t('pubStaminaRow v2.18.2：从未扣分 → 姓名 + 右侧「从未扣分」（不再显示学分）', () => {
   const h = pubStaminaRow({ row: { name: '张伟', sid: 'A001', credit: 100 }, days: null }, 0);
-  if (!h.includes('从未扣分') || !h.includes('张伟') || !h.includes('100 分')) throw new Error('输出缺要素: ' + h);
+  if (!h.includes('从未扣分') || !h.includes('张伟')) throw new Error('输出缺要素: ' + h);
+  if (h.includes('100 分') || h.includes('cbCreditBadge')) throw new Error('仍残留学分展示: ' + h);
 });
-t('pubStaminaRow：10 天未扣分 → 「10 天」标签', () => {
+t('pubStaminaRow v2.18.2：10 天未扣分 → 右侧「10 天」', () => {
   const h = pubStaminaRow({ row: { name: '李四', sid: 'A002', credit: 92 }, days: 10 }, 1);
-  if (!h.includes('10 天') || h.includes('从未扣分')) throw new Error('天数标签错: ' + h);
+  if (!h.includes('10 天') || h.includes('从未扣分')) throw new Error('天数展示错: ' + h);
+  if (h.includes('92 分')) throw new Error('仍显示学分: ' + h);
+});
+t('零扣分榜排序源码：只认未扣分天数（并列 sidSort），不再以学分为次键', () => {
+  const seg = html.slice(html.indexOf('var zero = rows.map'), html.indexOf("slice(0,10);", html.indexOf('var zero = rows.map')));
+  if (seg.indexOf('creditSort') >= 0) throw new Error('排序仍引用 creditSort（学分次键）');
+  if (seg.indexOf('sidSort') < 0) throw new Error('排序未使用 sidSort（学号次键）');
 });
 t('renderPubBoards 的零扣分榜走续航渲染（不再用「次加分」旧口径）', () => {
   const seg = html.match(/pubCard\('🌟 零扣分榜 Top10'[\s\S]*?data\.zero\.map\(pubStaminaRow\)/);
@@ -308,11 +315,11 @@ t('canvas 冒烟环境：四图一海报函数全部可执行不抛异常', () =
 global.document = __orig.doc; global.requestAnimationFrame = __orig.raf; global.state = __orig.state;
 
 console.log('\n=== 版本号 ===');
-t('v2.18.1 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
-  if (!/login-version">v2\.18\.1</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.1 ·/.test(html)) throw new Error('侧栏版本号未更新');
+t('v2.18.2 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
+  if (!/login-version">v2\.18\.2</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.2 ·/.test(html)) throw new Error('侧栏版本号未更新');
   const sw = fs.readFileSync('sw.js', 'utf8');
-  if (!sw.includes('class-manager-v2.18.1')) throw new Error('SW CACHE_NAME 未更新');
+  if (!sw.includes('class-manager-v2.18.2')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

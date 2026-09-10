@@ -53,10 +53,10 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('版本三处同步 = v2.18.1（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.18\.1</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.1 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.18.1')) throw new Error('SW CACHE_NAME 未更新');
+t('版本三处同步 = v2.18.2（登录页/侧栏/SW CACHE_NAME）', () => {
+  if (!/login-version">v2\.18\.2</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.2 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.18.2')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 当月净增口径（cbMonthOfTs / cbMonthNetOf 纯函数）===');
@@ -130,13 +130,19 @@ t('小数先四舍五入再定档；非数字兜底 0', () => {
   has(cbCreditBadge('abc'), '0 分 · 深红预警');
   has(cbCreditBadge(undefined), '0 分 · 深红预警');
 });
-t('徽章全面接入：学生表 / 详情面板 / 银行排行 / 公示行均走 cbCreditBadge', () => {
+t('徽章全面接入：学生表 / 详情面板 / 银行排行 / 公示榜行均走 cbCreditBadge', () => {
   has(html, '<td>${cbCreditBadge(Number(s.credit) || 0)}</td>', '学生表未接入');
   has(html, '${cbCreditBadge(Number(s.credit) || 0)}</span></div>', '详情面板/公示行未接入');
   has(html, "'<td style=\"padding:6px 8px\">' + cbCreditBadge(credit) + '</td>'", '银行排行未接入');
   const n = html.split('cbCreditBadge(').length - 1;
-  if (n < 7) throw new Error('cbCreditBadge 调用点不足：' + n);
+  if (n < 6) throw new Error('cbCreditBadge 调用点不足：' + n);   // v2.18.2 零扣分榜改展示天数后为 6
   notHas(html, 'score-badge', '旧 score-badge 徽章残留（应整体迁移到 cbCreditBadge）');
+});
+t('零扣分榜行不再挂学分徽章（v2.18.2 起右侧展示「未扣分天数」）', () => {
+  const i = html.indexOf('function pubStaminaRow');
+  const seg = html.slice(i, html.indexOf('function pubCard(', i));
+  notHas(seg, 'cbCreditBadge', '榜行仍调用学分徽章');
+  has(seg, ' 天</span>', '缺天数展示');
 });
 
 console.log('\n=== 预警中心迁至学生管理页（第 3 页签）===');
