@@ -1,5 +1,5 @@
 /* Service Worker - 班主任工作台 PWA */
-const CACHE_NAME = 'class-manager-v2.18.4';
+const CACHE_NAME = 'class-manager-v2.18.5';
 const CORE_ASSETS = [
   './',
   './index.html',
