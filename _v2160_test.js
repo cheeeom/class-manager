@@ -272,7 +272,8 @@ global.escapeHtml = s => String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;').r
  'function pubCanvasReady(id, cb)', 'function pubGrid(ctx, W, H, padL, padR, padT, padB, nDiv)',
  'function drawPubTrend(id, students, operations)', 'function drawPubDaily(id, operations)',
  'function drawPubDist(id, students)', 'function drawPubReason(id, legendId, operations)',
- 'function drawPubPoster(ctx, W, H, data, range, avatar)'].forEach(smokeEval);
+ 'function drawPubPoster(ctx, W, H, data, range, avatar)',
+ 'function hiDPICanvas(canvas, cssH)'].forEach(smokeEval);   // v2.18.4：画布样板抽公共函数
 // 零扣分续航榜行渲染（纯 HTML 字符串，直接断言）
 const pubStaminaRow = eval('(' + grab('function pubStaminaRow(entry, i)') + ')');
 t('pubStaminaRow v2.18.2：从未扣分 → 姓名 + 右侧「从未扣分」（不再显示学分）', () => {
@@ -315,11 +316,11 @@ t('canvas 冒烟环境：四图一海报函数全部可执行不抛异常', () =
 global.document = __orig.doc; global.requestAnimationFrame = __orig.raf; global.state = __orig.state;
 
 console.log('\n=== 版本号 ===');
-t('v2.18.3 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
-  if (!/login-version">v2\.18\.3</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.3 ·/.test(html)) throw new Error('侧栏版本号未更新');
+t('v2.18.4 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
+  if (!/login-version">v2\.18\.4</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.4 ·/.test(html)) throw new Error('侧栏版本号未更新');
   const sw = fs.readFileSync('sw.js', 'utf8');
-  if (!sw.includes('class-manager-v2.18.3')) throw new Error('SW CACHE_NAME 未更新');
+  if (!sw.includes('class-manager-v2.18.4')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

@@ -45,6 +45,7 @@ global.crypto = globalThis.crypto;
 // 被测代码会引用的外部符号（测试里给最小实现）
 global.state = { students: [], operations: [] };
 global.showToast = () => {};
+global.dbg = () => {};   // v2.18.4：index.html 调试日志改走 dbg()（默认静默），沙箱需提供
 global.STORE_KEY = 'classManagerData';
 global.GH_OWNER = 'cheeeom'; global.GH_REPO = 'class-manager';
 global.GH_BRANCH = 'main'; global.GH_DATA_PATH = 'data.json';

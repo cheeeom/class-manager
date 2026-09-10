@@ -3,7 +3,7 @@
 > 与 `AGENTS.md`（知识库）+ `DECISIONS.md`（决策记录）配套。
 > 本文件只记「当前状态 + 下一步做什么」，不重复架构细节——架构看 `AGENTS.md`。
 >
-> 最后更新：2026-09-10（v2.18.3 全量审查 P0 四修 + 重置云端加密口令）
+> 最后更新：2026-09-10（v2.18.4 P1 缺陷修复 + P2 代码清理：原生弹窗全部改模态 / 改名跨设备传播 / 死码清理）
 > ⚠️ 下文「一、当前状态速览」为 v2.8.0 期快照，未随版本更新；**最新进展一律以文末「逐版章节」为准**。
 
 ---
@@ -810,5 +810,34 @@
 - [x] **测试**：`_v2187_test.js` 新增 **24 项**（语法编译 / 版本三标记同步 / 历史注释保护 v2.18.2×2·v2.18.0×24 / P0-1 五链路三处齐 / P0-2 try/catch 与 autoPush 位次 / P0-3 escapeHtml 且无裸插值 / P0-4 搜索框+跨日期过滤+统计文案 / resetCloudPwd 定义·按钮·绕过 checkPushSafety·锁·回滚·守卫 / notes 四条）；**29 套旧件版本断言 token 级升 v2.18.3**（明文 `v2.18.3` + 转义 `v2\.18\.3` 双形态脚本，_v2183/_v2185 的 notes 断言改验新四条）→ **30 套全绿（PASS=30 FAIL=0）**
 - [x] **实测**（playwright，http 服务 + localStorage 种子）：搜索框跨日期检索（「班会」1 命中 /「开学」1 命中 /「zzz」0 命中 / 清空回全量）✓；`resetCloudPwd` 已定义且设置页按钮在 ✓；`saveData` 正常 ✓；`punishments` 成功持久化到 localStorage ✓；**零 JS 错误**
 - [x] **⚠️ 注入复查**：本轮 index.html 全部改动走「远端干净版 → 一次性 node 补丁脚本单次写盘 → 立即 `chmod 444`」；改后 `data-page-node-id` 计数 = **0**（v2.18.3 ×11 全为正常标记/注释）
+- [x] **推送**：见下一次 commit
+
+### 2026-09-10（v2.18.4：P1 缺陷修复 + P2 代码清理 —— 原生弹窗全部改模态 / 改名跨设备传播 / 死码清理）
+
+- [x] **需求**（老板原话）：「依次修复剩下的问题，按照建议来」——即 `CODE_REVIEW_2026-09-10.md` 里剩余的 P1（原因目录改名不跨设备传播、6 处原生 prompt）与 P2（8 个死函数 / 死 CSS / 重复代码块）
+- [x] **决策**（老板拍板，AskUserQuestion 双选）：**分两版**——P1+P2 打包 **v2.18.4**（低风险、立即可发版），结构性根治（STATE_SCHEMA 表驱动）留 **v2.19.0**；**prompt 改造含重置口令**（该处原是明文回显密码的原生 prompt，一并改密码框模态）
+- [x] **P1-a 原因目录改名跨设备传播**（症状：一端改名后，另一端同时出现新旧两份，观感像「编辑没生效」）：
+  - 根因：`catRenameDir`/`catRenameGroup` 只做本地键替换（`catalog[新名]=catalog[旧名]; delete catalog[旧名]`），而 `smartMergeData` 对 reasonCatalog 走**结构并集** → 另一端的旧名不会被剔除，合并后新旧并存
+  - 修：改走 `cmPrompt` 的同时，onOk 里补墓碑——`catDeletedAdd('dirs', 旧名)` + `catDelUndo('dirs', 新名)`（大类用 `dir + '|' + 旧名` 复合键）→ 合并时 `applyCatTombstones` 按墓碑剔除旧名，另一端同步收敛为一份
+- [x] **P1-b 原生弹窗全部退役（6 处业务 + 重置口令）**：
+  - 新增站内通用输入模态 `#cmPromptModal`（标题/标签/输入框/可选确认框/提示/错误行 + 取消·确定），JS 侧 `cmPrompt(opts)` / `cmPromptSubmit` / `cmPromptCancel` / `cmPromptKeydown` / `cmPromptError` / `cmPromptClearError`；opts = `{title,label,value,placeholder,hint,type:'text'|'password'|'date',minLength,confirmLabel,validate,onOk}`；回车提交、Esc 取消、`confirmLabel` 时出现第二个密码框并校验两次一致
+  - 6 处业务输入改模态：`editMotto`（班级口号）/ `openReasonDirModal`（新增方向）/ `openReasonGroupModal`（新增大类）/ `catRenameDir`（改名方向）/ `catRenameGroup`（改名大类）/ `extendLeave`（续假，日期型）
+  - `resetCloudPwd` 改**密码模态**：`type:'password'` + `confirmLabel` + `minLength: 8`，**不再明文回显**（原 prompt 的明文回显是安全隐患）；执行体抽为 `resetCloudPwdApply(p)`（二次确认 + 有意绕过 checkPushSafety + 独占锁 + 失败回滚），`extendLeave` 执行体抽为 `extendLeaveApply(leave, newEnd)`，均便于测试抽取
+  - 全站原生 `prompt(` 仅剩 **3 处**（同步口令 / 确认口令 / GitHub Token，均属一次性配置类输入，合理保留）
+- [x] **P2-a 删 8 个零引用死函数**：`revertCreditOp` / `cbCreditOf` / `cbStoreSidPick` / `dutySlotsPerWeek` / `autoDuty` / `clearDuty` / `renderCreditStudentSelect` / `onCreditInputSearch`（全库出现次数 = 1，仅定义无引用）
+- [x] **P2-b 死 CSS 清理（复核后净删 22 条）**：⚠️ **审查报告「38 条死 CSS」偏高**——复核发现 `lv-*` / `tl-*` / `hl-*` 是**动态拼接类名**（`'lv-' + t.level`、`'tl-' + t.type`、`'hl-' + ({校级:1,...})`），`status-` 则根本不存在；这些一律**必须保留**。实删 22 条：`.profile-info`×3 / `.pub-boards` / `.student-card` / `.student-grid` / `.grade-bar` / `.dragover` / `.tag-positive` / `.tag-negative` / `.tag-close`×2 / `.tag-list`×2 / `.punish-student-row .mr-tag` / `.hidden-tab` / `.data-table` / `.credit-table` / `.search-row`×2 / `.detail-panel` / `.table-striped` / `.pwa-banner` / `.motto-quote`×2（含 dark 变体）/ `.fade-in`+重复 `@keyframes`；另摘除 `.data-table-container` 与 `.search-input` 两个已并入同名规则的重复选择器
+- [x] **P2-c 调试日志收敛**：13 处 `console.log(` → `dbg()`；新增 `dbg()` 开关（默认静默；`window.__CM_DEBUG` / 地址栏 `?debug=1` / `localStorage.cm_debug='1'` 任一开启；`console.warn` / `console.error` **恒定输出**，线上排查靠它们）→ 全库 `console.log(` = **0**
+- [x] **P2-d 重复实现收敛（四处）**：
+  - `defaultDuty()` / `defaultSeating()` 工厂函数 → 取代「state 默认值 / loadData 补字段 / 彻底重置」三处手写（此前加字段必须三处同步，漏一处即静默丢字段）；每次返回**全新对象**避免共享引用
+  - 全局 `pad2(v)` → 取代 `cbFmtTime` / `formatOpTime` / `todayStr` 三处局部补零实现
+  - `hiDPICanvas(canvas, cssH)` → 取代 4 个图表 + `pubCanvasReady` 共 5 处 DPR 样板；**用 `setTransform` 而非 `scale`**（画布尺寸未变时浏览器不重置上下文，`scale` 会在重复重绘中逐次累积 → 图越画越大）
+- [x] **升版**：v2.18.3 → v2.18.4（index 仅 3 处活动标记：登录页 / 侧栏 / 设置页 🏷️ 徽标 + `sw.js` CACHE_NAME；index 内 **8 处 v2.18.3 历史注释一律不动**——其中 3 处是 v2.18.3 P0-1 的处分记录链路注释）；设置页「近版更新速览」换成 v2.18.4 八条（弹窗改造 / 改名跨设备 / 代码清理 / 调试静默置顶）
+- [x] **测试**：修复被重构打穿的 **20 套**旧件——18 套「版本三处同步」断言 **token 级**升 v2.18.4（转义形态 `v2\.18\.3` → `v2\.18\.4`，历史注释断言保留）；`_sync` 沙箱补 `dbg` 桩；`_v2160` 冒烟抽取列表补 `hiDPICanvas`；`_v2150` 补全局 `pad2`；`_v2100` 删 `dutySlotsPerWeek` 抽取与用例；`_v2113` clearData 断言改认 `defaultDuty()` 并新增工厂字段断言；`_v2179` 函数清单移除 `cbStoreSidPick`；`_v2187` resetCloudPwd 四条断言改写为「密码模态 + 执行体 `resetCloudPwdApply`」。新增 **`_v2188_test.js` 31 项**：模态骨架/两次一致/最小长度/自定义校验/onOk 回调/键盘、6 个业务入口全走模态且无原生 prompt、★**改名墓碑端到端合并**（方向 + 大类两条独立链路，喂虚构双端目录验证旧名被剔除且误删为零）、8 死函数归零、21 条死 CSS 归零、动态类名（lv-/tl-/hl-）保护、`dbg` 三开关 + 默认静默、`defaultDuty/defaultSeating` 全新对象与三站点收敛、`pad2` 行为、`hiDPICanvas` DPR 位图尺寸 + 用 setTransform 不用 scale → **31 套全绿（PASS=31 FAIL=0）**
+- [x] **实测**（playwright-core 1.62 + 本机 chromium-1234，127.0.0.1 静态服务 + 拦截外网 + sessionStorage 解锁）：**0 JS 错误 / 0 console.error / 0 console.log**；8 死函数 `typeof === 'undefined'`、新函数全部 `function`；`pad2` 输出 05/12/00；`defaultDuty()` 两次不同引用；`dbg` 默认静默·开 `__CM_DEBUG` 后输出；文本模态（confirmWrap=none）与密码模态（两框均 password / confirmWrap=block）✓；两次不一致与不足 8 位均**拦下且 onOk 未调用**、模态不关 ✓；一致后 onOk 收到值且模态关闭 ✓；**改名方向端到端：旧键消失 + 新键存在 + 旧名进墓碑 + 新名墓碑被清** ✓；续假走 date 模态且预填原结束日 ✓；6 个页面切换零异常 ✓（截图 3 张）
+- [x] **坑与教训（本轮新增）**：
+  1. **大文件的「字节数」≠「JS 字符串长度」**：UTF-8 下中文 3 字节仅占 1 个 UTF-16 码元 → `fs.readFileSync(p,'utf8').length` = 631515 而 `stat.size` = 697803。差值 66288 **不是文件被改**，别据此判故障
+  2. **`grab()` 的 `\{[\s\S]*?\n\}` 锚点两个边界**：① **单行函数抓不到**（`pad2`/`defaultSeating`/`cloneReasonCatalog` 要按行切片取）② **同行后面若还有多行函数会被一起吞**（`cloneReasonCatalog` 单行 + 紧随的多行 `flattenReasonCatalog` → eval 包括号即语法错）。判断准则：先看定义是不是单行
+  3. **测试文件行尾 CRLF / LF 混杂**：锚点替换必须按文件探测行尾拼接（`eolOf()`），否则同一份锚点在某些文件命中 0 次
+- [x] **⚠️ 注入复查**：index.html 的全部改动照旧走「一次性 node 补丁脚本单次写盘（78 处替换 / 35 项自检全绿）+ 脚本内 `fs.chmodSync(0o444)`」；改后 `data-page-node-id` 计数 = **0**，文件 697803 字节只读
 - [x] **推送**：见下一次 commit
 

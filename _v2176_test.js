@@ -16,11 +16,11 @@ t('index.html 主 <script> 块可被完整编译（无语法错误）', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 
-console.log('\n=== v2.18.3 版本三处同步 ===');
-t('登录页 / 侧栏 / SW CACHE_NAME = v2.18.3', () => {
-  if (!/login-version">v2\.18\.3</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.3 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.18.3')) throw new Error('SW CACHE_NAME 未更新');
+console.log('\n=== v2.18.4 版本三处同步 ===');
+t('登录页 / 侧栏 / SW CACHE_NAME = v2.18.4', () => {
+  if (!/login-version">v2\.18\.4</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.4 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.18.4')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 弹窗头部 CSS 基础样式（v2.17.30 修复点） ===');

@@ -72,8 +72,14 @@ const remoteJson = (data) => data ? { content: b64json(data) } : null;
   });
   t('clearData 重置完整（含 punishments / duty 轮次制字段 / 8 岗 committee / wipeAt）', () => {
     const fn = html.match(/function clearData\([\s\S]*?\n\}/)[0];
-    ['state.punishments = []', 'lastGenWeek:-1', 'DEFAULT_COMMITTEE', 'state.wipeAt = Date.now()'].forEach(s => {
+    ['state.punishments = []', 'defaultDuty()', 'DEFAULT_COMMITTEE', 'state.wipeAt = Date.now()'].forEach(s => {
       if (!fn.includes(s)) throw new Error('缺少: ' + s);
+    });
+  });
+  t('v2.18.4：duty 默认值收敛为 defaultDuty() 工厂（轮次制字段随工厂重置，杜绝三处手写漏字段）', () => {
+    const dd = html.match(/function defaultDuty\(\)\{[\s\S]*?\n\}/)[0];
+    ['lastGenWeek:-1', 'queue:[]', 'roundLedger:[]', 'waterCursorId:null', 'servedIds:[]'].forEach(s => {
+      if (!dd.includes(s)) throw new Error('defaultDuty 缺少: ' + s);
     });
   });
   t('clearData 保留品牌配置（className/classMotto/classAvatar 不清）', () => {
