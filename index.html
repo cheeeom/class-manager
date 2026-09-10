@@ -1912,7 +1912,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.18.5</div>
+      <div class="login-version">v2.18.6</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2031,7 +2031,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.18.5 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.18.6 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2740,12 +2740,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.5</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.6</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 修复：编辑课堂纪律原因分值后切页面/刷新偶发被云端旧值复原——原因分值合并改为本地优先，未推送的编辑不再被覆盖<br>
               · 座次表支持拖拽换座：按住座位卡片拖动即可换座——拖到已占座位两人互换、拖到空位直接移动（触屏长按约 0.2 秒后拖动）<br>
               · 三个排座按钮改为「只填空座」：先手动排好的座位一律保留，未入座学生按所选顺序（学分高→低 / 姓名 / 随机）从前往后依次补位<br>
               · 原生弹窗全部换成站内模态（新增 / 重命名方向与大类、改班级口号、续假日期），重置口令改用密码框输入、不再明文回显<br>
@@ -5703,9 +5704,11 @@ function smartMergeData(localData,remoteData){
     var rset={};(localData.reasons||[]).forEach(function(r){rset[r]=1;});remoteData.reasons.forEach(function(r){rset[r]=1;});
     merged.reasons=Object.keys(rset);
   }
-  // reasonScores: union（冲突时云端优先）
-  if(remoteData.reasonScores){
-    merged.reasonScores=Object.assign({}, localData.reasonScores||{}, remoteData.reasonScores);
+  // reasonScores: 本地优先合并——本地已有键保留本地值（未推送的分值编辑不被云端旧值覆盖），云端只补本地缺失的键；
+  // 本地已删的键由 catDeleted.reasons 墓碑兜底剔除（见 applyCatTombstones），避免远端旧值被当「新增」补回。
+  if(remoteData.reasonScores || localData.reasonScores){
+    var _ls = localData.reasonScores || {}, _rs = remoteData.reasonScores || {};
+    merged.reasonScores = Object.assign({}, _rs, _ls);
   }
   // reasonCatalog: 结构并集（两侧新增都保留）
   if(remoteData.reasonCatalog && typeof remoteData.reasonCatalog === 'object'){
