@@ -19,7 +19,6 @@ const dutyDays = extractSingleConst('dutyDays');
 const dutyAreas = extractSingleConst('dutyAreas');
 const dutyAreaCounts = extractSingleConst('dutyAreaCounts');
 
-const dutySlotsPerWeek = extractFn('dutySlotsPerWeek');
 const dutyEnsureQueue = extractFn('dutyEnsureQueue');
 const dutyNextFrom = extractFn('dutyNextFrom');
 const dutyGenerateWeek = extractFn('dutyGenerateWeek');
@@ -64,7 +63,6 @@ function freshDuty(students) {
 }
 
 console.log('=== 1. 轮次引擎基础 ===');
-t('每周槽位数 = 6天 × 8 = 48', () => eq(dutySlotsPerWeek(), 48));
 t('队列按学号排序，游标指向队首', () => {
   const students = mkStudents(10).reverse(); // 乱序传入
   const duty = freshDuty(students);

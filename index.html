@@ -86,7 +86,6 @@ html.dark input[type="text"],html.dark input[type="number"],html.dark input[type
   background:var(--bg);color:var(--text);border-color:var(--border)
 }
 html.dark input::placeholder,html.dark textarea::placeholder{color:var(--text-muted)}
-html.dark .table-striped tbody tr:nth-child(odd){background:rgba(255,255,255,0.03)}
 html.dark th{background:rgba(166,58,43,0.12)}
 html.dark .btn{background:var(--card-bg);border-color:var(--border);color:var(--text)}
 html.dark .btn-outline{background:transparent;color:var(--text)}
@@ -94,7 +93,6 @@ html.dark .btn-outline:hover{border-color:var(--primary-light);color:var(--prima
 html.dark .btn-primary{background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff}
 html.dark .tag{background:rgba(255,255,255,0.08)}
 html.dark .empty-state{color:var(--text-muted)}
-html.dark .pwa-banner{background:#26221B}
 html.dark .toast{background:rgba(28,25,20,0.95);border:1px solid var(--border)}
 
 html,body{height:100%}
@@ -340,7 +338,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   transition:transform var(--transition),box-shadow var(--transition);
 }
 .motto-banner:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(111,37,27,0.35)}
-.motto-banner .motto-quote{font-size:28px;font-weight:700;font-family:Georgia,serif;opacity:0.5;line-height:1}
 .motto-banner .motto-text{font-size:17px;font-weight:600;letter-spacing:1px;text-align:center}
 
 
@@ -772,7 +769,6 @@ tbody tr.highlight{
   margin-bottom:16px;
   transition:all var(--transition);
 }
-.import-area.dragover{border-color:var(--primary);background:rgba(166,58,43,0.04)}
 .import-area textarea{
   width:100%;min-height:150px;
   border:1px solid var(--border);border-radius:10px;
@@ -828,9 +824,6 @@ tbody tr.highlight{
   box-shadow:var(--shadow-card);
 }
 .settings-section h3{font-size:16px;margin-bottom:16px}
-.tag-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.tag-positive{background:rgba(47,125,91,0.12)!important;color:#276B4E!important}
-.tag-negative{background:rgba(180,35,24,0.1)!important;color:#A34A3C!important}
 .tag{
   display:inline-flex;align-items:center;gap:6px;
   padding:4px 12px;
@@ -838,8 +831,6 @@ tbody tr.highlight{
   background:rgba(166,58,43,0.08);
   font-size:12px;color:var(--primary-dark);
 }
-.tag .tag-close{cursor:pointer;font-size:14px;opacity:0.5}
-.tag .tag-close:hover{opacity:1}
 
 /* ==================== Analytics ==================== */
 /* Analytics Tabs */
@@ -1125,7 +1116,6 @@ tbody tr.highlight{
 .duty-progress .dp-track{height:8px;border-radius:999px;background:var(--bg-secondary);overflow:hidden}
 .duty-progress .dp-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--primary-light));transition:width .3s ease}
 .duty-progress .dp-hint{font-size:11px;color:var(--text-muted);margin-top:6px}
-.punish-student-row .mr-tag{white-space:nowrap}
 
 /* ==================== Dorm（寝室管理，标签派生） ==================== */
 .dorm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
@@ -1297,7 +1287,7 @@ tbody tr.highlight{
 .mobile-tabbar{display:none}
 
 /* ==================== Table Scroll ==================== */
-.table-wrap,.data-table-container{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 
 /* ==================== Responsive ==================== */
 @media(max-width:1024px){
@@ -1319,8 +1309,6 @@ tbody tr.highlight{
 #noticeTabs .tab{padding:10px 16px;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .2s}
 #noticeTabs .tab.active{color:var(--primary);border-bottom-color:var(--primary)}
 .noticeFillInput:focus{outline:none;border-color:var(--primary)!important;box-shadow:0 0 0 2px rgba(166,58,43,0.15)}
-.fade-in{animation:fadeIn .5s ease}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
 @media(max-width:768px){
   /* Mobile: hide sidebar, use bottom tab bar */
@@ -1342,7 +1330,6 @@ tbody tr.highlight{
   .mobile-tab.more-tab .tab-icon{font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;width:40px;height:28px;border-radius:10px;transition:transform .2s,background .2s}
   .mobile-tab.more-tab.active{color:var(--primary-dark);font-weight:600}
   .mobile-tab.more-tab.active .tab-icon{transform:translateY(-1px) scale(1.1);background:rgba(166,58,43,0.12)}
-  .mobile-tabbar.hidden-tab{display:none !important}
   .mobile-tabbar .mobile-tab.hidden{display:none !important}
   /* More drawer */
   .more-drawer{position:fixed;bottom:0;left:0;right:0;z-index:110;background:var(--card-bg);border-top:1px solid var(--border);border-radius:16px 16px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,0.12);padding:16px 12px calc(16px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .25s cubic-bezier(.4,0,.2,1);max-height:70vh;overflow-y:auto}
@@ -1363,23 +1350,15 @@ tbody tr.highlight{
   .seating-grid{grid-template-columns:repeat(4,1fr) !important}
   .dash-grid{grid-template-columns:1fr !important}
   .card{padding:14px;border-radius:12px}
-  .table-wrap,.data-table-container{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .data-table{min-width:400px}
-  .search-box,.search-input,input[type="text"],input[type="number"],input[type="password"],select{min-height:44px;font-size:15px}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .search-box,input[type="text"],input[type="number"],input[type="password"],select{min-height:44px;font-size:15px}
   .btn{min-height:40px;padding:8px 14px}
   .btn-sm{min-height:36px}
   .btn-icon{min-width:36px;min-height:36px}
   .modal{width:94vw;max-width:94vw;max-height:90vh;overflow-y:auto}
   .modal-body{padding:14px}
-  .motto-banner .motto-quote{font-size:20px}
-  .student-grid{grid-template-columns:1fr !important}
-  .student-card{padding:12px}
-  .credit-table{min-width:500px}
   .todo-item{padding:10px 8px}
   .todo-actions{flex-shrink:0}
-  .search-row{flex-direction:column;gap:8px}
-  .search-row>*{width:100%}
-  .tag-list{gap:6px}
   .tag{font-size:12px;padding:4px 10px}
   .settings-section{padding:14px}
   .settings-section h3{font-size:15px}
@@ -1390,13 +1369,10 @@ tbody tr.highlight{
   .exam-stats{gap:8px}
   .exam-stat{padding:6px 10px}
   .grade-table{min-width:500px;font-size:12px}
-  .detail-panel{width:100vw !important}
   .motto-banner{font-size:13px;padding:10px 14px;margin-bottom:10px}
   .toast{max-width:90vw}
   .nav-divider{display:none}
 }
-.fade-in{animation:fadeIn .5s ease}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
 
 
@@ -1437,9 +1413,6 @@ html.dark .honor-level.hl-5{color:#D9A441}
 .profile-list-item{display:flex;align-items:center;gap:8px;padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .2s}
 .profile-list-item:hover{background:rgba(166,58,43,0.05)}
 .profile-list-item.active{background:rgba(166,58,43,0.1);border-left:3px solid var(--primary)}
-.profile-info{background:rgba(166,58,43,0.04);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
-.profile-info span{display:block;font-size:12px;color:var(--text-muted);margin-bottom:4px}
-.profile-info b{font-size:14px;font-weight:600;word-break:break-all}
 .profile-timeline{display:flex;flex-direction:column;gap:10px}
 .tl-item{display:flex;gap:10px;align-items:flex-start}
 .tl-badge{flex-shrink:0;font-size:12px;font-weight:600;padding:3px 10px;border-radius:6px;margin-top:2px}
@@ -1661,7 +1634,6 @@ html.dark .tl-body{background:var(--bg)}
   .login-logo{width:48px;height:48px;font-size:22px;margin-bottom:14px}
   .login-divider{margin:14px 0}
   .login-tip{font-size:12px;padding:8px 12px}
-  .motto-banner .motto-quote{font-size:20px}
 }
 @media(max-width:480px){
   .login-card{width:94vw;max-width:none}
@@ -1724,7 +1696,6 @@ html.dark .tl-body{background:var(--bg)}
 .grade-rank-1{color:#B42318;font-weight:700}
 .grade-rank-2{color:#B96A1F;font-weight:700}
 .grade-rank-3{color:#3B6E8F;font-weight:700}
-.grade-bar{height:6px;border-radius:3px;background:linear-gradient(90deg,#B42318 0%,#C08A2D 50%,#2F7D5B 100%)}
 
 /* ==================== Todo ==================== */
 .todo-item{display:flex;align-items:flex-start;gap:12px;background:#fff;border-radius:12px;padding:14px 18px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);transition:all .2s}
@@ -1865,7 +1836,6 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .pub-tabs{display:flex;gap:4px;background:var(--bg-secondary);padding:4px;border-radius:12px}
 .pub-tab{padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--text-muted);transition:background .15s}
 .pub-tab.active{background:var(--card-bg);color:var(--primary);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.pub-boards{display:flex;flex-direction:column;gap:12px;margin-top:12px}
 .pub-board-row{display:flex;gap:12px;flex-wrap:wrap}
 .pub-board-col{flex:1;min-width:270px;background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:12px 14px}
 .pub-board-title{font-size:14px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px}
@@ -1936,7 +1906,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.18.3</div>
+      <div class="login-version">v2.18.4</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2055,7 +2025,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.18.3 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.18.4 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2764,19 +2734,20 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.3</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.4</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 原生弹窗全部换成站内模态（新增 / 重命名方向与大类、改班级口号、续假日期），重置口令改用密码框输入、不再明文回显<br>
+              · 修复原因目录改名不跨设备传播：改名后旧名记入删除墓碑，其他设备不会再同时出现新旧两份<br>
+              · 代码清理与加固：删除 8 个零引用函数与 22 条无引用 CSS 规则；调试日志默认静默（地址栏加 ?debug=1 打开）<br>
               · 修复：处分记录此前不参与云同步，换电脑 / 清缓存后从云端恢复会全部丢失（现已打通上传与合并）<br>
               · 新增「🔁 重置云端加密口令」：改口令后一键用新口令重推云端，无需手动删除云端文件<br>
               · 工作记录补上关键词搜索框（跨日期检索标题与内容），此前过滤逻辑一直空转<br>
               · 本地存储写满时不再静默失败，会明确提示并照常推送云端<br>
               · 零扣分榜改为按「未扣分天数」排名（右侧直接显示天数 / 从未扣分），不再与学分挂钩<br>
-              · 预警中心迁至「学生管理 → 🚨 预警中心」页签，顶部 🚨 角标一键直达<br>
-              · 学分全站彩色徽章：&lt;60 沿用预警深底白字；110+ 进取 / 150+ 卓越 / 200+ 巅峰 👑，醒目不碍读值<br>
             </div>
           </div>
         </div>
@@ -3325,6 +3296,30 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
   </div>
 </div>
 
+
+<!-- v2.18.4 通用文本输入模态：替代全站原生 prompt（与模态体系统一 + 可内联校验；口令类用密码框不回显） -->
+<div class="modal-overlay" id="cmPromptModal" onclick="if(event.target===this)cmPromptCancel()">
+  <div class="modal">
+    <h3 id="cmPromptTitle">输入</h3>
+    <div class="modal-body">
+      <div class="form-group">
+        <label id="cmPromptLabel"></label>
+        <input type="text" id="cmPromptInput" autocomplete="off" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit" onkeydown="cmPromptKeydown(event)">
+        <div class="form-group" id="cmPromptConfirmWrap" style="display:none;margin-top:10px">
+          <label id="cmPromptConfirmLabel">请再次输入以确认</label>
+          <input type="password" id="cmPromptConfirmInput" autocomplete="new-password" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit" onkeydown="cmPromptKeydown(event)">
+        </div>
+        <div id="cmPromptHint" style="margin-top:6px;font-size:12px;color:var(--text-muted);line-height:1.7"></div>
+        <div id="cmPromptError" style="margin-top:6px;font-size:12px;color:var(--danger);display:none"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="cmPromptCancel()">取消</button>
+      <button class="btn btn-primary" onclick="cmPromptSubmit()">确定</button>
+    </div>
+  </div>
+</div>
+
 <!-- Side Panel: Student Detail -->
 <div class="side-panel" id="studentDetailPanel">
   <div class="side-panel-header">
@@ -3349,6 +3344,99 @@ if ('serviceWorker' in navigator) {
 
 /* ==================== Data Layer ==================== */
 const STORE_KEY = 'classManagerData';
+
+/* ==================== v2.18.4 公共工具 ==================== */
+/* 调试日志开关：默认静默。开启方式（任一）：地址栏 ?debug=1 / localStorage.cm_debug='1' / 控制台 window.__CM_DEBUG=true。
+   仅作用于 console.log（调试流水）；console.warn / console.error 始终输出 —— 线上排查靠它们。 */
+function dbg(){
+  var on = false;
+  try{
+    on = (window.__CM_DEBUG != null) ? !!window.__CM_DEBUG
+       : (/[?&]debug=1\b/.test(location.search) || localStorage.getItem('cm_debug') === '1');
+  }catch(e){ on = false; }
+  if(on && window.console && console.log){ console.log.apply(console, arguments); }
+}
+
+/* 值日 / 座次默认对象：此前在「state 默认值 / loadData 补字段 / 彻底重置」三处各写一遍，
+   加字段必须三处同步（漏一处就静默丢字段）。改为工厂函数，每次返回全新对象避免共享引用。 */
+function defaultDuty(){
+  return { currentWeek:0, schedule:[], waterDuty:[], waterUsedIds:[], waterRound:1,
+           queue:[], cursorId:null, round:1, servedIds:[], roundLedger:[], lastGenWeek:-1, waterCursorId:null };
+}
+function defaultSeating(){ return { cols:8, rows:5, seats:[] }; }
+
+/* 两位补零（原先在 cbFmtTime / formatOpTime / todayStr 里各写一份局部实现） */
+function pad2(v){ return String(v).padStart(2, '0'); }
+
+/* 高 DPI 画布统一初始化：按 CSS 尺寸 × devicePixelRatio 设置位图尺寸与显示高度、
+   重置并缩放坐标系、清屏，返回 {ctx,W,H}。用 setTransform 而非 scale —— 画布尺寸未变时
+   浏览器不会重置上下文，scale 会在重复重绘中逐次累积（图越画越大）。调用方需自行保证画布已布局。 */
+function hiDPICanvas(canvas, cssH){
+  var dpr = window.devicePixelRatio || 1;
+  var W = canvas.getBoundingClientRect().width, H = cssH;
+  canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.height = H + 'px';
+  var ctx = canvas.getContext('2d');
+  if(ctx.setTransform){ ctx.setTransform(dpr, 0, 0, dpr, 0, 0); } else { ctx.scale(dpr, dpr); }
+  ctx.clearRect(0, 0, W, H);
+  return { ctx: ctx, W: W, H: H };
+}
+
+/* 通用文本输入模态（替代原生 prompt）：与全站模态体系统一、可内联校验、口令类密码框不回显。
+   opts = { title, label, value, placeholder, hint, type:'text'|'password'|'date',
+            minLength, confirmLabel, onOk(val) } —— 传 confirmLabel 时出现第二个密码框并要求两次一致。 */
+var _cmPromptOpts = null;
+function cmPrompt(opts){
+  _cmPromptOpts = opts || {};
+  var o = _cmPromptOpts;
+  document.getElementById('cmPromptTitle').textContent = o.title || '输入';
+  document.getElementById('cmPromptLabel').textContent = o.label || '';
+  var inp = document.getElementById('cmPromptInput');
+  inp.type = o.type || 'text';
+  inp.value = (o.value == null) ? '' : String(o.value);
+  inp.placeholder = o.placeholder || '';
+  var wrap = document.getElementById('cmPromptConfirmWrap');
+  var cinp = document.getElementById('cmPromptConfirmInput');
+  if(o.confirmLabel){
+    document.getElementById('cmPromptConfirmLabel').textContent = o.confirmLabel;
+    cinp.value = '';
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+  document.getElementById('cmPromptHint').innerHTML = o.hint ? o.hint : '';
+  cmPromptClearError();
+  openModal('cmPromptModal');
+  setTimeout(function(){ try{ inp.focus(); if(o.type !== 'date') inp.select(); }catch(e){} }, 30);
+}
+function cmPromptClearError(){
+  var el = document.getElementById('cmPromptError');
+  if(el){ el.textContent = ''; el.style.display = 'none'; }
+}
+function cmPromptError(msg){
+  var el = document.getElementById('cmPromptError');
+  if(el){ el.textContent = msg; el.style.display = 'block'; }
+}
+function cmPromptCancel(){
+  _cmPromptOpts = null;
+  closeModal('cmPromptModal');
+}
+function cmPromptKeydown(e){
+  if(e.key === 'Enter'){ e.preventDefault(); cmPromptSubmit(); }
+  else if(e.key === 'Escape'){ e.preventDefault(); cmPromptCancel(); }
+}
+function cmPromptSubmit(){
+  var o = _cmPromptOpts; if(!o) return;
+  var val = document.getElementById('cmPromptInput').value.trim();
+  if(o.confirmLabel){
+    var again = document.getElementById('cmPromptConfirmInput').value.trim();
+    if(again !== val){ cmPromptError('两次输入不一致'); return; }
+  }
+  if(o.minLength && val.length < o.minLength){ cmPromptError('至少 ' + o.minLength + ' 个字符'); return; }
+  if(typeof o.validate === 'function'){ var m = o.validate(val); if(m){ cmPromptError(m); return; } }
+  _cmPromptOpts = null;
+  closeModal('cmPromptModal');
+  if(typeof o.onOk === 'function') o.onOk(val);
+}
 // GitHub auto-sync config
 const GH_OWNER = 'cheeeom';
 const GH_REPO = 'class-manager';
@@ -3511,7 +3599,7 @@ function checkPushSafety(remoteJson){
 // 统一的推送实现（auto / manual 共用）
 // 流程：GET(拿 sha 与云端内容) → checkPushSafety 闸门 → 与云端合并 → 加密 → PUT
 function doPushToCloud(message){
-  if(wipeInProgress){ console.log('[Sync] wipe in progress, skip push:', message); return Promise.resolve(); }
+  if(wipeInProgress){ dbg('[Sync] wipe in progress, skip push:', message); return Promise.resolve(); }
   var token = getGHToken();
   var apiUrl = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH;
   var baseHeaders = { 'Authorization':'token ' + token, 'Accept':'application/vnd.github.v3+json', 'User-Agent':'cm' };
@@ -3549,7 +3637,7 @@ function doPushToCloud(message){
         var bytes = new TextEncoder().encode(pretty);
         var binary = '';
         for(var i=0;i<bytes.length;i++) binary += String.fromCharCode(bytes[i]);
-        console.log('[Sync] Pushing', pretty.length, 'chars', payload && payload.enc ? '(encrypted)' : '(PLAINTEXT!)');
+        dbg('[Sync] Pushing', pretty.length, 'chars', payload && payload.enc ? '(encrypted)' : '(PLAINTEXT!)');
         return fetch(apiUrl, {
           method:'PUT',
           headers: Object.assign({}, baseHeaders, { 'Content-Type':'application/json' }),
@@ -3570,7 +3658,7 @@ function applyCloudData(remoteData){
     renderWaterDuty(); renderScheduleImage(); renderClassBrand(); renderAll();
     lastSyncTime = new Date().toISOString();
     showToast('云端已重置，本机数据已清空对齐','info');
-    console.log('[Sync] Remote wipeAt > local, wiped local to align');
+    dbg('[Sync] Remote wipeAt > local, wiped local to align');
     return true;
   }
   var localCount = (localData.students || []).length;
@@ -3586,7 +3674,7 @@ function applyCloudData(remoteData){
     loadData();
     renderWaterDuty(); renderScheduleImage(); renderClassBrand(); renderAll();
     lastSyncTime = new Date().toISOString();
-    console.log('[Sync] Local empty, loaded cloud data:', (remoteData.students||[]).length, 'students');
+    dbg('[Sync] Local empty, loaded cloud data:', (remoteData.students||[]).length, 'students');
     return true;
   }
   var merged = smartMergeData(localData, remoteData);
@@ -3602,7 +3690,7 @@ function applyCloudData(remoteData){
   loadData();
   renderAll(); renderScheduleImage(); renderClassBrand();
   lastSyncTime = new Date().toISOString();
-  console.log('[Sync] Merged cloud data:', (merged.students||[]).length, 'students');
+  dbg('[Sync] Merged cloud data:', (merged.students||[]).length, 'students');
   return true;
 }
 // 构造推送到云端的明文负载（auto/manual push 共用）
@@ -3928,12 +4016,6 @@ function applyCreditDelta(student, amount, reason, opts){
   return op;
 }
 
-/* 撤销：反向写一条等量流水 + 回退快照，保证流水与快照仍然对得上 */
-function revertCreditOp(student, op){
-  if(!student || !op) return null;
-  return applyCreditDelta(student, -(Number(op.amount) || 0), op.reason, { time: Date.now() });
-}
-
 /* 学分变更后统一刷新所有展示学分的视图。
    此前 applyCredit / applyCreditBulk / undoLastOp 只刷 renderCreditsPage，
    学生管理模块的表格不刷新 —— 这是「分数不一致」的直接观感来源。
@@ -4024,9 +4106,8 @@ let state = {
   lastImport: null,
   scheduleImage: null,
   committee: Object.assign({}, DEFAULT_COMMITTEE),
-  seating: { cols:8, rows:5, seats:[] },
-  duty: { currentWeek:0, schedule:[], waterDuty:[], waterUsedIds:[], waterRound:1,
-          queue:[], cursorId:null, round:1, servedIds:[], roundLedger:[], lastGenWeek:-1, waterCursorId:null },  // 值日排班（v2.10.0 轮次制）
+  seating: defaultSeating(),
+  duty: defaultDuty(),  // 值日排班（v2.10.0 轮次制）
   exportedOpsCount: 0,  // 上次导出时的操作总数，用于计算未导出操作数
   classAvatar: null,  // 班级头像(base64)
   classMotto: '不积跬步，无以至千里；不积小流，无以成江海。',
@@ -4319,11 +4400,6 @@ function cbVouchers(sid){ return cbWallet(sid).pendingItems; }
 function cbSname(sid){
   var s = (state.students || []).find(function(x){ return String(x.id) === String(sid); });
   return s ? (s.name || '') : '';
-}
-// 当前表现分（快照已经 reconcile 校准，直接读）
-function cbCreditOf(sid){
-  var s = (state.students || []).find(function(x){ return String(x.id) === String(sid); });
-  return s ? (Number(s.credit) || 0) : 0;
 }
 /* 币余额映射（纯函数）：Σ有效加分流水（自动等额发币） + Σ银行流水（兑换扣/退还加）。
    ops/ledger 缺省用 state（页面渲染直接传参亦可单测）。 */
@@ -4799,7 +4875,6 @@ window.addEventListener('resize', function(){
   var p = document.getElementById('page-bank');
   if(p && p.classList.contains('active')) initBankTabIndicator();
 });
-function cbStoreSidPick(v){ cbStoreSid = String(v || ''); }
 /* v2.17.30 商店选学生：点搜索框 = 展开候选名单；输入姓名 / 学号 / ID 实时筛选；回车选第一个
    v2.17.30 候选名单按币由多到少排序（空关键词全体与输入筛选一致；同币按 id 升序保稳） */
 function cbStoreSearchInput(q){
@@ -5064,8 +5139,7 @@ function cbFmtTime(t){
   if(!t) return '';
   var d = new Date(t);
   if(isNaN(d.getTime())) return '';
-  function p(x){ return String(x).padStart(2, '0'); }
-  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
 }
 function cbEsc(s){
   return escapeHtml(s == null ? '' : String(s));
@@ -5390,13 +5464,9 @@ function loadData(){
       state.scheduleImage = d.scheduleImage || null;
       // 班委：旧数据可能只有 5 岗，补齐制度 8 岗的空键（已有任命原样保留）
       state.committee = Object.assign({}, DEFAULT_COMMITTEE, d.committee || {});
-      state.seating = d.seating || { cols:8, rows:5, seats:[] };
+      state.seating = d.seating || defaultSeating();
       // 值日：旧数据补齐轮次制字段；已有排班视为已固化，轮次从其后开始生成
-      state.duty = Object.assign(
-        { currentWeek:0, schedule:[], waterDuty:[], waterUsedIds:[], waterRound:1,
-          queue:[], cursorId:null, round:1, servedIds:[], roundLedger:[], lastGenWeek:-1, waterCursorId:null },
-        d.duty || {}
-      );
+      state.duty = Object.assign(defaultDuty(), d.duty || {});
       (state.duty.schedule||[]).forEach(function(e){ if((e.week||0) > state.duty.lastGenWeek) state.duty.lastGenWeek = e.week; });
       state.punishments = d.punishments || [];
       state.nextPunishId = d.nextPunishId || 1;
@@ -5701,7 +5771,7 @@ function autoSyncFromCloud(){
       return applyCloudData(remoteData);
     })
     .catch(function(e){
-      console.log('[Sync] Fetch failed:', e.message);
+      dbg('[Sync] Fetch failed:', e.message);
       // 解密类错误要让用户看见，否则会一直静默失败
       if(e && /加密|口令|Web Crypto/.test(e.message)) showToast(e.message, 'error');
       return false;
@@ -5724,20 +5794,20 @@ function autoPushToCloud(){
       _noTokenWarned = true;
       showToast('未配置云同步 Token，数据仅保存在本机（设置页可配置）','warning');
     }
-    console.log('[Sync] No token configured, skip auto push');
+    dbg('[Sync] No token configured, skip auto push');
     return;
   }
   if(cloudSyncTimer) clearTimeout(cloudSyncTimer);
   cloudSyncTimer = setTimeout(function(){
     // 拉取进行中时不抢推 —— 这是历史上「空本地覆盖云端」的直接成因
     if(syncInProgress){
-      console.log('[Sync] Pull in progress, defer auto push');
+      dbg('[Sync] Pull in progress, defer auto push');
       _pushPending = true;
       return;
     }
     // v2.11.3 重置推送进行中：常规 auto push 一律跳过（强推由 pushWipeToCloud 负责）
     if(wipeInProgress){
-      console.log('[Sync] wipe in progress, skip auto push');
+      dbg('[Sync] wipe in progress, skip auto push');
       return;
     }
     doPushToCloud('auto-sync: update data.json')
@@ -5746,7 +5816,7 @@ function autoPushToCloud(){
         return r.json();
       })
       .then(function(json){
-        console.log('[Sync] Pushed! Commit:', json.commit.sha);
+        dbg('[Sync] Pushed! Commit:', json.commit.sha);
         state.lastExport = new Date().toISOString();
         state.exportedOpsCount = state.operations.length;
         lastSyncTime = new Date().toISOString();
@@ -5861,11 +5931,11 @@ function restoreFromCloud(){
       renderSettings();
       state.lastSyncTime = new Date().toISOString();
       showToast('已从云端恢复 ' + (data.students||[]).length + ' 名学生数据','success');
-      console.log('[Sync] Restored from cloud:', (data.students||[]).length, 'students');
+      dbg('[Sync] Restored from cloud:', (data.students||[]).length, 'students');
     })
     .catch(e => {
       showToast('云端恢复失败：' + e.message, 'error');
-      console.log('[Sync] Restore failed:', e);
+      dbg('[Sync] Restore failed:', e);
     });
 }
 
@@ -6137,14 +6207,17 @@ function openAvatarModal(){
 }
 
 function editMotto(){
-  const newMotto = prompt('请输入班级口号：', state.classMotto || '');
-  if(newMotto === null) return;
-  const trimmed = newMotto.trim();
-  if(!trimmed){ showToast('口号不能为空','error'); return; }
-  state.classMotto = trimmed;
-  saveData();
-  renderClassBrand();
-  showToast('班级口号已更新','success');
+  cmPrompt({
+    title: '✏️ 班级口号', label: '班级口号', value: state.classMotto || '',
+    placeholder: '如：不积跬步，无以至千里',
+    validate: function(v){ return v ? null : '口号不能为空'; },
+    onOk: function(v){
+      state.classMotto = v;
+      saveData();
+      renderClassBrand();
+      showToast('班级口号已更新','success');
+    }
+  });
 }
 function saveMottoFromSettings(){
   const val = document.getElementById('mottoInput').value.trim();
@@ -6255,7 +6328,7 @@ function renderScheduleImage(){
     if(img){
       img.ondblclick = function(){ viewScheduleFullscreen(); };
       img.onerror = function(){
-        console.log('[Schedule] img onerror, fallback to base64');
+        dbg('[Schedule] img onerror, fallback to base64');
         if(img.src !== src){ img.src = src; }
       };
     }
@@ -6402,21 +6475,12 @@ function renderDashboard(){
 function drawDistChart(credits){
   const canvas = document.getElementById('distChart');
   if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-  var W = rect.width;
-  if(W < 10){
+  if(canvas.getBoundingClientRect().width < 10){
     // Canvas not laid out yet, retry after next frame
     requestAnimationFrame(function(){ drawDistChart(credits); });
     return;
   }
-  canvas.width = W * dpr;
-  canvas.height = 240 * dpr;
-  canvas.style.height = '240px';
-  ctx.scale(dpr, dpr);
-  var H = 240;
-  ctx.clearRect(0,0,W,H);
+  const { ctx, W, H } = hiDPICanvas(canvas, 240);
 
   if(credits.length === 0){
     ctx.fillStyle = '#A0988C';
@@ -7418,12 +7482,6 @@ const dutyAreaCounts = {'教室':4,'公共区':4}; // 每个区域的人数
    已生成的周固化在 schedule 里永不变；未来周渲染到哪页就按需生成到哪页。
    roundLedger 按槽位顺序记录本轮取人结果（导出组别表/本轮名单的数据源）。 */
 
-function dutySlotsPerWeek(){
-  var n = 0;
-  dutyDays.forEach(function(day){ dutyAreas.forEach(function(a){ n += (dutyAreaCounts[a]||1); }); });
-  return n; // 6天 × 8 = 48
-}
-
 /* 队列维护：按学号排序；删掉的移除，新来的按学号插到合适位置（保持公平与稳定） */
 function dutyEnsureQueue(duty, students){
   var inQ = {};
@@ -7676,13 +7734,6 @@ function dutyShowRoundList(){
       '　<b>公共区</b>：' + escapeHtml(g.area.join('、') || '—') + '</span></div>';
   }).join('') : '<div class="dorm-empty">本轮暂无排班</div>';
   openModal('dutyRoundModal');
-}
-
-/* v2.10.0：一键排班升级为「重新排班」（轮次制，公平轮转） */
-function autoDuty(){ dutyRescheduleAll(); }
-
-function clearDuty(){
-  dutyClearFromWeek();
 }
 
 /* ==================== 罚扫记录（v2.10.0，扣学分全链路联动） ==================== */
@@ -8403,14 +8454,6 @@ function renderCreditSelectedChips(){
   updateCreditBtnStates();
 }
 
-function renderCreditStudentSelect(){
-  // Just trigger filter to refresh list if input is focused
-  var input = document.getElementById('creditStudentInput');
-  if(input && document.activeElement === input){
-    filterCreditStudents();
-  }
-}
-
 function updateCreditBtnStates(){
   var hasStudent = _creditSelectedIds.size > 0;
   const hasReason = document.getElementById('creditReason').value !== '';
@@ -8431,7 +8474,6 @@ function updateCreditBtnStates(){
   }
 }
 function onCreditInputChange(){ _creditAutofillMark = null; updateCreditBtnStates(); }
-function onCreditInputSearch(){ filterCreditStudents(); updateCreditBtnStates(); }
 
 /* v2.17.6 自定义分值防覆盖：记住「选原因自动带出」的预设值；
    仅当输入框为空、或仍显示上一种原因的旧预设（未被手改）时，换原因才重填新预设。
@@ -8624,9 +8666,8 @@ function updateUndoBtn(){
 function formatOpTime(op){
   const d = new Date(op && op.time);
   if(isNaN(d.getTime())) return '时间未知';
-  const p = n => String(n).padStart(2, '0');
-  const ymd = (d.getFullYear() !== new Date().getFullYear() ? d.getFullYear() + '-' : '') + p(d.getMonth() + 1) + '-' + p(d.getDate());
-  return ymd + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  const ymd = (d.getFullYear() !== new Date().getFullYear() ? d.getFullYear() + '-' : '') + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  return ymd + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
 }
 function renderOpItem(op){
   const amount = Number(op.amount) || 0;
@@ -9022,15 +9063,7 @@ function renderAnalytics(){
 function drawRangeChart(credits){
   const canvas = document.getElementById('rangeChart');
   if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = 220 * dpr;
-  canvas.style.height = '220px';
-  ctx.scale(dpr, dpr);
-  const W = rect.width, H = 220;
-  ctx.clearRect(0,0,W,H);
+  const { ctx, W, H } = hiDPICanvas(canvas, 220);
 
   if(credits.length === 0){
     ctx.fillStyle = '#A0988C';
@@ -9114,15 +9147,7 @@ function drawRangeChart(credits){
 function drawPieChart(credits){
   const canvas = document.getElementById('pieChart');
   if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = 220 * dpr;
-  canvas.style.height = '220px';
-  ctx.scale(dpr, dpr);
-  const W = rect.width, H = 220;
-  ctx.clearRect(0,0,W,H);
+  const { ctx, W, H } = hiDPICanvas(canvas, 220);
 
   // v2.15.1：改为制度四档（100 分基准），与 creditLevel 口径一致
   const segments = [
@@ -9204,15 +9229,7 @@ function renderProgressList(){
 function drawTrendChart(){
   const canvas = document.getElementById('trendChart');
   if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = 200 * dpr;
-  canvas.style.height = '200px';
-  ctx.scale(dpr, dpr);
-  const W = rect.width, H = 200;
-  ctx.clearRect(0,0,W,H);
+  const { ctx, W, H } = hiDPICanvas(canvas, 200);
 
   const days = [];
   for(let i = 6; i >= 0; i--){
@@ -9591,7 +9608,7 @@ function deleteProfileTimeline(sid, tid){
 /* ==================== Work Logs ==================== */
 var WL_CATS = ['常规','班会','谈话','活动','事务','其他'];
 var _wlCat = '全部';
-function todayStr(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
 function renderWorkLogs(){
   const dateEl = document.getElementById('wlDate');
   if(dateEl && !dateEl.value) dateEl.value = todayStr();
@@ -10155,53 +10172,82 @@ function renderReasonCatalogTree(){
 
 /* ---- 新增方向 / 大类（prompt 快录） ---- */
 function openReasonDirModal(){
-  var name = prompt('新增方向名称（如：加分 / 扣分 / 卫生 / 纪律）：', '');
-  if(name == null) return;
-  name = String(name).trim();
-  if(!name){ showToast('方向名不能为空', 'error'); return; }
-  if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(name)){ showToast('方向名限中英文/数字，不能含符号与表情', 'error'); return; }
-  if(state.reasonCatalog[name]){ showToast('方向「' + name + '」已存在', 'warning'); return; }
-  state.reasonCatalog[name] = {};
-  catDelUndo('dirs', name);   // v2.17.30 重新添加同名方向视为放弃删除
-  catRefresh();
-  showToast('已新增方向：' + name, 'success');
+  cmPrompt({
+    title: '➕ 新增方向', label: '方向名称', placeholder: '如：加分 / 扣分 / 卫生 / 纪律',
+    hint: '限中英文 / 数字 / 空格，不能含符号与表情',
+    validate: function(v){
+      if(!v) return '方向名不能为空';
+      if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(v)) return '方向名限中英文/数字，不能含符号与表情';
+      if(state.reasonCatalog[v]) return '方向「' + v + '」已存在';
+      return null;
+    },
+    onOk: function(name){
+      state.reasonCatalog[name] = {};
+      catDelUndo('dirs', name);   // v2.17.30 重新添加同名方向视为放弃删除
+      catRefresh();
+      showToast('已新增方向：' + name, 'success');
+    }
+  });
 }
 function openReasonGroupModal(dir){
-  var name = prompt('在方向「' + dir + '」下新增大类名称（如：学习表现 / 考勤）：', '');
-  if(name == null) return;
-  name = String(name).trim();
-  if(!name){ showToast('大类名不能为空', 'error'); return; }
-  if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(name)){ showToast('大类名限中英文/数字，不能含符号与表情', 'error'); return; }
-  if(!state.reasonCatalog[dir]) state.reasonCatalog[dir] = {};
-  if(state.reasonCatalog[dir][name]){ showToast('大类「' + name + '」已存在', 'warning'); return; }
-  state.reasonCatalog[dir][name] = [];
-  catDelUndo('groups', dir + '|' + name);   // v2.17.30 重新添加同名大类视为放弃删除
-  catRefresh();
-  showToast('已新增大类：' + dir + ' → ' + name, 'success');
+  cmPrompt({
+    title: '➕ 新增大类', label: '方向「' + dir + '」下的大类名', placeholder: '如：学习表现 / 考勤',
+    hint: '限中英文 / 数字 / 空格，不能含符号与表情',
+    validate: function(v){
+      if(!v) return '大类名不能为空';
+      if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(v)) return '大类名限中英文/数字，不能含符号与表情';
+      if(state.reasonCatalog[dir] && state.reasonCatalog[dir][v]) return '大类「' + v + '」已存在';
+      return null;
+    },
+    onOk: function(name){
+      if(!state.reasonCatalog[dir]) state.reasonCatalog[dir] = {};
+      state.reasonCatalog[dir][name] = [];
+      catDelUndo('groups', dir + '|' + name);   // v2.17.30 重新添加同名大类视为放弃删除
+      catRefresh();
+      showToast('已新增大类：' + dir + ' → ' + name, 'success');
+    }
+  });
 }
 function catRenameDir(oldName){
-  var name = prompt('重命名方向「' + oldName + '」为：', oldName);
-  if(name == null) return;
-  name = String(name).trim();
-  if(!name || name === oldName) return;
-  if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(name)){ showToast('方向名限中英文/数字', 'error'); return; }
-  if(state.reasonCatalog[name]){ showToast('方向「' + name + '」已存在', 'warning'); return; }
-  state.reasonCatalog[name] = state.reasonCatalog[oldName];
-  delete state.reasonCatalog[oldName];
-  catRefresh();
-  showToast('方向已改名：' + oldName + ' → ' + name, 'success');
+  cmPrompt({
+    title: '✏️ 重命名方向', label: '新名称', value: oldName,
+    validate: function(v){
+      if(!v || v === oldName) return '名称未改变';
+      if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(v)) return '方向名限中英文/数字';
+      if(state.reasonCatalog[v]) return '方向「' + v + '」已存在';
+      return null;
+    },
+    onOk: function(name){
+      // v2.18.4 改名跨设备传播：旧名记入删除墓碑（合并时按墓碑剔除），新名清掉可能残留的同名墓碑。
+      // 此前只做本地键替换 → 云端合并按并集处理，另一端会同时出现新旧两份。
+      state.reasonCatalog[name] = state.reasonCatalog[oldName];
+      delete state.reasonCatalog[oldName];
+      catDeletedAdd('dirs', oldName);
+      catDelUndo('dirs', name);
+      catRefresh();
+      showToast('方向已改名：' + oldName + ' → ' + name, 'success');
+    }
+  });
 }
 function catRenameGroup(dir, oldName){
-  var name = prompt('重命名大类「' + oldName + '」为：', oldName);
-  if(name == null) return;
-  name = String(name).trim();
-  if(!name || name === oldName) return;
-  if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(name)){ showToast('大类名限中英文/数字', 'error'); return; }
-  if(state.reasonCatalog[dir][name]){ showToast('大类「' + name + '」已存在', 'warning'); return; }
-  state.reasonCatalog[dir][name] = state.reasonCatalog[dir][oldName];
-  delete state.reasonCatalog[dir][oldName];
-  catRefresh();
-  showToast('大类已改名：' + oldName + ' → ' + name, 'success');
+  cmPrompt({
+    title: '✏️ 重命名大类', label: '方向「' + dir + '」下的新大类名', value: oldName,
+    validate: function(v){
+      if(!v || v === oldName) return '名称未改变';
+      if(!/^[a-zA-Z0-9_\-一-龥 ]+$/.test(v)) return '大类名限中英文/数字';
+      if(state.reasonCatalog[dir][v]) return '大类「' + v + '」已存在';
+      return null;
+    },
+    onOk: function(name){
+      // v2.18.4 同上：旧名记墓碑（大类键形如「方向|大类」），新名清墓碑
+      state.reasonCatalog[dir][name] = state.reasonCatalog[dir][oldName];
+      delete state.reasonCatalog[dir][oldName];
+      catDeletedAdd('groups', dir + '|' + oldName);
+      catDelUndo('groups', dir + '|' + name);
+      catRefresh();
+      showToast('大类已改名：' + oldName + ' → ' + name, 'success');
+    }
+  });
 }
 
 /* ---- 删除（confirm 确认；删原因同步清其分值） ---- */
@@ -10548,9 +10594,8 @@ function clearData(){
   state.lastExport = null;
   state.lastImport = null;
   state.committee = Object.assign({}, DEFAULT_COMMITTEE);
-  state.seating = { cols:8, rows:5, seats:[] };
-  state.duty = { currentWeek:0, schedule:[], waterDuty:[], waterUsedIds:[], waterRound:1,
-                 queue:[], cursorId:null, round:1, servedIds:[], roundLedger:[], lastGenWeek:-1, waterCursorId:null };
+  state.seating = defaultSeating();
+  state.duty = defaultDuty();
   state.punishments = [];
   state.nextPunishId = 1;
   state.exportedOpsCount = 0;
@@ -10625,13 +10670,15 @@ function pushWipeToCloud(){
 function resetCloudPwd(){
   if(!hasGHToken()){ showToast('请先配置 GitHub Token（重置需要写入权限）','error'); return; }
   if(!cryptoOK()){ showToast('当前环境不支持 Web Crypto，无法加密（请用 https 打开）','error'); return; }
-  var p = prompt('设置新的云同步口令：\n\n· 本机数据不受影响，只改变「云端加密」所用的口令\n· 保存后立即用新口令重加密并覆盖云端 data.json\n· 其他设备必须改成完全相同的口令，否则无法互通\n\n输入新口令（至少 8 位，建议 12 位以上）：');
-  if(p === null) return;
-  p = p.trim();
-  if(p.length < 8){ showToast('口令太短：至少 8 位，建议 12 位以上','error'); return; }
-  var again = prompt('请再次输入新口令以确认：');
-  if(again === null) return;
-  if(again.trim() !== p){ showToast('两次输入不一致，未保存','error'); return; }
+  cmPrompt({
+    title: '🔁 重置云端加密口令', label: '新的云同步口令', type: 'password', minLength: 8,
+    confirmLabel: '请再次输入新口令以确认',
+    hint: '· 本机数据不受影响，只改变「云端加密」所用的口令<br>· 保存后立即用新口令重加密并覆盖云端 data.json<br>· 其他设备必须改成<strong>完全相同</strong>的口令，否则无法互通<br>· 至少 8 位，建议 12 位以上',
+    onOk: resetCloudPwdApply
+  });
+}
+/* v2.18.4 从 resetCloudPwd 抽出实际执行体（原为 prompt 之后的直线代码）：校验已由模态完成 */
+function resetCloudPwdApply(p){
   if(!confirm('确认用新口令重推云端？\n\n云端 data.json 将被新口令加密的密文覆盖（旧密文不可恢复）。\n其他设备在改成相同口令前将无法同步。')) return;
   var oldPwd = getSyncPwd();
   setSyncPwd(p);
@@ -11438,9 +11485,20 @@ function confirmAddLeave(){
 function extendLeave(id){
   var leave = state.leaves.find(l=>l.id===id);
   if(!leave) return;
-  var newEnd = prompt('续假至何日？\n当前结束日：'+leave.endDate+'\n请输入日期（YYYY-MM-DD）：', leave.endDate);
-  if(!newEnd || newEnd === leave.endDate) return;
-  if(new Date(newEnd) < new Date(leave.startDate)){ showToast('续假日期不能早于开始日期','error'); return; }
+  cmPrompt({
+    title: '📅 续假', label: '续假至何日', type: 'date', value: leave.endDate,
+    hint: '当前结束日：' + escapeHtml(leave.endDate) + '（开始日 ' + escapeHtml(leave.startDate) + '）',
+    validate: function(v){
+      if(!v) return '请选择日期';
+      if(v === leave.endDate) return '日期未改变';
+      if(new Date(v) < new Date(leave.startDate)) return '续假日期不能早于开始日期';
+      return null;
+    },
+    onOk: function(newEnd){ extendLeaveApply(leave, newEnd); }
+  });
+}
+/* v2.18.4 从 extendLeave 抽出（原为 prompt 之后的直线代码），便于测试抽取与阅读 */
+function extendLeaveApply(leave, newEnd){
   var oldEnd = leave.endDate;
   var oldEp = leave.endPeriod || 'day';
   var oldEpText = oldEp==='am'?'上午':oldEp==='pm'?'下午':'全天';
@@ -12641,15 +12699,9 @@ function renderPubBoards(data){
 function pubCanvasReady(id, cb){
   var cv = document.getElementById(id);
   if(!cv) return;
-  var ctx = cv.getContext('2d');
-  var rect = cv.getBoundingClientRect();
-  if(rect.width < 10){ requestAnimationFrame(function(){ pubCanvasReady(id, cb); }); return; }
-  var dpr = window.devicePixelRatio || 1;
-  var W = rect.width, H = cv.height || 200;
-  cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.clearRect(0, 0, W, H);
-  cb(ctx, W, H);
+  if(cv.getBoundingClientRect().width < 10){ requestAnimationFrame(function(){ pubCanvasReady(id, cb); }); return; }
+  var s = hiDPICanvas(cv, cv.height || 200);
+  cb(s.ctx, s.W, s.H);
 }
 function pubGrid(ctx, W, H, padL, padR, padT, padB, nDiv){
   var cw = W - padL - padR, ch = H - padT - padB;

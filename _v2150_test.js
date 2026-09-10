@@ -208,6 +208,8 @@ t('applyCloudData 三条分支最终都过 loadData（自愈不会被绕过）',
 
 console.log('\n=== v2.15.1 热修：图表口径 / 最值 / 操作时间线 ===');
 global.escapeHtml = s => String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const __p2 = html.indexOf('function pad2(v)');
+global.pad2 = eval('(' + html.slice(__p2, html.indexOf('\n', __p2)) + ')');   // v2.18.4：补零助手收敛为全局 pad2（单行定义，grab 抓不到）
 const formatOpTime = eval('(' + grab('function formatOpTime(op)') + ')');
 const renderOpItem = eval('(' + grab('function renderOpItem(op)') + ')');
 
@@ -297,11 +299,11 @@ t('撤销/恢复分值同步：afterOpStateChange 统一走 reconcile + saveData
 });
 
 console.log('\n=== 版本号 ===');
-t('v2.18.3 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
-  if (!/login-version">v2\.18\.3</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.3 ·/.test(html)) throw new Error('侧栏版本号未更新');
+t('v2.18.4 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
+  if (!/login-version">v2\.18\.4</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.4 ·/.test(html)) throw new Error('侧栏版本号未更新');
   const sw = fs.readFileSync('sw.js', 'utf8');
-  if (!sw.includes('class-manager-v2.18.3')) throw new Error('SW CACHE_NAME 未更新');
+  if (!sw.includes('class-manager-v2.18.4')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

@@ -35,13 +35,13 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('版本三处同步 = v2.18.3（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.18\.3</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.3 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.18.3')) throw new Error('SW CACHE_NAME 未更新');
+t('版本三处同步 = v2.18.4（登录页/侧栏/SW CACHE_NAME）', () => {
+  if (!/login-version">v2\.18\.4</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.4 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.18.4')) throw new Error('SW CACHE_NAME 未更新');
 });
-t('设置页版本徽标随版 = v2.18.3', () => {
-  has(html, '🏷️ v2.18.3</span>', '设置页版本徽标未跟版');
+t('设置页版本徽标随版 = v2.18.4', () => {
+  has(html, '🏷️ v2.18.4</span>', '设置页版本徽标未跟版');
 });
 t('历史注释保护：v2.18.2 功能注释 2 处保留（不随升版盲替）', () => {
   const n = (html.match(/v2\.18\.2/g) || []).length;
@@ -130,27 +130,29 @@ t('函数 resetCloudPwd 已定义且挂到设置页按钮', () => {
   has(html, 'function resetCloudPwd(){', '函数未定义');
   has(html, 'onclick="resetCloudPwd()">🔁 重置云端加密口令</button>', '设置页缺入口按钮');
 });
-t('重置前有二次确认与口令双输校验', () => {
+t('v2.18.4：口令走站内密码模态（不再用 prompt 明文回显）', () => {
   const b = fnBody('resetCloudPwd');
-  has(b, "prompt('设置新的云同步口令：", '缺新口令输入');
-  has(b, "prompt('请再次输入新口令以确认：')", '缺二次输入');
-  has(b, 'if(again.trim() !== p)', '缺一致性校验');
-  has(b, 'if(p.length < 8)', '缺长度下限');
-  has(b, 'if(!confirm(', '缺确认框');
+  has(b, 'cmPrompt({', '未走通用输入模态');
+  has(b, "type: 'password'", '口令未用密码框（prompt 会明文回显）');
+  has(b, 'confirmLabel:', '缺二次输入框');
+  has(b, 'minLength: 8', '缺长度下限');
+  notHas(b, 'prompt(', '仍用原生 prompt');
+  has(fnBody('cmPromptSubmit'), '两次输入不一致', '缺两次一致性校验');
 });
-t('有意绕过 checkPushSafety（改口令后旧密文解不开，常规推送必被拦）', () => {
-  const b = fnBody('resetCloudPwd');
+t('重置执行体：二次确认 + 有意绕过 checkPushSafety（旧密文解不开，常规推送必被拦）', () => {
+  const b = fnBody('resetCloudPwdApply');
+  has(b, 'if(!confirm(', '缺确认框');
   notHas(b, 'checkPushSafety', '不应走安全闸门（否则改口令后永远推不上去）');
   has(b, 'encryptForCloud(buildCloudPayload(parsed))', '缺重加密负载');
   has(b, "message: 'rekey: re-encrypt data.json with new sync password'", '缺重推提交信息');
 });
 t('推送期间持独占锁，防止 auto push 抢跑', () => {
-  const b = fnBody('resetCloudPwd');
+  const b = fnBody('resetCloudPwdApply');
   has(b, 'wipeInProgress = true;', '缺独占锁加锁');
   has(b, '.then(function(){ wipeInProgress = false; });', '缺释放锁');
 });
 t('失败时回滚为原口令（避免本机口令与云端密文不一致卡死）', () => {
-  const b = fnBody('resetCloudPwd');
+  const b = fnBody('resetCloudPwdApply');
   has(b, 'var oldPwd = getSyncPwd();', '缺原口令快照');
   has(b, 'setSyncPwd(oldPwd);', '缺回滚');
 });
