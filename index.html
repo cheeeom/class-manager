@@ -1222,6 +1222,12 @@ tbody tr.highlight{
   cursor:pointer;font-size:11px;
   background:rgba(255,255,255,0.9);
 }
+/* v2.18.5 座次拖拽：鼠标按住直接拖 / 触屏长按约 0.2s 后拖；拖到已占座位=两人互换，拖到空位=直接移动 */
+.seat{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.seat.occupied{cursor:grab}
+.seat.dragging{opacity:.4;transform:scale(.94);pointer-events:none;cursor:grabbing}
+.seat.drag-over{border-color:var(--primary)!important;box-shadow:0 0 0 2px rgba(166,58,43,0.35);background:rgba(166,58,43,0.14)}
+.seat.drag-over .seat-plus{color:var(--primary)}
 
 /* ==================== Duty ==================== */
 .duty-toolbar{
@@ -1906,7 +1912,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.18.4</div>
+      <div class="login-version">v2.18.5</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2025,7 +2031,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.18.4 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.18.5 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2223,9 +2229,9 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="seating-toolbar">
           <div class="section-title" style="margin-bottom:0"><span class="dot"></span>座次表</div>
           <span style="flex:1"></span>
-          <button class="btn btn-outline btn-sm" onclick="autoSeat('random')" title="打乱顺序随机排座">🎲 随机</button>
-          <button class="btn btn-primary btn-sm" onclick="autoSeat('credit')" title="按学分从高到低，依次前排入座">🎓 按学分排座</button>
-          <button class="btn btn-outline btn-sm" onclick="autoSeat('name')" title="按姓名拼音顺序排座">🔤 按姓名</button>
+          <button class="btn btn-outline btn-sm" onclick="autoSeat('random')" title="未入座学生随机打乱，从前往后填入空座（不动已排座位）">🎲 随机</button>
+          <button class="btn btn-primary btn-sm" onclick="autoSeat('credit')" title="未入座学生按学分从高到低，从前往后填入空座（不动已排座位）">🎓 按学分排座</button>
+          <button class="btn btn-outline btn-sm" onclick="autoSeat('name')" title="未入座学生按姓名拼音，从前往后填入空座（不动已排座位）">🔤 按姓名</button>
           <button class="btn btn-outline btn-sm" onclick="clearSeating()">清空座位</button>
           <div class="seat-config-inline">
             <label>列</label>
@@ -2236,7 +2242,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <button class="btn btn-primary btn-sm" onclick="saveSeatLayoutInline()">应用</button>
           </div>
         </div>
-        <div style="font-size:12px;color:var(--text-muted);text-align:center;margin:2px 0 8px">💡 点座位卡片即可安排 / 更换学生；已占座卡片右上角 ✕ 可移除</div>
+        <div style="font-size:12px;color:var(--text-muted);text-align:center;margin:2px 0 8px">💡 点座位卡片即可安排 / 更换学生；按住卡片拖到别的座位即可换座（拖到已占座位＝两人互换，拖到空位＝直接移动，触屏请长按约 0.2 秒后拖动）；已占座卡片右上角 ✕ 可移除</div>
         <div class="seating-teacher">📚 讲 台 📚</div>
         <div class="seating-grid" id="seatingGrid"></div>
       </div>
@@ -2734,12 +2740,14 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.4</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.5</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 座次表支持拖拽换座：按住座位卡片拖动即可换座——拖到已占座位两人互换、拖到空位直接移动（触屏长按约 0.2 秒后拖动）<br>
+              · 三个排座按钮改为「只填空座」：先手动排好的座位一律保留，未入座学生按所选顺序（学分高→低 / 姓名 / 随机）从前往后依次补位<br>
               · 原生弹窗全部换成站内模态（新增 / 重命名方向与大类、改班级口号、续假日期），重置口令改用密码框输入、不再明文回显<br>
               · 修复原因目录改名不跨设备传播：改名后旧名记入删除墓碑，其他设备不会再同时出现新旧两份<br>
               · 代码清理与加固：删除 8 个零引用函数与 22 条无引用 CSS 规则；调试日志默认静默（地址栏加 ?debug=1 打开）<br>
@@ -7340,7 +7348,8 @@ function renderSeating(){
       const seat = seats.find(s=>s.row===r && s.col===c);
       const student = seat ? state.students.find(st=>st.id===seat.studentId) : null;
       if(student){
-        html += `<div class="seat occupied" onclick="seatClick(${r},${c},${seat.studentId})">
+        // v2.18.5：挂 data-seat-row/col + onpointerdown，支持拖拽换座（点按行为不变）
+        html += `<div class="seat occupied" data-seat-row="${r}" data-seat-col="${c}" onpointerdown="seatPointerDown(event,${r},${c},${seat.studentId})" oncontextmenu="return false" onclick="seatClick(${r},${c},${seat.studentId})" title="按住可拖到别的座位换座">
           <div class="seat-actions">
             <button onclick="event.stopPropagation();seatClick(${r},${c},${seat.studentId})" title="更换">🔄</button>
             <button onclick="event.stopPropagation();removeSeat(${r},${c})" title="移除">✕</button>
@@ -7349,7 +7358,7 @@ function renderSeating(){
           <div class="seat-num">R${r+1}C${c+1}</div>
         </div>`;
       } else {
-        html += `<div class="seat" onclick="seatClick(${r},${c},null)">
+        html += `<div class="seat" data-seat-row="${r}" data-seat-col="${c}" onpointerdown="seatPointerDown(event,${r},${c},null)" oncontextmenu="return false" onclick="seatClick(${r},${c},null)" title="点此安排学生 / 把学生卡拖到这里换座">
           <div class="seat-plus">+</div>
           <div class="seat-num">R${r+1}C${c+1}</div>
         </div>`;
@@ -7385,32 +7394,46 @@ function removeSeat(row, col){
 }
 
 function autoSeat(strategy){
+  // v2.18.5：改为「只填空座」——先手动排好的座位一律保留，只把未入座学生补进空位
   if(state.students.length === 0){
     showToast('请先添加学生','error');
     return;
   }
-  const { cols, rows } = state.seating;
-  const totalSeats = cols * rows;
-  let sorted = [...state.students];
+  const { cols, rows, seats } = state.seating;
+  const keptCount = seats.length;
+  const occupiedIds = seats.map(s => s.studentId);
+  // 空座位：按「前排优先」收集（行小优先，同行列小优先）
+  const emptySeats = [];
+  for(let r = 0; r < rows; r++){
+    for(let c = 0; c < cols; c++){
+      if(!seats.some(s => s.row === r && s.col === c)) emptySeats.push({ row: r, col: c });
+    }
+  }
+  const unseated = state.students.filter(s => !occupiedIds.includes(s.id));
+  if(unseated.length === 0){
+    showToast('所有学生都已入座，无需补位','info');
+    return;
+  }
+  if(emptySeats.length === 0){
+    // 还有未入座学生，却一个空位都没有（座位数 < 人数）
+    showToast('没有空座位可安排，请先调整行列数或移除部分座位','error');
+    return;
+  }
+  let sorted = [...unseated];
   const mode = (strategy === 'credit' || strategy === 'name') ? strategy : 'random';
   if(mode === 'credit'){ sorted.sort((a,b) => (Number(b.credit)||0) - (Number(a.credit)||0)); } // v2.18.1 学分高→前
   else if(mode === 'name'){ sorted.sort((a,b) => String(a.name||'').localeCompare(String(b.name||''), 'zh')); }
   else { for(let i = sorted.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [sorted[i], sorted[j]] = [sorted[j], sorted[i]]; } }
   const strategyName = {'random':'随机','credit':'按学分从高到低','name':'按姓名拼音'}[mode];
-  if(!confirm(`将按「${strategyName}」排座：${sorted.length} 名学生从第一排依次填入 ${totalSeats} 个座位，确认继续？`)) return;
-  state.seating.seats = [];
-  let idx = 0;
-  for(let r = 0; r < rows; r++){
-    for(let c = 0; c < cols; c++){
-      if(idx < sorted.length){
-        state.seating.seats.push({ row: r, col: c, studentId: sorted[idx].id });
-        idx++;
-      }
-    }
+  const fillCount = Math.min(sorted.length, emptySeats.length);
+  const extra = sorted.length > fillCount ? `\n（空座位不足，剩余 ${sorted.length - fillCount} 人暂不安排）` : '';
+  if(!confirm(`按「${strategyName}」把 ${fillCount} 名未入座学生从前往后填入空座，已排的 ${keptCount} 个座位保持不变。${extra}\n确认继续？`)) return;
+  for(let i = 0; i < fillCount; i++){
+    seats.push({ row: emptySeats[i].row, col: emptySeats[i].col, studentId: sorted[i].id });
   }
   saveData();
   renderSeating();
-  showToast(`已按「${strategyName}」安排 ${idx} 名学生入座`,'success');
+  showToast(`已按「${strategyName}」补入 ${fillCount} 名学生（保留原有 ${keptCount} 个座位）`,'success');
 }
 function clearSeating(){
   if(!confirm(`确认清空所有座位安排？这将移除 ${state.seating.seats.length} 个已分配的座位，操作不可撤销。`)) return;
@@ -7418,6 +7441,116 @@ function clearSeating(){
   saveData();
   renderSeating();
   showToast('已清空座位','info');
+}
+
+/* ==================== v2.18.5 座次拖拽换座 ====================
+   手势：鼠标按住移动 ≥6px 即进入拖拽；触屏需长按约 0.2s 激活（提前移动则放弃长按，
+         把滚动交还页面）。拖拽期间用非被动 touchmove preventDefault 掐断滚动。
+   落点：拖到已占座位 → 两人互换；拖到空位 → 直接移动；拖回原位 → 取消。
+   命中：elementFromPoint + .closest('.seat')；拖动卡片置 pointer-events:none 以免遮挡。 */
+let _seatDrag = null;   // { row, col, studentId, el, active, startX, startY, targetEl, timer }
+
+function seatPointerDown(ev, row, col, studentId){
+  if(_seatDrag) return;
+  if(ev.pointerType === 'mouse' && ev.button !== 0) return;                        // 仅左键
+  if(ev.target && ev.target.closest && ev.target.closest('.seat-actions')) return;  // 点右上角操作按钮不触发拖拽
+  const isTouch = ev.pointerType === 'touch';
+  _seatDrag = { row:row, col:col, studentId:studentId, el:ev.currentTarget,
+                active:false, startX:ev.clientX, startY:ev.clientY, targetEl:null, timer:null };
+  if(isTouch){
+    _seatDrag.timer = setTimeout(seatDragActivate, 200);                            // 触屏长按激活
+    window.addEventListener('touchmove', seatTouchMove, { passive:false });
+  }
+  window.addEventListener('pointermove', seatPointerMove, { passive:false });
+  window.addEventListener('pointerup', seatPointerUp);
+  window.addEventListener('pointercancel', seatPointerCancel);
+}
+
+function seatDragActivate(){
+  const d = _seatDrag;
+  if(!d || d.active) return;
+  d.active = true;
+  if(d.timer){ clearTimeout(d.timer); d.timer = null; }
+  if(d.el && d.el.classList) d.el.classList.add('dragging');
+  if(navigator.vibrate){ try{ navigator.vibrate(15); }catch(e){} }                 // 触感反馈（支持则用）
+}
+
+function seatTouchMove(ev){
+  // 长按已成 → 手指尚未移动过，浏览器还没起滚，此时掐断即可阻止页面滚动
+  if(_seatDrag && _seatDrag.active && ev.cancelable) ev.preventDefault();
+}
+
+function seatDropTargetAt(x, y){
+  const el = document.elementFromPoint(x, y);
+  if(!el || !el.closest) return null;
+  const seat = el.closest('.seat');
+  return (seat && seat.dataset && seat.dataset.seatRow) ? seat : null;
+}
+
+function seatPointerMove(ev){
+  const d = _seatDrag;
+  if(!d) return;
+  const dx = Math.abs(ev.clientX - d.startX), dy = Math.abs(ev.clientY - d.startY);
+  if(!d.active){
+    if(d.timer && (dx > 10 || dy > 10)){ seatPointerCancel(); return; }   // 长按未成即移动 → 放弃，放行滚动
+    if(!d.timer && (dx > 6 || dy > 6)) seatDragActivate();                // 鼠标：越过阈值进入拖拽
+    if(!d.active) return;
+  }
+  if(ev.cancelable) ev.preventDefault();
+  const target = seatDropTargetAt(ev.clientX, ev.clientY);
+  if(target !== d.targetEl){
+    if(d.targetEl) d.targetEl.classList.remove('drag-over');
+    d.targetEl = target;
+    if(target) target.classList.add('drag-over');
+  }
+}
+
+function seatPointerUp(){
+  const d = _seatDrag;
+  if(!d) return;
+  const active = d.active, targetEl = d.targetEl, fromRow = d.row, fromCol = d.col;
+  seatPointerCleanup();
+  if(!active || !targetEl) return;
+  // 抑制浏览器随后合成的 click（否则拖拽结束会误弹「更换座位」弹窗）
+  const swallow = e => { e.stopPropagation(); e.preventDefault(); };
+  window.addEventListener('click', swallow, true);
+  setTimeout(() => window.removeEventListener('click', swallow, true), 350);
+  seatDrop(fromRow, fromCol, parseInt(targetEl.dataset.seatRow, 10), parseInt(targetEl.dataset.seatCol, 10));
+}
+
+function seatPointerCancel(){ seatPointerCleanup(); }
+
+function seatPointerCleanup(){
+  const d = _seatDrag;
+  if(!d) return;
+  if(d.timer) clearTimeout(d.timer);
+  if(d.el && d.el.classList) d.el.classList.remove('dragging');
+  if(d.targetEl) d.targetEl.classList.remove('drag-over');
+  window.removeEventListener('touchmove', seatTouchMove);
+  window.removeEventListener('pointermove', seatPointerMove);
+  window.removeEventListener('pointerup', seatPointerUp);
+  window.removeEventListener('pointercancel', seatPointerCancel);
+  _seatDrag = null;
+}
+
+function seatDrop(fromRow, fromCol, toRow, toCol){
+  if(fromRow === toRow && fromCol === toCol){ renderSeating(); return; }   // 拖回原位 = 取消
+  const seats = state.seating.seats;
+  const src = seats.find(s => s.row === fromRow && s.col === fromCol);
+  if(!src){ renderSeating(); return; }
+  const nameOf = sid => { const st = state.students.find(s => s.id === sid); return st ? st.name : '(已删除)'; };
+  const dst = seats.find(s => s.row === toRow && s.col === toCol);
+  if(dst){
+    const tmpRow = dst.row, tmpCol = dst.col;    // 目标已占 → 互换坐标（不动数组顺序，云同步无感）
+    dst.row = fromRow; dst.col = fromCol;
+    src.row = tmpRow; src.col = tmpCol;
+    showToast(`已互换座位：${nameOf(src.studentId)} ⇄ ${nameOf(dst.studentId)}`,'success');
+  } else {
+    src.row = toRow; src.col = toCol;            // 目标为空 → 直接移动
+    showToast(`已移动：${nameOf(src.studentId)} → R${toRow + 1}C${toCol + 1}`,'success');
+  }
+  saveData();
+  renderSeating();
 }
 
 function saveSeatLayout(){

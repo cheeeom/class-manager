@@ -24,11 +24,11 @@ t('index.html 主 <script> 块可被完整编译（新增体检代码无语法�
   if (!n) throw new Error('未找到主脚本块');
 });
 
-console.log('\n=== v2.18.4 版本三处同步 ===');
-t('登录页 / 侧栏 / SW CACHE_NAME = v2.18.4', () => {
-  if (!/login-version">v2\.18\.4</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.4 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.18.4')) throw new Error('SW CACHE_NAME 未更新');
+console.log('\n=== v2.18.5 版本三处同步 ===');
+t('登录页 / 侧栏 / SW CACHE_NAME = v2.18.5', () => {
+  if (!/login-version">v2\.18\.5</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.5 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.18.5')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 体检纯函数 computeCreditAudit ===');

@@ -3,7 +3,7 @@
 > 与 `AGENTS.md`（知识库）+ `DECISIONS.md`（决策记录）配套。
 > 本文件只记「当前状态 + 下一步做什么」，不重复架构细节——架构看 `AGENTS.md`。
 >
-> 最后更新：2026-09-10（v2.18.4 P1 缺陷修复 + P2 代码清理：原生弹窗全部改模态 / 改名跨设备传播 / 死码清理）
+> 最后更新：2026-09-10（v2.18.5 座次拖拽换座 + 排座按钮改「只填空座」）
 > ⚠️ 下文「一、当前状态速览」为 v2.8.0 期快照，未随版本更新；**最新进展一律以文末「逐版章节」为准**。
 
 ---
@@ -839,5 +839,29 @@
   2. **`grab()` 的 `\{[\s\S]*?\n\}` 锚点两个边界**：① **单行函数抓不到**（`pad2`/`defaultSeating`/`cloneReasonCatalog` 要按行切片取）② **同行后面若还有多行函数会被一起吞**（`cloneReasonCatalog` 单行 + 紧随的多行 `flattenReasonCatalog` → eval 包括号即语法错）。判断准则：先看定义是不是单行
   3. **测试文件行尾 CRLF / LF 混杂**：锚点替换必须按文件探测行尾拼接（`eolOf()`），否则同一份锚点在某些文件命中 0 次
 - [x] **⚠️ 注入复查**：index.html 的全部改动照旧走「一次性 node 补丁脚本单次写盘（78 处替换 / 35 项自检全绿）+ 脚本内 `fs.chmodSync(0o444)`」；改后 `data-page-node-id` 计数 = **0**，文件 697803 字节只读
+- [x] **推送**：见下一次 commit
+
+### 2026-09-10（v2.18.5：座次拖拽换座 + 三个排座按钮改「只填空座」）
+
+- [x] **需求**（老板原话）：「座次表要支持可以拖拽座位卡片实现快速换座位。要支持按学分选座时，让学分高的同学手动点击选座后，剩余座位按照分高分低依次随机填入空座，不能清空已选座位」
+- [x] **决策**（老板拍板，AskUserQuestion 三选）：① 按钮行为 = **三个都改**（🎲随机 / 🎓按学分 / 🔤按姓名 一律改成「只填空座」，不再清空已排座位）② 补位规则 = **学分降序 + 前排优先**（⚠️ 此条**覆盖**老板口述里的「随机填入」——随机/姓名按钮仍按各自策略排序学生，但落座位置一律前排优先）③ 拖拽范围 = **鼠标直接拖 + 触屏长按约 0.2s**
+- [x] **A. 拖拽换座（新增 9 个函数 + 4 条 CSS）**：
+  - 交互实现走 **Pointer Events 统一鼠标与触屏**（HTML5 `draggable` 在触屏上根本不触发，故不用）
+  - `seatPointerDown(ev,row,col,studentId)`：仅左键；`ev.target.closest('.seat-actions')` 直接放行（点右上角 🔄/✕ 不触发拖拽）；触屏挂 `setTimeout(seatDragActivate, 200)` 长按定时器 + 非被动 `touchmove` 监听
+  - `seatPointerMove`：**鼠标越过 6px 阈值**即 `seatDragActivate()`；**触屏长按未成前移动 >10px** 则 `seatPointerCancel()`（把滚动手势还给页面）；激活后 `preventDefault` + `elementFromPoint` 找落点并加 `.drag-over`
+  - `seatTouchMove`：仅 `active` 时 `preventDefault` —— 关键点：长按 0.2s 期间手指未移动，**浏览器尚未起滚**，此时掐断才能真阻止滚动（这也正是不用 `touch-action:none` 的原因，否则整块座位区都无法滑动页面）
+  - `seatPointerUp` → `seatDrop(fromRow,fromCol,toRow,toCol)`：**目标已占 → 互换坐标**（不动数组顺序，云同步无感）／**目标为空 → 直接移动**／拖回原位 → 取消
+  - ⚠️ **必须抑制合成 click**：拖拽结束后浏览器仍会补发 `click` → 会误开「更换座位」弹窗。做法：`seatPointerUp` 里注册**捕获阶段** `window.addEventListener('click', swallow, true)` 并 350ms 后自动摘除（比在 `seatClick` 里加时间戳判断更干净，也不用改动 `seatClick` 源码而破坏 `_v2172`/`_v2185` 的抽取断言）
+  - CSS：`.seat{user-select:none;-webkit-touch-callout:none}` / `.seat.occupied{cursor:grab}` / `.seat.dragging{opacity:.4;transform:scale(.94);pointer-events:none;cursor:grabbing}`（`pointer-events:none` 是让 `elementFromPoint` 不被拖动卡片自身遮挡的关键）/ `.seat.drag-over{border-color:var(--primary)!important;box-shadow:0 0 0 2px rgba(166,58,43,.35);background:rgba(166,58,43,.14)}`
+  - `renderSeating` 卡片补 `data-seat-row` / `data-seat-col` / `onpointerdown` / `oncontextmenu="return false"`（挡安卓长按菜单）；**`onclick` / 🔄 / ✕ 三条既有链路原样保留**
+- [x] **B. `autoSeat` 改为「只填空座」**（不再 `state.seating.seats = []`）：
+  - 保留 `keptCount = seats.length` 快照 → 收集**空座位（前排优先：行小优先、同行列小优先）** → 取**未入座学生**（`state.students.filter(s => !occupiedIds.includes(s.id))`）→ 按策略排序后 `seats.push` 补位
+  - 守卫顺序（**踩过一次**）：先判「全员已入座」→ info 提示；再判「无空座可安排」→ error 提示。**顺序反了会把「全员已入座」误报成 error**（首轮实现即如此，被 `_v2189` 的用例逮到）
+  - 空座不足时只补能补下的，并在确认框里显式说明「已排的 N 个座位保持不变」+「剩余 X 人暂不安排」
+  - 逐字保留 `_v2185` 依赖的契约：`function autoSeat(strategy){` 签名、策略名 map `{'random':'随机','credit':'按学分从高到低','name':'按姓名拼音'}`、`sorted.sort((a,b) => (Number(b.credit)||0) - (Number(a.credit)||0))`、`String(a.name||'').localeCompare(String(b.name||''), 'zh')`、`Math.floor(Math.random()`
+- [x] **升版**：v2.18.4 → v2.18.5（index 仅 3 处活动标记：登录页 / 侧栏 / 设置页 🏷️ 徽标 + `sw.js` CACHE_NAME；index 内 **8 处 v2.18.4 历史注释 + 8 处 v2.18.3 一律不动**）；设置页「近版更新速览」**置顶** v2.18.5 两条（拖拽换座 / 只填空座），旧 8 条一条不删（`_v2183` / `_v2185` / `_v2188` 的 notes 断言全部照旧成立）
+- [x] **测试**：19 套「版本断言」**token 级**升 v2.18.5（**9 个 token**：转义形态 `v2\.18\.4`、`class-manager-v2.18.4`、`🏷️ v2.18.4</span>`、`<div class="login-version">v2.18.4</div>`、`同步 = v2.18.4`、`CACHE_NAME = v2.18.4`、`随版 = v2.18.4`、`v2.18.4 三处同步`、`=== v2.18.4 版本三处同步 ===`；**92 处命中**，脚本内置「残留 0」复查 + 5 条历史注释保护复查）。新增 **`_v2189_test.js` 42 项**：★用 `new Function` 沙箱**真跑** `autoSeat`/`seatDrop` 逻辑（不只看源码）——学分降序+前排优先落座矩阵、已排座位零挪动、空座不足只补能补的、无空座/全员入座/无学生/取消确认四种早退、name 与 random 模式、二次调用幂等；`seatDrop` 互换/移动/拖回原位/源不存在/失联学生占位；拖拽接线 9 个函数源码断言 + CSS + 三按钮 title + 提示文案；契约保留（`seatClick` 未被改动等）→ **32 套全绿（PASS=32 FAIL=0）**
+- [x] **实测**（playwright-core + 本机 chromium-1234，1360×900，file:// + sessionStorage 解锁 + fetch 打桩）：**18 项全绿 / 0 JS 错误 / 0 console.error / 0 console.log**。★真机拖拽不是模拟 `page.evaluate` 直调，而是 **playwright 真实鼠标事件**（`mouse.down/move/up` 越 6px 阈值）+ **合成 `PointerEvent(pointerType:'touch')` 长按 260ms** 两条路径各跑一遍；验证：🎓按学分排座 6 座按学分降序前排优先 → 鼠标拖 (0,0)→(1,2) 两人互换且总数不变且**不误弹选座窗** → 触屏长按拖 (1,0)→(1,1) 互换 → ✕ 移除出空位后拖到空位**直接移动、原位清空** → 单击仍弹「更换座位」（拖拽未破坏点击）→ 构造「4 人已排 + 2 空位 + 2 人未入座」点 🎓，**4 个已排座位一个没挪**、2 人按学分降序补进空位 → 清空座位仍可用（截图 4 张）
+- [x] **⚠️ 注入复查**：index.html 全部改动走「一次性 node 补丁脚本单次写盘 + 脚本内 `fs.chmodSync(0o444)`」（补丁 1：12 处替换 / 29 项自检；补丁 2：守卫顺序调整 / 7 项自检），两次写盘后 `data-page-node-id` 计数均 = **0**
 - [x] **推送**：见下一次 commit
 

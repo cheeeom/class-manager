@@ -62,7 +62,7 @@ JS 各模块（按小节注释定位）：
 | 班级头像 & 口号 / 课程表图片 | 3352 | 图片压缩 `compressImage`、Blob URL 渲染、Ctrl+V 粘贴 |
 | Dashboard | 3630 | 统计卡、Top5、Canvas 分布图 `drawDistChart` |
 | Students Page / Add Modal / Import / Detail Panel | 3815/3949/3972/4010 | 学生表格、详情侧滑面板、标签管理 |
-| Committee / Seating / Duty | 4102/4235/4411 | 班委任命、座次（3 策略）、值日排班（教室/公共区各 4 人） |
+| Committee / Seating / Duty | 4102/4235/4411 | 班委任命、座次（**拖拽换座 + 3 策略「只填空座」补位**）、值日排班（教室/公共区各 4 人） |
 | Credits / 学分搜索 / Batch / Analytics | 4532/4558/4702/4740 | 学分操作+撤销、批量加减、纯 Canvas 图表（range/pie/trend）、成绩分析 |
 | Settings / Dark Mode / Profiles / WorkLogs / Honors | 5202/5204/5232/5390/5518 | v2.6.0 四大模块；`ensureProfile` 惰性建档案 |
 | Export/Import/Clear | 5697 | JSON 导出/导入（导入前自动备份下载）/清空 |
@@ -233,8 +233,8 @@ node _sync_test.js     # 云同步：9 场景 26 断言
 
 0. **先 `git pull`**，且只用 git 拿代码（zip 会被 CDN 缓存骗，见 10.1）。
 1. 改 `index.html`。
-2. **版本号三处**（2026-09-02 校准）：登录页 `<div class="login-version">` + 侧边栏 `<div class="sidebar-footer">` + `sw.js` 第 2 行 `CACHE_NAME`。当前三处均为 `v2.8.0`。改版本时直接搜 `v2.8.0` 一次性替换。
-3. 动了 SW 或想强制刷新缓存 → bump `sw.js` 的 `CACHE_NAME`（**当前是 v2.8.0，改完务必同步**）。
+2. **版本号三处**（2026-09-02 校准）：登录页 `<div class="login-version">` + 侧边栏 `<div class="sidebar-footer">` + `sw.js` 第 2 行 `CACHE_NAME`。**当前三处均为 `v2.18.5`**（另加设置页 🏷️ 徽标共四处）。改版本时直接搜 `v2.18.5` 一次性替换，但**只替换这 3 处活动标记**——`index.html` 里大量更旧版本号是历史注释，**不可盲替**。
+3. 动了 SW 或想强制刷新缓存 → bump `sw.js` 的 `CACHE_NAME`（**当前是 v2.18.5，改完务必同步**）。
 4. commit → push main（代理见 10.2）→ Pages 自动部署。
 5. **永远不要手动编辑 `data.json`**（它是活数据，会被下一次 auto-sync 覆盖）。
 6. 动了加解密 → 跑 `node _crypto_test.js`；动了推送 → 确认 `method:'PUT'` 全站只有 1 处。
