@@ -3,7 +3,7 @@
 > 与 `AGENTS.md`（知识库）+ `DECISIONS.md`（决策记录）配套。
 > 本文件只记「当前状态 + 下一步做什么」，不重复架构细节——架构看 `AGENTS.md`。
 >
-> 最后更新：2026-09-10（v2.18.6 修复课堂纪律原因分值编辑被云端旧值覆盖）
+> 最后更新：2026-09-11（v2.18.7 云同步推送失败报错人话化 + 退避重试）
 > ⚠️ 下文「一、当前状态速览」为 v2.8.0 期快照，未随版本更新；**最新进展一律以文末「逐版章节」为准**。
 
 ---
@@ -875,4 +875,17 @@
 - [x] **实测**（playwright + 本地静态服务器 + 假 GitHub PUT=422）：真实加载**零 JS 报错**、登录页版本 v2.18.6、页面上下文真跑 `smartMergeData` 本地 -3→-8 编辑**不被云端 -3 覆盖**。
 - [x] **注入复查**：`data-page-node-id` = **0**（补丁脚本单次写盘 + 立即 chmod 444）。
 - [x] **推送**：`cm-push-incremental.js` 增量推（远端 HEAD `b88d2409` 有 3 条 `auto-sync` data.json 提交在 v2.18.5 之上，脚本以远端为基座安全快进）→ 新 commit `ff284ed4`。API 校验：index.html blob 706187 bytes / 本地优先已写入 / 旧覆盖已清除 / 注入 0；**data.json 未改动**（仍 enc=1 密文，updatedAt 2026-09-10T14:48Z）。
+
+### 2026-09-11（v2.18.7：云同步推送失败「报错人话化 + 退避重试」）
+
+- [x] **背景**：查 v2.18.6 遗留的「云端同步失败」推送侧问题。线上 `data.json` 最后成功推送停在 **22:48:13**（之后 145 分钟零提交，彻底断）；老板确认静态三项正常（口令已配置 / 无「不一致」提示 / Token 已配置）→ 锁定为**运行时推送失效**（最可能 fine-grained token 过期，`GET SHA` 返回 401/403）。
+- [x] **诊断关键**：浏览器里存的 token（localStorage `gh_sync_token`，fine-grained）与本机 `gh` CLI 的 token 是**两码事**；`gh` 这边验证 token 正常（`repo` scope 可读写），但**推不上去的是浏览器里那个**。旧 toast 只显示 `e.message` 前 80 字符（如 `GET SHA failed: 401`），普通用户看不懂。
+- [x] **改动 1 — 报错人话化**：新增 `friendlyPushError(msg)` 纯函数，把底层错误转成中文：`GET SHA 401/403`→「GitHub Token 已失效或权限不足，请到设置页重新配置 Token」；`PUT 422`→「云端数据有并发更新，将自动重试」；`Failed to fetch/NetworkError`→「网络连接失败，将自动重试」；口令相关原样（本已人话）；未知原样。
+- [x] **改动 2 — 退避重试**：`autoPushToCloud` 的 catch 分类处理——**可恢复错误**（网络/并发 422，即 `msg` 命中「网络|并发|重试」且不含「口令|Token|加密」）指数退避重试（`3s→6s→12s→24s`，封顶 30s，最多 `PUSH_MAX_RETRY=4` 次）；**不可恢复错误**（token 失效/口令不一致）立即人话提示、不空重试。成功回调清零 `_pushRetryCount`。
+- [x] **升版**：v2.18.6 → v2.18.7（3 处活动标记 + `sw.js` CACHE_NAME）；设置页 notes 置顶新条「云同步推送失败自动重试并改用中文提示」，旧条不删。
+- [x] **测试**：新增 `_v2191_test.js` 14 项（friendlyPushError 六种转译 + 退避重试源码护栏 + 版本/notes）；20 套旧件版本断言 token 级升 v2.18.7（字面 67 + 转义 `v2\.18\.7` 40 = 107 处）→ **34 套全绿（580 断言）**。
+- [x] **实测**（playwright + 假 GitHub PUT=422）：真实加载零 JS 错、版本 v2.18.7、页面上下文真跑 `friendlyPushError` 401/422/网络三转译、`_pushRetryCount`/`PUSH_MAX_RETRY`/`friendlyPushError` 均挂全局可用。
+- [x] **推送**：增量推 → 新 commit `0d131bb7`；API 校验 index.html blob 708226 bytes / v2.18.7 / friendlyPushError+retry 已写入 / 注入 0 / **data.json 未改动**。
+
+
 
