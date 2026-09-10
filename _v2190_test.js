@@ -1,4 +1,4 @@
-/* v2.18.7 回归测试：reasonScores 本地优先合并 —— 本地未推送的分值编辑不被云端旧值覆盖；
+/* v2.18.8 回归测试：reasonScores 本地优先合并 —— 本地未推送的分值编辑不被云端旧值覆盖；
    本地已删键由 catDeleted.reasons 墓碑兜底剔除（不复活）。运行：node _v2190_test.js */
 const fs = require('fs');
 const html = fs.readFileSync('index.html', 'utf8');
@@ -35,6 +35,10 @@ global.DEFAULT_COMMITTEE = { banzhang: null, fubanzhang: null, jilv: null, xuexi
 global.sortOpsNewestFirst = function (ops) { return ops || []; };
 global.liveOps = function (ops) { return ops || []; };
 const smartMergeData = extractFn('smartMergeData');
+// v2.18.8 smartMergeData 墓碑仲裁依赖（外部符号桩）
+global.mergeTsMap = extractFn('mergeTsMap');
+global.catTombReviveFilter = extractFn('catTombReviveFilter');
+global.state = global.state || {};
 
 function base() {
   return {
@@ -51,7 +55,7 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 
-console.log('\n=== v2.18.7 reasonScores 本地优先 ===');
+console.log('\n=== v2.18.8 reasonScores 本地优先 ===');
 t('本地改分值（未推送）→ 云端旧值不覆盖，保留本地新值', () => {
   const local = base();
   local.reasonScores = { '课堂违纪': -8, '迟到早退': -2 };   // 老板把 -3 改成 -8
@@ -115,13 +119,13 @@ t('旧「云端优先」实现已移除', () => {
 t('新「本地优先」实现已写入', () => {
   has(html, 'Object.assign({}, _rs, _ls)', '本地优先合并');
 });
-t('版本标记统一 v2.18.7', () => {
-  has(html, '<div class="login-version">v2.18.7</div>', '登录页版本');
-  has(html, '<div class="sidebar-footer">v2.18.7 · 班主任工作台</div>', '侧栏版本');
-  has(html, '🏷️ v2.18.7</span>', '设置页徽标');
+t('版本标记统一 v2.18.8', () => {
+  has(html, '<div class="login-version">v2.18.8</div>', '登录页版本');
+  has(html, '<div class="sidebar-footer">v2.18.8 · 班主任工作台</div>', '侧栏版本');
+  has(html, '🏷️ v2.18.8</span>', '设置页徽标');
 });
 t('sw.js CACHE_NAME 已升版', () => {
-  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.18.7'", 'sw 缓存名');
+  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.18.8'", 'sw 缓存名');
 });
 t('速览新增修复条目', () => {
   has(html, '原因分值合并改为本地优先', '近版更新速览');

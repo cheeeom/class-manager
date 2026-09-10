@@ -37,6 +37,10 @@ const sortOpsNewestFirst = extractFn('sortOpsNewestFirst');
 const liveOps = extractFn('liveOps');
 global.DEFAULT_COMMITTEE = { banzhang: null, fubanzhang: null, jilv: null, xuexi: null, tiyu: null, shenghuo: null, wenyi: null, xinli: null };
 const smartMergeData = extractFn('smartMergeData');
+// v2.18.8 smartMergeData 墓碑仲裁依赖（外部符号桩）
+global.mergeTsMap = extractFn('mergeTsMap');
+global.catTombReviveFilter = extractFn('catTombReviveFilter');
+global.state = global.state || {};
 
 const CAT = { '加分': { '学习表现': ['课堂表现积极', '月度全勤'], '作业优秀': ['作业全月优秀'] }, '扣分': { '课堂纪律': ['课堂违纪', '迟到早退'], '考勤': ['旷课'] } };
 

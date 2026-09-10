@@ -1912,7 +1912,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.18.7</div>
+      <div class="login-version">v2.18.8</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2031,7 +2031,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.18.7 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.18.8 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2740,12 +2740,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.7</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.8</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 修复：重新添加的原因/大类刷新后被云端旧删除记录整体抹掉——删除与重新添加改按时间戳仲裁，重新添加晚于删除则旧记录作废<br>
               · 云同步推送失败自动重试并改用中文提示：网络抖动/并发冲突自动退避重试，Token 失效/口令不一致等会明确告诉你原因<br>
               · 修复：编辑课堂纪律原因分值后切页面/刷新偶发被云端旧值复原——原因分值合并改为本地优先，未推送的编辑不再被覆盖<br>
               · 座次表支持拖拽换座：按住座位卡片拖动即可换座——拖到已占座位两人互换、拖到空位直接移动（触屏长按约 0.2 秒后拖动）<br>
@@ -3453,7 +3454,7 @@ const GH_REPO = 'class-manager';
 const GH_BRANCH = 'main';
 const GH_DATA_PATH = 'data.json';
 // 云端 data.json 同步字段白名单（auto/manual push 共用）
-const CLOUD_SYNC_FIELDS = ['className','classNameFull','students','operations','reasons','reasonScores','reasonCatalog','catDeleted','nextId','nextOpId','nextSid',
+const CLOUD_SYNC_FIELDS = ['className','classNameFull','students','operations','reasons','reasonScores','reasonCatalog','catDeleted','catDeletedAt','catRevived','nextId','nextOpId','nextSid',
   'lastExport','lastImport','committee','seating','duty','exportedOpsCount','classMotto',
   'leaves','nextLeaveId','exams','nextExamId','todos','nextTodoId',
   'workLogs','nextWorkLogId','honors','nextHonorId','notices','creditBank',
@@ -3809,10 +3810,16 @@ function catDelAdd(list, key){
 function catDeletedAdd(kind, key){
   var t = state.catDeleted || (state.catDeleted = { dirs:[], groups:[], reasons:[] });
   catDelAdd(t[kind], key);
+  if(!state.catDeletedAt) state.catDeletedAt = {};
+  state.catDeletedAt[key] = Date.now();   // v2.18.8 记删除时刻（供合并仲裁）
 }
 function catDelUndo(kind, key){
   var t = state.catDeleted;
   if(t && t[kind]){ var i = t[kind].indexOf(key); if(i >= 0) t[kind].splice(i, 1); }
+  if(!state.catDeletedAt) state.catDeletedAt = {};
+  if(!state.catRevived) state.catRevived = {};
+  delete state.catDeletedAt[key];
+  state.catRevived[key] = Date.now();   // v2.18.8 重加时刻 > 墓碑时刻 → 合并时墓碑作废
 }
 // 从目录中剔除被墓碑标记的方向/大类/原因；被删原因的分值一并清除（scores 可传 null）
 function applyCatTombstones(cat, scores, tomb){
@@ -3833,6 +3840,26 @@ function applyCatTombstones(cat, scores, tomb){
     delete scores[r];
   });
   return cat;
+}
+// v2.18.8 时间戳地图合并：两侧同 key 取大者（纯函数）
+function mergeTsMap(a, b){
+  var out = {};
+  Object.keys(a || {}).forEach(function(k){ out[k] = a[k]; });
+  Object.keys(b || {}).forEach(function(k){ if(!out[k] || b[k] > out[k]) out[k] = b[k]; });
+  return out;
+}
+// v2.18.8 墓碑仲裁过滤（纯函数）：重新添加（revived）晚于删除（deletedAt，旧墓碑按 0）→ 墓碑作废剔除；
+// 否则保留 —— 跨设备删除传播语义不变（v2.17.30 / _v2174 行为兼容）。
+function catTombReviveFilter(tomb, delAt, revived){
+  var out = { dirs:[], groups:[], reasons:[] };
+  ['dirs','groups','reasons'].forEach(function(kind){
+    ((tomb && tomb[kind]) || []).forEach(function(k){
+      var dAt = (delAt && delAt[k]) || 0, rAt = (revived && revived[k]) || 0;
+      if(rAt > dAt) return;   // 重加晚于删除 → 墓碑作废
+      out[kind].push(k);
+    });
+  });
+  return out;
 }
 // 迁移：v2.16 及以前无目录（reasons 一维可增删自定义项）→ 首次进入用模板建目录；
 // 已有目录则尊重用户编辑结果（不做模板并集，避免被删的预设项复活）。
@@ -4107,6 +4134,8 @@ let state = {
   reasonScores: {},
   reasonCatalog: defaultReasonCatalog(),   // v2.17.0 可编辑原因目录（模板 = REASON_CATALOG）
   catDeleted: { dirs: [], groups: [], reasons: [] },   // v2.17.30 原因目录删除墓碑（刷新/云合并均不复活删除项）
+  catDeletedAt: {},   // v2.18.8 墓碑时间戳 {key: 删除时刻}（与 catRevived 仲裁「删除 vs 重新添加」谁晚）
+  catRevived: {},     // v2.18.8 重新添加时间戳 {key: 重加时刻}（catDelUndo 写入；晚于墓碑则墓碑作废）
   sortDir: 'desc',
   selectedStudents: new Set(),
   nextId: 1,
@@ -5439,6 +5468,10 @@ function loadData(){
       // 原因模板：默认模板只参与首次/旧数据迁移（migrate 内部处理），已有目录尊重班主任增删。
       // v2.17.30：删除项记入 catDeleted 墓碑，加载后统一剔除 → 刷新不复活。
       var _tomb = (d.catDeleted && typeof d.catDeleted === 'object') ? cloneCatDeleted(d.catDeleted) : { dirs:[], groups:[], reasons:[] };
+      state.catDeletedAt = (d.catDeletedAt && typeof d.catDeletedAt === 'object') ? d.catDeletedAt : {};
+      state.catRevived = (d.catRevived && typeof d.catRevived === 'object') ? d.catRevived : {};
+      // v2.18.8 自愈：早前坏合并可能把「作废墓碑」写进了本地存储 —— 加载时按时间戳仲裁剔除
+      _tomb = catTombReviveFilter(_tomb, state.catDeletedAt, state.catRevived);
       state.catDeleted = _tomb;
       state.reasonCatalog = migrateReasonCatalog(d.reasonCatalog, (d.reasons && d.reasons.length) ? d.reasons : defaultReasons);
       applyCatTombstones(state.reasonCatalog, null, state.catDeleted);
@@ -5536,6 +5569,8 @@ function saveData(){
     reasonScores: state.reasonScores || {},
     reasonCatalog: state.reasonCatalog || {},
     catDeleted: state.catDeleted || { dirs: [], groups: [], reasons: [] },   // v2.17.30 删除墓碑随本地存储持久
+    catDeletedAt: state.catDeletedAt || {},   // v2.18.8 墓碑时间戳（合并仲裁用）
+    catRevived: state.catRevived || {},       // v2.18.8 重新添加时间戳（合并仲裁用）
     schemaVer: state.schemaVer || 0,
     nextId: state.nextId,
     nextOpId: state.nextOpId,
@@ -5716,11 +5751,14 @@ function smartMergeData(localData,remoteData){
     merged.reasonCatalog = mergeReasonCatalog(localData.reasonCatalog || {}, remoteData.reasonCatalog);
   }
   // v2.17.30 删除墓碑合并：任一侧删过的方向/大类/原因，合并结果一律剔除（含分值表/平铺列表）→ 跨设备删除生效
-  merged.catDeleted = { dirs:[], groups:[], reasons:[] };
+  // v2.18.8 时间戳仲裁：重新添加（catRevived）晚于删除（catDeletedAt）→ 该墓碑作废。
+  // 否则推送失败期间云端旧墓碑会在每次拉取时把重新添加的大类/原因整体抹掉（并集墓碑永久粘性）。
   var _td = cloneCatDeleted(localData.catDeleted), _tr = cloneCatDeleted(remoteData.catDeleted);
-  _td.dirs.concat(_tr.dirs).forEach(function(k){ catDelAdd(merged.catDeleted.dirs, k); });
-  _td.groups.concat(_tr.groups).forEach(function(k){ catDelAdd(merged.catDeleted.groups, k); });
-  _td.reasons.concat(_tr.reasons).forEach(function(k){ catDelAdd(merged.catDeleted.reasons, k); });
+  merged.catDeletedAt = mergeTsMap(mergeTsMap(localData.catDeletedAt, remoteData.catDeletedAt), state.catDeletedAt);
+  merged.catRevived = mergeTsMap(mergeTsMap(localData.catRevived, remoteData.catRevived), state.catRevived);
+  merged.catDeleted = catTombReviveFilter(
+    { dirs: _td.dirs.concat(_tr.dirs), groups: _td.groups.concat(_tr.groups), reasons: _td.reasons.concat(_tr.reasons) },
+    merged.catDeletedAt, merged.catRevived);
   merged.reasonCatalog = merged.reasonCatalog || {};
   merged.reasonScores = merged.reasonScores || {};
   applyCatTombstones(merged.reasonCatalog, merged.reasonScores, merged.catDeleted);
@@ -10536,6 +10574,7 @@ function askResetReasonCatalog(){
   state.reasonCatalog = defaultReasonCatalog();
   state.reasonScores = Object.assign({}, defaultReasonScores);
   state.catDeleted = { dirs: [], groups: [], reasons: [] };   // v2.17.30 恢复预设后清空墓碑
+  state.catDeletedAt = {}; state.catRevived = {};   // v2.18.8 时间戳一并清空
   catRefresh();
   showToast('已恢复制度预设目录（27 项）', 'success');
 }
