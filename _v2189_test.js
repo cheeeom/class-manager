@@ -1,4 +1,4 @@
-/* v2.18.6 回归测试：座次表拖拽换座 + 三个排座按钮改「只填空座」
+/* v2.18.7 回归测试：座次表拖拽换座 + 三个排座按钮改「只填空座」
    覆盖：
      1) autoSeat 只填空座：已排座位一律保留、未入座学生按策略（学分降序/姓名/随机）
         从前往后（前排优先）依次补位；空座不足只补能补的；无空座 / 全员入座时不写盘
@@ -7,7 +7,7 @@
         seatPointerDown 触屏长按 200ms、鼠标 6px 阈值、操作按钮排除、非被动 touchmove 掐滚动、
         拖拽后抑制合成 click；CSS .seat.dragging / .seat.drag-over
      4) 契约保留：autoSeat(strategy) 签名 + 三策略 map + 学分降序/拼音/洗牌实现；_v2185 依赖不破
-     5) 版本 v2.18.6 三处同步 + 设置页 notes 新增两条（旧条不删）
+     5) 版本 v2.18.7 三处同步 + 设置页 notes 新增两条（旧条不删）
    运行：node _v2189_test.js */
 const fs = require('fs');
 const html = fs.readFileSync('index.html', 'utf8');
@@ -70,14 +70,14 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译（改动后无语法错）', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('版本三处同步 = v2.18.6（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.18\.6</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.6 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.18.6')) throw new Error('SW CACHE_NAME 未更新');
+t('版本三处同步 = v2.18.7（登录页/侧栏/SW CACHE_NAME）', () => {
+  if (!/login-version">v2\.18\.7</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.7 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.18.7')) throw new Error('SW CACHE_NAME 未更新');
   if (sw.includes('class-manager-v2.18.4')) throw new Error('SW 旧 CACHE_NAME 残留');
 });
-t('设置页版本徽标随版 = v2.18.6', () => {
-  has(html, '🏷️ v2.18.6</span>', '设置页版本徽标未跟版');
+t('设置页版本徽标随版 = v2.18.7', () => {
+  has(html, '🏷️ v2.18.7</span>', '设置页版本徽标未跟版');
 });
 t('历史注释保护：v2.18.3 仍 8 处 / v2.18.0 仍 24 处（不随升版盲替）', () => {
   eq(count('v2.18.3'), 8, 'v2.18.3 注释数变了');
