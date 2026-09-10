@@ -1936,7 +1936,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.18.2</div>
+      <div class="login-version">v2.18.3</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2055,7 +2055,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.18.2 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.18.3 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2552,6 +2552,8 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         </div>
         <div class="card" style="padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
           <span id="wlStats" style="font-size:14px;font-weight:600"></span>
+          <!-- v2.18.3 补上搜索框：renderWorkLogs 一直在读 wlSearch，但全库从没有这个元素 → 关键词过滤此前恒不生效 -->
+          <input type="search" id="wlSearch" placeholder="🔍 搜索标题或内容（跨日期检索）" oninput="renderWorkLogs()" style="flex:1;min-width:170px;padding:8px 12px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--card-bg);color:var(--text)">
           <button class="btn btn-outline btn-sm" onclick="copyMonthLogs()">📋 复制本月日志</button>
           <button class="btn btn-outline btn-sm" onclick="exportMonthLogs()">📥 导出本月</button>
         </div>
@@ -2726,6 +2728,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <span id="ghTokenStatus"></span>
             <button class="btn btn-outline" style="font-size:12px;padding:4px 12px" onclick="configSyncPwd()">🔒 配置同步口令</button>
             <span id="syncPwdStatus"></span>
+            <button class="btn btn-outline" style="font-size:12px;padding:4px 12px" onclick="resetCloudPwd()">🔁 重置云端加密口令</button>
           </div>
           <p style="font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.6">
             本仓库是公开的，未加密时 data.json 任何人可下载（含学生姓名与家长电话）。<br>
@@ -2761,17 +2764,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.2</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.3</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 修复：处分记录此前不参与云同步，换电脑 / 清缓存后从云端恢复会全部丢失（现已打通上传与合并）<br>
+              · 新增「🔁 重置云端加密口令」：改口令后一键用新口令重推云端，无需手动删除云端文件<br>
+              · 工作记录补上关键词搜索框（跨日期检索标题与内容），此前过滤逻辑一直空转<br>
+              · 本地存储写满时不再静默失败，会明确提示并照常推送云端<br>
               · 零扣分榜改为按「未扣分天数」排名（右侧直接显示天数 / 从未扣分），不再与学分挂钩<br>
               · 预警中心迁至「学生管理 → 🚨 预警中心」页签，顶部 🚨 角标一键直达<br>
               · 学分全站彩色徽章：&lt;60 沿用预警深底白字；110+ 进取 / 150+ 卓越 / 200+ 巅峰 👑，醒目不碍读值<br>
-              · 学生管理移除行内 +1/+5/-1/-5 快捷按钮（防误触，操作统一走批量/学分记录页）<br>
-              · 座次表默认点卡片即可安排 / 更换学生，候选按学分高到低排序，一键「🎓 按学分排座」高分坐前排；登录页标注开发者 chee
             </div>
           </div>
         </div>
@@ -3354,6 +3359,7 @@ const CLOUD_SYNC_FIELDS = ['className','classNameFull','students','operations','
   'lastExport','lastImport','committee','seating','duty','exportedOpsCount','classMotto',
   'leaves','nextLeaveId','exams','nextExamId','todos','nextTodoId',
   'workLogs','nextWorkLogId','honors','nextHonorId','notices','creditBank',
+  'punishments','nextPunishId',   // v2.18.3 处分记录补入同步链路：此前漏加 → buildCloudPayload 按本表过滤时从不带它上传，换设备/清缓存后从云端恢复会全丢
   'scheduleImage','classAvatar','wipeAt','schemaVer'];
 // 通知历史可能内嵌近 1MB 的图片 base64，推送前剥离，防止 data.json 膨胀导致移动端拉取超时
 function stripNoticeHistoryImages(notices){
@@ -4039,6 +4045,8 @@ let state = {
                 alerts:[], nextAlertId:1, nextVoucherId:1, lastSettleMonth:'', createdAt:0,
                 settleHist: [],  // v2.17.30 月度结算统计快照（每次结算写一条，按月去重）
                 store:{ items:[], nextItemId:1 } },  // v2.17.30 商店目录（老师可增删改；items 空时首次自动种入预设 6 券）
+  punishments: [],   // v2.18.3 处分记录：此前缺 state 默认值，仅靠 loadData 时序兜底（任何早于 loadData 的访问都会 undefined 崩）
+  nextPunishId: 1,   // v2.18.3 处分记录自增 id（同上）
   wipeAt: 0,  // v2.11.3 数据重置时间戳：清空数据时更新，其他设备拉取到更大的 wipeAt 会强制清空对齐
   schemaVer: 2   // 原因目录/分值表 schema 版本：<1 补预设原因、<2 去「违禁品」重名项（v2.17.8），之后尊重班主任增删
 };
@@ -5439,7 +5447,7 @@ function loadData(){
 function saveData(){
   cbScanAlerts();     // v2.17.30 预警扫描挂在所有落盘前：加减分/撤销恢复/导入/云合并任一入口都会触发（幂等）
   cbExpireCoupons();  // v2.17.30 月度奖励券跨月自动失效留痕（商店花币买的券不过期）
-  localStorage.setItem(STORE_KEY, JSON.stringify({
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify({
     className: state.className,
     classNameFull: state.classNameFull,   // v2.17.30 班级全称
     students: state.students,
@@ -5475,7 +5483,13 @@ function saveData(){
     nextTodoId: state.nextTodoId,
     notices: state.notices,
     creditBank: state.creditBank     // v2.17.30 学分银行
-  }));
+  })); }
+  catch(e){
+    // v2.18.3 本地存储写失败（配额爆满 / 隐私模式 / 数据含 base64 头像课表图）不再静默中断整条保存链：
+    // 此前异常会直接冒泡 → autoPushToCloud() 不执行、调用方后续渲染也被跳过，界面显示成功但实际没落盘。
+    console.error('[saveData] localStorage 写入失败:', e);
+    showToast('本地保存失败（存储空间可能已满），本次改动未落盘，请先导出备份并清理历史数据','error');
+  }
 
   autoPushToCloud();
 }
@@ -5569,6 +5583,21 @@ function smartMergeData(localData,remoteData){
     remoteData.exams.forEach(function(re){if(!emap[re.id])emap[re.id]=re;});
     merged.exams=Object.keys(emap).map(function(k){return emap[k];});
   }
+  // v2.18.3 处分记录合并：按 id 并集；远端已办结则采用远端（办结状态跨设备传播）。
+  // 此前该字段完全没参与合并 —— merged 只是 localData 的克隆，云端即使有处分记录也永远回落不下来。
+  if(remoteData.punishments&&Array.isArray(remoteData.punishments)){
+    var pmap={};(localData.punishments||[]).forEach(function(p){pmap[p.id]=p;});
+    remoteData.punishments.forEach(function(rp){
+      var lp=pmap[rp.id];
+      if(!lp){ pmap[rp.id]=rp; }
+      else if(rp.done&&!lp.done){ pmap[rp.id]=rp; }
+      else if(!rp.done&&lp.done){ /* 本地已办结，保留本地 */ }
+      else { if((rp.createdAt||0)>(lp.createdAt||0)) pmap[rp.id]=rp; }
+    });
+    merged.punishments=Object.keys(pmap).map(function(k){return pmap[k];})
+      .sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0) || (b.id||0)-(a.id||0); });
+  }
+  merged.nextPunishId=Math.max(localData.nextPunishId||1,remoteData.nextPunishId||1);
   // honors: union by id
   if(remoteData.honors && remoteData.honors.length){
     var hIds = {}; (merged.honors||[]).forEach(function(h){ hIds[h.id] = true; });
@@ -6962,7 +6991,7 @@ function openDetailPanel(id){
           const sign = op.amount > 0 ? '+' : '';
           return `<div class="timeline-item">
             <div class="tl-time">${ts}</div>
-            <div class="tl-text">${sign}${op.amount} 学分 <span style="color:var(--text-muted)">— ${op.reason}</span></div>
+            <div class="tl-text">${sign}${op.amount} 学分 <span style="color:var(--text-muted)">— ${escapeHtml(op.reason)}</span></div>
           </div>`;
         }).join('')
       }
@@ -9574,16 +9603,19 @@ function renderWorkLogs(){
   }
   const date = dateEl ? dateEl.value : todayStr();
   const month = date.slice(0,7);
-  const kw = (document.getElementById('wlSearch')?.value||'').toLowerCase();
+  const kw = (document.getElementById('wlSearch')?.value||'').toLowerCase().trim();
+  // v2.18.3 有关键词时跨日期全库检索（只搜当前这一天几乎没有实用价值）；无关键词时维持原有「按日」视图
   let list = state.workLogs.filter(w=>{
-    if(w.date !== date) return false;
+    if(!kw && w.date !== date) return false;
     if(_wlCat !== '全部' && w.category !== _wlCat) return false;
     if(kw && !(w.title||'').toLowerCase().includes(kw) && !(w.content||'').toLowerCase().includes(kw)) return false;
     return true;
   }).sort((a,b)=>b.date.localeCompare(a.date) || b.id-a.id);
   const monthList = state.workLogs.filter(w=>w.date.startsWith(month));
   const stats = document.getElementById('wlStats');
-  if(stats) stats.textContent = `📅 ${date} · ${list.length} 条 | 本月 ${month} 共 ${monthList.length} 条`;
+  if(stats) stats.textContent = kw
+    ? `🔍 搜索「${kw}」· 命中 ${list.length} 条`
+    : `📅 ${date} · ${list.length} 条 | 本月 ${month} 共 ${monthList.length} 条`;
   const el = document.getElementById('wlList');
   if(list.length === 0){
     el.innerHTML = '<div class="card" style="padding:40px;text-align:center;color:var(--text-muted)"><div style="font-size:36px;margin-bottom:10px">📋</div><div>这一天还没有工作记录<br><br><button class="btn btn-primary" onclick="openWorkLogAdd()">＋ 记录今天的工作</button></div></div>';
@@ -10583,6 +10615,62 @@ function pushWipeToCloud(){
     .then(function(){ wipeInProgress = false; });
 }
 
+/* v2.18.3 重置云端加密口令（改口令专用）：
+   背景 —— 云端存的是密文，而 doPushToCloud 推送前会调 checkPushSafety 用「本机当前口令」解密云端做校验。
+   一旦改了口令，旧密文就解不开 → 被判定为「口令与其他设备不一致」→ 常规推送被拦、拉取同样失败，
+   这台机器会彻底同步不了（既推不上去也拉不下来）。本函数在二次确认下有意绕过该闸门，
+   用新口令把本机数据整份重加密后覆盖云端。
+   本机数据不受影响：口令只作用于「上传加密」，本地 localStorage 存的始终是明文 JSON。
+   复用 wipeInProgress 作为「人工独占推送」锁，防止防抖中的 auto push 抢跑造成两次并发写。 */
+function resetCloudPwd(){
+  if(!hasGHToken()){ showToast('请先配置 GitHub Token（重置需要写入权限）','error'); return; }
+  if(!cryptoOK()){ showToast('当前环境不支持 Web Crypto，无法加密（请用 https 打开）','error'); return; }
+  var p = prompt('设置新的云同步口令：\n\n· 本机数据不受影响，只改变「云端加密」所用的口令\n· 保存后立即用新口令重加密并覆盖云端 data.json\n· 其他设备必须改成完全相同的口令，否则无法互通\n\n输入新口令（至少 8 位，建议 12 位以上）：');
+  if(p === null) return;
+  p = p.trim();
+  if(p.length < 8){ showToast('口令太短：至少 8 位，建议 12 位以上','error'); return; }
+  var again = prompt('请再次输入新口令以确认：');
+  if(again === null) return;
+  if(again.trim() !== p){ showToast('两次输入不一致，未保存','error'); return; }
+  if(!confirm('确认用新口令重推云端？\n\n云端 data.json 将被新口令加密的密文覆盖（旧密文不可恢复）。\n其他设备在改成相同口令前将无法同步。')) return;
+  var oldPwd = getSyncPwd();
+  setSyncPwd(p);
+  wipeInProgress = true;
+  showToast('正在用新口令重加密并覆盖云端…','info');
+  var apiUrl = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH;
+  var baseHeaders = { 'Authorization':'token ' + getGHToken(), 'Accept':'application/vnd.github.v3+json', 'User-Agent':'cm' };
+  fetch(apiUrl, { method:'GET', headers: baseHeaders })
+    .then(function(r){ if(r.status === 404) return null; if(!r.ok) throw new Error('GET SHA failed: ' + r.status); return r.json(); })
+    .then(function(json){
+      var parsed;
+      try{ parsed = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); }catch(err){ parsed = {}; }
+      return encryptForCloud(buildCloudPayload(parsed)).then(function(payload){
+        var pretty = JSON.stringify(payload, null, 2);
+        var bytes = new TextEncoder().encode(pretty);
+        var binary = '';
+        for(var i=0;i<bytes.length;i++) binary += String.fromCharCode(bytes[i]);
+        return fetch(apiUrl, {
+          method:'PUT',
+          headers: Object.assign({}, baseHeaders, { 'Content-Type':'application/json' }),
+          body: JSON.stringify({ message: 'rekey: re-encrypt data.json with new sync password', content: btoa(binary), branch: GH_BRANCH, sha: json ? json.sha : undefined })
+        });
+      });
+    })
+    .then(function(r){
+      if(!r.ok) throw new Error('PUT failed: ' + r.status);
+      lastSyncTime = new Date().toISOString();
+      updateSyncStatus();
+      updateCloudSyncUI();
+      showToast('云端已用新口令重新加密，其他设备请设置相同口令后拉取','success');
+    })
+    .catch(function(e){
+      setSyncPwd(oldPwd);
+      updateCloudSyncUI();
+      console.error('[Sync] rekey failed:', e);
+      showToast('重置失败，已回滚为原口令：' + String((e && e.message) || e).slice(0,70),'error');
+    })
+    .then(function(){ wipeInProgress = false; });
+}
 /* ==================== Sync Status ==================== */
 function updateExportBadge(){
   const badge=document.getElementById('exportBadge');

@@ -3,7 +3,8 @@
 > 与 `AGENTS.md`（知识库）+ `DECISIONS.md`（决策记录）配套。
 > 本文件只记「当前状态 + 下一步做什么」，不重复架构细节——架构看 `AGENTS.md`。
 >
-> 最后更新：2026-09-02（v2.8.0 已上线，等你启用加密后才能清理历史）
+> 最后更新：2026-09-10（v2.18.3 全量审查 P0 四修 + 重置云端加密口令）
+> ⚠️ 下文「一、当前状态速览」为 v2.8.0 期快照，未随版本更新；**最新进展一律以文末「逐版章节」为准**。
 
 ---
 
@@ -791,3 +792,23 @@
 - [x] **实测**（playwright，甲从未/乙5天/丙今天/丁10天）：卡片副标题 ✓；排序 从未扣分→10 天→5 天→0 天 ✓；右侧值域仅「从未扣分 / N 天」✓；侧栏 v2.18.2 ✓；零 JS 错
 - [x] **⚠️ 本轮环境异常（记录）**：Bash 工具环境损坏（PATH 缺 dirname/chmod/ls 等）；**托管 node（.workbuddy/binaries）执行静默失败/无输出**，改用**系统 node + PowerShell** 完成补丁、测试与冒烟；PowerShell 的 safe-delete 拦截删除 → 临时文件改由 node `fs.unlinkSync` 清理
 - [x] **推送**：见下一次 commit
+
+### 2026-09-10（v2.18.3：全量审查 P0 四修 + 重置云端加密口令）
+
+- [x] **需求**（老板原话）：「可以重新设置加密口令吗？不影响本机的数据情况下。把上次审查的 P0 四个缺陷一起打包进 v2.18.3」
+- [x] **前置**：本轮先做了两件事——① **全量代码审查**（只读，产出 `CODE_REVIEW_2026-09-10.md`）：揪出 4 个 P0 + P1 风险 + P2 累赘（8 死函数 / 38 死 CSS / 32 处重复块），并给出根因诊断（处分记录等字段靠「state 五链路手工同步」→ 加字段要改 5 处，必漏）② **云同步不一致排查**（老板反馈「设置页改学分操作原因，换电脑又不见」）：实测线上 `data.json` HTTP 200 / `enc:1` / `updatedAt` 新鲜 / 最近提交仍是 `auto-sync` → **推送侧健康**，根因在接收侧（无自动拉取，须手动点「⬇️ 从云端拉取数据」；口令须每台完全一致，否则既拉不下也推不上）
+- [x] **决策**（老板拍板，AskUserQuestion 双选）：重置口令功能**加进 v2.18.3**（不单开版本）；P0-4 工作记录搜索**补上搜索框**（而非删掉那 4 行死代码）
+- [x] **P0-1 处分记录纳入云同步**（此前只走 loadData/saveData 两条链路，`punishments`/`nextPunishId` 从不上传也不合并 → 换设备/清缓存后云端恢复即丢全部处分记录）：
+  - `CLOUD_SYNC_FIELDS` 补 `'punishments','nextPunishId'`（→ buildCloudPayload 按表过滤时带上）
+  - `state` 顶层补默认值 `punishments: []` / `nextPunishId: 1`（此前靠 loadData 时序兜底，任何早于 loadData 的访问会崩）
+  - `smartMergeData` 补合并分支：按 id 并集；远端已办结（done）优先采用 → 办结状态跨设备传播；均未办结取 createdAt 新者；结果按 createdAt→id 倒序；`nextPunishId` 取两侧 max
+- [x] **P0-2 `saveData` 写入失败不再静默中断**：`localStorage.setItem` 包 try/catch（配额爆满 / 隐私模式 / 含 base64 头像课表图时 setItem 会抛）→ catch 里 `console.error` + `showToast('本地保存失败（存储空间可能已满），本次改动未落盘，请先导出备份并清理历史数据','error')`，**并继续执行 `autoPushToCloud()`**（原先抛异常会连带跳过云推送且界面与内存态脱节）
+- [x] **P0-3 XSS 漏网点修复**：`openDetailPanel` 内学分流水详情 `${op.reason}` 裸插 innerHTML → 补 `escapeHtml(op.reason)`（全库 45 个文本插值点中唯一未转义；同文件另一处 8633 早已转义）
+- [x] **P0-4 工作留痕搜索框补齐**：`renderWorkLogs` 一直在读 `wlSearch` 但全库从无该元素 → kw 恒空、关键词过滤永不生效。补 `<input type="search" id="wlSearch">`（oninput 触发刷新）+ 有关键词时**跨日期全库检索**（`if(!kw && w.date !== date) return false`）、无关键词维持原有按日视图；统计行区分「🔍 搜索「kw」· 命中 N 条」/「📅 日期 · N 条 | 本月 M 条」
+- [x] **新功能 `resetCloudPwd`（重置云端加密口令，不动本机数据）**：设置页新增按钮「🔁 重置云端加密口令」；函数体 = 前置守卫（`hasGHToken()` / `cryptoOK()`）→ 两次输入新口令（≥8 位）→ `confirm` → 快照 `oldPwd` → `setSyncPwd(p)` → `wipeInProgress=true` → GET 拉云端 → **直接 `encryptForCloud(buildCloudPayload(parsed))` 用新口令重加密** → PUT（message `rekey: re-encrypt data.json with new sync password`）→ 出错则 `setSyncPwd(oldPwd)` 回滚；`wipeInProgress` 恒复位。**关键点**：故意绕过 `checkPushSafety`（该函数会用当前本地口令去解密云端，换口令场景必然失败）；口令只影响上传加密，**不触碰任何本地数据**
+- [x] **升版**：v2.18.2 → v2.18.3（index 仅 3 处活动标记：登录页 1939 / 侧栏 2058 / 设置页 🏷️ 徽标 2767 + sw.js CACHE_NAME；index 内 v2.18.2 的 2 处历史注释一律不动）；设置页「近版更新速览」note 置顶 v2.18.3 四条（处分同步 / 重置口令 / 搜索框 / 保存失败提示）
+- [x] **测试**：`_v2187_test.js` 新增 **24 项**（语法编译 / 版本三标记同步 / 历史注释保护 v2.18.2×2·v2.18.0×24 / P0-1 五链路三处齐 / P0-2 try/catch 与 autoPush 位次 / P0-3 escapeHtml 且无裸插值 / P0-4 搜索框+跨日期过滤+统计文案 / resetCloudPwd 定义·按钮·绕过 checkPushSafety·锁·回滚·守卫 / notes 四条）；**29 套旧件版本断言 token 级升 v2.18.3**（明文 `v2.18.3` + 转义 `v2\.18\.3` 双形态脚本，_v2183/_v2185 的 notes 断言改验新四条）→ **30 套全绿（PASS=30 FAIL=0）**
+- [x] **实测**（playwright，http 服务 + localStorage 种子）：搜索框跨日期检索（「班会」1 命中 /「开学」1 命中 /「zzz」0 命中 / 清空回全量）✓；`resetCloudPwd` 已定义且设置页按钮在 ✓；`saveData` 正常 ✓；`punishments` 成功持久化到 localStorage ✓；**零 JS 错误**
+- [x] **⚠️ 注入复查**：本轮 index.html 全部改动走「远端干净版 → 一次性 node 补丁脚本单次写盘 → 立即 `chmod 444`」；改后 `data-page-node-id` 计数 = **0**（v2.18.3 ×11 全为正常标记/注释）
+- [x] **推送**：见下一次 commit
+
