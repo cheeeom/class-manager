@@ -31,12 +31,12 @@ t('index.html 主 <script> 块可被完整编译（改动后无语法错）', ()
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.18\.13</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.13 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.18.13')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.18\.14</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.14 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.18.14')) throw new Error('SW CACHE_NAME 未更新');
 });
 t('设置页版本徽标随版 = v2.18.13', () => {
-  has(html, '🏷️ v2.18.13</span>', '设置页版本徽标未跟版');
+  has(html, '🏷️ v2.18.14</span>', '设置页版本徽标未跟版');
 });
 
 console.log('\n=== 登录页开发者标注 ===');
@@ -53,7 +53,7 @@ t('移动端样式：居中堆叠于版本号上方', () => {
 });
 t('HTML：credit 行位于版本号正上方，文案含 chee', () => {
   const iC = html.indexOf('<div class="login-credit">开发者 · chee</div>');
-  const iV = html.indexOf('<div class="login-version">v2.18.13</div>');
+  const iV = html.indexOf('<div class="login-version">v2.18.14</div>');
   ok(iC > 0 && iV > iC, 'credit 应在 version 之前（credit=' + iC + ' version=' + iV + '）');
 });
 
