@@ -42,7 +42,7 @@ const monthKeyOf = extractFn('monthKeyOf');
 const liveOps = extractFn('liveOps');   // v2.17.9 monthlySettlePlan 撤销过滤依赖
 const monthlySettlePlan = extractFn('monthlySettlePlan');
 const smartMergeData = extractFn('smartMergeData');
-// v2.18.8 smartMergeData 墓碑仲裁依赖（外部符号桩）
+// v2.18.9 smartMergeData 墓碑仲裁依赖（外部符号桩）
 global.mergeTsMap = extractFn('mergeTsMap');
 global.catTombReviveFilter = extractFn('catTombReviveFilter');
 global.state = global.state || {};

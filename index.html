@@ -1912,7 +1912,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.18.8</div>
+      <div class="login-version">v2.18.9</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2031,7 +2031,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.18.8 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.18.9 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2740,12 +2740,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.8</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.9</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 修复：往新建大类里添加原因后刷新整组消失——隐式新建大类/方向时同步清除其旧删除记录（v2.18.8 时间戳仲裁的补漏）<br>
               · 修复：重新添加的原因/大类刷新后被云端旧删除记录整体抹掉——删除与重新添加改按时间戳仲裁，重新添加晚于删除则旧记录作废<br>
               · 云同步推送失败自动重试并改用中文提示：网络抖动/并发冲突自动退避重试，Token 失效/口令不一致等会明确告诉你原因<br>
               · 修复：编辑课堂纪律原因分值后切页面/刷新偶发被云端旧值复原——原因分值合并改为本地优先，未推送的编辑不再被覆盖<br>
@@ -10407,6 +10408,7 @@ function openReasonGroupModal(dir){
       if(!state.reasonCatalog[dir]) state.reasonCatalog[dir] = {};
       state.reasonCatalog[dir][name] = [];
       catDelUndo('groups', dir + '|' + name);   // v2.17.30 重新添加同名大类视为放弃删除
+      catDelUndo('dirs', dir);   // v2.18.9 同步 revive 所在方向（防云端旧方向墓碑整枝抹除）
       catRefresh();
       showToast('已新增大类：' + dir + ' → ' + name, 'success');
     }
@@ -10557,6 +10559,11 @@ function catSaveNewItem(){
   if(!state.reasonCatalog[dir][group]) state.reasonCatalog[dir][group] = [];
   state.reasonCatalog[dir][group].push(name);
   catDelUndo('reasons', name);   // v2.17.30 重新添加同名原因视为放弃删除
+  // v2.18.9 隐式新建/使用大类与方向同样视为「重加」：清墓碑并记 revive 时戳。
+  // 否则云端旧大类/方向墓碑会在推送前合并或拉取时把整组连同刚加的原因一起抹掉
+  // （且推送前合并先抹 → 推上云的就是被抹后的数据，界面还提示「已同步」——v2.18.8 事故二次复现）。
+  catDelUndo('groups', dir + '|' + group);
+  catDelUndo('dirs', dir);
   var scoreStr = String(document.getElementById('catScoreInput').value || '').trim();
   if(scoreStr !== ''){
     var n = Number(scoreStr);

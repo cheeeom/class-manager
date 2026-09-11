@@ -29,7 +29,7 @@ const reconcileCreditDrift = eval('(' + grab('function reconcileCreditDrift(stud
 const sortOpsNewestFirst = eval('(' + grab('function sortOpsNewestFirst(ops)') + ')');   // smartMergeData 依赖
 global.DEFAULT_COMMITTEE = {};   // smartMergeData 内部引用的最小 stub
 const smartMergeData = eval('(' + grab('function smartMergeData(localData,remoteData)') + ')');
-// v2.18.8 smartMergeData 墓碑仲裁依赖（外部符号桩）
+// v2.18.9 smartMergeData 墓碑仲裁依赖（外部符号桩）
 global.mergeTsMap = eval('(' + grab('function mergeTsMap(a, b)') + ')');
 global.catTombReviveFilter = eval('(' + grab('function catTombReviveFilter(tomb, delAt, revived)') + ')');
 global.state = global.state || {};
