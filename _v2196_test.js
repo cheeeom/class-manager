@@ -185,11 +185,11 @@ t('★ 行为级：寝室号格式校验（非法不落盘不建寝室）', () =
 });
 
 console.log('\n=== ⑤ 版本与历史注释 ===');
-t('版本标记统一 v2.18.12', () => {
-  has(html, '<div class="login-version">v2.18.12</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.18.12 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.18.12</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.18.12'", 'SW');
+t('版本标记统一 v2.18.13', () => {
+  has(html, '<div class="login-version">v2.18.13</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.18.13 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.18.13</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-v2.18.13'", 'SW');
 });
 t('设置页「近版更新速览」新增本版两条（旧条不删）', () => {
   has(html, '删除的荣誉（含示例荣誉）不再过段时间自己复活', '缺荣誉 notes');
