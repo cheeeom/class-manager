@@ -3,7 +3,7 @@
 > 与 `AGENTS.md`（知识库）+ `DECISIONS.md`（决策记录）配套。
 > 本文件只记「当前状态 + 下一步做什么」，不重复架构细节——架构看 `AGENTS.md`。
 >
-> 最后更新：2026-09-11（v2.18.11 设置页新增「纯本地模式」开关——一键停用自动云同步与同步弹窗、本地数据照常持久；同日 v2.18.10 平板侧栏可滚动 / v2.18.9 隐式 revive 补漏）
+> 最后更新：2026-09-11（v2.18.12 荣誉墙删除墓碑防复活 + 寝室管理「新增寝室」按钮；同日 v2.18.11 纯本地模式 / v2.18.10 平板侧栏可滚动 / v2.18.9 隐式 revive 补漏）
 > ⚠️ 下文「一、当前状态速览」为 v2.8.0 期快照，未随版本更新；**最新进展一律以文末「逐版章节」为准**。
 
 ---
@@ -926,6 +926,16 @@
 - [x] **测试**：新增 `_v2195_test.js` 12 项（★沙箱行为级真跑 `toggleLocalMode` 开→关全链路：置位/清定时器/提示/补推；手动通路与保存链护栏；版本/notes/历史注释）；25 个旧套件版本 token 双形态升级 → **38 套全绿**。⚠️ 沙箱坑两个：① 被测函数依赖的顶层常量（LOCAL_MODE_KEY）沙箱必须自带，否则 try/catch 把 ReferenceError 静默吞掉造成「看似执行了其实没写」；② `clearTimeout` 后变量里留的是失效 id（真浏览器同理、无害），断言应查清理列表而非变量为 null。
 - [x] **实测**（playwright 真实点击路径 11/11）：设置页开关存在且初始关 → 点击置位 `cm_local_mode=1` + 标签切换 + 状态区提示 → 改班级名照常落盘 → **reload 模拟重启：数据字节级原样、模式保持、编辑值存活** → 设置页按钮状态正确 → 再点关闭恢复。全程零 JS 错。
 - [x] **推送**：增量推 → 新 commit `fefd4eb5`（28 文件：index 715065B + sw + 26 测试）；API 校验 blob 字节级一致 / v2.18.11×9 / isLocalMode×8 / 注入 0 / **data.json 未被本提交改动**。
+
+### 2026-09-11（v2.18.12：荣誉墙删除复活修复 + 寝室管理「新增寝室」）
+
+- [x] **报障/需求**（老板提，12:01）：① 荣誉墙删除的示例荣誉过段时间自己恢复 ② 寝室管理加自定义按钮直接新增寝室并添加学生。
+- [x] **根因①**：`smartMergeData` 对 honors **按 id 盲并集**（5730 注释自证）——`deleteHonor` 是硬删（数组 filter），云端旧副本每次自动拉取都把已删荣誉并回来；推送前合并还把它带回云端。与 v2.18.8 原因目录墓碑问题同构。
+- [x] **修法①**：新增 `honorDeleted`（id→删除时间戳，走五链路）；`deleteHonor` 删除即登记；合并时 `mergeTsMap` 并墓碑 → 并集跳过墓碑 id → 双向防御剔除；`loadData` 自愈过滤（导入旧备份残留已删 id 也剔除）；清空数据连带清墓碑。重加荣誉用新 id（nextHonorId 单调），无需 revived 仲裁。
+- [x] **设计②**：寝室由学生标签派生，空寝室无法存在 → 新增 `customDorms`（寝室号数组，五链路，合并按并集去重）支撑「先建后住」；`createDormNew` 校验 `DORM_RE` + 勾选学生直接入住（复用 addDormMember 的摘牌/补性别逻辑）；`renderDorm` 并入空寝室卡片（「空寝室 · 点击添加成员」）；`openDorm` 支持空自定义寝室（伪 dorm + 「🗑 删除该空寝室」，`deleteCustomDorm` 有成员时拒绝）。
+- [x] **测试**：新增 `_v2196_test.js` 15 项（★复活事故复现：本地已删+云端旧副本→不复活 / 他端删除本机生效 / 双侧墓碑取大合并 / customDorms 并集去重 / 沙箱行为级 createDormNew 入住+走读摘牌+格式校验 / 五链路 / 版本）；26 旧套件版本 token 升级 → **39 套全绿**。⚠️ 新抽 smartMergeData 时桩要一次补全：mergeTsMap/catTombReviveFilter/sortOpsNewestFirst/cloneCatDeleted/applyCatTombstones/flattenReasonCatalog/cbMergeBanks/DEFAULT_COMMITTEE——建议照抄 _v2174 的桩清单。
+- [x] **实测**（playwright 12/12 真实点击路径）：创建带 1 人的寝室 → 卡片+成员弹窗 → 再建空寝室 → 删空寝室 → customDorms+标签落盘 → **reload 后数据原样** → 荣誉墙正常渲染，零 JS 错。⚠️ 两个冒烟框架坑：① `page.addInitScript` 每次 reload 都会重跑——幂等种子必须加标记位（否则调试半天「数据被清」其实是自己重新播种）；② `text=` 选择器会撞设置页 notes 里的同文案，交互断言一律收进弹窗作用域（`#dormNewModal .modal-footer .btn-primary`）。
+- [x] **推送**：增量推 → 新 commit `10f98798`（29 文件：index 723016B + sw + 27 测试）；API 校验 blob 字节级一致 / honorDeleted×21 / customDorms×25 / 注入 0 / **data.json 未被本提交改动**。
 
 
 
