@@ -1912,7 +1912,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.18.13</div>
+      <div class="login-version">v2.18.14</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2031,7 +2031,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.18.13 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.18.14 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2749,12 +2749,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.13</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.14</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 修复：导入 JSON 备份后荣誉复活/请假考试待办等丢失——导入改「覆盖式合并」，备份没提到的字段保留本机现值，删除记录不再被旧备份擦掉（v2.18.14）<br>
               · 新增「📊 批量导入学生表格」：设置页支持直接导入 Excel(.xlsx) 或 CSV——按表头自动识别 姓名/性别/家长电话/家长/学号/寝室，先预览再确认，命中学号或姓名则只更新、未命中则新建（v2.18.13）<br>
               · 荣誉墙修复：删除的荣誉（含示例荣誉）不再过段时间自己复活——删除记录随云同步传播，云端旧副本不再把已删荣誉并回来（v2.18.12）<br>
               · 寝室管理新增「➕ 新增寝室」：可直接创建寝室并勾选学生入住；空寝室也显示在列表，点卡片可继续添加成员或删除（v2.18.12）<br>
@@ -10898,6 +10899,24 @@ function importData(){
   document.getElementById('importFileInput').click();
 }
 
+// v2.18.14 导入合并（纯函数）：以本机现有数据为底，备份里出现的同步字段覆盖其上；
+// 删除墓碑（honorDeleted/catDeletedAt/catRevived 取大、catDeleted 并集）不被旧备份回滚或擦除——
+// 已删荣誉即使混在旧备份里，也会被 loadData 的墓碑自愈过滤掉（旧白名单重建会丢墓碑与全部新字段=复活源头）。
+function mergeImportData(d, prevData){
+  var merged = {};
+  Object.keys(prevData || {}).forEach(function(k){ merged[k] = prevData[k]; });
+  var TOMB = { honorDeleted:1, catDeleted:1, catDeletedAt:1, catRevived:1 };   // v2.18.14 墓碑类字段不走覆盖，走下方取大/并集
+  CLOUD_SYNC_FIELDS.forEach(function(f){ if(f in d && !TOMB[f]) merged[f] = d[f]; });
+  merged.honorDeleted = mergeTsMap(merged.honorDeleted || {}, d.honorDeleted || {});
+  merged.catDeletedAt = mergeTsMap(merged.catDeletedAt || {}, d.catDeletedAt || {});
+  merged.catRevived = mergeTsMap(merged.catRevived || {}, d.catRevived || {});
+  if(d.catDeleted || merged.catDeleted){
+    var pt = cloneCatDeleted(merged.catDeleted), dt = cloneCatDeleted(d.catDeleted);
+    ['dirs','groups','reasons'].forEach(function(kind){ dt[kind].forEach(function(k2){ if(pt[kind].indexOf(k2) < 0) pt[kind].push(k2); }); });
+    merged.catDeleted = pt;
+  }
+  return merged;
+}
 function handleImportFile(event){
   const file = event.target.files[0];
   if(!file) return;
@@ -10931,26 +10950,14 @@ function handleImportFile(event){
           return;
         }
       }
-      // Merge with defaults for new fields
-      const merged = {
-        className: d.className || '高一班级',
-        students: d.students || [],
-        operations: d.operations || [],
-        reasons: d.reasons || [...defaultReasons],
-        nextId: d.nextId || 1,
-        nextOpId: d.nextOpId || 1,
-        nextSid: d.nextSid || 1,
-        lastExport: d.lastExport || null,
-        lastImport: d.lastImport || null,
-        scheduleImage: d.scheduleImage || null,
-        committee: d.committee || { banzhang:null, fubanzhang:null, xuexi:null, shenghuo:null, tiyu:null },
-        seating: d.seating || { cols:8, rows:5, seats:[] },
-        duty: d.duty || { currentWeek:0, schedule:[] },
-        classAvatar: d.classAvatar || null,
-        classMotto: d.classMotto || '不积跬步，无以至千里；不积小流，无以成江海。'
-      };
+      // v2.18.14 覆盖式合并：以本机数据为底，仅用备份里出现的同步字段覆盖——
+      // 旧白名单重建会丢 honors/honorDeleted/leaves/exams/todos/workLogs/notices/creditBank/
+      // customDorms 等全部新字段：备份里的旧荣誉复活、删除墓碑被擦，残缺数据还会被推上云顶掉完整云端。
+      var prevData = {};
+      try{ prevData = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); }catch(e2){ prevData = {}; }
+      const merged = mergeImportData(d, prevData);
       // Ensure students have tags array
-      merged.students.forEach(s => {
+      (merged.students || []).forEach(s => {
         if(!s.tags) s.tags = [];
       });
       localStorage.setItem(STORE_KEY, JSON.stringify(merged));

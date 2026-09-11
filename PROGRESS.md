@@ -3,7 +3,7 @@
 > 与 `AGENTS.md`（知识库）+ `DECISIONS.md`（决策记录）配套。
 > 本文件只记「当前状态 + 下一步做什么」，不重复架构细节——架构看 `AGENTS.md`。
 >
-> 最后更新：2026-09-11（v2.18.13 批量导入学生表格 Excel/CSV + 表头自动识别；同日 v2.18.12 荣誉删除墓碑 / v2.18.11 纯本地模式 / v2.18.10 平板侧栏可滚动）
+> 最后更新：2026-09-11（v2.18.14 修复 JSON 导入丢字段→荣誉复活；同日 v2.18.13 批量导入学生表格 Excel/CSV / v2.18.12 荣誉删除墓碑 / v2.18.11 纯本地模式）
 > ⚠️ 下文「一、当前状态速览」为 v2.8.0 期快照，未随版本更新；**最新进展一律以文末「逐版章节」为准**。
 
 ---
@@ -946,6 +946,15 @@
 - [x] **补刀**：`confirmStudentImport` 更新路径 `if(s2.profile)` → 老 JSON 数据学生无 profile 字段时导入字段被静默丢弃 → 改 `ensureProfile(s2)` 先补齐（playwright 冒烟用无 profile 种子逮住）。
 - [x] **实测**（playwright 16/16）：设置页入口 → 真实 .xlsx setInputFiles → 预览（新增2/更新2/跳过1 + 六列 chips 全命中）→ 确认 → 张三(无 profile 老数据)补齐电话/性别/家长+搬寝 6栋-801室、李四更新、王五/赵六新建(S0003/S0004、100分) → reload 数据原样 → GBK CSV 钱七导入成功。零 JS 错。
 - [x] **推送**：增量推 → 新 commit（30 文件：index 742194B + sw + 28 测试）；API 校验 blob 字节级一致 / 注入 0 / **data.json 未被本提交改动**。
+
+### 2026-09-11（v2.18.14：修复「导入 JSON 备份后荣誉复活 / 部分数据丢失」）
+
+- [x] **报障**（老板提）：v2.18.12/13 修复后，删除的荣誉又复活了。
+- [x] **诊断**：云端取证（15:02 有 auto-sync、data.json 已加密 enc=1 无法读明文）+ 全代码审计。v2.18.12 的墓碑合并链路本身闭环（loadData / smartMergeData / applyCloudData / deleteHonor / push 载荷均带墓碑）。**真凶是第三条路：handleImportFile 的 JSON 备份导入按 ~15 字段白名单重建数据**——①备份里的旧荣誉（含已删的示例荣誉）原样恢复 ②本机 honorDeleted 墓碑被擦 ③ leaves/exams/todos/workLogs/notices/creditBank/customDorms/punishments/reasonCatalog 等全部新字段静默丢弃（导出写全量、导入只认白名单，天然不对称）④残缺数据 2 秒后 autoPush 顶掉云端完整数据。老板当天恰好在用导入功能，时间线吻合。另一条环境级路径：未刷新的旧版设备（盲并集合并）仍会把旧副本推回云端——**旧客户端无法用代码修复，只能全设备强刷**。
+- [x] **修法**：新增纯函数 `mergeImportData(d, prevData)`——以本机 localStorage 现有数据为底，仅用备份里出现在 CLOUD_SYNC_FIELDS 的字段覆盖；墓碑类字段（honorDeleted/catDeletedAt/catRevived 取大、catDeleted 并集）**不走覆盖通道**（v2.18.14 补丁2：第一版先覆盖后合并，本机墓碑仍被备份整体顶掉，被 _v2198 测试当场逮住）。旧备份混入的已删荣誉由 loadData 墓碑自愈过滤掉。垃圾键（非同步字段）不进入 merged。
+- [x] **测试**：新增 `_v2198_test.js` 11 项（★复活场景端到端：本机已删+旧备份含该荣誉→导入后墓碑保留→过滤后不复活；备份缺字段保留本机；墓碑取大/并集；垃圾键过滤；空库导入不炸；UI 接线）；28 旧套件活动标记双形态升 v2.18.14（99 处，只动 4 个精确串、不碰引入版注释）→ **41 套全绿**。
+- [x] **实测**（playwright 9/9）：种下「已删荣誉+墓碑+leaves+customDorms」→ 导入含该荣誉的旧备份（confirm 自动接受+自动备份下载）→ 已删荣誉未复活、备份中未删荣誉正常进、墓碑/leaves/customDorms 保留、students 以备份为准 → reload 持久 → 荣誉墙只显示未删那条。零 JS 错。
+- [x] **推送**：增量推 → 新 commit（index 743439B + sw + 29 测试 + 文档）；API 校验 blob 字节级一致 / 注入 0 / **data.json 未被本提交改动**。
 
 
 

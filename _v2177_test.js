@@ -51,9 +51,9 @@ t('index.html 主 <script> 块可被完整编译', () => {
 
 console.log('\n=== v2.18.13 版本三处同步 ===');
 t('登录页 / 侧栏 / SW CACHE_NAME = v2.18.13', () => {
-  if (!/login-version">v2\.18\.13</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.13 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.18.13')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.18\.14</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.14 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.18.14')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 拼音排序（左侧学生名单） ===');
