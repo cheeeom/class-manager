@@ -1,4 +1,4 @@
-/* v2.18.9 回归测试：往隐式重建的大类里添加原因 → 大类/方向同步 revive，
+/* v2.18.10 回归测试：往隐式重建的大类里添加原因 → 大类/方向同步 revive，
    云端旧大类墓碑不再在推送前合并/拉取时把整组连同新原因一起抹掉。
    运行：node _v2193_test.js */
 const fs = require('fs');
@@ -184,11 +184,11 @@ t('openReasonGroupModal 新增大类含 dirs revive', () => {
   has(src, "catDelUndo('dirs', dir)", '方向 revive');
   has(src, 'catRefresh();', '保存链完整（catRefresh 未丢）');
 });
-t('版本标记统一 v2.18.9', () => {
-  has(html, '<div class="login-version">v2.18.9</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.18.9 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.18.9</span>', '设置徽标');
-  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.18.9'", 'SW');
+t('版本标记统一 v2.18.10', () => {
+  has(html, '<div class="login-version">v2.18.10</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.18.10 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.18.10</span>', '设置徽标');
+  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.18.10'", 'SW');
 });
 t('近版更新速览含新条', () => {
   has(html, '隐式新建大类/方向时同步清除其旧删除记录', 'notes');
