@@ -1,4 +1,4 @@
-/* v2.18.11 回归测试：设置页「📴 纯本地模式」开关 ——
+/* v2.18.12 回归测试：设置页「📴 纯本地模式」开关 ——
  * 需求：一键停用自动云同步与全部同步弹窗；本地数据照常落 localStorage（关机重启不丢）；
  *       手动推送/拉取/恢复与推送安全检查（checkPushSafety 内部 autoSyncFromCloud）不受影响。
  * 实现：设备级偏好 cm_local_mode（localStorage，不参与云同步字段）；
@@ -25,7 +25,7 @@ function lineFn(src, sig) {
   return lines[i].trim();
 }
 
-console.log('\n=== v2.18.11 纯本地模式 ===');
+console.log('\n=== v2.18.12 纯本地模式 ===');
 
 t('helper 三件套就位（KEY / isLocalMode / setLocalMode）', () => {
   has(html, "const LOCAL_MODE_KEY = 'cm_local_mode';", '缺 KEY');
@@ -118,15 +118,15 @@ t('本地保存链未受影响：saveData 仍写 localStorage 并触发（已拦
   has(html, 'autoPushToCloud();', 'saveData 内触发点丢失');
 });
 
-t('版本标记统一 v2.18.11', () => {
-  has(html, '<div class="login-version">v2.18.11</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.18.11 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.18.11</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.18.11'", 'SW');
+t('版本标记统一 v2.18.12', () => {
+  has(html, '<div class="login-version">v2.18.12</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.18.12 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.18.12</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-v2.18.12'", 'SW');
 });
 
 t('设置页「近版更新速览」新增本版条目（旧条不删）', () => {
-  has(html, '新增「📴 纯本地模式」', '缺 v2.18.11 notes 条目');
+  has(html, '新增「📴 纯本地模式」', '缺 v2.18.12 notes 条目');
   has(html, '· 修复平板/矮窗口下侧栏导航「设置」显示不全且无法滑动', 'v2.18.10 旧条目被删');
   has(html, '· 修复：往新建大类里添加原因后刷新整组消失', 'v2.18.9 旧条目被删');
 });

@@ -12,10 +12,10 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('版本三处同步 = v2.18.11（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.18\.11</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.11 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.18.11')) throw new Error('SW CACHE_NAME 未更新');
+t('版本三处同步 = v2.18.12（登录页/侧栏/SW CACHE_NAME）', () => {
+  if (!/login-version">v2\.18\.12</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.12 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.18.12')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 设置页「关于本系统」区块 ===');
@@ -30,7 +30,7 @@ t('开发作者 = chee', () => {
   has(html, '开发作者：<b style="color:var(--primary)">chee</b>', '缺作者署名');
 });
 t('版本徽标与全局版本一致（v2.18.3，随升版自动跟版）', () => {
-  has(html, '🏷️ v2.18.11</span>', '设置页版本徽标未跟版');
+  has(html, '🏷️ v2.18.12</span>', '设置页版本徽标未跟版');
 });
 t('近版更新速览内容齐（v2.18.3 本期六条：处分记录云同步 / 重置加密口令 / 工作记录搜索 / 本地保存失败提示 / 零扣分榜天数排名 / 预警迁移）', () => {
   has(html, 'id="settingsReleaseNotes"', '缺 notes 容器');

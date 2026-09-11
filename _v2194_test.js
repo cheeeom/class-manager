@@ -1,4 +1,4 @@
-/* v2.18.11 回归测试：平板/矮窗口侧栏导航「设置」显示不全且无法滑动 ——
+/* v2.18.12 回归测试：平板/矮窗口侧栏导航「设置」显示不全且无法滑动 ——
  * 根因：.nav 是 column flex（.sidebar）的子项，只有 flex:1 没有 min-height:0，
  *       flex 子项默认 min-height:auto 不允许收缩到比内容矮 → overflow-y:auto 永不生效，
  *       导航内容直接撑爆侧栏，底部「设置」溢出屏幕外且无法滚动。
@@ -19,7 +19,7 @@ function has(s, sub, msg) {
   if (!s.includes(sub)) throw new Error(msg || ('缺少标记: ' + String(sub).slice(0, 80)));
 }
 
-console.log('\n=== v2.18.11 侧栏导航可滚动修复 ===');
+console.log('\n=== v2.18.12 侧栏导航可滚动修复 ===');
 
 t('.app 视口高度：100vh 保留 + 100dvh 兜底（平板动态视口）', () => {
   has(html, '.app{display:flex;height:100vh;height:100dvh;position:relative;z-index:1}',
@@ -50,15 +50,15 @@ t('「设置」是导航最后一项（data-page="settings" 在 </nav> 前）', 
   if (lastSettings < 0 || lastSettings < lastAnyNav) throw new Error('设置不是最后一项，修复的针对性不成立');
 });
 
-t('版本标记统一 v2.18.11', () => {
-  has(html, '<div class="login-version">v2.18.11</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.18.11 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.18.11</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.18.11'", 'SW');
+t('版本标记统一 v2.18.12', () => {
+  has(html, '<div class="login-version">v2.18.12</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.18.12 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.18.12</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-v2.18.12'", 'SW');
 });
 
 t('设置页「近版更新速览」新增本版条目（旧条不删）', () => {
-  has(html, '修复平板/矮窗口下侧栏导航「设置」显示不全且无法滑动', '缺 v2.18.11 notes 条目');
+  has(html, '修复平板/矮窗口下侧栏导航「设置」显示不全且无法滑动', '缺 v2.18.12 notes 条目');
   has(html, '· 修复：往新建大类里添加原因后刷新整组消失', 'v2.18.9 旧条目被删');
   has(html, '· 座次表支持拖拽换座', 'v2.18.5 旧条目被删');
 });
