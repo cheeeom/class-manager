@@ -38,6 +38,9 @@ global.DEFAULT_COMMITTEE = { banzhang: null, fubanzhang: null, jilv: null, xuexi
 global.sortOpsNewestFirst = function (ops) { return ops || []; };
 global.liveOps = function (ops) { return ops || []; };
 global.state = {};   // smartMergeData 会读 state.catDeletedAt/catRevived 兜底（测试置空即可）
+// v2.19.0 表驱动：smartMergeData 依赖 STATE_SCHEMA + MERGE_ST 策略表，从 index.html 真实实现切片注入
+const STATE_SCHEMA = eval('(' + html.slice(html.indexOf('const STATE_SCHEMA'), html.indexOf('\n];', html.indexOf('const STATE_SCHEMA')) + 3).replace('const STATE_SCHEMA = ', '').replace(/;\s*$/, '') + ')');
+eval(html.slice(html.indexOf('function msStudents'), html.indexOf('/* MERGE_ENGINE_END')));
 const smartMergeData = extractFn('smartMergeData');
 
 function baseCat() {
@@ -125,15 +128,15 @@ t('两侧墓碑时间戳取大者合并', () => {
 
 console.log('\n=== 五链路护栏（新字段） ===');
 t('CLOUD_SYNC_FIELDS 含 catDeletedAt/catRevived', () => {
-  has(html, "'catDeleted','catDeletedAt','catRevived',", '同步白名单');
+  has(html, "key:'catDeletedAt', def:function(){ return {}; }, cfs:1, tomb:1, ms:'tsmap'", '同步白名单');
 });
 t('state 默认含两 map', () => {
-  has(html, 'catDeletedAt: {},   // v2.18.8', 'state 默认（注释为引入版本，不随升版盲替）');
-  has(html, 'catRevived: {},     // v2.18.8', 'state 默认');
+  has(html, "key:'catDeletedAt', def:function(){ return {}; }, cfs:1, tomb:1, ms:'tsmap', sv:function(v){ return v || {}; } },   // v2.18.8", 'state 默认（注释为引入版本，不随升版盲替）');
+  has(html, "key:'catRevived', def:function(){ return {}; }, cfs:1, tomb:1, ms:'tsmap', sv:function(v){ return v || {}; } },     // v2.18.8", 'state 默认');
 });
 t('saveData 落盘两 map', () => {
-  has(html, 'catDeletedAt: state.catDeletedAt || {}', 'saveData');
-  has(html, 'catRevived: state.catRevived || {}', 'saveData');
+  has(html, 'if(!f.cfs || f.nosv) return;', 'saveData 遍历 schema');
+  has(html, "key:'catRevived', def:function(){ return {}; }, cfs:1, tomb:1, ms:'tsmap', sv:function(v){ return v || {}; }", 'saveData sv');
 });
 t('loadData 读取 + 自愈过滤', () => {
   has(html, 'state.catDeletedAt = (d.catDeletedAt && typeof d.catDeletedAt', 'loadData');
@@ -150,10 +153,10 @@ t('恢复预设清空时间戳', () => {
 
 console.log('\n=== 版本 ===');
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.18.15</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.18.15 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.18.15</span>', '设置徽标');
-  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.18.15'", 'SW');
+  has(html, '<div class="login-version">v2.19.0</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.19.0 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.19.0</span>', '设置徽标');
+  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.19.0'", 'SW');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

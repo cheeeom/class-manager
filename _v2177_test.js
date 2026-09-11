@@ -51,9 +51,9 @@ t('index.html 主 <script> 块可被完整编译', () => {
 
 console.log('\n=== v2.18.13 版本三处同步 ===');
 t('登录页 / 侧栏 / SW CACHE_NAME = v2.18.13', () => {
-  if (!/login-version">v2\.18\.15</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.15 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.18.15')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.19\.0</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.19\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.19.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 拼音排序（左侧学生名单） ===');
@@ -180,11 +180,11 @@ t('honorCertEntity 集体荣誉主语也用班级全称', () => {
   if (fn.indexOf('certClassName()') < 0) throw new Error('集体主语未走 certClassName');
 });
 t('classNameFull 数据链路五处齐：默认 / 本地读 / saveData 手写 / 云白名单 / 云合并', () => {
-  if (!/classNameFull: ''/.test(html)) throw new Error('state 默认缺 classNameFull');
+  if (!/\{ key:'classNameFull', def:''/.test(html)) throw new Error('state 默认缺 classNameFull（schema）');
   if (!/state\.classNameFull = d\.classNameFull/.test(html)) throw new Error('loadData 未读 classNameFull');
-  if (!/classNameFull: state\.classNameFull/.test(html)) throw new Error('saveData 手写清单缺 classNameFull');
-  if (!/'classNameFull'/.test(html.match(/const CLOUD_SYNC_FIELDS = \[[^\]]*\]/)[0])) throw new Error('云白名单缺 classNameFull');
-  if (!/merged\.classNameFull&&remoteData\.classNameFull/.test(html)) throw new Error('smartMergeData 未合并 classNameFull');
+  if (!/if\(!f\.cfs \|\| f\.nosv\) return;/.test(html)) throw new Error('saveData 未遍历 schema 落盘 classNameFull');
+  if (!/\{ key:'classNameFull', def:'', cfs:1/.test(html)) throw new Error('云白名单缺 classNameFull（schema cfs）');
+  if (!/\{ key:'classNameFull', def:'', cfs:1, ms:'scalarFill' \}/.test(html)) throw new Error('smartMergeData 未合并 classNameFull（schema ms=scalarFill）');
 });
 t('设置页有班级全称输入框 + 保存函数 + 渲染回填 + 状态提示', () => {
   if (!html.includes('id="classNameFullInput"')) throw new Error('设置页缺全称输入框');

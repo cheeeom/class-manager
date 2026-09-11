@@ -72,14 +72,15 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.18\.15</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.15 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.18.15')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.19\.0</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.19\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.19.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 数据五处链路 ===');
-t('state 默认含 creditBank（settings/wallets/ledger/alerts/store…）', () => {
-  const def = html.match(/creditBank: \{ settings:\{ autoCoin:true, alertEnabled:true \}, wallets:\{\}, ledger:\[\], nextLedgerId:1,[\s\S]*?createdAt:0,[\s\S]*?store:\{ items:\[\], nextItemId:1 \} \},/);
+t('state 默认含 creditBank（schema def = cbDefaultBank 工厂，结构随工厂收敛）', () => {
+  if (!/\{ key:'creditBank', def:function\(\)\{ return cbDefaultBank\(\); \}, cfs:1, ms:'creditBank' \}/.test(html)) throw new Error('state 默认缺 creditBank（schema）');
+  const def = html.match(/function cbDefaultBank\(\)\{[\s\S]*?\n\}/);
   if (!def) throw new Error('state 默认缺 creditBank 结构');
   ['settings', 'wallets', 'ledger', 'nextLedgerId', 'alerts', 'nextAlertId', 'nextVoucherId', 'lastSettleMonth', 'createdAt', 'store'].forEach(k => has(def[0], k));
 });
@@ -89,17 +90,17 @@ t('loadData 读取 d.creditBank 并 cbNormalizeShape / cbBankSafe 补齐', () =>
   has(ld, 'cbBankSafe();');
   has(ld, 'if(cbScanAlerts() > 0', '启动预警扫描缺失');
 });
-t('saveData 手写清单含 creditBank', () => {
+t('saveData 落盘清单含 creditBank（遍历 schema）', () => {
   const sd = html.match(/function saveData\(\)\{[\s\S]*?autoPushToCloud\(\);[\s\S]*?\n\}/)[0];
-  has(sd, 'creditBank: state.creditBank');
+  has(sd, 'if(!f.cfs || f.nosv) return;');
   has(sd, 'cbScanAlerts();', '落盘前预警扫描缺失');
 });
-t('CLOUD_SYNC_FIELDS 白名单含 creditBank', () => {
-  const m = html.match(/CLOUD_SYNC_FIELDS = \[([\s\S]*?)\];/)[1];
-  has(m, "'creditBank'");
+t('CLOUD_SYNC_FIELDS 白名单含 creditBank（schema 派生）', () => {
+  const m = (function(){ const _ss = eval('(' + html.slice(html.indexOf('const STATE_SCHEMA'), html.indexOf('\n];', html.indexOf('const STATE_SCHEMA')) + 3).replace('const STATE_SCHEMA = ', '').replace(/;\s*$/, '') + ')'); return _ss.filter(f2 => f2.cfs).map(f2 => f2.key).join(','); })();
+  has(m, 'creditBank');
 });
 t('smartMergeData 接入 cbMergeBanks 合并（任一侧存在才合并）', () => {
-  const sm = html.match(/function smartMergeData\([\s\S]*?\n\}/)[0];
+  const sm = html.slice(html.indexOf('function msCreditBank'), html.indexOf('/* MERGE_ENGINE_END'));
   has(sm, 'if(localData.creditBank || remoteData.creditBank){');
   has(sm, 'merged.creditBank = cbMergeBanks(');
 });

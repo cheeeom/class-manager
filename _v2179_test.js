@@ -77,9 +77,9 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.18\.15</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.15 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.18.15')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.19\.0</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.19\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.19.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== v2.18.0 净增五档奖励规则（老板口径：当月净增 ≥10 起奖 / ≥70 封顶）===');
@@ -226,9 +226,9 @@ t('state 默认含 store:{ items:[], nextItemId:1 }', () => {
 });
 t('saveData 手写清单 / CLOUD_SYNC_FIELDS 白名单含 creditBank（store 随 bank 整体同步）', () => {
   const sd = html.match(/function saveData\(\)\{[\s\S]*?autoPushToCloud\(\);[\s\S]*?\n\}/)[0];
-  has(sd, 'creditBank: state.creditBank');
-  const m = html.match(/CLOUD_SYNC_FIELDS = \[([\s\S]*?)\];/)[1];
-  has(m, "'creditBank'");
+  has(sd, 'if(!f.cfs || f.nosv) return;', 'saveData 遍历 schema 落盘 creditBank');
+  const m = (function(){ const _ss = eval('(' + html.slice(html.indexOf('const STATE_SCHEMA'), html.indexOf('\n];', html.indexOf('const STATE_SCHEMA')) + 3).replace('const STATE_SCHEMA = ', '').replace(/;\s*$/, '') + ')'); return _ss.filter(f2 => f2.cfs).map(f2 => f2.key).join(','); })();
+  has(m, 'creditBank');
 });
 t('cbMergeBanks 合并 store.items：按 key 并集，同 key 取 upd 大者；nextItemId 取大', () => {
   const L = { wallets: {}, ledger: [], alerts: [], nextLedgerId: 1, nextAlertId: 1, nextVoucherId: 1,

@@ -26,6 +26,9 @@ const liveOps = eval('(' + grab('function liveOps(ops)') + ')');
 const sumCreditsByStudent = eval('(' + grab('function sumCreditsByStudent(operations)') + ')');
 const ensureCreditBase = eval('(' + grab('function ensureCreditBase(students, operations)') + ')');
 const reconcileCreditDrift = eval('(' + grab('function reconcileCreditDrift(students, operations)') + ')');
+// v2.19.0 表驱动：smartMergeData 依赖 STATE_SCHEMA + MERGE_ST 策略表，从 index.html 真实实现切片注入
+const STATE_SCHEMA = eval('(' + html.slice(html.indexOf('const STATE_SCHEMA'), html.indexOf('\n];', html.indexOf('const STATE_SCHEMA')) + 3).replace('const STATE_SCHEMA = ', '').replace(/;\s*$/, '') + ')');
+eval(html.slice(html.indexOf('function msStudents'), html.indexOf('/* MERGE_ENGINE_END')));
 const sortOpsNewestFirst = eval('(' + grab('function sortOpsNewestFirst(ops)') + ')');   // smartMergeData 依赖
 global.DEFAULT_COMMITTEE = {};   // smartMergeData 内部引用的最小 stub
 const smartMergeData = eval('(' + grab('function smartMergeData(localData,remoteData)') + ')');

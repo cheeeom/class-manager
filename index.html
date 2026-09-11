@@ -1912,7 +1912,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.18.15</div>
+      <div class="login-version">v2.19.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2031,7 +2031,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.18.15 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.19.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2749,12 +2749,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.15</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.19.0</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 结构性升级：新增一个云同步字段从「改 5 处」降为「改 1 处」——状态字段注册表统一驱动默认值/云端白名单/落盘清单/云合并策略/导入墓碑集合，合并逻辑逐字搬运、语义不变（v2.19.0）<br>
               · 修复：删除的学生过会儿又回来了——学生名单接入删除墓碑（单个删除与名单同步移除都记删除记录并随云同步传播），云端旧副本/旧备份/未刷新设备都无法再复活已删学生（v2.18.15）<br>
               · 修复：导入 JSON 备份后荣誉复活/请假考试待办等丢失——导入改「覆盖式合并」，备份没提到的字段保留本机现值，删除记录不再被旧备份擦掉（v2.18.14）<br>
               · 新增「📊 批量导入学生表格」：设置页支持直接导入 Excel(.xlsx) 或 CSV——按表头自动识别 姓名/性别/家长电话/家长/学号/寝室，先预览再确认，命中学号或姓名则只更新、未命中则新建（v2.18.13）<br>
@@ -3503,14 +3504,69 @@ const GH_OWNER = 'cheeeom';
 const GH_REPO = 'class-manager';
 const GH_BRANCH = 'main';
 const GH_DATA_PATH = 'data.json';
-// 云端 data.json 同步字段白名单（auto/manual push 共用）
-const CLOUD_SYNC_FIELDS = ['className','classNameFull','students','operations','reasons','reasonScores','reasonCatalog','catDeleted','catDeletedAt','catRevived','nextId','nextOpId','nextSid',
-  'lastExport','lastImport','committee','seating','duty','exportedOpsCount','classMotto',
-  'leaves','nextLeaveId','exams','nextExamId','todos','nextTodoId',
-  'workLogs','nextWorkLogId','honors','nextHonorId','honorDeleted','customDorms','notices','creditBank',   // v2.18.12 +荣誉删除墓碑+自定义寝室
-  'studentDeleted',   // v2.18.15 +学生删除墓碑（单删/名单同步移除共用）
-  'punishments','nextPunishId',   // v2.18.3 处分记录补入同步链路：此前漏加 → buildCloudPayload 按本表过滤时从不带它上传，换设备/清缓存后从云端恢复会全丢
-  'scheduleImage','classAvatar','wipeAt','schemaVer'];
+/* ==================== v2.19.0 STATE_SCHEMA：状态字段注册表（唯一事实源） ====================
+   新增一个云同步字段的链路从「改 5 处」降为「改 1 处」——本表统一驱动：
+   ① state 默认值（buildDefaultState 遍历生成） ② CLOUD_SYNC_FIELDS（cfs=1 派生，云端推送白名单）
+   ③ saveData 落盘清单（cfs=1 且非 nosv 遍历生成） ④ smartMergeData 合并策略（ms 分发到 MERGE_ST）
+   ⑤ mergeImportData 导入墓碑集合（tomb=1 派生，备份不许覆盖只许取大/并集）。
+   def=默认值：对象/数组一律惰性工厂（本表位于 defaultReasons/DEFAULT_COMMITTEE/builtinNotices 等
+   初始化之前，工厂调用时机 = buildDefaultState()，在全部定义之后，避开 TDZ）；
+   sv=saveData 写盘时的兜底转换（保留旧手写清单的 || 默认 语义）；nosv=1 仅上云不落本地盘（wipeAt 特例）；
+   ld 钩子未表驱动：loadData 的读取/自愈/迁移仍为手写（schemaVer 迁移等强时序逻辑不宜通用化）。 */
+const STATE_SCHEMA = [
+  { key:'className', def:'高一（1）班', cfs:1, ms:'scalarFill' },
+  { key:'classNameFull', def:'', cfs:1, ms:'scalarFill' },   // v2.17.30 班级全称（荣誉证书等正式文书用；留空则回退 className）
+  { key:'students', def:function(){ return []; }, cfs:1, ms:'students' },
+  { key:'operations', def:function(){ return []; }, cfs:1, ms:'ops' },
+  { key:'reasons', def:function(){ return [...defaultReasons]; }, cfs:1, ms:'reasons' },
+  { key:'reasonScores', def:function(){ return {}; }, cfs:1, ms:'reasonScores', sv:function(v){ return v || {}; } },
+  { key:'reasonCatalog', def:function(){ return defaultReasonCatalog(); }, cfs:1, ms:'reasonCatalog', sv:function(v){ return v || {}; } },   // v2.17.0 可编辑原因目录（模板 = REASON_CATALOG）
+  { key:'catDeleted', def:function(){ return { dirs: [], groups: [], reasons: [] }; }, cfs:1, tomb:1, ms:'catTomb', sv:function(v){ return v || { dirs: [], groups: [], reasons: [] }; } },   // v2.17.30 原因目录删除墓碑（刷新/云合并均不复活删除项）
+  { key:'catDeletedAt', def:function(){ return {}; }, cfs:1, tomb:1, ms:'tsmap', sv:function(v){ return v || {}; } },   // v2.18.8 墓碑时间戳 {key: 删除时刻}（与 catRevived 仲裁「删除 vs 重新添加」谁晚）
+  { key:'catRevived', def:function(){ return {}; }, cfs:1, tomb:1, ms:'tsmap', sv:function(v){ return v || {}; } },     // v2.18.8 重新添加时间戳 {key: 重加时刻}（catDelUndo 写入；晚于墓碑则墓碑作废）
+  { key:'sortDir', def:'desc' },
+  { key:'selectedStudents', def:function(){ return new Set(); } },
+  { key:'nextId', def:1, cfs:1, ms:'max1' },
+  { key:'nextOpId', def:1, cfs:1, ms:'max1' },
+  { key:'nextSid', def:1, cfs:1, ms:'max1' },
+  { key:'lastExport', def:null, cfs:1, ms:'tsNewer' },
+  { key:'lastImport', def:null, cfs:1, ms:'tsNewer' },
+  { key:'scheduleImage', def:null, cfs:1, ms:'scheduleImage' },
+  { key:'committee', def:function(){ return Object.assign({}, DEFAULT_COMMITTEE); }, cfs:1, ms:'committee' },
+  { key:'seating', def:function(){ return defaultSeating(); }, cfs:1, ms:'seating' },
+  { key:'duty', def:function(){ return defaultDuty(); }, cfs:1, ms:'duty' },   // 值日排班（v2.10.0 轮次制）
+  { key:'exportedOpsCount', def:0, cfs:1, ms:'max0' },   // 上次导出时的操作总数，用于计算未导出操作数
+  { key:'classAvatar', def:null, cfs:1, ms:'classAvatar' },   // 班级头像(base64)
+  { key:'classMotto', def:'不积跬步，无以至千里；不积小流，无以成江海。', cfs:1, ms:'scalarFill' },
+  { key:'leaves', def:function(){ return []; }, cfs:1, ms:'leaves' },
+  { key:'nextLeaveId', def:1, cfs:1, ms:'max1' },
+  { key:'exams', def:function(){ return []; }, cfs:1, ms:'exams' },
+  { key:'nextExamId', def:1, cfs:1, ms:'max1' },
+  { key:'todos', def:function(){ return []; }, cfs:1, ms:'todos' },
+  { key:'nextTodoId', def:1, cfs:1, ms:'max1' },
+  { key:'workLogs', def:function(){ return []; }, cfs:1, ms:'workLogs' },
+  { key:'nextWorkLogId', def:1, cfs:1, ms:'max1' },
+  { key:'honors', def:function(){ return []; }, cfs:1, ms:'honors' },
+  { key:'nextHonorId', def:1, cfs:1, ms:'max1' },
+  { key:'honorDeleted', def:function(){ return {}; }, cfs:1, tomb:1, ms:'tsmap', sv:function(v){ return v || {}; } },   // v2.18.12 荣誉删除墓碑（id→删除时间戳）：云端旧副本并集不再复活已删荣誉
+  { key:'studentDeleted', def:function(){ return {}; }, cfs:1, tomb:1, ms:'tsmap', sv:function(v){ return v || {}; } }, // v2.18.15 学生删除墓碑（id→删除时间戳）：云端/其他设备旧副本不再复活已删学生
+  { key:'customDorms', def:function(){ return []; }, cfs:1, ms:'customDorms', sv:function(v){ return v || []; } },      // v2.18.12 手动新增的寝室号（空寝室也显示；成员仍由学生标签派生）
+  { key:'notices', def:function(){ return { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 }; }, cfs:1, ms:'notices' },
+  { key:'creditBank', def:function(){ return cbDefaultBank(); }, cfs:1, ms:'creditBank' },   // v2.17.30 学分银行（双轨账本）
+  { key:'punishments', def:function(){ return []; }, cfs:1, ms:'punishments' },   // v2.18.3 处分记录：此前缺 state 默认值，仅靠 loadData 时序兜底（任何早于 loadData 的访问都会 undefined 崩）
+  // v2.18.3 处分记录补入同步链路：此前漏加 → buildCloudPayload 按本表过滤时从不带它上传，换设备/清缓存后从云端恢复会全丢（v2.19.0 随表驱动迁移，历史注释保留）
+  { key:'nextPunishId', def:1, cfs:1, ms:'max1' },   // v2.18.3 处分记录自增 id
+  { key:'wipeAt', def:0, cfs:1, nosv:1 },   // v2.11.3 数据重置时间戳：随云端传播对齐清空；历史行为 = 不进本地 saveData 快照（保持原状）
+  { key:'schemaVer', def:2, cfs:1, ms:'max0', sv:function(v){ return v || 0; } }   // 原因目录/分值表 schema 版本：<1 补预设原因、<2 去「违禁品」重名项（v2.17.8），之后尊重班主任增删
+];
+// 云端 data.json 同步字段白名单（auto/manual push 共用）——v2.19.0 起由 STATE_SCHEMA 派生（唯一事实源）
+const CLOUD_SYNC_FIELDS = STATE_SCHEMA.filter(function(f){ return f.cfs; }).map(function(f){ return f.key; });
+// v2.19.0 表驱动默认状态：def 为函数则调用（惰性工厂），否则原样（原始值共享安全）
+function buildDefaultState(){
+  var s = {};
+  STATE_SCHEMA.forEach(function(f){ s[f.key] = (typeof f.def === 'function') ? f.def() : f.def; });
+  return s;
+}
 // 通知历史可能内嵌近 1MB 的图片 base64，推送前剥离，防止 data.json 膨胀导致移动端拉取超时
 function stripNoticeHistoryImages(notices){
   if(!notices || !Array.isArray(notices.history)) return notices;
@@ -4182,54 +4238,8 @@ const COMMITTEE_TAG = '班委';
 const COMMITTEE_POSITION_TAGS = committeeConfig.map(c=>c.tag);
 const DEFAULT_COMMITTEE = {banzhang:null, fubanzhang:null, jilv:null, xuexi:null, tiyu:null, shenghuo:null, wenyi:null, xinli:null};
 
-let state = {
-  className: '高一（1）班',
-  classNameFull: '',   // v2.17.30 班级全称（荣誉证书等正式文书用；留空则回退 className）
-  students: [],
-  operations: [],
-  reasons: [...defaultReasons],
-  reasonScores: {},
-  reasonCatalog: defaultReasonCatalog(),   // v2.17.0 可编辑原因目录（模板 = REASON_CATALOG）
-  catDeleted: { dirs: [], groups: [], reasons: [] },   // v2.17.30 原因目录删除墓碑（刷新/云合并均不复活删除项）
-  catDeletedAt: {},   // v2.18.8 墓碑时间戳 {key: 删除时刻}（与 catRevived 仲裁「删除 vs 重新添加」谁晚）
-  catRevived: {},     // v2.18.8 重新添加时间戳 {key: 重加时刻}（catDelUndo 写入；晚于墓碑则墓碑作废）
-  sortDir: 'desc',
-  selectedStudents: new Set(),
-  nextId: 1,
-  nextOpId: 1,
-  nextSid: 1,
-  lastExport: null,
-  lastImport: null,
-  scheduleImage: null,
-  committee: Object.assign({}, DEFAULT_COMMITTEE),
-  seating: defaultSeating(),
-  duty: defaultDuty(),  // 值日排班（v2.10.0 轮次制）
-  exportedOpsCount: 0,  // 上次导出时的操作总数，用于计算未导出操作数
-  classAvatar: null,  // 班级头像(base64)
-  classMotto: '不积跬步，无以至千里；不积小流，无以成江海。',
-  leaves: [],
-  nextLeaveId: 1,
-  exams: [],
-  nextExamId: 1,
-  todos: [],
-  nextTodoId: 1,
-  workLogs: [],
-  nextWorkLogId: 1,
-  honors: [],
-  nextHonorId: 1,
-  honorDeleted: {},   // v2.18.12 荣誉删除墓碑（id→删除时间戳）：云端旧副本并集不再复活已删荣誉
-  studentDeleted: {},   // v2.18.15 学生删除墓碑（id→删除时间戳）：云端/其他设备旧副本不再复活已删学生
-  customDorms: [],    // v2.18.12 手动新增的寝室号（空寝室也显示；成员仍由学生标签派生）
-  notices: { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 },
-  creditBank: { settings:{ autoCoin:true, alertEnabled:true }, wallets:{}, ledger:[], nextLedgerId:1,
-                alerts:[], nextAlertId:1, nextVoucherId:1, lastSettleMonth:'', createdAt:0,
-                settleHist: [],  // v2.17.30 月度结算统计快照（每次结算写一条，按月去重）
-                store:{ items:[], nextItemId:1 } },  // v2.17.30 商店目录（老师可增删改；items 空时首次自动种入预设 6 券）
-  punishments: [],   // v2.18.3 处分记录：此前缺 state 默认值，仅靠 loadData 时序兜底（任何早于 loadData 的访问都会 undefined 崩）
-  nextPunishId: 1,   // v2.18.3 处分记录自增 id（同上）
-  wipeAt: 0,  // v2.11.3 数据重置时间戳：清空数据时更新，其他设备拉取到更大的 wipeAt 会强制清空对齐
-  schemaVer: 2   // 原因目录/分值表 schema 版本：<1 补预设原因、<2 去「违禁品」重名项（v2.17.8），之后尊重班主任增删
-};
+// v2.19.0 表驱动：state 默认值遍历 STATE_SCHEMA 生成（字段顺序 = schema 声明顺序，与旧字面量逐字段等价）
+let state = buildDefaultState();
 
 /* ==================== v2.17.30 学分银行（双轨账本） ====================
    设计（老板确认版）：
@@ -5631,48 +5641,16 @@ function loadData(){
 function saveData(){
   cbScanAlerts();     // v2.17.30 预警扫描挂在所有落盘前：加减分/撤销恢复/导入/云合并任一入口都会触发（幂等）
   cbExpireCoupons();  // v2.17.30 月度奖励券跨月自动失效留痕（商店花币买的券不过期）
-  try{ localStorage.setItem(STORE_KEY, JSON.stringify({
-    className: state.className,
-    classNameFull: state.classNameFull,   // v2.17.30 班级全称
-    students: state.students,
-    operations: state.operations,
-    reasons: state.reasons,
-    reasonScores: state.reasonScores || {},
-    reasonCatalog: state.reasonCatalog || {},
-    catDeleted: state.catDeleted || { dirs: [], groups: [], reasons: [] },   // v2.17.30 删除墓碑随本地存储持久
-    catDeletedAt: state.catDeletedAt || {},   // v2.18.8 墓碑时间戳（合并仲裁用）
-    catRevived: state.catRevived || {},       // v2.18.8 重新添加时间戳（合并仲裁用）
-    schemaVer: state.schemaVer || 0,
-    nextId: state.nextId,
-    nextOpId: state.nextOpId,
-    nextSid: state.nextSid,
-    lastExport: state.lastExport,
-    lastImport: state.lastImport,
-    scheduleImage: state.scheduleImage,
-    committee: state.committee,
-    seating: state.seating,
-    duty: state.duty,
-    punishments: state.punishments,
-    nextPunishId: state.nextPunishId,
-    exportedOpsCount: state.exportedOpsCount,
-    classAvatar: state.classAvatar,
-    classMotto: state.classMotto,
-    leaves: state.leaves,
-    nextLeaveId: state.nextLeaveId,
-    exams: state.exams,
-    nextExamId: state.nextExamId,
-    todos: state.todos,
-    workLogs: state.workLogs,
-    nextWorkLogId: state.nextWorkLogId,
-    honors: state.honors,
-    nextHonorId: state.nextHonorId,
-    honorDeleted: state.honorDeleted || {},
-    studentDeleted: state.studentDeleted || {},   // v2.18.15 学生删除墓碑
-    customDorms: state.customDorms || [],
-    nextTodoId: state.nextTodoId,
-    notices: state.notices,
-    creditBank: state.creditBank     // v2.17.30 学分银行
-  })); }
+  try{
+    // v2.19.0 表驱动：落盘清单遍历 STATE_SCHEMA 生成（cfs=1 且非 nosv），新增字段只改 schema 一处；
+    // sv 转换保留旧手写清单的 || 默认 兜底语义（字段顺序 = schema 顺序）
+    var _snap = {};
+    STATE_SCHEMA.forEach(function(f){
+      if(!f.cfs || f.nosv) return;
+      var v = state[f.key];
+      _snap[f.key] = f.sv ? f.sv(v) : v;
+    });
+    localStorage.setItem(STORE_KEY, JSON.stringify(_snap)); }
   catch(e){
     // v2.18.3 本地存储写失败（配额爆满 / 隐私模式 / 数据含 base64 头像课表图）不再静默中断整条保存链：
     // 此前异常会直接冒泡 → autoPushToCloud() 不执行、调用方后续渲染也被跳过，界面显示成功但实际没落盘。
@@ -5704,10 +5682,14 @@ function sortOpsNewestFirst(ops){
     return (Number(b.id) || 0) - (Number(a.id) || 0);
   });
 }
-function smartMergeData(localData,remoteData){
-  if(!remoteData||typeof remoteData!=='object')return localData;
-  if(!localData||typeof localData!=='object')return remoteData;
-  var merged=JSON.parse(JSON.stringify(localData));
+/* ==================== v2.19.0 表驱动合并引擎（MERGE_ENGINE_BEGIN，测试按标记切片抽取） ==================== */
+// 每个策略函数 = 旧 smartMergeData 内联分支「逐字搬运」（含注释），语义不变；
+// 调度顺序 = STATE_SCHEMA 声明顺序（= 旧 state 字面量顺序，与旧执行顺序等价：
+// 各策略只写自己名下的键、只读原始入参 localData/remoteData；唯一交联点
+// reasonCatalog/reasonScores → catDeleted 墓碑剔除的先后在 schema 顺序中天然保持）。
+// 墓碑类字段（studentDeleted/honorDeleted/catDeletedAt/catRevived）在所属实体策略内已做并集，
+// schema 顺序靠后的同名 tsmap 策略再并一次是幂等的（mergeTsMap 取大）。
+function msStudents(merged,localData,remoteData){
   // students: merge by id, keep newer（v2.18.15 带删除墓碑 studentDeleted：已删学生不再被云端旧副本复活）
   merged.studentDeleted = mergeTsMap(merged.studentDeleted || {}, remoteData.studentDeleted || {});
   var sDel = merged.studentDeleted || {};
@@ -5738,7 +5720,9 @@ function smartMergeData(localData,remoteData){
   if(merged.studentDeleted && Object.keys(merged.studentDeleted).length){
     merged.students=(merged.students||[]).filter(function(s){ return s && !merged.studentDeleted[s.id]; });   // v2.18.15 双向防御剔除
   }
-  // operations: merge by id, dedup
+}
+// operations: merge by id, dedup
+function msOps(merged,localData,remoteData){
   if(remoteData.operations&&Array.isArray(remoteData.operations)){
     var omap={};(localData.operations||[]).forEach(function(o){omap[o.id]=o;});
     remoteData.operations.forEach(function(ro){
@@ -5752,7 +5736,9 @@ function smartMergeData(localData,remoteData){
     });
     merged.operations=sortOpsNewestFirst(Object.keys(omap).map(function(k){return omap[k];}));  // v2.17.7 保持最新在前（防时间线新流水被排没）
   }
-  // leaves: merge by id
+}
+// leaves: merge by id
+function msLeaves(merged,localData,remoteData){
   if(remoteData.leaves&&Array.isArray(remoteData.leaves)){
     var lvmap={};(localData.leaves||[]).forEach(function(l){lvmap[l.id]=l;});
     remoteData.leaves.forEach(function(rl){
@@ -5761,7 +5747,9 @@ function smartMergeData(localData,remoteData){
     });
     merged.leaves=Object.keys(lvmap).map(function(k){return lvmap[k];});
   }
-  // todos: merge by id
+}
+// todos: merge by id
+function msTodos(merged,localData,remoteData){
   if(remoteData.todos&&Array.isArray(remoteData.todos)){
     var tmap={};(localData.todos||[]).forEach(function(t){tmap[t.id]=t;});
     remoteData.todos.forEach(function(rt){
@@ -5772,14 +5760,18 @@ function smartMergeData(localData,remoteData){
     });
     merged.todos=Object.keys(tmap).map(function(k){return tmap[k];});
   }
-  // exams: merge by id
+}
+// exams: merge by id
+function msExams(merged,localData,remoteData){
   if(remoteData.exams&&Array.isArray(remoteData.exams)){
     var emap={};(localData.exams||[]).forEach(function(e){emap[e.id]=e;});
     remoteData.exams.forEach(function(re){if(!emap[re.id])emap[re.id]=re;});
     merged.exams=Object.keys(emap).map(function(k){return emap[k];});
   }
-  // v2.18.3 处分记录合并：按 id 并集；远端已办结则采用远端（办结状态跨设备传播）。
-  // 此前该字段完全没参与合并 —— merged 只是 localData 的克隆，云端即使有处分记录也永远回落不下来。
+}
+// v2.18.3 处分记录合并：按 id 并集；远端已办结则采用远端（办结状态跨设备传播）。
+// 此前该字段完全没参与合并 —— merged 只是 localData 的克隆，云端即使有处分记录也永远回落不下来。
+function msPunishments(merged,localData,remoteData){
   if(remoteData.punishments&&Array.isArray(remoteData.punishments)){
     var pmap={};(localData.punishments||[]).forEach(function(p){pmap[p.id]=p;});
     remoteData.punishments.forEach(function(rp){
@@ -5792,8 +5784,9 @@ function smartMergeData(localData,remoteData){
     merged.punishments=Object.keys(pmap).map(function(k){return pmap[k];})
       .sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0) || (b.id||0)-(a.id||0); });
   }
-  merged.nextPunishId=Math.max(localData.nextPunishId||1,remoteData.nextPunishId||1);
-  // honors: union by id（v2.18.12 带删除墓碑 honorDeleted：本地删过的 id 不再被云端旧副本并集复活）
+}
+// honors: union by id（v2.18.12 带删除墓碑 honorDeleted：本地删过的 id 不再被云端旧副本并集复活）
+function msHonors(merged,localData,remoteData){
   merged.honorDeleted = mergeTsMap(merged.honorDeleted || {}, remoteData.honorDeleted || {});
   if(remoteData.honors && remoteData.honors.length){
     var hIds = {}; (merged.honors||[]).forEach(function(h){ hIds[h.id] = true; });
@@ -5804,13 +5797,17 @@ function smartMergeData(localData,remoteData){
   if(merged.honorDeleted && Object.keys(merged.honorDeleted).length){
     merged.honors = (merged.honors||[]).filter(function(h){ return h && !merged.honorDeleted[h.id]; });   // 双向防御剔除
   }
-  // customDorms: union 去重（v2.18.12 自定义空寝室跨设备传播）
+}
+// customDorms: union 去重（v2.18.12 自定义空寝室跨设备传播）
+function msCustomDorms(merged,localData,remoteData){
   if(remoteData.customDorms && remoteData.customDorms.length){
     var cdSet = {}; (merged.customDorms||[]).forEach(function(nn){ cdSet[nn] = true; });
     merged.customDorms = merged.customDorms || [];
     remoteData.customDorms.forEach(function(nn){ if(nn && !cdSet[nn]) merged.customDorms.push(nn); });
   }
-  // workLogs: union by id
+}
+// workLogs: union by id
+function msWorkLogs(merged,localData,remoteData){
   if(remoteData.workLogs && remoteData.workLogs.length){
     var localIds = {}; (merged.workLogs||[]).forEach(function(w){ localIds[w.id] = true; });
     merged.workLogs = merged.workLogs || [];
@@ -5818,7 +5815,9 @@ function smartMergeData(localData,remoteData){
       if(!localIds[w.id]) merged.workLogs.push(w);
     });
   }
-  // notices: keep newer (by updatedAt)
+}
+// notices: keep newer (by updatedAt)
+function msNotices(merged,localData,remoteData){
   if(remoteData.notices){
     if(!merged.notices) merged.notices = remoteData.notices;
     else{
@@ -5826,24 +5825,32 @@ function smartMergeData(localData,remoteData){
       if(rt2>lt2) merged.notices = remoteData.notices;
     }
   }
-  // reasons: union
+}
+// reasons: union
+function msReasons(merged,localData,remoteData){
   if(remoteData.reasons&&Array.isArray(remoteData.reasons)){
     var rset={};(localData.reasons||[]).forEach(function(r){rset[r]=1;});remoteData.reasons.forEach(function(r){rset[r]=1;});
     merged.reasons=Object.keys(rset);
   }
-  // reasonScores: 本地优先合并——本地已有键保留本地值（未推送的分值编辑不被云端旧值覆盖），云端只补本地缺失的键；
-  // 本地已删的键由 catDeleted.reasons 墓碑兜底剔除（见 applyCatTombstones），避免远端旧值被当「新增」补回。
+}
+// reasonScores: 本地优先合并——本地已有键保留本地值（未推送的分值编辑不被云端旧值覆盖），云端只补本地缺失的键；
+// 本地已删的键由 catDeleted.reasons 墓碑兜底剔除（见 applyCatTombstones），避免远端旧值被当「新增」补回。
+function msReasonScores(merged,localData,remoteData){
   if(remoteData.reasonScores || localData.reasonScores){
     var _ls = localData.reasonScores || {}, _rs = remoteData.reasonScores || {};
     merged.reasonScores = Object.assign({}, _rs, _ls);
   }
-  // reasonCatalog: 结构并集（两侧新增都保留）
+}
+// reasonCatalog: 结构并集（两侧新增都保留）
+function msReasonCatalog(merged,localData,remoteData){
   if(remoteData.reasonCatalog && typeof remoteData.reasonCatalog === 'object'){
     merged.reasonCatalog = mergeReasonCatalog(localData.reasonCatalog || {}, remoteData.reasonCatalog);
   }
-  // v2.17.30 删除墓碑合并：任一侧删过的方向/大类/原因，合并结果一律剔除（含分值表/平铺列表）→ 跨设备删除生效
-  // v2.18.8 时间戳仲裁：重新添加（catRevived）晚于删除（catDeletedAt）→ 该墓碑作废。
-  // 否则推送失败期间云端旧墓碑会在每次拉取时把重新添加的大类/原因整体抹掉（并集墓碑永久粘性）。
+}
+// v2.17.30 删除墓碑合并：任一侧删过的方向/大类/原因，合并结果一律剔除（含分值表/平铺列表）→ 跨设备删除生效
+// v2.18.8 时间戳仲裁：重新添加（catRevived）晚于删除（catDeletedAt）→ 该墓碑作废。
+// 否则推送失败期间云端旧墓碑会在每次拉取时把重新添加的大类/原因整体抹掉（并集墓碑永久粘性）。
+function msCatTomb(merged,localData,remoteData){
   var _td = cloneCatDeleted(localData.catDeleted), _tr = cloneCatDeleted(remoteData.catDeleted);
   merged.catDeletedAt = mergeTsMap(mergeTsMap(localData.catDeletedAt, remoteData.catDeletedAt), state.catDeletedAt);
   merged.catRevived = mergeTsMap(mergeTsMap(localData.catRevived, remoteData.catRevived), state.catRevived);
@@ -5854,44 +5861,62 @@ function smartMergeData(localData,remoteData){
   merged.reasonScores = merged.reasonScores || {};
   applyCatTombstones(merged.reasonCatalog, merged.reasonScores, merged.catDeleted);
   merged.reasons = flattenReasonCatalog(merged.reasonCatalog);
-  // v2.17.30 学分银行合并：券包/流水/预警按 id 去重、冲突取更新者；两侧都没有则不动
+}
+// v2.17.30 学分银行合并：券包/流水/预警按 id 去重、冲突取更新者；两侧都没有则不动
+function msCreditBank(merged,localData,remoteData){
   if(localData.creditBank || remoteData.creditBank){
     merged.creditBank = cbMergeBanks(localData.creditBank, remoteData.creditBank);
   }
-  // committee/seating/duty: take newer
+}
+// committee/seating/duty: take newer（以 exportedOpsCount 为版本戳）
+function msCommittee(merged,localData,remoteData){
   var lts=localData.exportedOpsCount||0;var rts=remoteData.exportedOpsCount||0;
   if(rts>lts){
     if(remoteData.committee)merged.committee=remoteData.committee;
-    if(remoteData.seating)merged.seating=remoteData.seating;
-    if(remoteData.duty)merged.duty=remoteData.duty;
   }
   // committee: 按岗位键合并——本地已有任命不丢，远端补空位（v2.9.0 新增 3 岗时旧数据自动补齐）
   var cm=Object.assign({}, DEFAULT_COMMITTEE, remoteData.committee||{});
   Object.keys(localData.committee||{}).forEach(function(k){ if(localData.committee[k]) cm[k]=localData.committee[k]; });
   merged.committee=cm;
-  // simple fields
-  if(!merged.className&&remoteData.className)merged.className=remoteData.className;
-  if(!merged.classNameFull&&remoteData.classNameFull)merged.classNameFull=remoteData.classNameFull;  // v2.17.30
-  if(!merged.classMotto&&remoteData.classMotto)merged.classMotto=remoteData.classMotto;
-  if(!merged.classAvatar&&remoteData.classAvatar)merged.classAvatar=remoteData.classAvatar;
-  // scheduleImage and classAvatar are synced via data.json (compressed);
-  // prefer smaller version to avoid legacy uncompressed image re-bloating data.json
+}
+function msSeating(merged,localData,remoteData){
+  var lts=localData.exportedOpsCount||0;var rts=remoteData.exportedOpsCount||0;
+  if(rts>lts && remoteData.seating)merged.seating=remoteData.seating;
+}
+function msDuty(merged,localData,remoteData){
+  var lts=localData.exportedOpsCount||0;var rts=remoteData.exportedOpsCount||0;
+  if(rts>lts && remoteData.duty)merged.duty=remoteData.duty;
+}
+// scheduleImage/classAvatar are synced via data.json (compressed);
+// prefer smaller version to avoid legacy uncompressed image re-bloating data.json
+function msScheduleImage(merged,localData,remoteData){
   if(remoteData.scheduleImage && (!localData.scheduleImage || (String(localData.scheduleImage).length > 400000 && String(remoteData.scheduleImage).length < String(localData.scheduleImage).length))) merged.scheduleImage = remoteData.scheduleImage;
+}
+function msClassAvatar(merged,localData,remoteData){
   if(remoteData.classAvatar && (!localData.classAvatar || (String(localData.classAvatar).length > 150000 && String(remoteData.classAvatar).length < String(localData.classAvatar).length))) merged.classAvatar = remoteData.classAvatar;
-  // nextId series: max
-  merged.nextId=Math.max(localData.nextId||1,remoteData.nextId||1);
-  merged.nextOpId=Math.max(localData.nextOpId||1,remoteData.nextOpId||1);
-  merged.nextSid=Math.max(localData.nextSid||1,remoteData.nextSid||1);
-  merged.nextLeaveId=Math.max(localData.nextLeaveId||1,remoteData.nextLeaveId||1);
-  merged.nextExamId=Math.max(localData.nextExamId||1,remoteData.nextExamId||1);
-  merged.nextTodoId=Math.max(localData.nextTodoId||1,remoteData.nextTodoId||1);
-  merged.nextWorkLogId=Math.max(localData.nextWorkLogId||1,remoteData.nextWorkLogId||1);
-  merged.nextHonorId=Math.max(localData.nextHonorId||1,remoteData.nextHonorId||1);
-  // timestamps
-  if(remoteData.lastExport&&(!localData.lastExport||remoteData.lastExport>localData.lastExport))merged.lastExport=remoteData.lastExport;
-  if(remoteData.lastImport&&(!localData.lastImport||remoteData.lastImport>localData.lastImport))merged.lastImport=remoteData.lastImport;
-  merged.exportedOpsCount=Math.max(localData.exportedOpsCount||0,remoteData.exportedOpsCount||0);
-  merged.schemaVer=Math.max(localData.schemaVer||0,remoteData.schemaVer||0);  // v2.17.6 取高版本，避免旧设备拉取后回退重跑迁移
+}
+// ---- 通用策略（按 f.key 泛化）----
+function msScalarFill(merged,localData,remoteData,key){ if(!merged[key]&&remoteData[key])merged[key]=remoteData[key]; }   // simple fields：本地为空才由云端补
+function msTsMap(merged,localData,remoteData,key){ merged[key]=mergeTsMap(merged[key]||{},remoteData[key]||{}); }   // 墓碑时间戳并集（逐键取大）
+function msMax1(merged,localData,remoteData,key){ merged[key]=Math.max(localData[key]||1,remoteData[key]||1); }   // nextId 系列: max
+function msMax0(merged,localData,remoteData,key){ merged[key]=Math.max(localData[key]||0,remoteData[key]||0); }
+function msTsNewer(merged,localData,remoteData,key){ if(remoteData[key]&&(!localData[key]||remoteData[key]>localData[key]))merged[key]=remoteData[key]; }   // timestamps: 较新者胜
+var MERGE_ST = {
+  students:msStudents, ops:msOps, leaves:msLeaves, todos:msTodos, exams:msExams,
+  punishments:msPunishments, honors:msHonors, customDorms:msCustomDorms, workLogs:msWorkLogs,
+  notices:msNotices, reasons:msReasons, reasonScores:msReasonScores, reasonCatalog:msReasonCatalog,
+  catTomb:msCatTomb, creditBank:msCreditBank, committee:msCommittee, seating:msSeating, duty:msDuty,
+  scheduleImage:msScheduleImage, classAvatar:msClassAvatar,
+  scalarFill:msScalarFill, tsmap:msTsMap, max1:msMax1, max0:msMax0, tsNewer:msTsNewer
+};
+/* MERGE_ENGINE_END */
+
+/* v2.19.0 表驱动：合并策略按 STATE_SCHEMA 的 ms 字段分发到 MERGE_ST（策略实现见上，逐字搬运自旧内联分支） */
+function smartMergeData(localData,remoteData){
+  if(!remoteData||typeof remoteData!=='object')return localData;
+  if(!localData||typeof localData!=='object')return remoteData;
+  var merged=JSON.parse(JSON.stringify(localData));
+  STATE_SCHEMA.forEach(function(f){ var st=f.ms&&MERGE_ST[f.ms]; if(st)st(merged,localData,remoteData,f.key); });
   return merged;
 }
 
@@ -10924,7 +10949,8 @@ function importData(){
 function mergeImportData(d, prevData){
   var merged = {};
   Object.keys(prevData || {}).forEach(function(k){ merged[k] = prevData[k]; });
-  var TOMB = { honorDeleted:1, studentDeleted:1, catDeleted:1, catDeletedAt:1, catRevived:1 };   // v2.18.15 +学生删除墓碑；墓碑类字段不走覆盖，走下方取大/并集
+  var TOMB = {};   // v2.19.0 墓碑集合由 STATE_SCHEMA.tomb 派生（新增墓碑字段只改 schema；不走覆盖，走下方取大/并集）
+  STATE_SCHEMA.forEach(function(f){ if(f.tomb) TOMB[f.key] = 1; });
   CLOUD_SYNC_FIELDS.forEach(function(f){ if(f in d && !TOMB[f]) merged[f] = d[f]; });
   merged.honorDeleted = mergeTsMap(merged.honorDeleted || {}, d.honorDeleted || {});
   merged.studentDeleted = mergeTsMap(merged.studentDeleted || {}, d.studentDeleted || {});

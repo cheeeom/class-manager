@@ -28,6 +28,9 @@ function extractFn(name) {
   }
   return eval('(' + buf.join('\n') + ')');
 }
+// v2.19.0 表驱动：smartMergeData 依赖 STATE_SCHEMA + MERGE_ST 策略表，从 index.html 真实实现切片注入
+const STATE_SCHEMA = eval('(' + html.slice(html.indexOf('const STATE_SCHEMA'), html.indexOf('\n];', html.indexOf('const STATE_SCHEMA')) + 3).replace('const STATE_SCHEMA = ', '').replace(/;\s*$/, '') + ')');
+eval(html.slice(html.indexOf('function msStudents'), html.indexOf('/* MERGE_ENGINE_END')));
 const smartMergeData = extractFn('smartMergeData');
 global.mergeTsMap = extractFn('mergeTsMap');
 global.catTombReviveFilter = extractFn('catTombReviveFilter');
@@ -46,10 +49,10 @@ t('index.html 主 <script> 块可被完整编译（无语法错误）', () => {
 
 console.log('\n=== ① 荣誉删除墓碑：五链路 ===');
 t('state 默认 / loadData / saveData / CLOUD_SYNC_FIELDS 全就位', () => {
-  has(html, 'honorDeleted: {},   // v2.18.12 荣誉删除墓碑', 'state 默认');
+  has(html, "key:'honorDeleted', def:function(){ return {}; }, cfs:1, tomb:1, ms:'tsmap', sv:function(v){ return v || {}; } },   // v2.18.12 荣誉删除墓碑", 'state 默认');
   has(html, 'state.honorDeleted = d.honorDeleted || {};', 'loadData 读入');
-  has(html, 'honorDeleted: state.honorDeleted || {},', 'saveData 落盘');
-  has(html, "'honorDeleted','customDorms'", 'CLOUD_SYNC_FIELDS');
+  has(html, 'if(!f.cfs || f.nosv) return;', 'saveData 落盘（schema 遍历）');
+  has(html, "key:'honorDeleted', def:function(){ return {}; }, cfs:1, tomb:1", 'CLOUD_SYNC_FIELDS');
 });
 t('deleteHonor 删除时登记墓碑；清空数据清墓碑', () => {
   has(html, 'state.honorDeleted[id] = Date.now();', '删除未记墓碑');
@@ -85,9 +88,9 @@ t('双侧墓碑按 mergeTsMap 取大合并', () => {
 
 console.log('\n=== ③ customDorms：五链路 + 合并 ===');
 t('state 默认 / loadData / saveData / CLOUD_SYNC_FIELDS 全就位', () => {
-  has(html, 'customDorms: [],    // v2.18.12 手动新增的寝室号', 'state 默认');
+  has(html, "key:'customDorms', def:function(){ return []; }, cfs:1, ms:'customDorms', sv:function(v){ return v || []; } },      // v2.18.12 手动新增的寝室号", 'state 默认');
   has(html, 'state.customDorms = d.customDorms || [];', 'loadData 读入');
-  has(html, 'customDorms: state.customDorms || [],', 'saveData 落盘');
+  has(html, "key:'customDorms', def:function(){ return []; }, cfs:1, ms:'customDorms', sv:function(v){ return v || []; }", 'saveData 落盘（schema sv）');
 });
 t('customDorms 跨设备并集去重', () => {
   const local = { students: [], operations: [], customDorms: ['6栋-801室'] };
@@ -186,10 +189,10 @@ t('★ 行为级：寝室号格式校验（非法不落盘不建寝室）', () =
 
 console.log('\n=== ⑤ 版本与历史注释 ===');
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.18.15</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.18.15 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.18.15</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.18.15'", 'SW');
+  has(html, '<div class="login-version">v2.19.0</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.19.0 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.19.0</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-v2.19.0'", 'SW');
 });
 t('设置页「近版更新速览」新增本版两条（旧条不删）', () => {
   has(html, '删除的荣誉（含示例荣誉）不再过段时间自己复活', '缺荣誉 notes');

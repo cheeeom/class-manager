@@ -30,6 +30,8 @@ function extractFn(name) {
   }
   return eval('(' + buf.join('\n') + ')');
 }
+// v2.19.0 表驱动：MERGE_ST 策略表切片注入（STATE_SCHEMA 见下方 CFS 派生处）
+eval(html.slice(html.indexOf('function msStudents'), html.indexOf('/* MERGE_ENGINE_END')));
 const smartMergeData = extractFn('smartMergeData');
 global.mergeTsMap = extractFn('mergeTsMap');
 global.catTombReviveFilter = extractFn('catTombReviveFilter');
@@ -42,11 +44,10 @@ global.DEFAULT_COMMITTEE = { banzhang: null, fubanzhang: null, jilin: null, xuex
 global.state = global.state || {};
 const mergeImportData = extractFn('mergeImportData');
 const deleteStudent = extractFn('deleteStudent');
-// CLOUD_SYNC_FIELDS 是多行 const 声明，按行切片提取（mergeImportData 依赖）
-const csfStart = html.split('\n').findIndex(l => l.indexOf('const CLOUD_SYNC_FIELDS = [') >= 0);
-if (csfStart < 0) throw new Error('未找到 CLOUD_SYNC_FIELDS');
-const csfEnd = html.split('\n').findIndex((l, i) => i >= csfStart && l.indexOf('];') >= 0);
-global.CLOUD_SYNC_FIELDS = eval('(' + html.split('\n').slice(csfStart, csfEnd + 1).join('\n').replace('const CLOUD_SYNC_FIELDS = ', '').replace(/;\s*$/, '') + ')');
+// v2.19.0：CLOUD_SYNC_FIELDS 由 STATE_SCHEMA 派生，按 schema 字面量切片求值后过滤（mergeImportData 依赖）
+const ssStart = html.indexOf('const STATE_SCHEMA');
+global.STATE_SCHEMA = eval('(' + html.slice(ssStart, html.indexOf('\n];', ssStart) + 3).replace('const STATE_SCHEMA = ', '').replace(/;\s*$/, '') + ')');
+global.CLOUD_SYNC_FIELDS = STATE_SCHEMA.filter(f2 => f2.cfs).map(f2 => f2.key);
 
 console.log('=== 语法检查 ===');
 t('index.html 主 <script> 块可被完整编译（无语法错误）', () => {
@@ -156,10 +157,10 @@ t('旧备份没有 studentDeleted → 本机墓碑保留', () => {
 
 console.log('\n=== ④ 五链路源码 ===');
 t('state 默认 / loadData / saveData / CLOUD_SYNC_FIELDS / clearData 全就位', () => {
-  has(html, 'studentDeleted: {},   // v2.18.15 学生删除墓碑', 'state 默认');
+  has(html, "key:'studentDeleted', def:function(){ return {}; }, cfs:1, tomb:1, ms:'tsmap', sv:function(v){ return v || {}; } }, // v2.18.15 学生删除墓碑", 'state 默认');
   has(html, 'state.studentDeleted = d.studentDeleted || {};', 'loadData 读入');
   has(html, 'state.students = state.students.filter(function(s){ return s && !state.studentDeleted[s.id]; });', 'loadData 自愈');
-  has(html, 'studentDeleted: state.studentDeleted || {},   // v2.18.15 学生删除墓碑', 'saveData 落盘');
+  has(html, "key:'studentDeleted', def:function(){ return {}; }, cfs:1, tomb:1, ms:'tsmap', sv:function(v){ return v || {}; }", 'saveData 落盘（schema sv）');
   has(html, "'studentDeleted',", 'CLOUD_SYNC_FIELDS');
   has(html, 'state.studentDeleted = {};   // v2.18.15 清空数据连带清墓碑', 'clearData');
 });
@@ -171,11 +172,11 @@ t('两条删除路径都记墓碑', () => {
 });
 
 console.log('\n=== ⑤ 版本与历史注释 ===');
-t('版本标记统一 v2.18.15', () => {
-  has(html, '<div class="login-version">v2.18.15</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.18.15 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.18.15</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.18.15'", 'SW');
+t('版本标记统一 v2.19.0', () => {
+  has(html, '<div class="login-version">v2.19.0</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.19.0 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.19.0</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-v2.19.0'", 'SW');
 });
 t('设置页「近版更新速览」新增本版条目（旧条不删）', () => {
   has(html, '删除的学生过会儿又回来了', '缺 v2.18.15 notes 条目');
@@ -183,7 +184,7 @@ t('设置页「近版更新速览」新增本版条目（旧条不删）', () =>
   has(html, '新增「📊 批量导入学生表格」', 'v2.18.13 旧条被删');
 });
 t('历史注释不被波及（v2.18.14/v2.18.13 引入版注释保持原样）', () => {
-  has(html, 'var TOMB = { honorDeleted:1, studentDeleted:1, catDeleted:1, catDeletedAt:1, catRevived:1 };   // v2.18.15 +学生删除墓碑；墓碑类字段不走覆盖，走下方取大/并集', 'mergeImportData TOMB 更新');
+  has(html, 'var TOMB = {};   // v2.19.0 墓碑集合由 STATE_SCHEMA.tomb 派生（新增墓碑字段只改 schema；不走覆盖，走下方取大/并集）', 'mergeImportData TOMB 更新');
   has(html, '// v2.18.14 覆盖式合并：以本机数据为底，仅用备份里出现的同步字段覆盖——', '历史注释被改动');
   has(html, '// v2.18.13 表格分流：.xlsx/.csv 走学生表格导入，.json 走原备份导入', '历史注释被改动');
 });

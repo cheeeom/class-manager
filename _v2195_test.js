@@ -114,15 +114,15 @@ t('★ 行为级：toggleLocalMode 开→关 全链路（沙箱真跑）', () =>
 });
 
 t('本地保存链未受影响：saveData 仍写 localStorage 并触发（已拦截的）autoPushToCloud', () => {
-  has(html, "try{ localStorage.setItem(STORE_KEY, JSON.stringify({", 'saveData 落盘语句丢失');
+  has(html, "localStorage.setItem(STORE_KEY, JSON.stringify(_snap)); }", 'saveData 落盘语句丢失');
   has(html, 'autoPushToCloud();', 'saveData 内触发点丢失');
 });
 
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.18.15</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.18.15 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.18.15</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.18.15'", 'SW');
+  has(html, '<div class="login-version">v2.19.0</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.19.0 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.19.0</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-v2.19.0'", 'SW');
 });
 
 t('设置页「近版更新速览」新增本版条目（旧条不删）', () => {

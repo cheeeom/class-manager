@@ -34,6 +34,9 @@ global.DEFAULT_COMMITTEE = { banzhang: null, fubanzhang: null, jilv: null, xuexi
 // smartMergeData 内部引用的辅助函数（本测试只关心 reasonScores，作桩即可）
 global.sortOpsNewestFirst = function (ops) { return ops || []; };
 global.liveOps = function (ops) { return ops || []; };
+// v2.19.0 表驱动：smartMergeData 依赖 STATE_SCHEMA + MERGE_ST 策略表，从 index.html 真实实现切片注入
+const STATE_SCHEMA = eval('(' + html.slice(html.indexOf('const STATE_SCHEMA'), html.indexOf('\n];', html.indexOf('const STATE_SCHEMA')) + 3).replace('const STATE_SCHEMA = ', '').replace(/;\s*$/, '') + ')');
+eval(html.slice(html.indexOf('function msStudents'), html.indexOf('/* MERGE_ENGINE_END')));
 const smartMergeData = extractFn('smartMergeData');
 // v2.18.9 smartMergeData 墓碑仲裁依赖（外部符号桩）
 global.mergeTsMap = extractFn('mergeTsMap');
@@ -120,12 +123,12 @@ t('新「本地优先」实现已写入', () => {
   has(html, 'Object.assign({}, _rs, _ls)', '本地优先合并');
 });
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.18.15</div>', '登录页版本');
-  has(html, '<div class="sidebar-footer">v2.18.15 · 班主任工作台</div>', '侧栏版本');
-  has(html, '🏷️ v2.18.15</span>', '设置页徽标');
+  has(html, '<div class="login-version">v2.19.0</div>', '登录页版本');
+  has(html, '<div class="sidebar-footer">v2.19.0 · 班主任工作台</div>', '侧栏版本');
+  has(html, '🏷️ v2.19.0</span>', '设置页徽标');
 });
 t('sw.js CACHE_NAME 已升版', () => {
-  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.18.15'", 'sw 缓存名');
+  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.19.0'", 'sw 缓存名');
 });
 t('速览新增修复条目', () => {
   has(html, '原因分值合并改为本地优先', '近版更新速览');

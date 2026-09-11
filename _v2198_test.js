@@ -29,11 +29,10 @@ function extractFn(name) {
   }
   return eval('(' + buf.join('\n') + ')');
 }
-// CLOUD_SYNC_FIELDS 是多行 const 声明，按行切片提取
-const csfStart = html.split('\n').findIndex(l => l.indexOf('const CLOUD_SYNC_FIELDS = [') >= 0);
-if (csfStart < 0) throw new Error('未找到 CLOUD_SYNC_FIELDS');
-const csfEnd = html.split('\n').findIndex((l, i) => i >= csfStart && l.indexOf('];') >= 0);
-const CLOUD_SYNC_FIELDS = eval('(' + html.split('\n').slice(csfStart, csfEnd + 1).join('\n').replace('const CLOUD_SYNC_FIELDS = ', '').replace(/;\s*$/, '') + ')');
+// v2.19.0：CLOUD_SYNC_FIELDS 由 STATE_SCHEMA 派生，按 schema 字面量切片求值后过滤
+const ssStart = html.indexOf('const STATE_SCHEMA');
+const STATE_SCHEMA = eval('(' + html.slice(ssStart, html.indexOf('\n];', ssStart) + 3).replace('const STATE_SCHEMA = ', '').replace(/;\s*$/, '') + ')');
+const CLOUD_SYNC_FIELDS = STATE_SCHEMA.filter(f2 => f2.cfs).map(f2 => f2.key);
 
 const mergeTsMap = extractFn('mergeTsMap');
 const cloneCatDeleted = extractFn('cloneCatDeleted');
@@ -125,10 +124,10 @@ t('handleImportFile 使用 mergeImportData + prevData', () => {
 
 console.log('\n=== ⑤ 版本与历史注释 ===');
 t('版本标记统一 v2.18.14', () => {
-  has(html, '<div class="login-version">v2.18.15</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.18.15 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.18.15</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.18.15'", 'SW');
+  has(html, '<div class="login-version">v2.19.0</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.19.0 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.19.0</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-v2.19.0'", 'SW');
 });
 t('设置页「近版更新速览」新增本版条目（旧条不删）', () => {
   has(html, '导入改「覆盖式合并」', '缺 v2.18.14 notes 条目');

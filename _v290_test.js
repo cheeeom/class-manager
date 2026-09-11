@@ -41,6 +41,9 @@ const creditLevel = extractFn('creditLevel');
 const monthKeyOf = extractFn('monthKeyOf');
 const liveOps = extractFn('liveOps');   // v2.17.9 monthlySettlePlan 撤销过滤依赖
 const monthlySettlePlan = extractFn('monthlySettlePlan');
+// v2.19.0 表驱动：smartMergeData 依赖 STATE_SCHEMA + MERGE_ST 策略表，从 index.html 真实实现切片注入
+const STATE_SCHEMA = eval('(' + html.slice(html.indexOf('const STATE_SCHEMA'), html.indexOf('\n];', html.indexOf('const STATE_SCHEMA')) + 3).replace('const STATE_SCHEMA = ', '').replace(/;\s*$/, '') + ')');
+eval(html.slice(html.indexOf('function msStudents'), html.indexOf('/* MERGE_ENGINE_END')));
 const smartMergeData = extractFn('smartMergeData');
 // v2.18.9 smartMergeData 墓碑仲裁依赖（外部符号桩）
 global.mergeTsMap = extractFn('mergeTsMap');

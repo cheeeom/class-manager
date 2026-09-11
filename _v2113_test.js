@@ -56,7 +56,11 @@ const remoteJson = (data) => data ? { content: b64json(data) } : null;
 
   console.log('\n=== 关键结构断言 ===');
   t('CLOUD_SYNC_FIELDS 含 wipeAt / schemaVer（重置戳与目录版本随推送上云）', () => {
-    eq(/'classAvatar','wipeAt','schemaVer'\]/.test(html), true);
+    { // v2.19.0 CFS 由 STATE_SCHEMA 派生
+      const _ss = eval('(' + html.slice(html.indexOf('const STATE_SCHEMA'), html.indexOf('\n];', html.indexOf('const STATE_SCHEMA')) + 3).replace('const STATE_SCHEMA = ', '').replace(/;\s*$/, '') + ')');
+      const _cfs = _ss.filter(f2 => f2.cfs).map(f2 => f2.key);
+      eq(_cfs.includes('wipeAt') && _cfs.includes('schemaVer'), true);
+    }
   });
   t('loadData 恢复 wipeAt（否则对齐判断每次误触发）', () => {
     eq(/state\.wipeAt = d\.wipeAt \|\| 0;/.test(html), true);
