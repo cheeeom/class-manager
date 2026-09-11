@@ -1,4 +1,4 @@
-/* v2.18.12 回归测试：云同步推送失败「报错人话化 + 退避重试」。
+/* v2.18.13 回归测试：云同步推送失败「报错人话化 + 退避重试」。
    运行：node _v2191_test.js */
 const fs = require('fs');
 const html = fs.readFileSync('index.html', 'utf8');
@@ -75,11 +75,11 @@ t('旧「裸报错」已移除', () => {
 });
 
 console.log('\n=== 版本 ===');
-t('版本标记统一 v2.18.12', () => {
-  has(html, '<div class="login-version">v2.18.12</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.18.12 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.18.12</span>', '设置徽标');
-  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.18.12'", 'SW');
+t('版本标记统一 v2.18.13', () => {
+  has(html, '<div class="login-version">v2.18.13</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.18.13 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.18.13</span>', '设置徽标');
+  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.18.13'", 'SW');
 });
 t('近版更新速览含新条', () => {
   has(html, '云同步推送失败自动重试', 'notes 新条');

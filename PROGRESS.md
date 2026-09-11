@@ -3,7 +3,7 @@
 > 与 `AGENTS.md`（知识库）+ `DECISIONS.md`（决策记录）配套。
 > 本文件只记「当前状态 + 下一步做什么」，不重复架构细节——架构看 `AGENTS.md`。
 >
-> 最后更新：2026-09-11（v2.18.12 荣誉墙删除墓碑防复活 + 寝室管理「新增寝室」按钮；同日 v2.18.11 纯本地模式 / v2.18.10 平板侧栏可滚动 / v2.18.9 隐式 revive 补漏）
+> 最后更新：2026-09-11（v2.18.13 批量导入学生表格 Excel/CSV + 表头自动识别；同日 v2.18.12 荣誉删除墓碑 / v2.18.11 纯本地模式 / v2.18.10 平板侧栏可滚动）
 > ⚠️ 下文「一、当前状态速览」为 v2.8.0 期快照，未随版本更新；**最新进展一律以文末「逐版章节」为准**。
 
 ---
@@ -936,6 +936,16 @@
 - [x] **测试**：新增 `_v2196_test.js` 15 项（★复活事故复现：本地已删+云端旧副本→不复活 / 他端删除本机生效 / 双侧墓碑取大合并 / customDorms 并集去重 / 沙箱行为级 createDormNew 入住+走读摘牌+格式校验 / 五链路 / 版本）；26 旧套件版本 token 升级 → **39 套全绿**。⚠️ 新抽 smartMergeData 时桩要一次补全：mergeTsMap/catTombReviveFilter/sortOpsNewestFirst/cloneCatDeleted/applyCatTombstones/flattenReasonCatalog/cbMergeBanks/DEFAULT_COMMITTEE——建议照抄 _v2174 的桩清单。
 - [x] **实测**（playwright 12/12 真实点击路径）：创建带 1 人的寝室 → 卡片+成员弹窗 → 再建空寝室 → 删空寝室 → customDorms+标签落盘 → **reload 后数据原样** → 荣誉墙正常渲染，零 JS 错。⚠️ 两个冒烟框架坑：① `page.addInitScript` 每次 reload 都会重跑——幂等种子必须加标记位（否则调试半天「数据被清」其实是自己重新播种）；② `text=` 选择器会撞设置页 notes 里的同文案，交互断言一律收进弹窗作用域（`#dormNewModal .modal-footer .btn-primary`）。
 - [x] **推送**：增量推 → 新 commit `10f98798`（29 文件：index 723016B + sw + 27 测试）；API 校验 blob 字节级一致 / honorDeleted×21 / customDorms×25 / 注入 0 / **data.json 未被本提交改动**。
+
+### 2026-09-11（v2.18.13：批量导入学生表格——Excel/CSV + 表头自动识别）
+
+- [x] **需求**（老板提）：设置页批量导入只支持 JSON，希望支持 Excel 表格，并按表头自动识别姓名/性别/家长电话等批量导入。
+- [x] **设计**：零依赖解析栈全部手写内联——① RFC1951 DEFLATE 解压器 `inflateRaw`（fixed/dynamic/stored 三种块）+ 极简 ZIP 读取 `unzipEntries`（EOCD→中央目录→store/deflate）② `readXlsxGrid`（sharedStrings + 第一个 sheet，单元格按 `r="A1"` 列号归位）③ `parseCSVGrid`（RFC4180：引号内逗号/转义引号/CRLF，全空行过滤）④ `decodeTableText`（UTF-8 strict 失败回退 GBK——Excel 另存 CSV 默认 GBK）。表头识别 `detectStudentCols`：每列按 电话→家长→宿舍→学号→性别→姓名 顺序匹配同义词（家长电话不误归家长姓名的关键 = 电话先判先 return）；`planStudentImport` 纯函数出「新建/更新/跳过」计划（按学号或姓名匹配，命中只改表内填了的字段、寝室归一 N栋-M室），预览确认才落库，取消零副作用。
+- [x] **UI**：设置页批量导入区新增「📊 批量导入学生表格」按钮 + `importFileInput` accept 扩 `.xlsx,.csv` + `handleImportFile` 按扩展名分流 + 预览模态（列映射 chips / 每行新增更新标记 / 统计行）。
+- [x] **测试**：新增 `_v2197_test.js` 16 项（CSV RFC4180 / inflateRaw 对 zlib.deflateRawSync 交叉验证含 stored 块 / openpyxl 真实 xlsx 夹具端到端 / 表头同义词 / planStudentImport 行为级+零副作用）；27 旧套件版本 token 升级 → **40 套全绿**。⚠️ 三个真 bug 都被测试逮住：① inflateRaw stored 块只跳了 LEN 没跳 NLEN（`pos += 16` → `32`，症状=开头 2 字节乱码+尾部丢 2 字节）② xlsx 单元格正则 `\/>([\s\S]*?)<\/c>|\/>` 分支顺序错——attrs 部分不能跨 `>`，`<c r="A1" t="s"><v>0</v></c>` 永远匹配不上（改 `(?:\/>|>([\s\S]*?)<\/c>)` 先试自闭合再试完整 body）③ 英文表头 guardian 没进监护人同义词表。⚠️ 补丁脚本写正则字面量锚点用 String.raw 最稳（手工 `\\/` 转义连续踩两次）。
+- [x] **补刀**：`confirmStudentImport` 更新路径 `if(s2.profile)` → 老 JSON 数据学生无 profile 字段时导入字段被静默丢弃 → 改 `ensureProfile(s2)` 先补齐（playwright 冒烟用无 profile 种子逮住）。
+- [x] **实测**（playwright 16/16）：设置页入口 → 真实 .xlsx setInputFiles → 预览（新增2/更新2/跳过1 + 六列 chips 全命中）→ 确认 → 张三(无 profile 老数据)补齐电话/性别/家长+搬寝 6栋-801室、李四更新、王五/赵六新建(S0003/S0004、100分) → reload 数据原样 → GBK CSV 钱七导入成功。零 JS 错。
+- [x] **推送**：增量推 → 新 commit（30 文件：index 742194B + sw + 28 测试）；API 校验 blob 字节级一致 / 注入 0 / **data.json 未被本提交改动**。
 
 
 

@@ -1912,7 +1912,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.18.12</div>
+      <div class="login-version">v2.18.13</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2031,7 +2031,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.18.12 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.18.13 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2684,6 +2684,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
             <button class="btn btn-outline" onclick="exportData()">💾 导出数据</button>
             <button class="btn btn-outline" onclick="importData()">📂 导入数据</button>
+            <button class="btn btn-outline" onclick="pickStudentTableFile()" title="从 Excel(.xlsx) 或 CSV 表格批量导入学生：按表头自动识别 姓名/性别/家长电话/家长/学号/寝室">📊 批量导入学生表格</button>
             <button class="btn btn-outline" onclick="openCreditAudit()">🔍 学分体检</button>
             <button class="btn btn-danger" onclick="clearData()">🗑 清空数据</button>
           </div>
@@ -2691,7 +2692,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <div id="syncStatus" style="margin-top:12px;padding:10px 14px;background:rgba(166,58,43,0.04);border-radius:10px;font-size:13px;color:var(--text-secondary);display:none">
             <span id="syncStatusText"></span>
           </div>
-          <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(event)">
+          <input type="file" id="importFileInput" accept=".json,.xlsx,.csv" style="display:none" onchange="handleImportFile(event)">
         </div>
         <div class="settings-section">
           <h3>☁️ Git 云同步</h3>
@@ -2748,12 +2749,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.12</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.13</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 新增「📊 批量导入学生表格」：设置页支持直接导入 Excel(.xlsx) 或 CSV——按表头自动识别 姓名/性别/家长电话/家长/学号/寝室，先预览再确认，命中学号或姓名则只更新、未命中则新建（v2.18.13）<br>
               · 荣誉墙修复：删除的荣誉（含示例荣誉）不再过段时间自己复活——删除记录随云同步传播，云端旧副本不再把已删荣誉并回来（v2.18.12）<br>
               · 寝室管理新增「➕ 新增寝室」：可直接创建寝室并勾选学生入住；空寝室也显示在列表，点卡片可继续添加成员或删除（v2.18.12）<br>
               · 新增「📴 纯本地模式」：设置页一键停用自动云同步与全部同步弹窗，数据只存本机、关机重启不丢失；手动推送/拉取仍可用（v2.18.11）<br>
@@ -3259,6 +3261,18 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
     <div class="modal-footer">
       <button class="btn btn-primary" onclick="createDormNew()">创建寝室</button>
       <button class="btn btn-outline" onclick="closeModal('dormNewModal')">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- v2.18.13 Modal: 学生表格导入预览 -->
+<div class="modal-overlay" id="studentImportModal">
+  <div class="modal" style="max-width:660px;width:94vw">
+    <h3>📊 导入学生表格预览</h3>
+    <div class="modal-body" id="stuImportBody" style="max-height:62vh;overflow-y:auto"></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="confirmStudentImport()">✅ 确认导入</button>
+      <button class="btn btn-outline" onclick="closeModal('studentImportModal')">取消</button>
     </div>
   </div>
 </div>
@@ -10887,6 +10901,8 @@ function importData(){
 function handleImportFile(event){
   const file = event.target.files[0];
   if(!file) return;
+  // v2.18.13 表格分流：.xlsx/.csv 走学生表格导入，.json 走原备份导入
+  if(/\.(xlsx|csv)$/i.test(file.name)){ handleStudentTableFile(file); event.target.value = ''; return; }
   const reader = new FileReader();
   reader.onload = (e) => {
     try{
@@ -10950,6 +10966,344 @@ function handleImportFile(event){
   };
   reader.readAsText(file);
   event.target.value = '';
+}
+
+/* ==================== v2.18.13 批量导入学生表格（.xlsx / .csv，零依赖内置解析） ==================== */
+// CSV 解析（RFC4180：引号包裹/转义引号/逗号/CRLF），返回二维字符串数组（已滤全空行）
+function parseCSVGrid(text){
+  if(text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  var rows = [], row = [], cur = '', i = 0, n = text.length, inQ = false;
+  while(i < n){
+    var ch = text[i];
+    if(inQ){
+      if(ch === '"'){
+        if(text[i+1] === '"'){ cur += '"'; i += 2; continue; }
+        inQ = false; i++; continue;
+      }
+      cur += ch; i++; continue;
+    }
+    if(ch === '"'){ inQ = true; i++; continue; }
+    if(ch === ','){ row.push(cur); cur = ''; i++; continue; }
+    if(ch === '\r'){ if(text[i+1] === '\n') i++; row.push(cur); rows.push(row); row = []; cur = ''; i++; continue; }
+    if(ch === '\n'){ row.push(cur); rows.push(row); row = []; cur = ''; i++; continue; }
+    cur += ch; i++;
+  }
+  if(cur !== '' || row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(function(r){ return r.some(function(c){ return String(c).trim() !== ''; }); });
+}
+// 表格文本解码：UTF-8 优先，失败回退 GBK（老版 Excel 导出的 CSV 常是 GBK）
+function decodeTableText(u8){
+  try{ return new TextDecoder('utf-8', { fatal: true }).decode(u8); }
+  catch(e){ try{ return new TextDecoder('gbk').decode(u8); }catch(e2){ return new TextDecoder('utf-8').decode(u8); } }
+}
+// DEFLATE 原始流解压（RFC1951，xlsx 内部 zip 条目用）
+function inflateRaw(u8){
+  var pos = 0;
+  function bit(){ var b = u8[pos >> 3]; pos++; return (b >> ((pos - 1) & 7)) & 1; }
+  function bits(nn){ var v = 0; for(var i = 0; i < nn; i++) v |= bit() << i; return v; }
+  function buildTree(lengths){
+    var maxLen = 0, i;
+    for(i = 0; i < lengths.length; i++) if(lengths[i] > maxLen) maxLen = lengths[i];
+    var blCount = []; for(i = 0; i <= maxLen; i++) blCount[i] = 0;
+    for(i = 0; i < lengths.length; i++) if(lengths[i]) blCount[lengths[i]]++;
+    var nextCode = []; var code = 0;
+    for(i = 1; i <= maxLen; i++){ code = (code + (blCount[i-1] || 0)) << 1; nextCode[i] = code; }
+    var map = {};
+    for(i = 0; i < lengths.length; i++){
+      if(lengths[i]){ map[lengths[i] + ':' + nextCode[lengths[i]]] = i; nextCode[lengths[i]]++; }
+    }
+    return { map: map, maxLen: maxLen };
+  }
+  function decodeSym(t){
+    var code = 0, len = 0;
+    while(true){
+      code = (code << 1) | bit(); len++;
+      if(len > t.maxLen) throw new Error('inflate: 坏码流');
+      var ss = t.map[len + ':' + code];
+      if(ss !== undefined) return ss;
+    }
+  }
+  var LEN_BASE = [3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258];
+  var LEN_EXTRA = [0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0];
+  var DIST_BASE = [1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577];
+  var DIST_EXTRA = [0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13];
+  var CLEN_ORDER = [16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15];
+  var out = [];
+  function inflateBlock(lt, dt){
+    while(true){
+      var sym = decodeSym(lt);
+      if(sym < 256){ out.push(sym); }
+      else if(sym === 256){ return; }
+      else {
+        var li = sym - 257;
+        if(li < 0 || li >= LEN_BASE.length) throw new Error('inflate: 非法长度符号');
+        var len = LEN_BASE[li] + bits(LEN_EXTRA[li]);
+        var ds = decodeSym(dt);
+        var dist = DIST_BASE[ds] + bits(DIST_EXTRA[ds]);
+        var j = out.length - dist;
+        if(j < 0) throw new Error('inflate: 回溯距离越界');
+        for(var k = 0; k < len; k++) out.push(out[j + k]);
+      }
+    }
+  }
+  while(true){
+    var bfinal = bit();
+    var btype = bits(2);
+    if(btype === 0){
+      pos = (pos + 7) & ~7;
+      var bp = pos >> 3;
+      var l = u8[bp] | (u8[bp+1] << 8); pos += 32;
+      for(var k = 0; k < l; k++){ out.push(u8[pos >> 3]); pos += 8; }
+    } else if(btype === 1){
+      var litLens = [], s;
+      for(s = 0; s < 144; s++) litLens[s] = 8;
+      for(s = 144; s < 256; s++) litLens[s] = 9;
+      for(s = 256; s < 280; s++) litLens[s] = 7;
+      for(s = 280; s < 288; s++) litLens[s] = 8;
+      var distLens = []; for(s = 0; s < 30; s++) distLens[s] = 5;
+      inflateBlock(buildTree(litLens), buildTree(distLens));
+    } else if(btype === 2){
+      var hlit = bits(5) + 257, hdist = bits(5) + 1, hclen = bits(4) + 4, i;
+      var clenLens = []; for(i = 0; i < 19; i++) clenLens[i] = 0;
+      for(i = 0; i < hclen; i++) clenLens[CLEN_ORDER[i]] = bits(3);
+      var clt = buildTree(clenLens);
+      var allLens = [];
+      while(allLens.length < hlit + hdist){
+        var cs = decodeSym(clt);
+        if(cs < 16) allLens.push(cs);
+        else if(cs === 16){ if(!allLens.length) throw new Error('inflate: 重复无前值'); var pv = allLens[allLens.length-1], rn = bits(2) + 3; for(k = 0; k < rn; k++) allLens.push(pv); }
+        else if(cs === 17){ var zn = bits(3) + 3; for(k = 0; k < zn; k++) allLens.push(0); }
+        else { var zn2 = bits(7) + 11; for(k = 0; k < zn2; k++) allLens.push(0); }
+      }
+      inflateBlock(buildTree(allLens.slice(0, hlit)), buildTree(allLens.slice(hlit)));
+    } else {
+      throw new Error('inflate: 非法块类型');
+    }
+    if(bfinal) break;
+  }
+  return new Uint8Array(out);
+}
+// 极简 ZIP 读取：{文件名 -> Uint8Array}（支持 store / deflate，xlsx 场景足够）
+function unzipEntries(u8){
+  var i, n = u8.length, eocd = -1;
+  for(i = n - 22; i >= 0 && i >= n - 22 - 65535; i--){
+    if(u8[i] === 0x50 && u8[i+1] === 0x4B && u8[i+2] === 0x05 && u8[i+3] === 0x06){ eocd = i; break; }
+  }
+  if(eocd < 0) throw new Error('不是有效的 .xlsx 文件（zip 结构缺失）');
+  var count = u8[eocd+10] | (u8[eocd+11] << 8);
+  var cdOff = u8[eocd+16] | (u8[eocd+17] << 8) | (u8[eocd+18] << 16) | (u8[eocd+19] << 24);
+  var p = cdOff, entries = {};
+  for(var k2 = 0; k2 < count; k2++){
+    if(!(u8[p] === 0x50 && u8[p+1] === 0x4B && u8[p+2] === 0x01 && u8[p+3] === 0x02)) break;
+    var method = u8[p+10] | (u8[p+11] << 8);
+    var csize = u8[p+20] | (u8[p+21] << 8) | (u8[p+22] << 16) | (u8[p+23] << 24);
+    var nlen = u8[p+28] | (u8[p+29] << 8);
+    var elen = u8[p+30] | (u8[p+31] << 8);
+    var clen = u8[p+32] | (u8[p+33] << 8);
+    var lho = u8[p+42] | (u8[p+43] << 8) | (u8[p+44] << 16) | (u8[p+45] << 24);
+    var name = '';
+    for(var j = 0; j < nlen; j++) name += String.fromCharCode(u8[p+46+j]);
+    var dstart = lho + 30 + nlen + (u8[lho+28] | (u8[lho+29] << 8));
+    var data = u8.slice(dstart, dstart + csize);
+    entries[name] = (method === 0) ? data : (method === 8 ? inflateRaw(data) : null);
+    p += 46 + nlen + elen + clen;
+  }
+  return entries;
+}
+// xlsx → 二维网格（sharedStrings + 第一个工作表；单元格按列号归位）
+function readXlsxGrid(u8){
+  function xent(s2){ return String(s2).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&amp;/g,'&'); }
+  var z = unzipEntries(u8);
+  var shared = [], ssKey = null;
+  Object.keys(z).forEach(function(k){ if(/xl\/sharedStrings\.xml$/.test(k) || /xl\/sharedStrings\.xml$/.test(k)) ssKey = k; });
+  if(ssKey && z[ssKey]){
+    var ssXml = new TextDecoder('utf-8').decode(z[ssKey]);
+    (ssXml.match(/<si>([\s\S]*?)<\/si>/g) || []).forEach(function(si){
+      var ts = si.match(/<t[^>]*>([\s\S]*?)<\/t>/g) || [];
+      var v = '';
+      ts.forEach(function(t){ v += t.replace(/<[^>]*>/g, ''); });
+      shared.push(xent(v));
+    });
+  }
+  var sheetKey = null;
+  Object.keys(z).forEach(function(k){
+    if(/xl\/worksheets\/sheet\d+\.xml$/.test(k) && (sheetKey === null || k < sheetKey)) sheetKey = k;
+  });
+  if(!sheetKey) throw new Error('xlsx 内找不到工作表');
+  var xml = new TextDecoder('utf-8').decode(z[sheetKey]);
+  var grid = [];
+  var rowRe = /<row[^>]*>([\s\S]*?)<\/row>/g, rm;
+  while((rm = rowRe.exec(xml))){
+    var cells = [];
+    var cRe = /<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g, cm;
+    while((cm = cRe.exec(rm[1]))){
+      var attrs = cm[1] || '';
+      var ref = (attrs.match(/r="([A-Z]+)\d+"/) || [])[1] || '';
+      var col = 0;
+      for(var i2 = 0; i2 < ref.length; i2++) col = col * 26 + (ref.charCodeAt(i2) - 64);
+      col -= 1; if(col < 0) col = cells.length;
+      var t = (attrs.match(/t="([^"]+)"/) || [])[1] || '';
+      var body = cm[2] || '';
+      var v = '';
+      if(t === 'inlineStr'){
+        (body.match(/<t[^>]*>([\s\S]*?)<\/t>/g) || []).forEach(function(x){ v += x.replace(/<[^>]*>/g, ''); });
+        v = xent(v);
+      } else {
+        var vm = body.match(/<v>([\s\S]*?)<\/v>/);
+        if(vm) v = xent(vm[1]);
+        if(t === 's') v = shared[parseInt(v, 10)] || '';
+      }
+      cells[col] = v;
+    }
+    for(var k3 = 0; k3 < cells.length; k3++) if(cells[k3] === undefined) cells[k3] = '';
+    if(cells.some(function(c2){ return String(c2).trim() !== ''; })) grid.push(cells);
+  }
+  return grid;
+}
+// 表头自动识别（顺序很重要：先具体后宽泛，避免「家长姓名」被认成姓名）
+function normHeader(h){ return String(h == null ? '' : h).toLowerCase().replace(/[\s\u3000:：*#（）()]/g, ''); }
+function detectStudentCols(headers){
+  var cols = { name: -1, gender: -1, phone: -1, guardian: -1, sid: -1, dorm: -1 };
+  headers.forEach(function(h, i){
+    var n2 = normHeader(h);
+    if(!n2) return;
+    if(cols.phone < 0 && /(电话|手机|联系方式|phone|mobile|tel)/.test(n2)){ cols.phone = i; return; }
+    if(cols.guardian < 0 && /(家长|监护人|紧急联系人|guardian)/.test(n2)){ cols.guardian = i; return; }
+    if(cols.dorm < 0 && /(宿舍|寝室|房号|dorm)/.test(n2)){ cols.dorm = i; return; }
+    if(cols.sid < 0 && /(学号|学籍|编号|sid)/.test(n2)){ cols.sid = i; return; }
+    if(cols.gender < 0 && /(性别|gender)/.test(n2)){ cols.gender = i; return; }
+    if(cols.name < 0 && /(姓名|名字|学生|^name$|name)/.test(n2)){ cols.name = i; return; }
+  });
+  return cols;
+}
+// 行 → 导入计划（纯函数：不改 existing；按学号或姓名匹配，命中=更新、未命中=新建）
+function planStudentImport(existing, rows, cols, nextId, nextSid){
+  var plan = { creates: [], updates: [], skipped: 0, nextId: nextId, nextSid: nextSid };
+  var bySid = {}, byName = {};
+  (existing || []).forEach(function(s){ if(s && s.sid) bySid[String(s.sid)] = s; if(s && s.name) byName[s.name] = s; });
+  rows.forEach(function(row){
+    var getv = function(k){ return cols[k] >= 0 ? String(row[cols[k]] == null ? '' : row[cols[k]]).trim() : ''; };
+    var name = getv('name');
+    if(!name){ plan.skipped++; return; }
+    var gender = getv('gender'), phone = getv('phone'), guardian = getv('guardian'), sid = getv('sid'), dorm = getv('dorm');
+    if(dorm && !/^\d+栋-?\d+室$/.test(dorm)){
+      var m1 = dorm.match(/^(\d+)\s*栋\s*-?\s*(\d+)\s*室?$/);
+      var m2 = !m1 ? dorm.match(/^(\d+)-(\d+)$/) : null;
+      if(m1) dorm = m1[1] + '栋-' + m1[2] + '室';
+      else if(m2) dorm = m2[1] + '栋-' + m2[2] + '室';
+      else dorm = '';
+    }
+    var target = (sid && bySid[sid]) || byName[name] || null;
+    if(target){
+      var chg = {};
+      if(gender) chg.gender = gender;
+      if(phone) chg.phone = phone;
+      if(guardian) chg.guardian = guardian;
+      if(sid && !target.sid) chg._sid = sid;
+      plan.updates.push({ id: target.id, name: target.name, chg: chg, dorm: dorm });
+    } else {
+      var c = { id: plan.nextId++, sid: sid || ('S' + String(plan.nextSid++).padStart(4, '0')), name: name,
+                credit: 100,   // 与 INITIAL_CREDIT 一致
+                tags: (/^\d+栋-?\d+室$/.test(dorm) ? [dorm] : []),
+                profile: { gender: gender, birth: '', guardian: guardian, phone: phone, address: '', notes: '', timeline: [] } };
+      plan.creates.push(c);
+      if(c.sid) bySid[c.sid] = c;
+      byName[name] = c;
+    }
+  });
+  return plan;
+}
+var _stuImportPlan = null;
+function pickStudentTableFile(){
+  if(window.__cmRole === 'committee'){ showToast('班委模式无权导入数据','warning'); return; }
+  document.getElementById('importFileInput').click();
+}
+function handleStudentTableFile(file){
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var u8 = new Uint8Array(e.target.result);
+      var grid;
+      if(/\.csv$/i.test(file.name)) grid = parseCSVGrid(decodeTableText(u8));
+      else grid = readXlsxGrid(u8);
+      if(!grid || !grid.length || !grid[0].length){ showToast('表格为空或无法解析', 'error'); return; }
+      var headers = grid[0].map(function(h){ return String(h == null ? '' : h).trim(); });
+      var rows = grid.slice(1);
+      var cols = detectStudentCols(headers);
+      if(cols.name < 0){ showToast('未识别到「姓名」列：表头需包含 姓名 / 名字 / 学生姓名', 'error'); return; }
+      var plan = planStudentImport(state.students, rows, cols, state.nextId, state.nextSid || 1);
+      plan.headers = headers; plan.cols = cols; plan.rows = rows.slice(0, 80); plan.totalRows = rows.length;
+      _stuImportPlan = plan;
+      renderStudentImportPreview();
+      openModal('studentImportModal');
+    }catch(err){
+      showToast('表格解析失败：' + (err && err.message ? err.message : '请确认是 .xlsx 或 CSV 文件'), 'error');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+function renderStudentImportPreview(){
+  var plan = _stuImportPlan; if(!plan) return;
+  var colNames = { name: '姓名', gender: '性别', phone: '家长电话', guardian: '家长姓名', sid: '学号', dorm: '寝室' };
+  var chips = [];
+  Object.keys(colNames).forEach(function(k){
+    var i = plan.cols[k];
+    chips.push('<span style="display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;margin:2px;' + (i >= 0 ? 'background:rgba(47,125,91,0.12);color:#2F7D5B' : 'background:rgba(0,0,0,0.06);color:#999') + '">' + colNames[k] + '：' + (i >= 0 ? '第' + (i+1) + '列「' + escapeHtml(plan.headers[i]) + '」' : '未识别') + '</span>');
+  });
+  var rowsHtml = plan.rows.map(function(r){
+    var getv = function(k){ return plan.cols[k] >= 0 ? String(r[plan.cols[k]] == null ? '' : r[plan.cols[k]]).trim() : ''; };
+    var name = getv('name');
+    if(!name) return '';
+    var dup = state.students.some(function(s){ return s.name === name || (getv('sid') && s.sid === getv('sid')); });
+    var tag = dup ? '<span style="color:var(--orange);font-size:12px;font-weight:600">更新</span>' : '<span style="color:#2F7D5B;font-size:12px;font-weight:600">新增</span>';
+    return '<tr>' +
+      '<td style="padding:5px 8px;border-bottom:1px solid var(--border);white-space:nowrap">' + tag + '</td>' +
+      '<td style="padding:5px 8px;border-bottom:1px solid var(--border)">' + escapeHtml(name) + '</td>' +
+      '<td style="padding:5px 8px;border-bottom:1px solid var(--border)">' + escapeHtml(getv('gender') || '—') + '</td>' +
+      '<td style="padding:5px 8px;border-bottom:1px solid var(--border)">' + escapeHtml(getv('phone') || '—') + '</td>' +
+      '<td style="padding:5px 8px;border-bottom:1px solid var(--border)">' + escapeHtml(getv('guardian') || '—') + '</td>' +
+      '<td style="padding:5px 8px;border-bottom:1px solid var(--border)">' + escapeHtml(getv('sid') || '—') + '</td>' +
+      '<td style="padding:5px 8px;border-bottom:1px solid var(--border)">' + escapeHtml(getv('dorm') || '—') + '</td></tr>';
+  }).join('');
+  var el = document.getElementById('stuImportBody');
+  el.innerHTML =
+    '<div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;line-height:1.8">' +
+    '共识别 <b>' + plan.totalRows + '</b> 行 → <b style="color:#2F7D5B">新增 ' + plan.creates.length + '</b> 人 · ' +
+    '<b style="color:var(--orange)">更新 ' + plan.updates.length + '</b> 人' +
+    (plan.skipped ? ' · 跳过 <b>' + plan.skipped + '</b> 行（无姓名）' : '') + '<br>' + chips.join('') + '</div>' +
+    '<div style="max-height:40vh;overflow:auto;border:1px solid var(--border);border-radius:10px">' +
+    '<table style="width:100%;border-collapse:collapse;font-size:13px;min-width:480px">' +
+    '<tr style="text-align:left;color:var(--text-muted);font-size:12px"><th style="padding:5px 8px">操作</th><th style="padding:5px 8px">姓名</th><th style="padding:5px 8px">性别</th><th style="padding:5px 8px">家长电话</th><th style="padding:5px 8px">家长</th><th style="padding:5px 8px">学号</th><th style="padding:5px 8px">寝室</th></tr>' +
+    rowsHtml + '</table></div>' +
+    '<div style="margin-top:8px;font-size:12px;color:var(--text-muted)">按「学号或姓名」匹配已有学生：命中的只更新表格里填了的字段（含寝室则搬寝室）；未命中的新建（默认 100 分）。取消不会改动任何数据。</div>';
+}
+function confirmStudentImport(){
+  var plan = _stuImportPlan;
+  if(!plan) return;
+  state.nextId = plan.nextId;
+  state.nextSid = plan.nextSid;
+  plan.creates.forEach(function(c){
+    state.students.push(c);
+    if(c.tags && c.tags.length) fillStudentGenderFromDorm(c);
+  });
+  plan.updates.forEach(function(u){
+    var s2 = state.students.filter(function(x){ return x.id === u.id; })[0];
+    if(!s2) return;
+    ensureProfile(s2); Object.keys(u.chg).forEach(function(k){ if(k.charAt(0) !== '_') s2.profile[k] = u.chg[k]; });
+    if(u.chg._sid) s2.sid = u.chg._sid;
+    if(u.dorm && /^\d+栋-?\d+室$/.test(u.dorm)){
+      s2.tags = (s2.tags || []).filter(function(t){ return !isDormTag(t) && t !== DAY_TAG; });
+      s2.tags.push(u.dorm);
+      s2.updatedAt = Date.now();
+      fillStudentGenderFromDorm(s2);
+    }
+  });
+  saveData();
+  var summary = '导入完成：新增 ' + plan.creates.length + ' 人，更新 ' + plan.updates.length + ' 人' + (plan.skipped ? '，跳过 ' + plan.skipped + ' 行' : '');
+  _stuImportPlan = null;
+  closeModal('studentImportModal');
+  renderAll();
+  showToast(summary, 'success');
 }
 
 function clearData(){
