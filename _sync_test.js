@@ -74,7 +74,7 @@ const applyCatTombstones = _sliceFn('applyCatTombstones');
 const flattenReasonCatalog = _sliceFn('flattenReasonCatalog');
 const cloneReasonCatalog = _sliceFn('cloneReasonCatalog');
 const mergeReasonCatalog = _sliceFn('mergeReasonCatalog');
-const mergeTsMap = _sliceFn('mergeTsMap');           // v2.18.8 墓碑仲裁依赖
+const mergeTsMap = _sliceFn('mergeTsMap');           // v2.18.9 墓碑仲裁依赖
 const catTombReviveFilter = _sliceFn('catTombReviveFilter');
 
 // mock fetch：记录请求，按场景返回

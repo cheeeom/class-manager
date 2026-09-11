@@ -37,7 +37,7 @@ const sortOpsNewestFirst = extractFn('sortOpsNewestFirst');
 const liveOps = extractFn('liveOps');
 global.DEFAULT_COMMITTEE = { banzhang: null, fubanzhang: null, jilv: null, xuexi: null, tiyu: null, shenghuo: null, wenyi: null, xinli: null };
 const smartMergeData = extractFn('smartMergeData');
-// v2.18.8 smartMergeData 墓碑仲裁依赖（外部符号桩）
+// v2.18.9 smartMergeData 墓碑仲裁依赖（外部符号桩）
 global.mergeTsMap = extractFn('mergeTsMap');
 global.catTombReviveFilter = extractFn('catTombReviveFilter');
 global.state = global.state || {};
