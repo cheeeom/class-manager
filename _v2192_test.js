@@ -1,4 +1,4 @@
-/* v2.18.10 回归测试：删除墓碑 vs 重新添加按时间戳仲裁 ——
+/* v2.18.11 回归测试：删除墓碑 vs 重新添加按时间戳仲裁 ——
    重新添加晚于删除 → 墓碑作废（云端旧墓碑不再把重加的大类/原因整体抹掉）；
    删除晚于重新添加 → 墓碑仍生效（跨设备删除传播语义不变，_v2174 兼容）。
    运行：node _v2192_test.js */
@@ -149,11 +149,11 @@ t('恢复预设清空时间戳', () => {
 });
 
 console.log('\n=== 版本 ===');
-t('版本标记统一 v2.18.10', () => {
-  has(html, '<div class="login-version">v2.18.10</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.18.10 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.18.10</span>', '设置徽标');
-  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.18.10'", 'SW');
+t('版本标记统一 v2.18.11', () => {
+  has(html, '<div class="login-version">v2.18.11</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.18.11 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.18.11</span>', '设置徽标');
+  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.18.11'", 'SW');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

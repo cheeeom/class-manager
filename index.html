@@ -1912,7 +1912,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.18.10</div>
+      <div class="login-version">v2.18.11</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2031,7 +2031,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.18.10 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.18.11 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2699,6 +2699,11 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           </div>
           <p style="font-size:12px;color:var(--text-muted);margin-top:4px">⚠️「恢复」会用云端数据完全替换本地，本地未推送的数据将丢失</p>
           <div id="cloudSyncInfo" style="margin-top:8px"></div>
+          <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-outline" style="font-size:12px;padding:4px 12px" id="localModeBtn" onclick="toggleLocalMode()">📴 纯本地模式：关（点击开启）</button>
+            <span id="localModeStatus" style="font-size:12px"></span>
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:4px;line-height:1.6">开启后：停用自动云同步与全部同步弹窗，数据只保存在本机浏览器（关机/重启后照常使用、不丢失）；手动「推送/拉取」仍可用，想上云随时点。</p>
           <div style="margin-top:8px;font-size:12px;color:var(--text-secondary);display:flex;gap:10px;flex-wrap:wrap;align-items:center">
             <button class="btn btn-outline" style="font-size:12px;padding:4px 12px" onclick="configGHToken()">配置 GitHub Token</button>
             <span id="ghTokenStatus"></span>
@@ -2740,12 +2745,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.10</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.11</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 新增「📴 纯本地模式」：设置页一键停用自动云同步与全部同步弹窗，数据只存本机、关机重启不丢失；手动推送/拉取仍可用（v2.18.11）<br>
               · 修复平板/矮窗口下侧栏导航「设置」显示不全且无法滑动：导航列表允许收缩内部滚动，视口高度改用动态单位 dvh（v2.18.10）<br>
               · 修复：往新建大类里添加原因后刷新整组消失——隐式新建大类/方向时同步清除其旧删除记录（v2.18.8 时间戳仲裁的补漏）<br>
               · 修复：重新添加的原因/大类刷新后被云端旧删除记录整体抹掉——删除与重新添加改按时间戳仲裁，重新添加晚于删除则旧记录作废<br>
@@ -3483,6 +3489,12 @@ let lastCloudSalt = null;   // 拉取时从云端信封记下，保证多设备 
 function getSyncPwd(){ return localStorage.getItem(SYNC_PWD_KEY) || ''; }
 function setSyncPwd(p){ localStorage.setItem(SYNC_PWD_KEY, p); }
 function hasSyncPwd(){ return getSyncPwd().length > 0; }
+// v2.18.11 纯本地模式：设备级偏好（存 localStorage，不参与云同步字段）——
+// 开启后停用自动推送/自动拉取及一切同步弹窗；数据照常落 localStorage，关机重启不丢；
+// 手动「推送/拉取/恢复」按钮与推送安全检查不受影响。
+const LOCAL_MODE_KEY = 'cm_local_mode';
+function isLocalMode(){ try{ return localStorage.getItem(LOCAL_MODE_KEY) === '1'; }catch(e){ return false; } }
+function setLocalMode(v){ try{ if(v) localStorage.setItem(LOCAL_MODE_KEY, '1'); else localStorage.removeItem(LOCAL_MODE_KEY); }catch(e){} }
 function cryptoOK(){ return !!(window.crypto && window.crypto.subtle && window.crypto.subtle.deriveKey); }
 
 function _b64enc(buf){
@@ -5854,6 +5866,10 @@ function friendlyPushError(msg){
 var _noTokenWarned = false;
 var _pushPending = false;   // 拉取进行中被推迟的推送
 function autoPushToCloud(){
+  if(isLocalMode()){   // v2.18.11 纯本地模式：停用自动推送与全部同步弹窗
+    dbg('[Sync] local mode on, skip auto push');
+    return;
+  }
   if(!hasGHToken()){
     // 未配置 token：数据只存本地。每个页面会话只提醒一次，避免打扰。
     if(!_noTokenWarned){
@@ -6034,7 +6050,9 @@ function updateCloudSyncUI(){
     var t = new Date(lastSyncTime).toLocaleString('zh-CN');
     html += '最后同步：' + t + '<br>';
   }
-  if(hasGHToken()){
+  if(isLocalMode()){
+    html += '<span style="color:var(--warning)">📴 纯本地模式已开启</span>——自动云同步已停用、不再弹任何同步提示，数据仅保存在本机；手动推送/拉取仍可用<br>';
+  } else if(hasGHToken()){
     html += '<span style="color:var(--primary)">自动同步已开启</span>（修改后 2 秒自动推送）<br>';
   } else {
     html += '<span style="color:var(--warning)">⚠️ 自动同步未配置</span>——数据仅保存在本机，请点击下方「配置 GitHub Token」<br>';
@@ -6049,6 +6067,25 @@ function updateCloudSyncUI(){
   var ts = document.getElementById('ghTokenStatus');if(ts)ts.textContent = hasGHToken() ? '(已配置)' : '(未配置)';
   var ps = document.getElementById('syncPwdStatus');
   if(ps) ps.textContent = hasSyncPwd() ? '(已加密)' : '(未加密)';
+  var lb = document.getElementById('localModeBtn');
+  if(lb) lb.textContent = isLocalMode() ? '📴 纯本地模式：开（点击关闭）' : '📴 纯本地模式：关（点击开启）';
+  var lst = document.getElementById('localModeStatus');
+  if(lst) lst.textContent = isLocalMode() ? '（已开启）' : '（已关闭）';
+}
+
+// v2.18.11 纯本地模式开关：开启即静音全部自动同步；关闭即恢复并在有 Token 时补推一次
+function toggleLocalMode(){
+  var on = !isLocalMode();
+  setLocalMode(on);
+  if(on){
+    if(cloudSyncTimer) clearTimeout(cloudSyncTimer);
+    if(_pushRetryTimer) clearTimeout(_pushRetryTimer);
+    showToast('已开启纯本地模式：停用自动云同步与同步弹窗，数据仅保存在本机（重启不丢）；手动推送/拉取仍可用', 'info');
+  } else {
+    showToast('已关闭纯本地模式：恢复自动云同步，将尝试推送本地数据', 'info');
+    autoPushToCloud();
+  }
+  updateCloudSyncUI();
 }
 
 function genSid(){
@@ -11299,8 +11336,8 @@ if(state.scheduleImage && state.scheduleImage.length > 400000){
 }
 renderClassBrand();
 renderAll();
-// Auto sync from cloud on page load
-autoSyncFromCloud().then(function(){
+// Auto sync from cloud on page load（v2.18.11 纯本地模式跳过拉取，渲染链照常）
+(isLocalMode() ? Promise.resolve(false) : autoSyncFromCloud()).then(function(){
   updateCloudSyncUI();
   // Re-render after sync to ensure DOM is updated
   renderScheduleImage();
@@ -11332,7 +11369,7 @@ document.addEventListener('visibilitychange', function(){
   if(document.visibilityState === 'visible'){
     var overlay = document.getElementById('loginOverlay');
     if(overlay && overlay.classList.contains('hidden')){
-      autoSyncFromCloud().then(function(){ updateCloudSyncUI(); });
+      if(!isLocalMode()) autoSyncFromCloud().then(function(){ updateCloudSyncUI(); });   // v2.18.11 纯本地模式不自动拉取
     }
   }
 });

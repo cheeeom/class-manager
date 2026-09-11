@@ -303,11 +303,11 @@ t('撤销/恢复分值同步：afterOpStateChange 统一走 reconcile + saveData
 });
 
 console.log('\n=== 版本号 ===');
-t('v2.18.10 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
-  if (!/login-version">v2\.18\.10</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.10 ·/.test(html)) throw new Error('侧栏版本号未更新');
+t('v2.18.11 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
+  if (!/login-version">v2\.18\.11</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.18\.11 ·/.test(html)) throw new Error('侧栏版本号未更新');
   const sw = fs.readFileSync('sw.js', 'utf8');
-  if (!sw.includes('class-manager-v2.18.10')) throw new Error('SW CACHE_NAME 未更新');
+  if (!sw.includes('class-manager-v2.18.11')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');
