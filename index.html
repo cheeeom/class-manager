@@ -1912,7 +1912,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.18.11</div>
+      <div class="login-version">v2.18.12</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2031,7 +2031,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.18.11 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.18.12 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2211,10 +2211,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       <div class="page" id="page-dorm">
         <div class="page-toolbar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:10px;flex-wrap:wrap">
           <div class="section-title" style="margin:0"><span class="dot"></span>寝室管理</div>
-          <div class="dorm-filter" id="dormFilter">
-            <div class="active" data-g="all" onclick="setDormFilter('all')">全部</div>
-            <div data-g="男" onclick="setDormFilter('男')">男生</div>
-            <div data-g="女" onclick="setDormFilter('女')">女生</div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <button class="btn btn-primary btn-sm" onclick="openDormNewModal()" title="手动新增寝室（可先建空寝室，再入住学生）">➕ 新增寝室</button>
+            <div class="dorm-filter" id="dormFilter">
+              <div class="active" data-g="all" onclick="setDormFilter('all')">全部</div>
+              <div data-g="男" onclick="setDormFilter('男')">男生</div>
+              <div data-g="女" onclick="setDormFilter('女')">女生</div>
+            </div>
           </div>
         </div>
         <div class="dorm-stats" id="dormStats"></div>
@@ -2745,12 +2748,14 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.11</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.12</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 荣誉墙修复：删除的荣誉（含示例荣誉）不再过段时间自己复活——删除记录随云同步传播，云端旧副本不再把已删荣誉并回来（v2.18.12）<br>
+              · 寝室管理新增「➕ 新增寝室」：可直接创建寝室并勾选学生入住；空寝室也显示在列表，点卡片可继续添加成员或删除（v2.18.12）<br>
               · 新增「📴 纯本地模式」：设置页一键停用自动云同步与全部同步弹窗，数据只存本机、关机重启不丢失；手动推送/拉取仍可用（v2.18.11）<br>
               · 修复平板/矮窗口下侧栏导航「设置」显示不全且无法滑动：导航列表允许收缩内部滚动，视口高度改用动态单位 dvh（v2.18.10）<br>
               · 修复：往新建大类里添加原因后刷新整组消失——隐式新建大类/方向时同步清除其旧删除记录（v2.18.8 时间戳仲裁的补漏）<br>
@@ -3237,6 +3242,27 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
   </div>
 </div>
 
+<!-- v2.18.12 Modal: 新增寝室 -->
+<div class="modal-overlay" id="dormNewModal">
+  <div class="modal" style="max-width:520px;width:94vw">
+    <h3>➕ 新增寝室</h3>
+    <div class="modal-body">
+      <label>寝室号（格式：N栋-M室，如 6栋-802室）</label>
+      <input type="text" id="dormNewNo" placeholder="6栋-802室" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px;margin-top:6px">
+      <div style="margin-top:12px;border-top:1px dashed var(--border);padding-top:12px">
+        <label style="margin:0">勾选学生直接入住（可不选，先建空寝室）</label>
+        <input type="text" id="dormNewKw" placeholder="🔍 按姓名 / 学号搜索" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:10px;font-size:13px;margin-top:8px" oninput="renderDormNewCands(this.value)">
+        <div id="dormNewCands" style="max-height:260px;overflow-y:auto;margin-top:8px;border:1px solid var(--border);border-radius:10px"></div>
+      </div>
+      <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">入住＝给该生挂寝室号标签（自动移出原寝室）；空寝室也会显示在列表，点卡片可后续添加。</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="createDormNew()">创建寝室</button>
+      <button class="btn btn-outline" onclick="closeModal('dormNewModal')">取消</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: 走读生名单 -->
 <div class="modal-overlay" id="dayBoardingModal">
   <div class="modal" style="max-width:520px;width:94vw">
@@ -3465,7 +3491,7 @@ const GH_DATA_PATH = 'data.json';
 const CLOUD_SYNC_FIELDS = ['className','classNameFull','students','operations','reasons','reasonScores','reasonCatalog','catDeleted','catDeletedAt','catRevived','nextId','nextOpId','nextSid',
   'lastExport','lastImport','committee','seating','duty','exportedOpsCount','classMotto',
   'leaves','nextLeaveId','exams','nextExamId','todos','nextTodoId',
-  'workLogs','nextWorkLogId','honors','nextHonorId','notices','creditBank',
+  'workLogs','nextWorkLogId','honors','nextHonorId','honorDeleted','customDorms','notices','creditBank',   // v2.18.12 +荣誉删除墓碑+自定义寝室
   'punishments','nextPunishId',   // v2.18.3 处分记录补入同步链路：此前漏加 → buildCloudPayload 按本表过滤时从不带它上传，换设备/清缓存后从云端恢复会全丢
   'scheduleImage','classAvatar','wipeAt','schemaVer'];
 // 通知历史可能内嵌近 1MB 的图片 base64，推送前剥离，防止 data.json 膨胀导致移动端拉取超时
@@ -4174,6 +4200,8 @@ let state = {
   nextWorkLogId: 1,
   honors: [],
   nextHonorId: 1,
+  honorDeleted: {},   // v2.18.12 荣誉删除墓碑（id→删除时间戳）：云端旧副本并集不再复活已删荣誉
+  customDorms: [],    // v2.18.12 手动新增的寝室号（空寝室也显示；成员仍由学生标签派生）
   notices: { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 },
   creditBank: { settings:{ autoCoin:true, alertEnabled:true }, wallets:{}, ledger:[], nextLedgerId:1,
                 alerts:[], nextAlertId:1, nextVoucherId:1, lastSettleMonth:'', createdAt:0,
@@ -5539,6 +5567,12 @@ function loadData(){
       state.nextWorkLogId = d.nextWorkLogId || 1;
       state.honors = d.honors || [];
       state.nextHonorId = d.nextHonorId || 1;
+      state.honorDeleted = d.honorDeleted || {};
+      state.customDorms = d.customDorms || [];
+      // v2.18.12 自愈：本地数组残留已删 id（如导入旧备份）时按墓碑剔除
+      if(state.honorDeleted && Object.keys(state.honorDeleted).length){
+        state.honors = state.honors.filter(function(h){ return h && !state.honorDeleted[h.id]; });
+      }
       state.nextTodoId = d.nextTodoId || 1;
       if(d.notices) state.notices = d.notices;
       // v2.17.30 学分银行：读入并补齐形状（老数据无 creditBank 时保持默认结构）
@@ -5609,6 +5643,8 @@ function saveData(){
     nextWorkLogId: state.nextWorkLogId,
     honors: state.honors,
     nextHonorId: state.nextHonorId,
+    honorDeleted: state.honorDeleted || {},
+    customDorms: state.customDorms || [],
     nextTodoId: state.nextTodoId,
     notices: state.notices,
     creditBank: state.creditBank     // v2.17.30 学分银行
@@ -5727,11 +5763,22 @@ function smartMergeData(localData,remoteData){
       .sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0) || (b.id||0)-(a.id||0); });
   }
   merged.nextPunishId=Math.max(localData.nextPunishId||1,remoteData.nextPunishId||1);
-  // honors: union by id
+  // honors: union by id（v2.18.12 带删除墓碑 honorDeleted：本地删过的 id 不再被云端旧副本并集复活）
+  merged.honorDeleted = mergeTsMap(merged.honorDeleted || {}, remoteData.honorDeleted || {});
   if(remoteData.honors && remoteData.honors.length){
     var hIds = {}; (merged.honors||[]).forEach(function(h){ hIds[h.id] = true; });
+    var hDel = merged.honorDeleted || {};
     merged.honors = merged.honors || [];
-    remoteData.honors.forEach(function(h){ if(!hIds[h.id]) merged.honors.push(h); });
+    remoteData.honors.forEach(function(h){ if(h && !hIds[h.id] && !hDel[h.id]) merged.honors.push(h); });
+  }
+  if(merged.honorDeleted && Object.keys(merged.honorDeleted).length){
+    merged.honors = (merged.honors||[]).filter(function(h){ return h && !merged.honorDeleted[h.id]; });   // 双向防御剔除
+  }
+  // customDorms: union 去重（v2.18.12 自定义空寝室跨设备传播）
+  if(remoteData.customDorms && remoteData.customDorms.length){
+    var cdSet = {}; (merged.customDorms||[]).forEach(function(nn){ cdSet[nn] = true; });
+    merged.customDorms = merged.customDorms || [];
+    remoteData.customDorms.forEach(function(nn){ if(nn && !cdSet[nn]) merged.customDorms.push(nn); });
   }
   // workLogs: union by id
   if(remoteData.workLogs && remoteData.workLogs.length){
@@ -8332,7 +8379,13 @@ function renderDorm(){
   });
   if(changed) saveData();
 
-  var dorms = buildDormMap(state.students).filter(function(d){
+  var dorms = buildDormMap(state.students);
+  // v2.18.12 自定义空寝室并入列表（尚无成员也能显示、点击即可入住）
+  var _haveD = {}; dorms.forEach(function(d){ _haveD[d.no] = true; });
+  (state.customDorms||[]).forEach(function(no){
+    if(no && !_haveD[no]){ dorms.push({ no: no, members: [] }); _haveD[no] = true; }
+  });
+  dorms = dorms.filter(function(d){
     if(dormFilter === 'all') return true;
     return d.members.some(function(m){ return m.gender === dormFilter; });
   });
@@ -8346,10 +8399,11 @@ function renderDorm(){
 
   var html = dorms.map(function(d){
     var leader = d.members.filter(function(m){ return m.leader; })[0];
+    var sub = d.members.length ? ('寝室长：<b>' + (leader ? escapeHtml(leader.name) : '未设置') + '</b>') : '空寝室 · 点击添加成员';
     return '<div class="dorm-card" onclick="openDorm(\'' + escapeAttr(d.no) + '\')">' +
       '<div class="dc-head"><span class="dc-no">' + escapeHtml(d.no) + '</span>' +
       '<span class="dc-count">' + d.members.length + ' 人</span></div>' +
-      '<div class="dc-leader' + (leader ? '' : ' none') + '">寝室长：<b>' + (leader ? escapeHtml(leader.name) : '未设置') + '</b></div>' +
+      '<div class="dc-leader' + (leader ? '' : ' none') + '">' + sub + '</div>' +
       '<div class="dc-members">' + d.members.map(function(m){
         return '<span>' + escapeHtml(m.name) + (m.leader ? ' ★' : '') + '</span>';
       }).join('') + '</div>' +
@@ -8369,9 +8423,13 @@ function renderDorm(){
 function openDorm(no){
   if(!/^\d+栋-?\d+室$/.test(no)) return;
   var d = buildDormMap(state.students).filter(function(x){ return x.no === no; })[0];
-  if(!d) return;
+  if(!d){
+    // v2.18.12 自定义空寝室：尚无成员也能打开（添加学生 / 删除空寝室）
+    if((state.customDorms||[]).indexOf(no) < 0) return;
+    d = { no: no, members: [] };
+  }
   document.getElementById('dormMemberTitle').textContent = no + ' · ' + d.members.length + ' 人';
-  document.getElementById('dormMemberList').innerHTML = d.members.map(function(m){
+  var _memberRows = d.members.map(function(m){
     return '<div class="member-row">' +
       '<span><span class="mr-name">' + escapeHtml(m.name) + '</span>' +
       '<span style="font-size:12px;color:var(--text-muted);margin-left:6px">' + escapeHtml(m.sid) + (m.gender ? ' · ' + escapeHtml(m.gender) : '') + '</span>' +
@@ -8381,6 +8439,11 @@ function openDorm(no){
         '<button class="btn btn-outline btn-sm" onclick="removeDormMember(' + m.id + ',\'' + escapeAttr(no) + '\')">移出</button>' +
       '</span></div>';
   }).join('');
+  if(!d.members.length){
+    _memberRows += '<div class="dorm-empty">暂无成员，用下方「添加学生」入住</div>' +
+      '<div style="margin-top:10px"><button class="btn btn-outline btn-sm" onclick="deleteCustomDorm(\'' + escapeAttr(no) + '\')">🗑 删除该空寝室</button></div>';
+  }
+  document.getElementById('dormMemberList').innerHTML = _memberRows;
 
   // 候选：同性别、无寝室号、非走读
   var g = (d.members.filter(function(m){ return m.gender; })[0] || {}).gender || '';
@@ -8441,6 +8504,64 @@ function addDormMember(id, no){
   renderDorm();
   showToast(s.name + (old ? ' 已从 ' + old + ' 调至 ' : ' 已加入 ') + no, 'success');
   openDorm(no);
+}
+
+/* ==================== v2.18.12 手动新增寝室 ====================
+   寝室本由学生标签派生，空寝室无法存在；customDorms 补上「先建后住」：
+   新增寝室（可勾选学生直接入住）→ 空寝室也显示在列表 → 点卡片入住/删空寝室。 */
+function openDormNewModal(){
+  document.getElementById('dormNewNo').value = '';
+  var kw = document.getElementById('dormNewKw'); if(kw) kw.value = '';
+  renderDormNewCands('');
+  openModal('dormNewModal');
+}
+function renderDormNewCands(kw){
+  kw = (kw || '').trim();
+  var list = state.students.filter(function(s){ return !isDayBoarding(s); });
+  if(kw) list = list.filter(function(s){
+    return (s.name || '').indexOf(kw) >= 0 || String(s.sid || '').indexOf(kw) >= 0;
+  });
+  var el = document.getElementById('dormNewCands');
+  if(!el) return;
+  el.innerHTML = list.map(function(s){
+    var cur = dormNoOf(s);
+    return '<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);cursor:pointer">' +
+      '<input type="checkbox" class="dormNewCk" value="' + s.id + '">' +
+      '<span class="mr-name">' + escapeHtml(s.name) + '</span>' +
+      '<span style="font-size:12px;color:var(--text-muted)">' + escapeHtml(s.sid || '') + (cur ? ' · 现住 ' + escapeHtml(cur) : ' · 未入住') + '</span></label>';
+  }).join('') || '<div class="dorm-empty">没有匹配的学生</div>';
+}
+function createDormNew(){
+  var no = (document.getElementById('dormNewNo').value || '').trim();
+  if(!DORM_RE.test(no)){ showToast('寝室号格式不对：请填「N栋-M室」，如 6栋-802室', 'error'); return; }
+  var ids = [];
+  document.querySelectorAll('#dormNewCands .dormNewCk:checked').forEach(function(ck){ ids.push(parseInt(ck.value, 10)); });
+  var moved = 0;
+  ids.forEach(function(id){
+    var s = state.students.filter(function(x){ return x.id === id; })[0];
+    if(!s) return;
+    s.tags = (s.tags || []).filter(function(t){ return !isDormTag(t) && t !== DAY_TAG; });
+    s.tags.push(no);
+    s.updatedAt = Date.now();
+    fillStudentGenderFromDorm(s);   // 入寝即补写性别（仅档案性别为空时）
+    moved++;
+  });
+  if(!state.customDorms) state.customDorms = [];
+  if(state.customDorms.indexOf(no) < 0) state.customDorms.push(no);
+  saveData();
+  closeModal('dormNewModal');
+  renderDorm();
+  showToast(moved ? '已新增 ' + no + '（入住 ' + moved + ' 人）' : '已创建空寝室 ' + no + '，点卡片可添加成员', 'success');
+  openDorm(no);   // 空寝室也能打开（customDorms 兜底）
+}
+function deleteCustomDorm(no){
+  var still = state.students.some(function(s){ return dormNoOf(s) === no; });
+  if(still){ showToast('该寝室仍有成员，请先移出后再删除', 'error'); return; }
+  state.customDorms = (state.customDorms || []).filter(function(nn){ return nn !== no; });
+  saveData();
+  closeModal('dormMemberModal');
+  renderDorm();
+  showToast('已删除空寝室 ' + no, 'info');
 }
 
 function openDayBoardingList(){
@@ -10098,6 +10219,8 @@ function saveHonor(){
 function deleteHonor(id){
   if(!confirm('确定删除这份荣誉？')) return;
   state.honors = state.honors.filter(h=>h.id!==id);
+  if(!state.honorDeleted) state.honorDeleted = {};
+  state.honorDeleted[id] = Date.now();   // v2.18.12 删除墓碑：防云端旧副本并集复活
   saveData();
   renderHonors();
   showToast('已删除','success');
@@ -10859,6 +10982,8 @@ function clearData(){
   state.nextWorkLogId = 1;
   state.honors = [];
   state.nextHonorId = 1;
+  state.honorDeleted = {};   // v2.18.12 清空数据连带清墓碑
+  state.customDorms = [];
   state.notices = { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 };
   state.creditBank = cbDefaultBank();   // v2.17.30 学分银行随数据清空（品牌配置类保留）
   state.selectedStudents = new Set();
