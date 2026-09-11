@@ -1912,7 +1912,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.18.14</div>
+      <div class="login-version">v2.18.15</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2031,7 +2031,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.18.14 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.18.15 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2749,12 +2749,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.14</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.18.15</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 修复：删除的学生过会儿又回来了——学生名单接入删除墓碑（单个删除与名单同步移除都记删除记录并随云同步传播），云端旧副本/旧备份/未刷新设备都无法再复活已删学生（v2.18.15）<br>
               · 修复：导入 JSON 备份后荣誉复活/请假考试待办等丢失——导入改「覆盖式合并」，备份没提到的字段保留本机现值，删除记录不再被旧备份擦掉（v2.18.14）<br>
               · 新增「📊 批量导入学生表格」：设置页支持直接导入 Excel(.xlsx) 或 CSV——按表头自动识别 姓名/性别/家长电话/家长/学号/寝室，先预览再确认，命中学号或姓名则只更新、未命中则新建（v2.18.13）<br>
               · 荣誉墙修复：删除的荣誉（含示例荣誉）不再过段时间自己复活——删除记录随云同步传播，云端旧副本不再把已删荣誉并回来（v2.18.12）<br>
@@ -3507,6 +3508,7 @@ const CLOUD_SYNC_FIELDS = ['className','classNameFull','students','operations','
   'lastExport','lastImport','committee','seating','duty','exportedOpsCount','classMotto',
   'leaves','nextLeaveId','exams','nextExamId','todos','nextTodoId',
   'workLogs','nextWorkLogId','honors','nextHonorId','honorDeleted','customDorms','notices','creditBank',   // v2.18.12 +荣誉删除墓碑+自定义寝室
+  'studentDeleted',   // v2.18.15 +学生删除墓碑（单删/名单同步移除共用）
   'punishments','nextPunishId',   // v2.18.3 处分记录补入同步链路：此前漏加 → buildCloudPayload 按本表过滤时从不带它上传，换设备/清缓存后从云端恢复会全丢
   'scheduleImage','classAvatar','wipeAt','schemaVer'];
 // 通知历史可能内嵌近 1MB 的图片 base64，推送前剥离，防止 data.json 膨胀导致移动端拉取超时
@@ -4216,6 +4218,7 @@ let state = {
   honors: [],
   nextHonorId: 1,
   honorDeleted: {},   // v2.18.12 荣誉删除墓碑（id→删除时间戳）：云端旧副本并集不再复活已删荣誉
+  studentDeleted: {},   // v2.18.15 学生删除墓碑（id→删除时间戳）：云端/其他设备旧副本不再复活已删学生
   customDorms: [],    // v2.18.12 手动新增的寝室号（空寝室也显示；成员仍由学生标签派生）
   notices: { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 },
   creditBank: { settings:{ autoCoin:true, alertEnabled:true }, wallets:{}, ledger:[], nextLedgerId:1,
@@ -5583,10 +5586,15 @@ function loadData(){
       state.honors = d.honors || [];
       state.nextHonorId = d.nextHonorId || 1;
       state.honorDeleted = d.honorDeleted || {};
+      state.studentDeleted = d.studentDeleted || {};   // v2.18.15 学生删除墓碑
       state.customDorms = d.customDorms || [];
       // v2.18.12 自愈：本地数组残留已删 id（如导入旧备份）时按墓碑剔除
       if(state.honorDeleted && Object.keys(state.honorDeleted).length){
         state.honors = state.honors.filter(function(h){ return h && !state.honorDeleted[h.id]; });
+      }
+      // v2.18.15 自愈：已删学生（旧备份/旧合并残留）按墓碑剔除
+      if(state.studentDeleted && Object.keys(state.studentDeleted).length){
+        state.students = state.students.filter(function(s){ return s && !state.studentDeleted[s.id]; });
       }
       state.nextTodoId = d.nextTodoId || 1;
       if(d.notices) state.notices = d.notices;
@@ -5659,6 +5667,7 @@ function saveData(){
     honors: state.honors,
     nextHonorId: state.nextHonorId,
     honorDeleted: state.honorDeleted || {},
+    studentDeleted: state.studentDeleted || {},   // v2.18.15 学生删除墓碑
     customDorms: state.customDorms || [],
     nextTodoId: state.nextTodoId,
     notices: state.notices,
@@ -5699,10 +5708,13 @@ function smartMergeData(localData,remoteData){
   if(!remoteData||typeof remoteData!=='object')return localData;
   if(!localData||typeof localData!=='object')return remoteData;
   var merged=JSON.parse(JSON.stringify(localData));
-  // students: merge by id, keep newer
+  // students: merge by id, keep newer（v2.18.15 带删除墓碑 studentDeleted：已删学生不再被云端旧副本复活）
+  merged.studentDeleted = mergeTsMap(merged.studentDeleted || {}, remoteData.studentDeleted || {});
+  var sDel = merged.studentDeleted || {};
   if(remoteData.students&&Array.isArray(remoteData.students)){
-    var lmap={};(localData.students||[]).forEach(function(s){lmap[s.id]=s;});
+    var lmap={};(localData.students||[]).forEach(function(s){ if(s && !sDel[s.id]) lmap[s.id]=s; });
     remoteData.students.forEach(function(rs){
+      if(rs && sDel[rs.id]) return;   // v2.18.15 墓碑命中：跳过
       var ls=lmap[rs.id];
       if(!ls){lmap[rs.id]=rs;}
       else{
@@ -5722,6 +5734,9 @@ function smartMergeData(localData,remoteData){
       }
     });
     merged.students=Object.keys(lmap).map(function(k){return lmap[k];});
+  }
+  if(merged.studentDeleted && Object.keys(merged.studentDeleted).length){
+    merged.students=(merged.students||[]).filter(function(s){ return s && !merged.studentDeleted[s.id]; });   // v2.18.15 双向防御剔除
   }
   // operations: merge by id, dedup
   if(remoteData.operations&&Array.isArray(remoteData.operations)){
@@ -6950,6 +6965,8 @@ function deleteStudent(id){
   if(!student) return;
   if(!confirm(`确认删除学生 "${student.name}" 吗？`)) return;
   state.students = state.students.filter(s=>s.id!==id);
+  if(!state.studentDeleted) state.studentDeleted = {};
+  state.studentDeleted[id] = Date.now();   // v2.18.15 删除墓碑：防云端旧副本/旧备份复活
   state.selectedStudents.delete(id);
   // Clean up committee/seating/duty references
   for(const k in state.committee){
@@ -7167,6 +7184,8 @@ function confirmRosterSync(){
   // 1) 移除：清理班委任命 / 座位 / 值日排班 / 劳动整改引用（值日队列由 dutyEnsureQueue 自动吸收）
   plan.removes.forEach(r => {
     state.students = state.students.filter(s => s.id !== r.id);
+    if(!state.studentDeleted) state.studentDeleted = {};
+    state.studentDeleted[r.id] = Date.now();   // v2.18.15 名单同步移除=主动删除，同样记墓碑防复活
     state.selectedStudents.delete(r.id);
     for(const k in state.committee){ if(state.committee[k] === r.id) state.committee[k] = null; }
     state.seating.seats = state.seating.seats.filter(x => x.studentId !== r.id);
@@ -10905,9 +10924,10 @@ function importData(){
 function mergeImportData(d, prevData){
   var merged = {};
   Object.keys(prevData || {}).forEach(function(k){ merged[k] = prevData[k]; });
-  var TOMB = { honorDeleted:1, catDeleted:1, catDeletedAt:1, catRevived:1 };   // v2.18.14 墓碑类字段不走覆盖，走下方取大/并集
+  var TOMB = { honorDeleted:1, studentDeleted:1, catDeleted:1, catDeletedAt:1, catRevived:1 };   // v2.18.15 +学生删除墓碑；墓碑类字段不走覆盖，走下方取大/并集
   CLOUD_SYNC_FIELDS.forEach(function(f){ if(f in d && !TOMB[f]) merged[f] = d[f]; });
   merged.honorDeleted = mergeTsMap(merged.honorDeleted || {}, d.honorDeleted || {});
+  merged.studentDeleted = mergeTsMap(merged.studentDeleted || {}, d.studentDeleted || {});
   merged.catDeletedAt = mergeTsMap(merged.catDeletedAt || {}, d.catDeletedAt || {});
   merged.catRevived = mergeTsMap(merged.catRevived || {}, d.catRevived || {});
   if(d.catDeleted || merged.catDeleted){
@@ -11344,6 +11364,7 @@ function clearData(){
   state.honors = [];
   state.nextHonorId = 1;
   state.honorDeleted = {};   // v2.18.12 清空数据连带清墓碑
+  state.studentDeleted = {};   // v2.18.15 清空数据连带清墓碑
   state.customDorms = [];
   state.notices = { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 };
   state.creditBank = cbDefaultBank();   // v2.17.30 学分银行随数据清空（品牌配置类保留）

@@ -119,10 +119,10 @@ t('本地保存链未受影响：saveData 仍写 localStorage 并触发（已拦
 });
 
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.18.14</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.18.14 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.18.14</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.18.14'", 'SW');
+  has(html, '<div class="login-version">v2.18.15</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.18.15 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.18.15</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-v2.18.15'", 'SW');
 });
 
 t('设置页「近版更新速览」新增本版条目（旧条不删）', () => {
