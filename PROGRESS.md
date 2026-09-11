@@ -3,7 +3,7 @@
 > 与 `AGENTS.md`（知识库）+ `DECISIONS.md`（决策记录）配套。
 > 本文件只记「当前状态 + 下一步做什么」，不重复架构细节——架构看 `AGENTS.md`。
 >
-> 最后更新：2026-09-11（v2.18.15 学生删除墓碑防复活；同日 v2.18.14 导入覆盖式合并 / v2.18.13 批量导入学生表格 / v2.18.12 荣誉删除墓碑）
+> 最后更新：2026-09-11（v2.19.0 STATE_SCHEMA 表驱动结构性根治；同日 v2.18.15 学生删除墓碑 / v2.18.14 导入覆盖式合并 / v2.18.13 批量导入学生表格）
 > ⚠️ 下文「一、当前状态速览」为 v2.8.0 期快照，未随版本更新；**最新进展一律以文末「逐版章节」为准**。
 
 ---
@@ -964,6 +964,15 @@
 - [x] **测试**：新增 `_v2199_test.js` 14 项（★复活场景：本机已删+云端旧副本→不复活 / 他端删除双向生效 / 正常合并回归（较新者胜/并集/nextId 取大）/ 双侧墓碑取大 / mergeImportData 接线+旧备份无墓碑不擦 / deleteStudent 沙箱行为级含取消确认 / 五链路）；29 旧套件活动标记精确升 v2.18.15（103 处）→ **42 套全绿**。
 - [x] **实测**（playwright 6/6）：学生页真实点击删除赵六 → 名单剩 2 人 + studentDeleted 落盘 → **reload 不复活** → 学生页渲染正确，零 JS 错。
 - [x] **推送**：增量推 → 新 commit（index ~745460B + sw + 30 测试 + 文档）；API 校验 blob 字节级一致 / 注入 0 / **data.json 未被本提交改动**。
+
+### 2026-09-11（v2.19.0：STATE_SCHEMA 表驱动结构性根治——加同步字段从「改 5 处」到「改 1 处」）
+
+- [x] **立项**（老板拍板）：v2.18.3 处分漏链路、v2.18.12 荣誉复活、v2.18.14 导入白名单重建、v2.18.15 学生复活——四个 P0 同根：「加一个云同步字段要改 5 处（state 默认 / loadData / saveData 手写清单 / CLOUD_SYNC_FIELDS / smartMergeData 内联分支），漏一处就出事」。攒到 v2.19.0 做表驱动根治。
+- [x] **修法**：① 新增 `STATE_SCHEMA` 注册表（43 键：def 默认值（对象/数组一律惰性工厂避开 TDZ）/ cfs 进云端白名单 / nosv 仅上云不落盘（wipeAt 特例）/ tomb 删除墓碑 / ms 合并策略名 / sv 落盘兜底转换）放在 CFS 原位置；`CLOUD_SYNC_FIELDS` 改为 schema 派生；`buildDefaultState()` 遍历生成 state 默认值（43 键与旧字面量逐字段等价）。② `saveData` 落盘清单改遍历 schema（`_snap` 快照，键集合 = CFS−wipeAt = 40，sv 保留旧 || 默认语义）。③ `smartMergeData` 拆成「MERGE_ENGINE 策略表（25 个 ms 函数，带 MERGE_ENGINE_BEGIN/END 标记供测试切片）+ 10 行分发循环」——策略函数逐字搬运旧内联分支（含注释），调度顺序 = schema 声明顺序（= 旧 state 字面量顺序），墓碑类字段在实体策略内已并集、靠后的 tsmap 再并一次幂等。④ `mergeImportData` 的 TOMB 表改 schema.tomb 派生。⑤ v2.18.3 被搬迁的 CFS 历史注释在 schema 处原样恢复（历史注释计数护栏 8 处不断）。**loadData 仍为手写**（schemaVer 迁移等强时序逻辑不宜通用化）——五处链路收敛为四处表驱动 + 一处手写，新字段仍需 loadData 一行。
+- [x] **测试**：新增 `_v21200_test.js` 14 项（43 键无重复+顺序抽样 / **CFS 派生与 v2.18.15 手写白名单逐键一致** / tomb=5 / ms 全注册 / 落盘键集合=CFS−wipeAt / 「加字段只改 schema 一处」机制演示 / buildDefaultState 43 键+工厂求值+不共享引用 / saveData 行为级快照+sv 兜底 / 学生·荣誉墓碑复活 / catDeleted revive 仲裁 / creditBank / nextId 取大 / 不凭空造键）。29 套旧套件修补：版本断言双形态跟版（正则转义 + 侧栏全串共 4 型）、10 个 smartMergeData 沙箱注入 STATE_SCHEMA+引擎切片、约 30 处 state/saveData/CFS/合并体「源码串断言」改写为 schema/引擎等价断言 → **43 套全绿**。
+- [x] **实测**（playwright）：登录直进 → 首页渲染正常、侧栏/登录页 v2.19.0、控制台零报错、页面上下文真实 saveData() 快照 40 键、smartMergeData 墓碑命中不复活（id=9 被剔除）。
+- [x] **坑**：① 测试文件 CRLF/LF 混杂 + 断言双形态（明文/正则转义/带上下文全串）→ 修补一律单行锚点 + 幂等跳过；② splice 补丁 keepEnd 语义写反曾把旧 `})); }` 留在原地（vm 语法检查在写盘前逮住）；③ 恢复历史注释若与替换行共享版本号 token 则计数不变——必须**另起一行**恢复。
+- [x] **推送**：增量推 → 新 commit；API 校验 blob 字节级一致 / 注入 0 / **data.json 未被本提交改动**。
 
 
 

@@ -36,6 +36,9 @@ const cloneReasonCatalog = extractFn('cloneReasonCatalog');
 const sortOpsNewestFirst = extractFn('sortOpsNewestFirst');
 const liveOps = extractFn('liveOps');
 global.DEFAULT_COMMITTEE = { banzhang: null, fubanzhang: null, jilv: null, xuexi: null, tiyu: null, shenghuo: null, wenyi: null, xinli: null };
+// v2.19.0 表驱动：smartMergeData 依赖 STATE_SCHEMA + MERGE_ST 策略表，从 index.html 真实实现切片注入
+const STATE_SCHEMA = eval('(' + html.slice(html.indexOf('const STATE_SCHEMA'), html.indexOf('\n];', html.indexOf('const STATE_SCHEMA')) + 3).replace('const STATE_SCHEMA = ', '').replace(/;\s*$/, '') + ')');
+eval(html.slice(html.indexOf('function msStudents'), html.indexOf('/* MERGE_ENGINE_END')));
 const smartMergeData = extractFn('smartMergeData');
 // v2.18.9 smartMergeData 墓碑仲裁依赖（外部符号桩）
 global.mergeTsMap = extractFn('mergeTsMap');
@@ -113,8 +116,8 @@ t('云端旧目录含已删项 → 合并后墓碑剔除，跨设备删除生效
 });
 t('墓碑字段随 CLOUD_SYNC_FIELDS + saveData 持久', () => {
   has(html, "'catDeleted',", 'CLOUD_SYNC_FIELDS 含 catDeleted');
-  has(html, 'catDeleted: state.catDeleted || { dirs: [], groups: [], reasons: [] },', 'saveData 落盘 catDeleted');
-  has(html, 'catDeleted: { dirs: [], groups: [], reasons: [] },   // v2.17.30', 'state 默认含空墓碑');
+  has(html, "sv:function(v){ return v || { dirs: [], groups: [], reasons: [] }; }", 'saveData 落盘 catDeleted（schema sv 兜底）');
+  has(html, "def:function(){ return { dirs: [], groups: [], reasons: [] }; }, cfs:1, tomb:1, ms:'catTomb'", 'state 默认含空墓碑（schema）');
 });
 t('删除/重加闭环：删原因登记墓碑，重新添加同名原因清除墓碑', () => {
   has(html, "catDeletedAdd('reasons', name);", 'catDeleteReason 登记原因墓碑');

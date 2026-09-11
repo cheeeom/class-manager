@@ -37,6 +37,9 @@ global.sortOpsNewestFirst = function (ops) { return ops || []; };
 global.liveOps = function (ops) { return ops || []; };
 global.state = {};
 global.DEFAULT_COMMITTEE = { banzhang: null, fubanzhang: null, jilv: null, xuexi: null, tiyu: null, shenghuo: null, wenyi: null, xinli: null };
+// v2.19.0 表驱动：smartMergeData 依赖 STATE_SCHEMA + MERGE_ST 策略表，从 index.html 真实实现切片注入
+const STATE_SCHEMA = eval('(' + html.slice(html.indexOf('const STATE_SCHEMA'), html.indexOf('\n];', html.indexOf('const STATE_SCHEMA')) + 3).replace('const STATE_SCHEMA = ', '').replace(/;\s*$/, '') + ')');
+eval(html.slice(html.indexOf('function msStudents'), html.indexOf('/* MERGE_ENGINE_END')));
 const smartMergeData = extractFn('smartMergeData');
 
 /* ---- 行为级沙箱：真跑 catSaveNewItem（隐式建大类 + 加原因） ---- */
@@ -185,10 +188,10 @@ t('openReasonGroupModal 新增大类含 dirs revive', () => {
   has(src, 'catRefresh();', '保存链完整（catRefresh 未丢）');
 });
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.18.15</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.18.15 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.18.15</span>', '设置徽标');
-  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.18.15'", 'SW');
+  has(html, '<div class="login-version">v2.19.0</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.19.0 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.19.0</span>', '设置徽标');
+  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.19.0'", 'SW');
 });
 t('近版更新速览含新条', () => {
   has(html, '隐式新建大类/方向时同步清除其旧删除记录', 'notes');

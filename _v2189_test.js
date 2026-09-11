@@ -71,13 +71,13 @@ t('index.html 主 <script> 块可被完整编译（改动后无语法错）', ()
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.18\.15</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.15 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.18.15')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.19\.0</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.19\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.19.0')) throw new Error('SW CACHE_NAME 未更新');
   if (sw.includes('class-manager-v2.18.4')) throw new Error('SW 旧 CACHE_NAME 残留');
 });
 t('设置页版本徽标随版 = v2.18.13', () => {
-  has(html, '🏷️ v2.18.15</span>', '设置页版本徽标未跟版');
+  has(html, '🏷️ v2.19.0</span>', '设置页版本徽标未跟版');
 });
 t('历史注释保护：v2.18.3 仍 8 处 / v2.18.0 仍 24 处（不随升版盲替）', () => {
   eq(count('v2.18.3'), 8, 'v2.18.3 注释数变了');

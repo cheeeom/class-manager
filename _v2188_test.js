@@ -50,18 +50,18 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.18\.15</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.15 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.18.15')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.19\.0</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.19\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.19.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 t('设置页版本徽标随版 = v2.18.13', () => {
-  has(html, '🏷️ v2.18.15</span>', '设置页版本徽标未跟版');
+  has(html, '🏷️ v2.19.0</span>', '设置页版本徽标未跟版');
 });
 t('历史注释保护：v2.18.3 的 P0 修复注释 8 处保留（不随升版盲替）', () => {
   eq(count('v2.18.3'), 8);
-  has(html, 'punishments: [],   // v2.18.3 处分记录');
-  has(html, 'nextPunishId: 1,   // v2.18.3');
-  has(html, "'punishments','nextPunishId',   // v2.18.3 处分记录补入同步链路");
+  has(html, "{ key:'punishments', def:function(){ return []; }, cfs:1, ms:'punishments' },   // v2.18.3 处分记录");
+  has(html, "{ key:'nextPunishId', def:1, cfs:1, ms:'max1' },   // v2.18.3");
+  has(html, '处分记录补入同步链路：此前漏加 → buildCloudPayload 按本表过滤时从不带它上传');
 });
 t('设置页 notes 更新为本版条目（弹窗改造 / 改名跨设备 / 代码清理 / 调试静默）', () => {
   has(html, '原生弹窗全部换成站内模态', '缺弹窗改造说明');
@@ -236,8 +236,8 @@ t('★ defaultDuty() / defaultSeating() 返回全新对象（防共享引用污�
 t('duty/seating 默认值三站点收敛（对象默认值 / loadData / 彻底重置）', () => {
   eq(count('defaultDuty()'), 4);
   eq(count('defaultSeating()'), 4);
-  has(html, 'duty: defaultDuty(),');
-  has(html, 'seating: defaultSeating(),');
+  has(html, "def:function(){ return defaultDuty(); }");
+  has(html, "def:function(){ return defaultSeating(); }");
   has(fnBody('loadData'), 'defaultDuty()');
   has(fnBody('loadData'), 'defaultSeating()');
   has(fnBody('clearData'), 'defaultDuty()');

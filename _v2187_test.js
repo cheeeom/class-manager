@@ -36,12 +36,12 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.18\.15</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.15 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.18.15')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.19\.0</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.19\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.19.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 t('设置页版本徽标随版 = v2.18.13', () => {
-  has(html, '🏷️ v2.18.15</span>', '设置页版本徽标未跟版');
+  has(html, '🏷️ v2.19.0</span>', '设置页版本徽标未跟版');
 });
 t('历史注释保护：v2.18.2 功能注释 2 处保留（不随升版盲替）', () => {
   const n = (html.match(/v2\.18\.2/g) || []).length;
@@ -53,35 +53,37 @@ t('历史注释保护：v2.18.0 功能注释 24 处保留', () => {
 });
 
 console.log('\n=== P0-1 处分记录补入云同步链路 ===');
-t('链路① state 默认值含 punishments / nextPunishId，且为顶层字段（2 空格缩进）', () => {
+t('链路① STATE_SCHEMA 含 punishments / nextPunishId，且为顶层条目（2 空格缩进）', () => {
   const lines = html.split('\n');
-  const i = lines.findIndex(l => l.includes('punishments: [],   // v2.18.3 处分记录'));
-  ok(i > 0, 'state 默认值缺 punishments');
+  const i = lines.findIndex(l => l.includes("{ key:'punishments', def:function(){ return []; }, cfs:1, ms:'punishments' },"));
+  ok(i > 0, 'STATE_SCHEMA 缺 punishments');
   const ind = (lines[i].match(/^[ \t]*/) || [''])[0].length;
-  ok(ind === 2, 'punishments 缩进应为 2（state 顶层），实际 ' + ind + ' —— 曾误插进 creditBank 内部');
-  const j = lines.findIndex(l => l.includes('nextPunishId: 1,   // v2.18.3'));
+  ok(ind === 2, 'punishments 缩进应为 2（schema 顶层），实际 ' + ind + ' —— 曾误插进 creditBank 内部');
+  const j = lines.findIndex(l => l.includes("{ key:'nextPunishId', def:1, cfs:1, ms:'max1' },"));
   ok(j > 0 && (lines[j].match(/^[ \t]*/) || [''])[0].length === 2, 'nextPunishId 缩进应为 2');
 });
 t("链路④ CLOUD_SYNC_FIELDS 含 'punishments','nextPunishId'", () => {
-  const seg = html.slice(html.indexOf('const CLOUD_SYNC_FIELDS'), html.indexOf('const CLOUD_SYNC_FIELDS') + 1200);
-  has(seg, "'punishments','nextPunishId'", '处分记录未加入云同步白名单 → 永远不会上传');
+  const seg = html.slice(html.indexOf('const STATE_SCHEMA'), html.indexOf('function buildDefaultState'));
+  has(seg, "key:'punishments', def:function(){ return []; }, cfs:1", '处分记录未加入云同步白名单 → 永远不会上传');
+  has(seg, "key:'nextPunishId', def:1, cfs:1", 'nextPunishId 未加入云同步白名单');
 });
 t('链路⑤ smartMergeData 含 punishments 合并分支（按 id 并集 + 远端已办结优先）', () => {
-  const b = fnBody('smartMergeData');
+  const b = html.slice(html.indexOf('function msPunishments'), html.indexOf('/* MERGE_ENGINE_END'));
   has(b, 'remoteData.punishments', '合并分支缺失 → 云端处分记录永远回落不下来');
   has(b, 'pmap[rp.id]', '缺按 id 归并');
   has(b, 'if(rp.done&&!lp.done){ pmap[rp.id]=rp; }', '缺「远端已办结优先」');
   has(b, 'merged.punishments=', '缺写回 merged');
-  has(b, 'merged.nextPunishId=Math.max(', '缺 nextPunishId 取大');
+  has(b, 'merged[key]=Math.max(localData[key]||1,remoteData[key]||1);', '缺 nextPunishId 取大（msMax1）');
 });
 t('处分记录三链齐（原先只走 loadData/saveData 两条）', () => {
   has(html, 'state.punishments = d.punishments || [];', 'loadData 恢复缺失');
-  has(html, 'punishments: state.punishments,', 'saveData 持久化缺失');
+  has(html, 'if(!f.cfs || f.nosv) return;', 'saveData 持久化缺失（schema 遍历）');
 });
 
 console.log('\n=== P0-2 saveData 异常保护 ===');
 t('localStorage.setItem 包在 try 内', () => {
-  has(html, 'try{ localStorage.setItem(STORE_KEY, JSON.stringify({', 'setItem 未被 try 包裹');
+  const sd2 = html.match(/function saveData\(\)\{[\s\S]*?autoPushToCloud\(\);[\s\S]*?\n\}/)[0];
+  ok(sd2.indexOf('try{') >= 0 && sd2.indexOf('localStorage.setItem(STORE_KEY, JSON.stringify(_snap))') > sd2.indexOf('try{'), 'setItem 未被 try 包裹');
 });
 t('catch 分支提示用户且不再静默中断', () => {
   const b = fnBody('saveData');

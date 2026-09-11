@@ -68,14 +68,14 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.18\.15</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.15 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.18.15')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.19\.0</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.19\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.19.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== settleHist 数据层（月度结算统计快照）===');
 t('state 默认 / cbDefaultBank / cbBankSafe 兜底 均含 settleHist:[]', () => {
-  has(html, 'settleHist: [],  // v2.17.30 月度结算统计快照', 'state 默认缺 settleHist');
+  has(html, 'settleHist: [], store:{ items:[], nextItemId:1 } };', 'cbDefaultBank（= state 默认工厂）缺 settleHist');
   ok(Array.isArray(cbDefaultBank().settleHist), 'cbDefaultBank 缺 settleHist');
   state = freshState([{ id: 1, name: '甲', credit: 100 }]);
   state.creditBank.settleHist = undefined;      // 模拟老数据

@@ -153,10 +153,10 @@ t('设置页入口：accept 扩展、按钮、路由、预览模态', () => {
   has(html, 'onclick="confirmStudentImport()"', '确认按钮');
 });
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.18.15</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.18.15 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.18.15</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.18.15'", 'SW');
+  has(html, '<div class="login-version">v2.19.0</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.19.0 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.19.0</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-v2.19.0'", 'SW');
 });
 t('设置页「近版更新速览」新增本版条目（旧条不删）', () => {
   has(html, '新增「📊 批量导入学生表格」', '缺 v2.18.13 notes 条目');

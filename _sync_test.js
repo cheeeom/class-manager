@@ -26,6 +26,10 @@ code = code.slice(0, code.indexOf('function configSyncPwd(){')) +
        code.slice(code.indexOf('// 推送前安全闸门'));
 
 // ---- 抽取 sortOpsNewestFirst + smartMergeData ----
+// v2.19.0 表驱动：smartMergeData 依赖 STATE_SCHEMA + MERGE_ST 策略表，从 index.html 真实实现切片注入
+const STATE_SCHEMA = eval('(' + html.slice(html.indexOf('const STATE_SCHEMA'), html.indexOf('\n];', html.indexOf('const STATE_SCHEMA')) + 3).replace('const STATE_SCHEMA = ', '').replace(/;\s*$/, '') + ')');
+eval(html.slice(html.indexOf('function msStudents'), html.indexOf('/* MERGE_ENGINE_END')));
+
 const ms = html.indexOf('function smartMergeData');
 const me = html.indexOf('\nfunction ', ms + 10);
 const helperStart = html.indexOf('function sortOpsNewestFirst');

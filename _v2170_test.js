@@ -27,9 +27,9 @@ t('index.html 主 <script> 块可被完整编译', () => {
 
 console.log('\n=== v2.18.13 版本三处同步 ===');
 t('登录页 / 侧栏 / SW CACHE_NAME = v2.18.13', () => {
-  if (!/login-version">v2\.18\.15</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.18\.15 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.18.15')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.19\.0</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.19\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.19.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 目录纯函数 ===');
@@ -79,15 +79,15 @@ t('migrateReasonCatalog：已有目录尊重用户编辑（删除的预设不复
 
 console.log('\n=== 数据接线 ===');
 t('state 默认 reasonCatalog + reasons 派生；CLOUD_SYNC_FIELDS/saveData 含 reasonCatalog', () => {
-  if (!/reasonCatalog: defaultReasonCatalog\(\),/.test(html)) throw new Error('state 缺 reasonCatalog 默认值');
-  const sync = html.match(/const CLOUD_SYNC_FIELDS = \[([^\]]*)\]/);
-  if (!sync[1].includes('reasonCatalog')) throw new Error('CLOUD_SYNC_FIELDS 缺 reasonCatalog');
-  if (!html.includes('reasonCatalog: state.reasonCatalog || {},')) throw new Error('saveData 未落盘 reasonCatalog');
+  if (!/\{ key:'reasonCatalog', def:function\(\)\{ return defaultReasonCatalog\(\); \}/.test(html)) throw new Error('state 缺 reasonCatalog 默认值（schema）');
+  const _ss = eval('(' + html.slice(html.indexOf('const STATE_SCHEMA'), html.indexOf('\n];', html.indexOf('const STATE_SCHEMA')) + 3).replace('const STATE_SCHEMA = ', '').replace(/;\s*$/, '') + ')');
+  if (!_ss.filter(f2 => f2.cfs).map(f2 => f2.key).includes('reasonCatalog')) throw new Error('CLOUD_SYNC_FIELDS 缺 reasonCatalog');
+  if (!html.includes('if(!f.cfs || f.nosv) return;')) throw new Error('saveData 未遍历 schema 落盘 reasonCatalog');
   if (!html.includes('migrateReasonCatalog(d.reasonCatalog, (d.reasons && d.reasons.length) ? d.reasons : defaultReasons)')) throw new Error('loadData 未迁移目录');
   if (!html.includes('syncReasonsFromCatalog();')) throw new Error('loadData 未派生 reasons');
 });
 t('smartMergeData 对 reasonCatalog 做结构并集', () => {
-  const fn = html.match(/function smartMergeData\([\s\S]*?\n\}/)[0];
+  const fn = html.slice(html.indexOf('function msReasonCatalog'), html.indexOf('/* MERGE_ENGINE_END'));
   if (!fn.includes('mergeReasonCatalog')) throw new Error('smartMerge 缺目录合并');
 });
 t('applyCreditDelta 统一入口已接署名；renderOpItem 渲染班委标签', () => {
