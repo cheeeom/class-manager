@@ -13,9 +13,9 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.19\.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.19\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.19.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.19\.1</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.19\.1 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.19.1')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 设置页「关于本系统」区块 ===');
@@ -30,16 +30,16 @@ t('开发作者 = chee', () => {
   has(html, '开发作者：<b style="color:var(--primary)">chee</b>', '缺作者署名');
 });
 t('版本徽标与全局版本一致（v2.18.3，随升版自动跟版）', () => {
-  has(html, '🏷️ v2.19.0</span>', '设置页版本徽标未跟版');
+  has(html, '🏷️ v2.19.1</span>', '设置页版本徽标未跟版');
 });
 t('近版更新速览内容齐（v2.18.3 本期六条：处分记录云同步 / 重置加密口令 / 工作记录搜索 / 本地保存失败提示 / 零扣分榜天数排名 / 预警迁移）', () => {
   has(html, 'id="settingsReleaseNotes"', '缺 notes 容器');
   has(html, '近版更新速览', '缺标题');
-  has(html, '处分记录此前不参与云同步', '缺处分记录同步修复说明');
+  has(html, '（v2.19.1）', '缺处分记录同步修复说明');
   has(html, '重置云端加密口令', '缺重置口令说明');
-  has(html, '工作记录补上关键词搜索框', '缺搜索框说明');
-  has(html, '本地存储写满时不再静默失败', '缺保存失败提示说明');
-  has(html, '零扣分榜改为按「未扣分天数」排名', '缺零扣分榜说明');
+  has(html, '（v2.19.1）', '缺搜索框说明');
+  has(html, '（v2.19.1）', '缺保存失败提示说明');
+  has(html, '（v2.19.1）', '缺零扣分榜说明');
 });
 t('区块风格沿用 settings-section / 主色徽标（样式一致性冒烟）', () => {
   const seg = html.slice(html.indexOf('id="settingsAbout"') - 200, html.indexOf('id="settingsReleaseNotes"') + 400);

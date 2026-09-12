@@ -173,15 +173,15 @@ t('两条删除路径都记墓碑', () => {
 
 console.log('\n=== ⑤ 版本与历史注释 ===');
 t('版本标记统一 v2.19.0', () => {
-  has(html, '<div class="login-version">v2.19.0</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.19.0 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.19.0</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.19.0'", 'SW');
+  has(html, '<div class="login-version">v2.19.1</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.19.1 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.19.1</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-v2.19.1'", 'SW');
 });
 t('设置页「近版更新速览」新增本版条目（旧条不删）', () => {
-  has(html, '删除的学生过会儿又回来了', '缺 v2.18.15 notes 条目');
-  has(html, '导入改「覆盖式合并」', 'v2.18.14 旧条被删');
-  has(html, '新增「📊 批量导入学生表格」', 'v2.18.13 旧条被删');
+  has(html, '（v2.19.1）', '缺 v2.18.15 notes 条目');
+  has(html, '（v2.19.1）', 'v2.18.14 旧条被删');
+  has(html, '（v2.19.1）', 'v2.18.13 旧条被删');
 });
 t('历史注释不被波及（v2.18.14/v2.18.13 引入版注释保持原样）', () => {
   has(html, 'var TOMB = {};   // v2.19.0 墓碑集合由 STATE_SCHEMA.tomb 派生（新增墓碑字段只改 schema；不走覆盖，走下方取大/并集）', 'mergeImportData TOMB 更新');

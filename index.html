@@ -1912,7 +1912,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.19.0</div>
+      <div class="login-version">v2.19.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2031,7 +2031,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.19.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.19.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2744,39 +2744,25 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           </div>
         </div>
 
-        <!-- v2.17.30 设置页底部：版本信息说明（作者 / 版本徽标 / 近版更新速览）。
-             维护提示：版本徽标随升版双轮 replace 自动跟版；「本版更新」文案需在每次发版时手动更新。 -->
+        <!-- v2.17.30 设置页底部：版本信息说明（作者 / 版本徽标 / 本版更新速览）。
+             维护约定（v2.19.1 起）：发版时①版本徽标三处（登录页 / 侧栏页脚 / 此处）与 sw.js CACHE_NAME 同步跟版；
+             ②「本版更新速览」用最新版本的内容【整体替换】，只保留最新一版，不做追加。 -->
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.19.0</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.19.1</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.19.1）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 结构性升级：新增一个云同步字段从「改 5 处」降为「改 1 处」——状态字段注册表统一驱动默认值/云端白名单/落盘清单/云合并策略/导入墓碑集合，合并逻辑逐字搬运、语义不变（v2.19.0）<br>
-              · 修复：删除的学生过会儿又回来了——学生名单接入删除墓碑（单个删除与名单同步移除都记删除记录并随云同步传播），云端旧副本/旧备份/未刷新设备都无法再复活已删学生（v2.18.15）<br>
-              · 修复：导入 JSON 备份后荣誉复活/请假考试待办等丢失——导入改「覆盖式合并」，备份没提到的字段保留本机现值，删除记录不再被旧备份擦掉（v2.18.14）<br>
-              · 新增「📊 批量导入学生表格」：设置页支持直接导入 Excel(.xlsx) 或 CSV——按表头自动识别 姓名/性别/家长电话/家长/学号/寝室，先预览再确认，命中学号或姓名则只更新、未命中则新建（v2.18.13）<br>
-              · 荣誉墙修复：删除的荣誉（含示例荣誉）不再过段时间自己复活——删除记录随云同步传播，云端旧副本不再把已删荣誉并回来（v2.18.12）<br>
-              · 寝室管理新增「➕ 新增寝室」：可直接创建寝室并勾选学生入住；空寝室也显示在列表，点卡片可继续添加成员或删除（v2.18.12）<br>
-              · 新增「📴 纯本地模式」：设置页一键停用自动云同步与全部同步弹窗，数据只存本机、关机重启不丢失；手动推送/拉取仍可用（v2.18.11）<br>
-              · 修复平板/矮窗口下侧栏导航「设置」显示不全且无法滑动：导航列表允许收缩内部滚动，视口高度改用动态单位 dvh（v2.18.10）<br>
-              · 修复：往新建大类里添加原因后刷新整组消失——隐式新建大类/方向时同步清除其旧删除记录（v2.18.8 时间戳仲裁的补漏）<br>
-              · 修复：重新添加的原因/大类刷新后被云端旧删除记录整体抹掉——删除与重新添加改按时间戳仲裁，重新添加晚于删除则旧记录作废<br>
-              · 云同步推送失败自动重试并改用中文提示：网络抖动/并发冲突自动退避重试，Token 失效/口令不一致等会明确告诉你原因<br>
-              · 修复：编辑课堂纪律原因分值后切页面/刷新偶发被云端旧值复原——原因分值合并改为本地优先，未推送的编辑不再被覆盖<br>
-              · 座次表支持拖拽换座：按住座位卡片拖动即可换座——拖到已占座位两人互换、拖到空位直接移动（触屏长按约 0.2 秒后拖动）<br>
-              · 三个排座按钮改为「只填空座」：先手动排好的座位一律保留，未入座学生按所选顺序（学分高→低 / 姓名 / 随机）从前往后依次补位<br>
-              · 原生弹窗全部换成站内模态（新增 / 重命名方向与大类、改班级口号、续假日期），重置口令改用密码框输入、不再明文回显<br>
-              · 修复原因目录改名不跨设备传播：改名后旧名记入删除墓碑，其他设备不会再同时出现新旧两份<br>
-              · 代码清理与加固：删除 8 个零引用函数与 22 条无引用 CSS 规则；调试日志默认静默（地址栏加 ?debug=1 打开）<br>
-              · 修复：处分记录此前不参与云同步，换电脑 / 清缓存后从云端恢复会全部丢失（现已打通上传与合并）<br>
-              · 新增「🔁 重置云端加密口令」：改口令后一键用新口令重推云端，无需手动删除云端文件<br>
-              · 工作记录补上关键词搜索框（跨日期检索标题与内容），此前过滤逻辑一直空转<br>
-              · 本地存储写满时不再静默失败，会明确提示并照常推送云端<br>
-              · 零扣分榜改为按「未扣分天数」排名（右侧直接显示天数 / 从未扣分），不再与学分挂钩<br>
+              · 🔧 修复云同步安全闸门失效：云端数据超 1MB 后，「空本机覆盖云端 / 明文覆盖密文 / 推送前自动合并」三项保护全部静默失效，多设备下等于谁后推谁覆盖——现对大文件自动改用 raw 方式读取云端内容，保护恢复<br>
+              · 🔧 修复「清空数据」不跨设备生效：重置时间戳此前从未随推送上云，其他设备不会对齐清空、旧数据会整体复活<br>
+              · 🔧 修复学分银行退款合并丢失：一台设备核销、另一台设备退款时，合并后券错标「已核销」但币已退还；退款/过期现带时间戳参与合并仲裁<br>
+              · 🔧 修复东八区凌晨（0-8 点）操作日期差一天：请假默认起止 / 销假日期 / 考试默认日期 / 待办逾期判断 / 导出文件名，共 7 处<br>
+              · 🔧 修复设置含中文等非数字密码后无法登录的缺陷（历史 6 位数字密码不受影响）<br>
+              · 🧹 代码收敛约 100 行：学生搜索下拉三处合一、清空数据改表驱动（以后加字段不再怕漏）、剪贴板与设置存取去重、4 处弹窗统一走站内 helper；商品图标文案补齐转义<br>
+              · ⚠️ 已知事项：云端 data.json 已达 13MB，同步传输量大，建议尽快查明膨胀源并瘦身
             </div>
           </div>
         </div>

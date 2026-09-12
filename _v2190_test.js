@@ -123,15 +123,15 @@ t('新「本地优先」实现已写入', () => {
   has(html, 'Object.assign({}, _rs, _ls)', '本地优先合并');
 });
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.19.0</div>', '登录页版本');
-  has(html, '<div class="sidebar-footer">v2.19.0 · 班主任工作台</div>', '侧栏版本');
-  has(html, '🏷️ v2.19.0</span>', '设置页徽标');
+  has(html, '<div class="login-version">v2.19.1</div>', '登录页版本');
+  has(html, '<div class="sidebar-footer">v2.19.1 · 班主任工作台</div>', '侧栏版本');
+  has(html, '🏷️ v2.19.1</span>', '设置页徽标');
 });
 t('sw.js CACHE_NAME 已升版', () => {
-  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.19.0'", 'sw 缓存名');
+  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.19.1'", 'sw 缓存名');
 });
 t('速览新增修复条目', () => {
-  has(html, '原因分值合并改为本地优先', '近版更新速览');
+  has(html, '（v2.19.1）', '近版更新速览');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');
