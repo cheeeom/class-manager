@@ -188,13 +188,13 @@ t('openReasonGroupModal 新增大类含 dirs revive', () => {
   has(src, 'catRefresh();', '保存链完整（catRefresh 未丢）');
 });
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.19.1</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.19.1 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.19.1</span>', '设置徽标');
-  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.19.1'", 'SW');
+  has(html, '<div class="login-version">v2.19.2</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.19.2 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.19.2</span>', '设置徽标');
+  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.19.2'", 'SW');
 });
 t('近版更新速览含新条', () => {
-  has(html, '（v2.19.1）', 'notes');
+  has(html, '（v2.19.2）', 'notes');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

@@ -74,7 +74,7 @@ const remoteJson = (data) => data ? { content: b64json(data) } : null;
   t('autoSyncFromCloud / autoPushToCloud / doPushToCloud 均有 wipeInProgress 闸门', () => {
     eq((html.match(/wipeInProgress/g) || []).length >= 6, true);
   });
-  t('clearData 重置完整（v2.19.1 表驱动：全 schema 回默认 + reasonScores 专用默认 + wipeAt 重置戳）', () => {
+  t('clearData 重置完整（v2.19.2 表驱动：全 schema 回默认 + reasonScores 专用默认 + wipeAt 重置戳）', () => {
     const fn = html.match(/function clearData\([\s\S]*?\n\}/)[0];
     ['buildDefaultState()', 'defaultReasonScores', 'state.wipeAt = Date.now()', 'pushWipeToCloud()'].forEach(s => {
       if (!fn.includes(s)) throw new Error('缺少: ' + s);
