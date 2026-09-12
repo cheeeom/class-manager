@@ -233,15 +233,14 @@ t('★ defaultDuty() / defaultSeating() 返回全新对象（防共享引用污�
   ok(s1 !== s2, 'defaultSeating 共享引用');
   eq(s1.cols, 8); eq(s1.rows, 5); ok(Array.isArray(s1.seats));
 });
-t('duty/seating 默认值三站点收敛（对象默认值 / loadData / 彻底重置）', () => {
-  eq(count('defaultDuty()'), 4);
-  eq(count('defaultSeating()'), 4);
+t('duty/seating 默认值收敛（对象默认值 / loadData / clearData 表驱动重置）', () => {
+  eq(count('defaultDuty()'), 3);    // v2.19.1 clearData 改走 buildDefaultState()，原手写清单行删除
+  eq(count('defaultSeating()'), 3);
   has(html, "def:function(){ return defaultDuty(); }");
   has(html, "def:function(){ return defaultSeating(); }");
   has(fnBody('loadData'), 'defaultDuty()');
   has(fnBody('loadData'), 'defaultSeating()');
-  has(fnBody('clearData'), 'defaultDuty()');
-  has(fnBody('clearData'), 'defaultSeating()');
+  has(fnBody('clearData'), 'buildDefaultState()');   // v2.19.1 clearData 表驱动重置
 });
 t('★ pad2：统一两位补零，三处局部实现收敛', () => {
   const p = oneLine('pad2(v)');

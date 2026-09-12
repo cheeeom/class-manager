@@ -104,9 +104,9 @@ t('smartMergeData 接入 cbMergeBanks 合并（任一侧存在才合并）', () 
   has(sm, 'if(localData.creditBank || remoteData.creditBank){');
   has(sm, 'merged.creditBank = cbMergeBanks(');
 });
-t('clearData 清空数据时重置 creditBank（品牌配置类保留）', () => {
+t('clearData 清空数据时重置 creditBank（v2.19.1 表驱动：随 buildDefaultState 回默认）', () => {
   const cd = html.match(/function clearData\(\)\{[\s\S]*?pushWipeToCloud\(\);[\s\S]*?\n\}/)[0];
-  has(cd, 'state.creditBank = cbDefaultBank();');
+  has(cd, 'buildDefaultState()');
 });
 
 console.log('\n=== 教师专属入口与 UI 接入 ===');

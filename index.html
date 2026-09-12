@@ -3678,9 +3678,10 @@ function configSyncPwd(){
   updateCloudSyncUI();
 }
 // 推送前安全闸门：防止空/残缺的本地数据覆盖云端（v2.8.0 修复 P0 竞态）
+// 入参：fetchCloudMeta 返回的解析后云端负载；仍兼容 {content: base64} 信封（回归测试用）
 // 返回 Promise<{ok, msg, resync, remote}>；remote 为解密后的云端明文，供推送前合并使用
 function checkPushSafety(remoteJson){
-  var remote = null;
+  var remote = remoteJson;
   try{
     if(remoteJson && remoteJson.content){
       var bin = atob(String(remoteJson.content).replace(/\s/g,''));
@@ -3720,6 +3721,40 @@ function checkPushSafety(remoteJson){
   }
   return Promise.resolve({ok:true, remote:remote});
 }
+/* v2.19.1 GET 云端 data.json 的 sha 与内容（修复 >1MB 安全闸门静默失效）：
+   GitHub Contents API 对 >1MB 文件，JSON 媒体类型返回 200 但 content 为空串（sha 仍在）。
+   旧实现把空内容当「无云端数据」→ checkPushSafety 直接放行 → 空本地保护/密文覆盖保护/
+   推送前合并全部静默失效（多设备下等于「谁后推谁全量覆盖」）。
+   修复：content 为空时追加一次 raw 媒体类型 GET 拿原文。
+   返回 { sha, remote }：remote = 解析后的云端负载（404 / 损坏时为 null）。 */
+function fetchCloudMeta(apiUrl, baseHeaders){
+  return fetch(apiUrl, { method:'GET', headers: baseHeaders })
+    .then(function(r){
+      if(r.status === 404) return null;
+      if(!r.ok) throw new Error('GET SHA failed: ' + r.status);
+      return r.json();
+    })
+    .then(function(json){
+      if(!json) return { sha: undefined, remote: null };
+      if(json.content){
+        try{
+          var bin = atob(String(json.content).replace(/\s/g,''));
+          var bytes = new Uint8Array(bin.length);
+          for(var i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+          return { sha: json.sha, remote: JSON.parse(new TextDecoder().decode(bytes)) };
+        }catch(e){ return { sha: json.sha, remote: null }; }
+      }
+      return fetch(apiUrl, { method:'GET', headers: Object.assign({}, baseHeaders, { 'Accept':'application/vnd.github.raw+json' }) })
+        .then(function(r2){
+          if(!r2.ok) throw new Error('GET RAW failed: ' + r2.status);
+          return r2.text().then(function(t){
+            var remote = null;
+            try{ remote = JSON.parse(t); }catch(e2){}
+            return { sha: json.sha, remote: remote };
+          });
+        });
+    });
+}
 // 统一的推送实现（auto / manual 共用）
 // 流程：GET(拿 sha 与云端内容) → checkPushSafety 闸门 → 与云端合并 → 加密 → PUT
 function doPushToCloud(message){
@@ -3727,17 +3762,9 @@ function doPushToCloud(message){
   var token = getGHToken();
   var apiUrl = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH;
   var baseHeaders = { 'Authorization':'token ' + token, 'Accept':'application/vnd.github.v3+json', 'User-Agent':'cm' };
-  return fetch(apiUrl, { method:'GET', headers: baseHeaders })
-    .then(function(r){
-      // 404 = 云端还没有 data.json（历史清理后的首次推送，或仓库刚重建）。
-      // 此时 sha 为 undefined，PUT 不带 sha 即创建文件。
-      if(r.status === 404) return null;
-      if(!r.ok) throw new Error('GET SHA failed: ' + r.status);
-      return r.json();
-    })
-    .then(function(json){
-      var sha = json ? json.sha : undefined;
-      return checkPushSafety(json).then(function(chk){
+  return fetchCloudMeta(apiUrl, baseHeaders)
+    .then(function(meta){
+      return checkPushSafety(meta.remote).then(function(chk){
         if(!chk.ok){
           if(chk.resync){
             // 本机为空、云端有数据：先从云端恢复，本次推送放弃（避免覆盖）
@@ -3745,7 +3772,7 @@ function doPushToCloud(message){
           }
           throw new Error(chk.msg);
         }
-        return { sha: sha, remote: chk.remote || null };
+        return { sha: meta.sha, remote: chk.remote || null };
       });
     })
     .then(function(ctx){
@@ -3821,6 +3848,9 @@ function applyCloudData(remoteData){
 function buildCloudPayload(parsed){
   var lightData = {};
   CLOUD_SYNC_FIELDS.forEach(function(f){ if(f in parsed) lightData[f] = parsed[f]; });
+  // v2.19.1 修复重置戳断链：wipeAt 标了 nosv（不进本地快照），而本函数只从快照取数 → 重置戳永远推不上云端，
+  // 其他设备的「云端已重置→对齐清空」分支永不触发，清空后旧数据会整体复活。始终以内存 state 为权威显式带上。
+  lightData.wipeAt = Number(state && state.wipeAt) || 0;
   if(lightData.notices) lightData.notices = stripNoticeHistoryImages(lightData.notices);
   lightData.hasAvatar = !!parsed.classAvatar;
   lightData.hasSchedule = !!parsed.scheduleImage;
@@ -4415,8 +4445,11 @@ function cbNormalizeShape(b){
   return n;
 }
 /* 云合并（纯函数，供 smartMergeData 用，不触碰 state）：
-   券包/流水/预警按 id 去重、冲突取更新者（券按 usedAt|time、流水按 time、预警按 resolvedAt|time）；
-   lastSettleMonth/计数器取大；折扣月取大。输入不被修改。 */
+   券包/流水/预警按 id 去重、冲突取更新者（券按 核销/退款/过期时间戳 与 time 取最晚者、流水按 time、预警按 resolvedAt|time）；
+   lastSettleMonth/计数器取大；折扣月取大。输入不被修改。
+   ⚠️ id 冲突固有局限：id 是各设备本地自增的，两台设备离线期间各自新增会拿到相同 id，
+   合并按 id 去重会静默丢掉一条（积分账不平）。缓解：多设备并行使用时，
+   记账类操作（兑换/退还/结算/手动调整）请只在某一台设备上做——这是使用约定而非代码保证。 */
 function cbMergeBanks(localBank, remoteBank){
   var l = cbNormalizeShape(localBank || cbDefaultBank());
   var r = cbNormalizeShape(remoteBank || cbDefaultBank());
@@ -4435,8 +4468,9 @@ function cbMergeBanks(localBank, remoteBank){
       var lv = vm[v.id];
       if(!lv){ vm[v.id] = v; }
       else {
-        var lt = lv.usedAt || lv.time || 0;
-        var rt = v.usedAt || v.time || 0;
+        // v2.19.1 仲裁时间 = 核销/退款/过期三者取最晚（退款此前无时间戳会被核销状态顶掉）
+        var lt = Math.max(lv.usedAt || 0, lv.refundedAt || 0, lv.expiredAt || 0, lv.time || 0);
+        var rt = Math.max(v.usedAt || 0, v.refundedAt || 0, v.expiredAt || 0, v.time || 0);
         if(rt > lt) vm[v.id] = v;
       }
     });
@@ -4592,7 +4626,8 @@ function cbTierSeverity(level){
   }
   return -1;
 }
-// 银行流水记账（最新在前）
+// 银行流水记账（最新在前）。id 为本设备自增：两台设备离线并行记账会产生同 id，
+// 合并时按 id 去重会丢一条——多设备场景请固定在一台设备上记账（见 cbMergeBanks 注释）
 function cbPushLedger(type, sid, delta, item, note, t){
   var b = cbBankSafe();
   var e = { id: b.nextLedgerId++, type: type, sid: cbWalletKey(sid), sname: cbSname(sid),
@@ -4653,6 +4688,9 @@ function cbRefundVoucher(sid, vid){
   var v = cbVouchers(sid).find(function(x){ return x.id === vid; });
   if(!v || v.status !== 'unused') return;
   v.status = 'refunded';
+  // v2.19.1 退款也打时间戳：合并仲裁用它判定「谁的操作更晚」——
+  // 否则 A 设备核销(usedAt)会顶掉 B 设备更晚的退款，出现「券已核销但币已退还」的账目错位
+  v.refundedAt = Date.now();
   if(v.source === 'redeem' && v.cost > 0){
     cbPushLedger('refund', sid, v.cost, v.name, '退还兑换币：' + v.name);
     showToast('已退还 ' + v.name + '，' + v.cost + ' 币退回', 'success');
@@ -4934,22 +4972,11 @@ function cbLedgerSidClear(){ cbLedgerSid = ''; renderBankPage(); }
 function cbLedgerTypeTo(v){ cbLedgerType = v || ''; renderBankPage(); }
 /* ============ v2.17.30 预警中心：按状态筛选 ============ */
 function cbAlertStatusTo(s){ cbAlertStatus = s || ''; cbRenderStudentAlerts(); }   // v2.18.0 迁学生管理页
+// v2.19.1 收敛到 copyToClipboard/legacyCopy（原 cbCopy* 是第二套剪贴板实现）
 function cbCopyText(txt){
-  var done = function(){ showToast('已复制，可直接粘贴发送', 'success'); };
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(txt).then(done).catch(function(){
-      cbCopyFallback(txt); done();
-    });
-  } else { cbCopyFallback(txt); done(); }
-}
-function cbCopyFallback(txt){
-  var ta = document.createElement('textarea');
-  ta.value = txt;
-  ta.style.position = 'fixed'; ta.style.opacity = '0';
-  document.body.appendChild(ta);
-  ta.select();
-  try{ document.execCommand('copy'); }catch(e){}
-  document.body.removeChild(ta);
+  copyToClipboard(txt).then(function(ok){
+    showToast(ok ? '已复制，可直接粘贴发送' : '复制失败', ok ? 'success' : 'error');
+  });
 }
 /* ---------- 学分银行页 UI ---------- */
 var cbBankTab = 'overview';    // overview | store | vouchers | ledger | alerts
@@ -5061,7 +5088,7 @@ function cbOpenItemDetail(key){
   if(!host) return;
   host.innerHTML =
     '<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">' +
-    '<div style="width:60px;height:60px;border-radius:16px;background:rgba(166,58,43,0.08);display:flex;align-items:center;justify-content:center;font-size:30px">' + it.icon + '</div>' +
+    '<div style="width:60px;height:60px;border-radius:16px;background:rgba(166,58,43,0.08);display:flex;align-items:center;justify-content:center;font-size:30px">' + cbEsc(it.icon) + '</div>' +
     '<div><div style="font-size:17px;font-weight:600">' + cbEsc(it.name) + '</div>' +
     '<div style="margin-top:4px"><span style="font-size:12px;color:var(--text-muted);border:1px solid var(--border);border-radius:6px;padding:2px 8px">' + cbEsc(it.cat || '其他') + '</span></div></div></div>' +
     '<div style="font-size:14px;line-height:1.9;color:var(--text-secondary)">' + (cbEsc(it.detail || it.desc || '（暂无使用说明）')).replace(/\n/g, '<br>') + '</div>' +
@@ -5238,7 +5265,7 @@ function cbVoucherChip(sid, v){
   var src = v.source === 'redeem' ? '🛒兑换' : '🎁月奖';
   var st = v.status === 'unused' ? '' : (v.status === 'used' ? '<span style="color:#2f7d32;font-size:11px">✓已核销' + (v.usedAt ? ' ' + cbFmtTime(v.usedAt) : '') + '</span>' : '<span style="color:var(--text-muted);font-size:11px">↩已退还</span>');
   return '<div style="display:inline-flex;align-items:center;gap:6px;margin:3px;padding:5px 10px;border:1px solid var(--border);border-radius:10px;background:' + (v.status === 'unused' ? '#fff' : 'transparent') + '">' +
-         '<span>' + (v.icon || '🎟') + '</span><span style="font-size:13px">' + cbEsc(v.name) + '</span>' +
+         '<span>' + cbEsc(v.icon || '🎟') + '</span><span style="font-size:13px">' + cbEsc(v.name) + '</span>' +
          '<span style="font-size:11px;color:var(--text-muted)">' + src + '·' + v.month + '</span>' + st +
          (v.status === 'unused' ? ' <button class="btn btn-primary btn-sm" style="padding:1px 8px;font-size:12px" onclick="cbUseVoucherUI(\'' + sid + '\',' + v.id + ')">核销</button>' +
          ' <button class="btn btn-outline btn-sm" style="padding:1px 8px;font-size:12px" onclick="cbRefundVoucherUI(\'' + sid + '\',' + v.id + ')">退还</button>' : '') +
@@ -5395,7 +5422,7 @@ function renderBankPage(){
         var can = !!selS && selCoin >= cost && remain > 0;
         var disTip = remain <= 0 ? '本月已兑满' : (!selS ? '请先在上方选择学生' : '币不足');
         cards += '<div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;cursor:pointer;opacity:' + (remain > 0 ? '1' : '0.55') + '" onclick="cbOpenItemDetail(\'' + it.key + '\')">' +
-                 '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:22px">' + it.icon + '</span>' +
+                 '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:22px">' + cbEsc(it.icon) + '</span>' +
                  '<b style="font-size:14px;flex:1">' + cbEsc(it.name) + '</b>' +
                  '<span style="font-size:11px;color:var(--text-muted);border:1px solid var(--border);border-radius:6px;padding:1px 6px">' + cbEsc(it.cat || '其他') + '</span></div>' +
                  '<div style="font-size:12px;color:var(--text-muted);min-height:32px;line-height:1.5">' + cbEsc(it.desc || it.detail || '（点击查看使用详情）') + '</div>' +
@@ -7285,11 +7312,11 @@ function openDetailPanel(id){
       }
     </div>
   `;
-  document.getElementById('studentDetailPanel').classList.add('show');
+  openModal('studentDetailPanel');   // v2.19.1 收敛到 openModal/closeModal
 }
 
 function closeDetailPanel(){
-  document.getElementById('studentDetailPanel').classList.remove('show');
+  closeModal('studentDetailPanel');
 }
 
 function getRank(id){
@@ -7402,6 +7429,49 @@ function matchStudentsByName(pool, q){
   return (pool || []).filter(function(s){
     return String(s.name || '').toLowerCase().indexOf(q) >= 0 ||
            String(s.sid == null ? '' : String(s.sid)).toLowerCase().indexOf(q) >= 0;
+  });
+}
+
+/* v2.19.1 学生搜索下拉公共组件（劳动整改/学分批量/请假三处此前为近似复制约 130 行）。
+   opts:
+     inputId / dropdownId  输入框与下拉容器 id
+     pool                  候选数组（缺省 state.students）
+     rowHtml(s)            行内 HTML（缺省：姓名 + #学号）
+     itemStyle(s)          行追加样式（如多选选中底色）
+     itemClass(s)          行 class 覆盖（如 leave 的 search-select-option + selected）
+     onPick(s)             选中回调（缺省：输入框填姓名）
+     keepOpen              选中后保持下拉展开（批量多选），缺省选中即收起
+   匹配口径复用 matchStudentsByName；mousedown 先于 blur 触发，选中行不会因失焦先消失。 */
+function studentSuggestDropdown(opts){
+  var input = document.getElementById(opts.inputId);
+  var dd = document.getElementById(opts.dropdownId);
+  if(!input || !dd) return;
+  var q = (input.value || '').trim().toLowerCase();
+  var list = matchStudentsByName(opts.pool != null ? opts.pool : (state.students || []), q);
+  if(list.length === 0){
+    dd.innerHTML = '<div style="padding:8px 12px;color:var(--text-muted);font-size:13px">无匹配学生</div>';
+    dd.style.display = '';
+    return;
+  }
+  dd.innerHTML = list.map(function(s){
+    return '<div class="' + (opts.itemClass ? opts.itemClass(s) : 'search-select-item') + '" data-sid="' + s.id + '" data-name="' + escapeAttr(s.name) + '"' +
+           ' style="padding:8px 12px;cursor:pointer;font-size:14px;border-radius:6px;' + (opts.itemStyle ? opts.itemStyle(s) : '') + '">' +
+           (opts.rowHtml ? opts.rowHtml(s) :
+             '<span style="font-weight:600">' + escapeHtml(s.name) + '</span> <span style="color:var(--text-muted);font-size:12px">(#' + escapeHtml(s.sid) + ')</span>') +
+           '</div>';
+  }).join('');
+  dd.style.display = '';
+  dd.querySelectorAll('[data-sid]').forEach(function(item){
+    item.addEventListener('mousedown', function(e){
+      e.preventDefault();
+      var s = list.find(function(x){ return String(x.id) === String(item.dataset.sid); });
+      if(!s) return;
+      if(opts.onPick) opts.onPick(s);
+      else input.value = s.name;
+      if(!opts.keepOpen) dd.style.display = 'none';
+    });
+    item.addEventListener('mouseenter', function(){ this.style.background = 'var(--bg-secondary)'; });
+    item.addEventListener('mouseleave', function(){ this.style.background = ''; });
   });
 }
 
@@ -8105,30 +8175,9 @@ function punishStatusFor(p, today){
 var _punishSelectedId = null;
 
 function filterPunishStudents(){
-  var input = document.getElementById('punishStudentInput');
-  var dd = document.getElementById('punishStudentDropdown');
-  if(!input || !dd) return;
-  var q = input.value.trim().toLowerCase();
-  var list = state.students.filter(function(s){
-    return !q || s.name.toLowerCase().indexOf(q) >= 0 || (''+s.sid).indexOf(q) >= 0;
-  });
-  if(list.length === 0){
-    dd.innerHTML = '<div style="padding:8px 12px;color:var(--text-muted);font-size:13px">无匹配学生</div>';
-    dd.style.display = '';
-    return;
-  }
-  dd.innerHTML = list.map(function(s){
-    return '<div class="search-select-item" data-sid="'+s.id+'" data-name="'+escapeAttr(s.name)+'" style="padding:8px 12px;cursor:pointer;font-size:14px;border-radius:6px">'+
-      '<span style="font-weight:600">'+escapeHtml(s.name)+'</span> <span style="color:var(--text-muted);font-size:12px">(#'+escapeHtml(s.sid)+')</span></div>';
-  }).join('');
-  dd.style.display = '';
-  dd.querySelectorAll('.search-select-item').forEach(function(item){
-    item.addEventListener('mousedown', function(e){
-      e.preventDefault();
-      _punishSelectedId = parseInt(item.dataset.sid, 10);
-      document.getElementById('punishStudentInput').value = item.dataset.name;
-      dd.style.display = 'none';
-    });
+  studentSuggestDropdown({
+    inputId: 'punishStudentInput', dropdownId: 'punishStudentDropdown',
+    onPick: function(s){ _punishSelectedId = s.id; }
   });
 }
 function showPunishStudentList(){ filterPunishStudents(); var dd=document.getElementById('punishStudentDropdown'); if(dd) dd.style.display=''; }
@@ -8789,41 +8838,18 @@ function renderCreditsPage(){
 /* ==================== 学分操作学生搜索 ==================== */
 
 function filterCreditStudents(){
-  var input = document.getElementById('creditStudentInput');
-  var dd = document.getElementById('creditStudentDropdown');
-  if(!input || !dd) return;
-  var q = input.value.trim().toLowerCase();
-  var list = state.students.filter(function(s){
-    return !q || s.name.toLowerCase().indexOf(q) >= 0 || (''+s.id).indexOf(q) >= 0;
-  });
-  if(list.length === 0){
-    dd.innerHTML = '<div style="padding:8px 12px;color:var(--text-muted);font-size:13px">无匹配学生</div>';
-    dd.style.display = '';
-    return;
-  }
-  dd.innerHTML = list.map(function(s){
-    var lv = creditLevel(s.credit);
-    var on = _creditSelectedIds.has(s.id);
-    return '<div class="search-select-item" data-sid="'+s.id+'" data-name="'+escapeAttr(s.name)+'" style="padding:8px 12px;cursor:pointer;font-size:14px;border-radius:6px;'+(on?'background:rgba(47,125,91,0.08);':'')+'">'+
-      '<span style="color:'+(on?'var(--success)':'var(--text-muted)')+';margin-right:4px">'+(on?'✓':'＋')+'</span>'+
-      '<span style="font-weight:600">'+escapeHtml(s.name)+'</span> <span style="color:var(--text-muted);font-size:12px">(#'+escapeHtml(s.sid)+') · 学分 '+Number(s.credit)+'</span>'+
-      (lv.label ? '<span class="credit-badge '+lv.cls+'">'+lv.label+'</span>' : '') +
-    '</div>';
-  }).join('');
-  dd.style.display = '';
-  // Attach click handlers（批量多选：点选后保持下拉展开，方便连续点选）
-  dd.querySelectorAll('.search-select-item').forEach(function(item){
-    item.addEventListener('mousedown', function(e){
-      e.preventDefault();
-      selectCreditStudent(item.dataset.sid, item.dataset.name);
-      filterCreditStudents();
-    });
-    item.addEventListener('mouseenter', function(){
-      this.style.background = 'var(--bg-secondary)';
-    });
-    item.addEventListener('mouseleave', function(){
-      this.style.background = '';
-    });
+  studentSuggestDropdown({
+    inputId: 'creditStudentInput', dropdownId: 'creditStudentDropdown',
+    keepOpen: true,   // 批量多选：点选后保持下拉展开，方便连续点选
+    itemStyle: function(s){ return _creditSelectedIds.has(s.id) ? 'background:rgba(47,125,91,0.08);' : ''; },
+    rowHtml: function(s){
+      var lv = creditLevel(s.credit);
+      var on = _creditSelectedIds.has(s.id);
+      return '<span style="color:'+(on?'var(--success)':'var(--text-muted)')+';margin-right:4px">'+(on?'✓':'＋')+'</span>'+
+        '<span style="font-weight:600">'+escapeHtml(s.name)+'</span> <span style="color:var(--text-muted);font-size:12px">(#'+escapeHtml(s.sid)+') · 学分 '+Number(s.credit)+'</span>'+
+        (lv.label ? '<span class="credit-badge '+lv.cls+'">'+lv.label+'</span>' : '');
+    },
+    onPick: function(s){ selectCreditStudent(String(s.id), s.name); filterCreditStudents(); }
   });
 }
 
@@ -10467,14 +10493,20 @@ function onPubSemesterStartChange(){
   if(pg && pg.classList.contains('active')) renderPublicity();
 }
 
+/* v2.19.1 本地 KV 设置工厂（原先 cm_teacher_settings / cm_pub_settings 两套逐字相同实现） */
+function cmKvSettings(storageKey){
+  return {
+    get: function(k){ try{ return (JSON.parse(localStorage.getItem(storageKey)||'{}'))[k]; }catch(e){ return undefined; } },
+    set: function(k, v){
+      var s = {}; try{ s = JSON.parse(localStorage.getItem(storageKey)||'{}'); }catch(e){}
+      s[k] = v; localStorage.setItem(storageKey, JSON.stringify(s));
+    }
+  };
+}
+var _teacherSettings = cmKvSettings('cm_teacher_settings');
 /* v2.17.0 班委协作设置（本地存储，仅班主任设备） */
-function loadTSetting(k){
-  try{ return (JSON.parse(localStorage.getItem('cm_teacher_settings')||'{}'))[k]; }catch(e){ return undefined; }
-}
-function saveTSetting(k, v){
-  var s = {}; try{ s = JSON.parse(localStorage.getItem('cm_teacher_settings')||'{}'); }catch(e){}
-  s[k] = v; localStorage.setItem('cm_teacher_settings', JSON.stringify(s));
-}
+function loadTSetting(k){ return _teacherSettings.get(k); }
+function saveTSetting(k, v){ _teacherSettings.set(k, v); }
 function cmCanMinus(){ return loadTSetting('cmCanMinus') !== false; }   // 默认允许
 function cmMinusBlocked(){
   if(window.__cmRole !== 'committee') return false;
@@ -10925,7 +10957,7 @@ function exportData(){
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   const now = new Date();
-  const ts = now.toISOString().slice(0,10);
+  const ts = localDateStr(now);   // v2.19.1 本地日期（原 UTC：东八区 0-8 点生成"昨天"的文件名）
   const className = (state.className || '班级').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,'_');
   a.href = url;
   a.download = `${className}-${ts}.json`;
@@ -10985,7 +11017,7 @@ function handleImportFile(event){
           const blob = new Blob([JSON.stringify(bData,null,2)], {type:'application/json'});
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
-          const ts = new Date().toISOString().slice(0,10);
+          const ts = localDateStr();   // v2.19.1 本地日期（原 UTC 日期会差一天）
           const cn = (state.className||'班级').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,'_');
           a.href = url; a.download = cn+'-backup-'+ts+'.json'; a.click();
           URL.revokeObjectURL(url);
@@ -11168,7 +11200,7 @@ function readXlsxGrid(u8){
   function xent(s2){ return String(s2).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&amp;/g,'&'); }
   var z = unzipEntries(u8);
   var shared = [], ssKey = null;
-  Object.keys(z).forEach(function(k){ if(/xl\/sharedStrings\.xml$/.test(k) || /xl\/sharedStrings\.xml$/.test(k)) ssKey = k; });
+  Object.keys(z).forEach(function(k){ if(/xl\/sharedStrings\.xml$/.test(k)) ssKey = k; });   // v2.19.1 去重复条件
   if(ssKey && z[ssKey]){
     var ssXml = new TextDecoder('utf-8').decode(z[ssKey]);
     (ssXml.match(/<si>([\s\S]*?)<\/si>/g) || []).forEach(function(si){
@@ -11362,39 +11394,19 @@ function confirmStudentImport(){
 function clearData(){
   if(!confirm('确认清空所有数据？\n\n将清空本机数据，并自动把云端也清空（其他设备打开时会自动对齐清空，旧数据不会复活）。\n班级名称、头像、格言、课表图会保留。\n\n此操作不可撤销！')) return;
   if(!confirm('再次确认：所有学生、学分记录、值日排班、劳动整改、请假、考试等将被永久删除！')) return;
-  // 保留品牌/配置类：className / classMotto / classAvatar / scheduleImage
-  localStorage.removeItem(STORE_KEY);
-  state.students = [];
-  state.operations = [];
-  state.reasons = [...defaultReasons];
+  // v2.19.1 表驱动重置：全部 schema 字段回默认值（新增字段自动覆盖，不再有"漏加一处"的坑）。
+  // 保留类与旧手写清单逐字段比对过：品牌/配置 + 原因目录及其墓碑 + schemaVer；
+  // reasonScores 的清空默认是 defaultReasonScores（非 schema 的 {}），单独处理。
+  localStorage.removeItem(STORE_KEY);   // 先清旧快照：saveData 万一失败也不残留清空前数据
+  var KEEP_ON_WIPE = { className:1, classNameFull:1, classMotto:1, classAvatar:1, scheduleImage:1,
+                       schemaVer:1, catDeleted:1, catDeletedAt:1, catRevived:1, reasonCatalog:1 };
+  var _saved = {};
+  Object.keys(KEEP_ON_WIPE).forEach(function(k){ _saved[k] = state[k]; });
+  Object.assign(state, buildDefaultState());
+  Object.keys(KEEP_ON_WIPE).forEach(function(k){ state[k] = _saved[k]; });
   state.reasonScores = Object.assign({}, defaultReasonScores);
-  state.nextId = 1;
-  state.nextOpId = 1;
-  state.nextSid = 1;
-  state.lastExport = null;
-  state.lastImport = null;
-  state.committee = Object.assign({}, DEFAULT_COMMITTEE);
-  state.seating = defaultSeating();
-  state.duty = defaultDuty();
-  state.punishments = [];
-  state.nextPunishId = 1;
-  state.exportedOpsCount = 0;
-  state.leaves = [];
-  state.nextLeaveId = 1;
-  state.exams = [];
-  state.nextExamId = 1;
-  state.todos = [];
-  state.nextTodoId = 1;
-  state.workLogs = [];
-  state.nextWorkLogId = 1;
-  state.honors = [];
-  state.nextHonorId = 1;
   state.honorDeleted = {};   // v2.18.12 清空数据连带清墓碑
   state.studentDeleted = {};   // v2.18.15 清空数据连带清墓碑
-  state.customDorms = [];
-  state.notices = { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 };
-  state.creditBank = cbDefaultBank();   // v2.17.30 学分银行随数据清空（品牌配置类保留）
-  state.selectedStudents = new Set();
   state.wipeAt = Date.now();   // v2.11.3 重置戳：其他设备拉取到更大的 wipeAt 会自动清空对齐，旧数据不复活
   saveData();
   renderAll();
@@ -11534,8 +11546,8 @@ function updateSyncStatus(){
     el.style.display = 'block';
     txt.innerHTML = `<span style="color:var(--warning)">⚠️ 尚未进行过数据导出。换电脑前请先导出数据！</span>`;
   }
+  updateExportBadge();   // v2.19.1 移回函数体内（原为编辑事故游离在顶层，同步状态刷新时不再更新徽章）
 }
-  updateExportBadge();
 
 /* ==================== Refresh ==================== */
 function refreshData(){
@@ -11561,8 +11573,14 @@ const PWD_SALT = 'x7Kp#2mQ!wZ9@ClassManager';
 const DEFAULT_LOGIN_HASH = '6d8b25bd0fe03ef7a5ab8471ae1953558306e1abba320dc7c65e4cd1064e2cee';
 const DEFAULT_ADMIN_HASH = 'a91ab7d320f6ed8e8ae6467c50561285a9c0319a0f86c6a38fdc2877fb8b0e02';
 
-// 纯 JS SHA-256 实现（兼容 file:// 协议，不依赖 Web Crypto API）
+// 纯 JS SHA-256 实现（同步接口：renderPwdDots/登录校验等调用方依赖同步返回，故不改用异步 Web Crypto）
 function sha256(ascii){
+  /* v2.19.1 修复：入参先转 UTF-8 字节串。此前非 ASCII 输入（如中文密码）在 charCode>>8 处
+     直接 return undefined，会把字符串 "undefined" 存进 localStorage 使整条密码链路失效。
+     ASCII 输入（历史 6 位数字密码）UTF-8 字节不变 → 已存哈希与默认哈希无需迁移。 */
+  var _u8 = null;
+  try{ _u8 = new TextEncoder().encode(ascii); }catch(_e){}
+  if(_u8){ ascii = ''; for(var _i = 0; _i < _u8.length; _i++) ascii += String.fromCharCode(_u8[_i]); }
   function rightRotate(value, amount){ return (value>>>amount) | (value<<(32-amount)); }
   const mathPow = Math.pow;
   const maxWord = mathPow(2, 32);
@@ -12048,7 +12066,7 @@ function renderDashExam(){
 function renderDashTodo(){
   const container = document.getElementById('dashTodoList');
   if(!container) return;
-  const today = new Date().toISOString().slice(0,10);
+  const today = localDateStr();   // v2.19.1 本地日期（原 UTC：凌晨时段待办会被误判为逾期/漏今日）
   const pending = state.todos.filter(t => !t.done);
   const overdue = pending.filter(t => t.dueDate && t.dueDate < today);
   const todayDue = pending.filter(t => t.dueDate === today);
@@ -12110,7 +12128,7 @@ function openLeaveModal(){
   document.getElementById('leaveStudentInput').value = '';
   document.getElementById('leaveStudentSelect').value = '';
   _leaveSelectedId = null;
-  var today = new Date().toISOString().slice(0,10);
+  var today = localDateStr();   // v2.19.1 本地日期（原 UTC：凌晨登记请假默认日期是昨天）
   document.getElementById('leaveStart').value = today;
   document.getElementById('leaveEnd').value = today;
   document.getElementById('leaveStartPeriod').value = 'day';
@@ -12132,34 +12150,14 @@ function openLeaveModal(){
 }
 
 function filterLeaveStudents(){
-  const input = document.getElementById('leaveStudentInput');
-  if(!input) return;
-  const q = input.value.trim().toLowerCase();
-  const dropdown = document.getElementById('leaveStudentDropdown');
-  if(!dropdown) return;
-  let list = state.students;
-  if(q){
-    list = state.students.filter(s => s.name.toLowerCase().includes(q) || (s.sid && s.sid.toLowerCase().includes(q)));
-  }
-  if(list.length === 0){
-    dropdown.innerHTML = '<div class="search-select-option" style="color:var(--text-muted);cursor:default">无匹配学生</div>';
-    dropdown.style.display = '';
-    return;
-  }
-  dropdown.innerHTML = list.map(function(s){
-    var sel = _leaveSelectedId === s.id ? 'selected' : '';
-    var info = s.sid ? ' (' + s.sid + ')' : '';
-    return '<div class="search-select-option ' + sel + '" data-sid="' + s.id + '" data-name="' + s.name.replace(/"/g, '&quot;') + '">' + s.name + info + ' &middot; 学分 ' + s.credit + '</div>';
-  }).join('');
-  dropdown.style.display = '';
-  // bind click via delegation
-  var opts = dropdown.querySelectorAll('.search-select-option[data-sid]');
-  opts.forEach(function(opt){
-    opt.addEventListener('click', function(){
-      var sid = parseInt(opt.dataset.sid);
-      var sname = opt.dataset.name;
-      selectLeaveStudent(sid, sname);
-    });
+  studentSuggestDropdown({
+    inputId: 'leaveStudentInput', dropdownId: 'leaveStudentDropdown',
+    itemClass: function(s){ return 'search-select-option' + (_leaveSelectedId === s.id ? ' selected' : ''); },
+    rowHtml: function(s){
+      var info = s.sid ? ' (' + s.sid + ')' : '';
+      return escapeHtml(s.name) + info + ' &middot; 学分 ' + s.credit;
+    },
+    onPick: function(s){ selectLeaveStudent(s.id, s.name); }
   });
 }
 
@@ -12224,7 +12222,7 @@ function updateLeaveDuration(){
 const LEAVE_TYPES = {sick:'病假',personal:'事假',official:'公假'};
 
 function closeLeaveModal(){
-  document.getElementById('leaveModal').classList.remove('show');
+  closeModal('leaveModal');   // v2.19.1 收敛到 openModal/closeModal
 }
 
 function confirmAddLeave(){
@@ -12298,7 +12296,7 @@ function extendLeaveApply(leave, newEnd){
 function returnLeave(id){
   const leave = state.leaves.find(l=>l.id===id);
   if(!leave) return;
-  const today = new Date().toISOString().slice(0,10);
+  const today = localDateStr();   // v2.19.1 本地日期（原 UTC：凌晨销假记的是昨天）
   leave.history.push({action:'return',date:today,at:new Date().toISOString()});
   leave.status = 'returned';
   leave.returnDate = today;
@@ -12370,11 +12368,11 @@ function renderAttendance(){
 /* ==================== 成绩管理 ==================== */
 function openExamModal(){
   document.getElementById('examName').value = '';
-  document.getElementById('examDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('examDate').value = localDateStr();   // v2.19.1 本地日期（原 UTC：凌晨建考试默认昨天）
   document.getElementById('examSubjects').value = '语文,数学,英语';
-  document.getElementById('examModal').classList.add('show');
+  openModal('examModal');   // v2.19.1 收敛到 openModal/closeModal
 }
-function closeExamModal(){ document.getElementById('examModal').classList.remove('show'); }
+function closeExamModal(){ closeModal('examModal'); }
 
 function confirmAddExam(){
   const name = document.getElementById('examName').value.trim();
@@ -12547,9 +12545,9 @@ function renderGrades(){
 function openTodoModal(){
   document.getElementById('todoText').value = '';
   document.getElementById('todoDue').value = '';
-  document.getElementById('todoModal').classList.add('show');
+  openModal('todoModal');   // v2.19.1 收敛到 openModal/closeModal
 }
-function closeTodoModal(){ document.getElementById('todoModal').classList.remove('show'); }
+function closeTodoModal(){ closeModal('todoModal'); }
 
 function quickAddTodo(){
   const text = document.getElementById('todoQuickInput').value.trim();
@@ -12611,7 +12609,7 @@ function pinTodo(id){
 function renderTodo(){
   const list = document.getElementById('todoList');
   if(!list) return;
-  const today = new Date().toISOString().slice(0,10);
+  const today = localDateStr();   // v2.19.1 本地日期（原 UTC：凌晨时段今日待办显示为空）
   if(state.todos.length === 0){
     list.innerHTML = '<div class="empty-state"><div class="icon">✅</div><div class="text">暂无待办事项</div></div>';
   } else {
@@ -13274,13 +13272,9 @@ function touchNotices(){
    隐私：姓名显示方式（全名 / 姓加星 / 仅学号）与学期开学日在 设置 → 公示设置 里配置。 */
 
 /* ---- 公示偏好（本地存储，无需上云） ---- */
-function loadPubSetting(k){
-  try{ return (JSON.parse(localStorage.getItem('cm_pub_settings')||'{}'))[k]; }catch(e){ return undefined; }
-}
-function savePubSetting(k, v){
-  var s = {}; try{ s = JSON.parse(localStorage.getItem('cm_pub_settings')||'{}'); }catch(e){}
-  s[k] = v; localStorage.setItem('cm_pub_settings', JSON.stringify(s));
-}
+var _pubSettings = cmKvSettings('cm_pub_settings');
+function loadPubSetting(k){ return _pubSettings.get(k); }
+function savePubSetting(k, v){ _pubSettings.set(k, v); }
 
 /* ---- 周期边界（纯函数，now 可注入便于测试） ---- */
 function rangeStartOf(kind, nowDate){
