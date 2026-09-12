@@ -153,15 +153,15 @@ t('设置页入口：accept 扩展、按钮、路由、预览模态', () => {
   has(html, 'onclick="confirmStudentImport()"', '确认按钮');
 });
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.19.1</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.19.1 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.19.1</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.19.1'", 'SW');
+  has(html, '<div class="login-version">v2.19.2</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.19.2 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.19.2</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-v2.19.2'", 'SW');
 });
 t('设置页「近版更新速览」新增本版条目（旧条不删）', () => {
-  has(html, '（v2.19.1）', '缺 v2.18.13 notes 条目');
-  has(html, '（v2.19.1）', 'v2.18.12 旧条被删');
-  has(html, '（v2.19.1）', 'v2.18.11 旧条被删');
+  has(html, '（v2.19.2）', '缺 v2.18.13 notes 条目');
+  has(html, '（v2.19.2）', 'v2.18.12 旧条被删');
+  has(html, '（v2.19.2）', 'v2.18.11 旧条被删');
 });
 t('历史注释不被波及', () => {
   has(html, "catDelUndo('dirs', dir);   // v2.18.9 同步 revive 所在方向", '历史注释被改动');

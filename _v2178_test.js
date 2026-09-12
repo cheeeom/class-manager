@@ -72,9 +72,9 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.19\.1</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.19\.1 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.19.1')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.19\.2</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.19\.2 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.19.2')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 数据五处链路 ===');
@@ -104,7 +104,7 @@ t('smartMergeData 接入 cbMergeBanks 合并（任一侧存在才合并）', () 
   has(sm, 'if(localData.creditBank || remoteData.creditBank){');
   has(sm, 'merged.creditBank = cbMergeBanks(');
 });
-t('clearData 清空数据时重置 creditBank（v2.19.1 表驱动：随 buildDefaultState 回默认）', () => {
+t('clearData 清空数据时重置 creditBank（v2.19.2 表驱动：随 buildDefaultState 回默认）', () => {
   const cd = html.match(/function clearData\(\)\{[\s\S]*?pushWipeToCloud\(\);[\s\S]*?\n\}/)[0];
   has(cd, 'buildDefaultState()');
 });

@@ -1,4 +1,4 @@
-/* v2.19.1 回归测试：云同步两大 P0 修复
+/* v2.19.2 回归测试：云同步两大 P0 修复
    ① data.json >1MB 后 GitHub Contents API JSON 媒体类型返回 content:""，
      旧实现把空内容当「无云端数据」→ checkPushSafety 放行 → 空本地保护/密文覆盖保护/
      推送前合并全部静默失效。修复 = fetchCloudMeta 对空 content 追加 raw 媒体类型 GET。
