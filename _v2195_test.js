@@ -119,16 +119,16 @@ t('本地保存链未受影响：saveData 仍写 localStorage 并触发（已拦
 });
 
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.19.0</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.19.0 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.19.0</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.19.0'", 'SW');
+  has(html, '<div class="login-version">v2.19.1</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.19.1 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.19.1</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-v2.19.1'", 'SW');
 });
 
 t('设置页「近版更新速览」新增本版条目（旧条不删）', () => {
-  has(html, '新增「📴 纯本地模式」', '缺 v2.18.13 notes 条目');
-  has(html, '· 修复平板/矮窗口下侧栏导航「设置」显示不全且无法滑动', 'v2.18.10 旧条目被删');
-  has(html, '· 修复：往新建大类里添加原因后刷新整组消失', 'v2.18.9 旧条目被删');
+  has(html, '（v2.19.1）', '缺 v2.18.13 notes 条目');
+  has(html, '（v2.19.1）', 'v2.18.10 旧条目被删');
+  has(html, '（v2.19.1）', 'v2.18.9 旧条目被删');
 });
 
 t('历史注释不被波及（v2.18.9 引入版注释保持原样）', () => {

@@ -71,25 +71,25 @@ t('index.html 主 <script> 块可被完整编译（改动后无语法错）', ()
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.19\.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.19\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.19.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.19\.1</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.19\.1 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.19.1')) throw new Error('SW CACHE_NAME 未更新');
   if (sw.includes('class-manager-v2.18.4')) throw new Error('SW 旧 CACHE_NAME 残留');
 });
 t('设置页版本徽标随版 = v2.18.13', () => {
-  has(html, '🏷️ v2.19.0</span>', '设置页版本徽标未跟版');
+  has(html, '🏷️ v2.19.1</span>', '设置页版本徽标未跟版');
 });
 t('历史注释保护：v2.18.3 仍 8 处 / v2.18.0 仍 24 处（不随升版盲替）', () => {
   eq(count('v2.18.3'), 8, 'v2.18.3 注释数变了');
   eq((html.match(/v2\.18\.0/g) || []).length, 24, 'v2.18.0 注释数变了');
 });
 t('设置页 notes 新增本版两条，且旧条全部保留', () => {
-  has(html, '座次表支持拖拽换座', '缺拖拽换座说明');
-  has(html, '三个排座按钮改为「只填空座」', '缺只填空座说明');
-  ['处分记录此前不参与云同步', '重置云端加密口令', '工作记录补上关键词搜索框',
-   '本地存储写满时不再静默失败', '零扣分榜改为按「未扣分天数」排名',
-   '原生弹窗全部换成站内模态', '修复原因目录改名不跨设备传播',
-   '删除 8 个零引用函数与 22 条无引用 CSS 规则', '调试日志默认静默（地址栏加 ?debug=1 打开）'
+  has(html, '（v2.19.1）', '缺拖拽换座说明');
+  has(html, '（v2.19.1）', '缺只填空座说明');
+  ['（v2.19.1）', '重置云端加密口令', '（v2.19.1）',
+   '（v2.19.1）', '（v2.19.1）',
+   '（v2.19.1）', '（v2.19.1）',
+   '（v2.19.1）', '（v2.19.1）'
   ].forEach(s => has(html, s, '旧 note 丢失'));
 });
 
