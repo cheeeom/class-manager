@@ -3581,6 +3581,14 @@ const LOCAL_MODE_KEY = 'cm_local_mode';
 function isLocalMode(){ try{ return localStorage.getItem(LOCAL_MODE_KEY) === '1'; }catch(e){ return false; } }
 function setLocalMode(v){ try{ if(v) localStorage.setItem(LOCAL_MODE_KEY, '1'); else localStorage.removeItem(LOCAL_MODE_KEY); }catch(e){} }
 function cryptoOK(){ return !!(window.crypto && window.crypto.subtle && window.crypto.subtle.deriveKey); }
+// v2.19.1 人话化原因：iOS 从主屏幕图标打开的页面跑在系统独立 Web.app 进程（非 Safari），
+// 该环境历史上偶发缺失 Web Crypto（Safari 可用、standalone 缺失，WebKit 已知缺陷类别），
+// 云同步加解密在此模式不可用。返回 '' 表示可用。
+function cryptoFailReason(){
+  if(cryptoOK()) return '';
+  if(window.isSecureContext === false) return '页面不在安全上下文（需 https 或 localhost），Web Crypto 不可用';
+  return '当前窗口缺失 Web Crypto——iOS 上多因从主屏幕图标打开（系统独立 Web.app 环境偶发缺失此 API），请改用 Safari 打开本页操作，或删除主屏幕图标后用 Safari 重新添加';
+}
 
 function _b64enc(buf){
   var b = new Uint8Array(buf), s = '';
@@ -3609,9 +3617,12 @@ function _deriveKey(pwd, salt){
       );
     });
 }
-// 明文对象 → 加密信封。无口令或不支持 Web Crypto 时原样返回明文（保持向后兼容）。
+// 明文对象 → 加密信封。无口令时原样返回明文（用户显式关闭加密的既有约定）；
+// v2.19.1 加固：已配置口令但环境缺 Web Crypto（iOS 主屏模式）时【拒绝】而非静默明文——
+// 旧逻辑会把明文学生数据推上公开仓库，属隐私事故。
 function encryptForCloud(plainObj){
-  if(!hasSyncPwd() || !cryptoOK()) return Promise.resolve(plainObj);
+  if(!hasSyncPwd()) return Promise.resolve(plainObj);
+  if(!cryptoOK()) return Promise.reject(new Error('已开启同步加密，但' + cryptoFailReason()));
   var salt = _getSalt();
   var iv = crypto.getRandomValues(new Uint8Array(12));
   var plainBytes = new TextEncoder().encode(JSON.stringify(plainObj));
@@ -3627,7 +3638,7 @@ function decryptFromCloud(env){
   if(!env || env.enc !== 1) return Promise.resolve(env);
   if(env.salt) lastCloudSalt = env.salt;
   if(!hasSyncPwd()) return Promise.reject(new Error('云端数据已加密，请先配置同步口令'));
-  if(!cryptoOK()) return Promise.reject(new Error('当前环境不支持 Web Crypto，无法解密（请通过 https 打开）'));
+  if(!cryptoOK()) return Promise.reject(new Error('无法解密云端数据：' + cryptoFailReason()));
   return _deriveKey(getSyncPwd(), _b64dec(env.salt))
     .then(function(key){ return crypto.subtle.decrypt({name:'AES-GCM', iv:_b64dec(env.iv)}, key, _b64dec(env.data)); })
     .then(function(pt){ return JSON.parse(new TextDecoder().decode(pt)); })
@@ -3655,7 +3666,7 @@ function configSyncPwd(){
     return;
   }
   if(p.length < 8){ showToast('口令太短：至少 8 位，建议 12 位以上','error'); return; }
-  if(!cryptoOK()){ showToast('当前环境不支持 Web Crypto，无法启用加密（请通过 https 打开）','error'); return; }
+  if(!cryptoOK()){ showToast('无法启用云同步加密：' + cryptoFailReason(),'error'); return; }
   var again = prompt('请再次输入口令以确认：');
   if(again === null) return;
   if(again.trim() !== p){ showToast('两次输入不一致，未保存','error'); return; }
@@ -6123,7 +6134,13 @@ function pullFromCloud(){
       renderClassBrand();
       showToast("云端数据已合并：本地 "+localCount+" 人 + 云端 "+remoteCount+" 人 → 合并后 "+(merged.students||[]).length+" 人","success");
     })
-    .catch(function(e){showToast("拉取失败："+e.message+"（file:// 不支持 fetch，需 HTTP 服务或 GitHub Pages）","error");});
+    .catch(function(e){
+      // v2.19.1 提示按错误类型分流：加密/口令类错误不再拼接 file:// 提示（误导），
+      // 仅疑似 fetch 不可用（本机双击 file:// 打开）时提示
+      var msg = (e && e.message) || String(e);
+      var hint = /Failed to fetch|NetworkError|加载失败/.test(msg) ? '（本机双击 file:// 打开时不支持 fetch，需 GitHub Pages 或 HTTP 服务）' : '';
+      showToast("拉取失败：" + msg + hint,"error");
+    });
 }
 
 function restoreFromCloud(){
@@ -11450,7 +11467,7 @@ function pushWipeToCloud(){
    复用 wipeInProgress 作为「人工独占推送」锁，防止防抖中的 auto push 抢跑造成两次并发写。 */
 function resetCloudPwd(){
   if(!hasGHToken()){ showToast('请先配置 GitHub Token（重置需要写入权限）','error'); return; }
-  if(!cryptoOK()){ showToast('当前环境不支持 Web Crypto，无法加密（请用 https 打开）','error'); return; }
+  if(!cryptoOK()){ showToast('无法加密推送：' + cryptoFailReason(),'error'); return; }
   cmPrompt({
     title: '🔁 重置云端加密口令', label: '新的云同步口令', type: 'password', minLength: 8,
     confirmLabel: '请再次输入新口令以确认',
