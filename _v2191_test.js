@@ -76,10 +76,10 @@ t('旧「裸报错」已移除', () => {
 
 console.log('\n=== 版本 ===');
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.19.3</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.19.3 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.19.3</span>', '设置徽标');
-  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.19.3'", 'SW');
+  has(html, '<div class="login-version">v2.19.4</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.19.4 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.19.4</span>', '设置徽标');
+  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.19.4'", 'SW');
 });
 t('近版更新速览含新条', () => {
   has(html, '云同步推送失败自动重试', 'notes 新条');

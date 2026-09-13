@@ -23,3 +23,6 @@ _chapter*.md
 _bump*.js
 _where*.js
 _read*.ps1
+
+# 诊断临时件
+_remote_index.html

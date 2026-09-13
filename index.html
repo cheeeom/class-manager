@@ -1867,7 +1867,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .cb-match:last-child{border-bottom:none}
 .cb-match:hover{background:var(--bg-secondary)}
 .cb-match-on{background:rgba(166,58,43,0.08)}
-/* ==================== 快速加减分印章按钮（v2.19.3） ==================== */
+/* ==================== 快速加减分印章按钮（v2.19.4） ==================== */
 .qc-row{display:flex;gap:12px;margin:4px 0 14px}
 .qc-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:12px;
   padding:14px 16px;border:none;border-radius:12px;cursor:pointer;color:#fff;
@@ -1890,11 +1890,11 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .qc-preview{min-height:22px;font-size:14px;font-weight:600;letter-spacing:.5px}
 @media(max-width:768px){.qc-row{gap:10px}.qc-btn{padding:12px 10px}.qc-txt b{font-size:16px;letter-spacing:3px}.qc-ic{width:34px;height:34px}}
 
-/* v2.19.3 选中学生 chip 反馈动画 */
+/* v2.19.4 选中学生 chip 反馈动画 */
 @keyframes chipPop{0%{transform:scale(0.6);background:rgba(47,125,91,0.25)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
 .stag.chip-pop{animation:chipPop .45s cubic-bezier(.34,1.56,.64,1)}
 
-/* v2.19.3-r2 两级原因菜单 */
+/* v2.19.4-r2 两级原因菜单 */
 .qc-cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
 .qc-cat{padding:7px 16px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
 .qc-cat:hover{border-color:var(--primary-light);color:var(--primary-dark)}
@@ -1957,7 +1957,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.19.3</div>
+      <div class="login-version">v2.19.4</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2076,7 +2076,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.19.3 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.19.4 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2354,7 +2354,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       <div class="page" id="page-credits">
         <div class="card" style="margin-bottom:16px">
           <div class="section-title"><span class="dot"></span>学分操作</div>
-          <!-- v2.19.3 快速加减分：方向优先双印章按钮（详情见 openQuickCredit） -->
+          <!-- v2.19.4 快速加减分：方向优先双印章按钮（详情见 openQuickCredit） -->
           <div class="qc-row">
             <button type="button" class="qc-btn qc-add" onclick="openQuickCredit('plus')">
               <span class="qc-ic"><svg class="ic"><use href="#i-credit-plus"/></svg></span>
@@ -2769,16 +2769,16 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         </div>
 
         <!-- v2.17.30 设置页底部：版本信息说明（作者 / 版本徽标 / 本版更新速览）。
-             维护约定（v2.19.3 起）：发版时①版本徽标三处（登录页 / 侧栏页脚 / 此处）与 sw.js CACHE_NAME 同步跟版；
+             维护约定（v2.19.4 起）：发版时①版本徽标三处（登录页 / 侧栏页脚 / 此处）与 sw.js CACHE_NAME 同步跟版；
              ②「本版更新速览」用最新版本的内容【整体替换】，只保留最新一版，不做追加。 -->
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.19.3</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.19.4</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.19.3）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.19.4）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
               · 🔧 修复云同步安全闸门失效：云端数据超 1MB 后，「空本机覆盖云端 / 明文覆盖密文 / 推送前自动合并」三项保护全部静默失效，多设备下等于谁后推谁覆盖——现对大文件自动改用 raw 方式读取云端内容，保护恢复<br>
               · 🔧 修复「清空数据」不跨设备生效：重置时间戳此前从未随推送上云，其他设备不会对齐清空、旧数据会整体复活<br>
@@ -3392,7 +3392,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
   </div>
 </div>
 
-<!-- Modal: Quick Credit（v2.19.3 方向锁定快捷加减分） -->
+<!-- Modal: Quick Credit（v2.19.4 方向锁定快捷加减分） -->
 <div class="modal-overlay" id="quickCreditModal" onclick="if(event.target===this)closeModal('quickCreditModal')">
   <div class="modal">
     <div class="modal-header">
@@ -3645,7 +3645,7 @@ const LOCAL_MODE_KEY = 'cm_local_mode';
 function isLocalMode(){ try{ return localStorage.getItem(LOCAL_MODE_KEY) === '1'; }catch(e){ return false; } }
 function setLocalMode(v){ try{ if(v) localStorage.setItem(LOCAL_MODE_KEY, '1'); else localStorage.removeItem(LOCAL_MODE_KEY); }catch(e){} }
 function cryptoOK(){ return !!(window.crypto && window.crypto.subtle && window.crypto.subtle.deriveKey); }
-// v2.19.3 人话化原因：iOS 从主屏幕图标打开的页面跑在系统独立 Web.app 进程（非 Safari），
+// v2.19.4 人话化原因：iOS 从主屏幕图标打开的页面跑在系统独立 Web.app 进程（非 Safari），
 // 该环境历史上偶发缺失 Web Crypto（Safari 可用、standalone 缺失，WebKit 已知缺陷类别），
 // 云同步加解密在此模式不可用。返回 '' 表示可用。
 function cryptoFailReason(){
@@ -3682,7 +3682,7 @@ function _deriveKey(pwd, salt){
     });
 }
 // 明文对象 → 加密信封。无口令时原样返回明文（用户显式关闭加密的既有约定）；
-// v2.19.3 加固：已配置口令但环境缺 Web Crypto（iOS 主屏模式）时【拒绝】而非静默明文——
+// v2.19.4 加固：已配置口令但环境缺 Web Crypto（iOS 主屏模式）时【拒绝】而非静默明文——
 // 旧逻辑会把明文学生数据推上公开仓库，属隐私事故。
 function encryptForCloud(plainObj){
   if(!hasSyncPwd()) return Promise.resolve(plainObj);
@@ -3782,7 +3782,7 @@ function checkPushSafety(remoteJson){
   }
   return Promise.resolve({ok:true, remote:remote});
 }
-/* v2.19.3 GET 云端 data.json 的 sha 与内容（修复 >1MB 安全闸门静默失效）：
+/* v2.19.4 GET 云端 data.json 的 sha 与内容（修复 >1MB 安全闸门静默失效）：
    GitHub Contents API 对 >1MB 文件，JSON 媒体类型返回 200 但 content 为空串（sha 仍在）。
    旧实现把空内容当「无云端数据」→ checkPushSafety 直接放行 → 空本地保护/密文覆盖保护/
    推送前合并全部静默失效（多设备下等于「谁后推谁全量覆盖」）。
@@ -3909,7 +3909,7 @@ function applyCloudData(remoteData){
 function buildCloudPayload(parsed){
   var lightData = {};
   CLOUD_SYNC_FIELDS.forEach(function(f){ if(f in parsed) lightData[f] = parsed[f]; });
-  // v2.19.3 修复重置戳断链：wipeAt 标了 nosv（不进本地快照），而本函数只从快照取数 → 重置戳永远推不上云端，
+  // v2.19.4 修复重置戳断链：wipeAt 标了 nosv（不进本地快照），而本函数只从快照取数 → 重置戳永远推不上云端，
   // 其他设备的「云端已重置→对齐清空」分支永不触发，清空后旧数据会整体复活。始终以内存 state 为权威显式带上。
   lightData.wipeAt = Number(state && state.wipeAt) || 0;
   if(lightData.notices) lightData.notices = stripNoticeHistoryImages(lightData.notices);
@@ -4529,7 +4529,7 @@ function cbMergeBanks(localBank, remoteBank){
       var lv = vm[v.id];
       if(!lv){ vm[v.id] = v; }
       else {
-        // v2.19.3 仲裁时间 = 核销/退款/过期三者取最晚（退款此前无时间戳会被核销状态顶掉）
+        // v2.19.4 仲裁时间 = 核销/退款/过期三者取最晚（退款此前无时间戳会被核销状态顶掉）
         var lt = Math.max(lv.usedAt || 0, lv.refundedAt || 0, lv.expiredAt || 0, lv.time || 0);
         var rt = Math.max(v.usedAt || 0, v.refundedAt || 0, v.expiredAt || 0, v.time || 0);
         if(rt > lt) vm[v.id] = v;
@@ -4749,7 +4749,7 @@ function cbRefundVoucher(sid, vid){
   var v = cbVouchers(sid).find(function(x){ return x.id === vid; });
   if(!v || v.status !== 'unused') return;
   v.status = 'refunded';
-  // v2.19.3 退款也打时间戳：合并仲裁用它判定「谁的操作更晚」——
+  // v2.19.4 退款也打时间戳：合并仲裁用它判定「谁的操作更晚」——
   // 否则 A 设备核销(usedAt)会顶掉 B 设备更晚的退款，出现「券已核销但币已退还」的账目错位
   v.refundedAt = Date.now();
   if(v.source === 'redeem' && v.cost > 0){
@@ -4859,6 +4859,14 @@ function cbScanAlerts(){
       return;
     }
     if(opens.length === 0){
+      // v2.19.4 修复「办结后复活」：同月已有该生预警记录（含已办结/已删除）时，
+      // 仅当当前档位比本月历史最重档更严重（恶化升级）才新建；否则尊重办结/删除，不重建。
+      var monthAll = b.alerts.filter(function(a){
+        return String(a.sid) === sids && a.month === month;
+      });
+      var worstHist = -1;
+      monthAll.forEach(function(a){ worstHist = Math.max(worstHist, cbTierSeverity(a.level)); });
+      if(cbTierSeverity(tier.level) <= worstHist) return;
       b.alerts.push({ id: b.nextAlertId++, sid: sids, sname: s.name || '', level: tier.level,
                       label: tier.label, act: tier.act, credit: credit, month: month,
                       status: 'pending', time: Date.now(), resolvedAt: 0, note: '' });
@@ -4892,6 +4900,20 @@ function cbAlertMark(sid, aid, to){
     if(a.status !== 'resolved'){ a.status = 'resolved'; a.resolvedAt = Date.now(); a.note = (a.note ? a.note + '；' : '') + '班主任办结'; showToast('已办结', 'success'); }
   }
 }
+// v2.19.4 删除预警记录：status=deleted 墓碑（渲染过滤 + 阻止同档同月重建 + 随云同步传播）
+function cbAlertDelete(sid, aid){
+  var a = (cbBankSafe().alerts || []).find(function(x){ return x.id === aid && String(x.sid) === cbWalletKey(sid); });
+  if(!a) return;
+  if(!confirm('确认删除这条预警记录？\n删除后本月同档位不再重复生成；如该生情况恶化升级会另行提醒。')) return;
+  a.status = 'deleted';
+  a.deletedAt = Date.now();
+  a.resolvedAt = Date.now();   // 取最新 resolvedAt → 跨设备合并时删除态胜出
+  saveData();
+  showToast('预警记录已删除', 'info');
+  try { cbProfileRefresh(); } catch(e){}
+  try { cbRenderStudentAlerts(); } catch(e){}
+}
+
 // 一键生成致家长通知草稿
 function cbAlertDraft(sid, aid){
   var a = (cbBankSafe().alerts || []).find(function(x){ return x.id === aid && String(x.sid) === cbWalletKey(sid); });
@@ -4917,7 +4939,7 @@ function cbBankProfileOf(sid){
   var vStat = { unused: 0, used: 0, refunded: 0, expired: 0 };
   vs.forEach(function(v){ if(vStat[v.status] != null) vStat[v.status]++; });
   var lg = (b.ledger || []).filter(function(e){ return String(e.sid) === key; });
-  var al = (b.alerts || []).filter(function(a){ return String(a.sid) === key; })
+  var al = (b.alerts || []).filter(function(a){ return String(a.sid) === key && a.status !== 'deleted'; })
     .sort(function(a, x){ return (x.time || 0) - (a.time || 0); });
   var opCoin = 0;
   (state.operations || []).forEach(function(o){
@@ -4973,7 +4995,7 @@ function cbOpenBankProfile(sid){
         var acts = '';
         if(a.status === 'pending') acts += '<button class="btn btn-outline btn-sm" style="padding:1px 8px;font-size:12px" onclick="cbAlertAct(\'' + a.sid + '\',' + a.id + ',\'notified\')">已通知家长</button> ';
         if(a.status !== 'resolved') acts += '<button class="btn btn-primary btn-sm" style="padding:1px 8px;font-size:12px" onclick="cbAlertAct(\'' + a.sid + '\',' + a.id + ',\'resolved\')">办结</button> ';
-        acts += '<button class="btn btn-outline btn-sm" style="padding:1px 8px;font-size:12px" onclick="cbAlertCopy(\'' + a.sid + '\',' + a.id + ')" title="生成致家长通知草稿并复制">📋 草稿</button>';
+        acts += '<button class="btn btn-outline btn-sm" style="padding:1px 8px;font-size:12px" onclick="cbAlertDelete(\'' + a.sid + '\',' + a.id + ')" title="删除记录">🗑</button>'; acts += '<button class="btn btn-outline btn-sm" style="padding:1px 8px;font-size:12px" onclick="cbAlertCopy(\'' + a.sid + '\',' + a.id + ')" title="生成致家长通知草稿并复制">📋 草稿</button>';
         return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px 4px;border-bottom:1px dashed var(--border)">' +
                '<div style="font-size:13px">' + cbLevelBadge(a.level, a.label) +
                ' <span style="font-size:12px;color:var(--text-muted)">' + a.month + ' · 当时 ' + a.credit + ' 分 · ' + a.act + '</span><br>' +
@@ -5033,7 +5055,7 @@ function cbLedgerSidClear(){ cbLedgerSid = ''; renderBankPage(); }
 function cbLedgerTypeTo(v){ cbLedgerType = v || ''; renderBankPage(); }
 /* ============ v2.17.30 预警中心：按状态筛选 ============ */
 function cbAlertStatusTo(s){ cbAlertStatus = s || ''; cbRenderStudentAlerts(); }   // v2.18.0 迁学生管理页
-// v2.19.3 收敛到 copyToClipboard/legacyCopy（原 cbCopy* 是第二套剪贴板实现）
+// v2.19.4 收敛到 copyToClipboard/legacyCopy（原 cbCopy* 是第二套剪贴板实现）
 function cbCopyText(txt){
   copyToClipboard(txt).then(function(ok){
     showToast(ok ? '已复制，可直接粘贴发送' : '复制失败', ok ? 'success' : 'error');
@@ -5942,7 +5964,7 @@ function msCatTomb(merged,localData,remoteData){
   var _td = cloneCatDeleted(localData.catDeleted), _tr = cloneCatDeleted(remoteData.catDeleted);
   merged.catDeletedAt = mergeTsMap(mergeTsMap(localData.catDeletedAt, remoteData.catDeletedAt), state.catDeletedAt);
   merged.catRevived = mergeTsMap(mergeTsMap(localData.catRevived, remoteData.catRevived), state.catRevived);
-  // v2.19.3 修复墓碑指数膨胀：原实现 concat 不去重，而推送前必然执行本合并策略，
+  // v2.19.4 修复墓碑指数膨胀：原实现 concat 不去重，而推送前必然执行本合并策略，
   // 多设备交替同步下 catDeleted 每轮翻倍（实测一天 156KB→12.5MB）。
   // 墓碑语义是“已删除条目名的集合”，去重不影响语义；对已膨胀的历史数据同样自愈。
   function _uniqTomb(a){ var seen = {}, out = []; (a||[]).forEach(function(k){ if(k!=null && !seen[k]){ seen[k] = 1; out.push(k); } }); return out; }
@@ -6203,7 +6225,7 @@ function pullFromCloud(){
       showToast("云端数据已合并：本地 "+localCount+" 人 + 云端 "+remoteCount+" 人 → 合并后 "+(merged.students||[]).length+" 人","success");
     })
     .catch(function(e){
-      // v2.19.3 提示按错误类型分流：加密/口令类错误不再拼接 file:// 提示（误导），
+      // v2.19.4 提示按错误类型分流：加密/口令类错误不再拼接 file:// 提示（误导），
       // 仅疑似 fetch 不可用（本机双击 file:// 打开）时提示
       var msg = (e && e.message) || String(e);
       var hint = /Failed to fetch|NetworkError|加载失败/.test(msg) ? '（本机双击 file:// 打开时不支持 fetch，需 GitHub Pages 或 HTTP 服务）' : '';
@@ -6944,7 +6966,7 @@ function cbRenderStudentAlerts(){
   var host = document.getElementById('tab-alerts');
   if(!host) return;
   var bank = cbBankSafe();
-  var allAlerts = (bank.alerts || []).slice().sort(function(a, b){ return (b.time || 0) - (a.time || 0); });
+  var allAlerts = (bank.alerts || []).filter(function(a){ return a.status !== 'deleted'; }).slice().sort(function(a, b){ return (b.time || 0) - (a.time || 0); });
   var ac = { pending: 0, notified: 0, resolved: 0 };
   allAlerts.forEach(function(a){ if(ac[a.status] != null) ac[a.status]++; });
   var chips = [
@@ -6963,7 +6985,7 @@ function cbRenderStudentAlerts(){
     var acts = '';
     if(a.status === 'pending') acts += '<button class="btn btn-outline btn-sm" style="padding:2px 10px;font-size:12px" onclick="cbAlertAct(\'' + a.sid + '\',' + a.id + ',\'notified\')">已通知家长</button> ';
     if(a.status !== 'resolved') acts += '<button class="btn btn-primary btn-sm" style="padding:2px 10px;font-size:12px" onclick="cbAlertAct(\'' + a.sid + '\',' + a.id + ',\'resolved\')">办结</button> ';
-    acts += '<button class="btn btn-outline btn-sm" style="padding:2px 10px;font-size:12px" onclick="cbAlertCopy(\'' + a.sid + '\',' + a.id + ')" title="生成致家长通知草稿并复制">📋 通知草稿</button>';
+    acts += '<button class="btn btn-outline btn-sm" style="padding:1px 8px;font-size:12px" onclick="cbAlertDelete(\'' + a.sid + '\',' + a.id + ')" title="删除记录">🗑</button>'; acts += '<button class="btn btn-outline btn-sm" style="padding:2px 10px;font-size:12px" onclick="cbAlertCopy(\'' + a.sid + '\',' + a.id + ')" title="生成致家长通知草稿并复制">📋 通知草稿</button>';
     aRows += '<div class="card" style="padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-left:4px solid ' + (CB_LEVEL_COLORS[a.level] || '#ccc') + '">' +
              '<div style="min-width:220px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' + cbEsc(a.sname || '') + ' ' + cbLevelBadge(a.level, a.label) + ' <span style="font-size:12px;color:var(--text-muted)">' + a.month + ' · ' + a.act + '</span></div>' +
              '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">当时学分 ' + a.credit + ' 分 · ' + st + (a.note ? ' · ' + cbEsc(a.note) : '') + '</div></div>' +
@@ -7383,7 +7405,7 @@ function openDetailPanel(id){
       }
     </div>
   `;
-  openModal('studentDetailPanel');   // v2.19.3 收敛到 openModal/closeModal
+  openModal('studentDetailPanel');   // v2.19.4 收敛到 openModal/closeModal
 }
 
 function closeDetailPanel(){
@@ -7503,7 +7525,7 @@ function matchStudentsByName(pool, q){
   });
 }
 
-/* v2.19.3 学生搜索下拉公共组件（劳动整改/学分批量/请假三处此前为近似复制约 130 行）。
+/* v2.19.4 学生搜索下拉公共组件（劳动整改/学分批量/请假三处此前为近似复制约 130 行）。
    opts:
      inputId / dropdownId  输入框与下拉容器 id
      pool                  候选数组（缺省 state.students）
@@ -8936,7 +8958,7 @@ function hideCreditStudentList(){
 
 /* v2.14.0 学分批量操作：多选学生（点搜索结果即选中/取消，可叠选；chips 可单个移除） */
 var _creditSelectedIds = new Set();
-var _creditLastAdded = null;   // v2.19.3 最新选中学生（chip 反馈动画用）
+var _creditLastAdded = null;   // v2.19.4 最新选中学生（chip 反馈动画用）
 
 function selectCreditStudent(sid, name){
   sid = parseInt(sid, 10);
@@ -8946,7 +8968,7 @@ function selectCreditStudent(sid, name){
   else _creditSelectedIds.delete(sid);
   _creditLastAdded = adding ? sid : null;
   var _inp = document.getElementById('creditStudentInput');
-  if(_inp) _inp.value = '';   // v2.19.3 选完自动清空搜索框，方便连续点选下一位
+  if(_inp) _inp.value = '';   // v2.19.4 选完自动清空搜索框，方便连续点选下一位
   hideCreditStudentList();
   renderCreditSelectedChips();
 }
@@ -8984,7 +9006,7 @@ function renderCreditSelectedChips(){
 function updateCreditBtnStates(){
   var _crEl = document.getElementById('creditReason');
   var _caEl = document.getElementById('customApplyBtn');
-  if(!_crEl || !_caEl) return;   // v2.19.3 旧「应用」流已下线（快速加减分模态取代）
+  if(!_crEl || !_caEl) return;   // v2.19.4 旧「应用」流已下线（快速加减分模态取代）
   var hasStudent = _creditSelectedIds.size > 0;
   const hasReason = document.getElementById('creditReason').value !== '';
   const customInput = document.getElementById('customCredit');
@@ -9116,7 +9138,7 @@ function quickCredit(amount){
   applyCreditBulk(ids, amount, reason);
 }
 
-/* ==================== 快速加减分（v2.19.3：方向锁定 + 印章按钮） ==================== */
+/* ==================== 快速加减分（v2.19.4：方向锁定 + 印章按钮） ==================== */
 var _qcSign = 'plus';
 var _qcGroup = null;      // 当前展开的大类
 var _qcReason = null;     // 已选细则
@@ -10666,7 +10688,7 @@ function onPubSemesterStartChange(){
   if(pg && pg.classList.contains('active')) renderPublicity();
 }
 
-/* v2.19.3 本地 KV 设置工厂（原先 cm_teacher_settings / cm_pub_settings 两套逐字相同实现） */
+/* v2.19.4 本地 KV 设置工厂（原先 cm_teacher_settings / cm_pub_settings 两套逐字相同实现） */
 function cmKvSettings(storageKey){
   return {
     get: function(k){ try{ return (JSON.parse(localStorage.getItem(storageKey)||'{}'))[k]; }catch(e){ return undefined; } },
@@ -11130,7 +11152,7 @@ function exportData(){
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   const now = new Date();
-  const ts = localDateStr(now);   // v2.19.3 本地日期（原 UTC：东八区 0-8 点生成"昨天"的文件名）
+  const ts = localDateStr(now);   // v2.19.4 本地日期（原 UTC：东八区 0-8 点生成"昨天"的文件名）
   const className = (state.className || '班级').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,'_');
   a.href = url;
   a.download = `${className}-${ts}.json`;
@@ -11190,7 +11212,7 @@ function handleImportFile(event){
           const blob = new Blob([JSON.stringify(bData,null,2)], {type:'application/json'});
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
-          const ts = localDateStr();   // v2.19.3 本地日期（原 UTC 日期会差一天）
+          const ts = localDateStr();   // v2.19.4 本地日期（原 UTC 日期会差一天）
           const cn = (state.className||'班级').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g,'_');
           a.href = url; a.download = cn+'-backup-'+ts+'.json'; a.click();
           URL.revokeObjectURL(url);
@@ -11373,7 +11395,7 @@ function readXlsxGrid(u8){
   function xent(s2){ return String(s2).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&amp;/g,'&'); }
   var z = unzipEntries(u8);
   var shared = [], ssKey = null;
-  Object.keys(z).forEach(function(k){ if(/xl\/sharedStrings\.xml$/.test(k)) ssKey = k; });   // v2.19.3 去重复条件
+  Object.keys(z).forEach(function(k){ if(/xl\/sharedStrings\.xml$/.test(k)) ssKey = k; });   // v2.19.4 去重复条件
   if(ssKey && z[ssKey]){
     var ssXml = new TextDecoder('utf-8').decode(z[ssKey]);
     (ssXml.match(/<si>([\s\S]*?)<\/si>/g) || []).forEach(function(si){
@@ -11567,7 +11589,7 @@ function confirmStudentImport(){
 function clearData(){
   if(!confirm('确认清空所有数据？\n\n将清空本机数据，并自动把云端也清空（其他设备打开时会自动对齐清空，旧数据不会复活）。\n班级名称、头像、格言、课表图会保留。\n\n此操作不可撤销！')) return;
   if(!confirm('再次确认：所有学生、学分记录、值日排班、劳动整改、请假、考试等将被永久删除！')) return;
-  // v2.19.3 表驱动重置：全部 schema 字段回默认值（新增字段自动覆盖，不再有"漏加一处"的坑）。
+  // v2.19.4 表驱动重置：全部 schema 字段回默认值（新增字段自动覆盖，不再有"漏加一处"的坑）。
   // 保留类与旧手写清单逐字段比对过：品牌/配置 + 原因目录及其墓碑 + schemaVer；
   // reasonScores 的清空默认是 defaultReasonScores（非 schema 的 {}），单独处理。
   localStorage.removeItem(STORE_KEY);   // 先清旧快照：saveData 万一失败也不残留清空前数据
@@ -11719,7 +11741,7 @@ function updateSyncStatus(){
     el.style.display = 'block';
     txt.innerHTML = `<span style="color:var(--warning)">⚠️ 尚未进行过数据导出。换电脑前请先导出数据！</span>`;
   }
-  updateExportBadge();   // v2.19.3 移回函数体内（原为编辑事故游离在顶层，同步状态刷新时不再更新徽章）
+  updateExportBadge();   // v2.19.4 移回函数体内（原为编辑事故游离在顶层，同步状态刷新时不再更新徽章）
 }
 
 /* ==================== Refresh ==================== */
@@ -11748,7 +11770,7 @@ const DEFAULT_ADMIN_HASH = 'a91ab7d320f6ed8e8ae6467c50561285a9c0319a0f86c6a38fdc
 
 // 纯 JS SHA-256 实现（同步接口：renderPwdDots/登录校验等调用方依赖同步返回，故不改用异步 Web Crypto）
 function sha256(ascii){
-  /* v2.19.3 修复：入参先转 UTF-8 字节串。此前非 ASCII 输入（如中文密码）在 charCode>>8 处
+  /* v2.19.4 修复：入参先转 UTF-8 字节串。此前非 ASCII 输入（如中文密码）在 charCode>>8 处
      直接 return undefined，会把字符串 "undefined" 存进 localStorage 使整条密码链路失效。
      ASCII 输入（历史 6 位数字密码）UTF-8 字节不变 → 已存哈希与默认哈希无需迁移。 */
   var _u8 = null;
@@ -12239,7 +12261,7 @@ function renderDashExam(){
 function renderDashTodo(){
   const container = document.getElementById('dashTodoList');
   if(!container) return;
-  const today = localDateStr();   // v2.19.3 本地日期（原 UTC：凌晨时段待办会被误判为逾期/漏今日）
+  const today = localDateStr();   // v2.19.4 本地日期（原 UTC：凌晨时段待办会被误判为逾期/漏今日）
   const pending = state.todos.filter(t => !t.done);
   const overdue = pending.filter(t => t.dueDate && t.dueDate < today);
   const todayDue = pending.filter(t => t.dueDate === today);
@@ -12301,7 +12323,7 @@ function openLeaveModal(){
   document.getElementById('leaveStudentInput').value = '';
   document.getElementById('leaveStudentSelect').value = '';
   _leaveSelectedId = null;
-  var today = localDateStr();   // v2.19.3 本地日期（原 UTC：凌晨登记请假默认日期是昨天）
+  var today = localDateStr();   // v2.19.4 本地日期（原 UTC：凌晨登记请假默认日期是昨天）
   document.getElementById('leaveStart').value = today;
   document.getElementById('leaveEnd').value = today;
   document.getElementById('leaveStartPeriod').value = 'day';
@@ -12395,7 +12417,7 @@ function updateLeaveDuration(){
 const LEAVE_TYPES = {sick:'病假',personal:'事假',official:'公假'};
 
 function closeLeaveModal(){
-  closeModal('leaveModal');   // v2.19.3 收敛到 openModal/closeModal
+  closeModal('leaveModal');   // v2.19.4 收敛到 openModal/closeModal
 }
 
 function confirmAddLeave(){
@@ -12469,7 +12491,7 @@ function extendLeaveApply(leave, newEnd){
 function returnLeave(id){
   const leave = state.leaves.find(l=>l.id===id);
   if(!leave) return;
-  const today = localDateStr();   // v2.19.3 本地日期（原 UTC：凌晨销假记的是昨天）
+  const today = localDateStr();   // v2.19.4 本地日期（原 UTC：凌晨销假记的是昨天）
   leave.history.push({action:'return',date:today,at:new Date().toISOString()});
   leave.status = 'returned';
   leave.returnDate = today;
@@ -12541,9 +12563,9 @@ function renderAttendance(){
 /* ==================== 成绩管理 ==================== */
 function openExamModal(){
   document.getElementById('examName').value = '';
-  document.getElementById('examDate').value = localDateStr();   // v2.19.3 本地日期（原 UTC：凌晨建考试默认昨天）
+  document.getElementById('examDate').value = localDateStr();   // v2.19.4 本地日期（原 UTC：凌晨建考试默认昨天）
   document.getElementById('examSubjects').value = '语文,数学,英语';
-  openModal('examModal');   // v2.19.3 收敛到 openModal/closeModal
+  openModal('examModal');   // v2.19.4 收敛到 openModal/closeModal
 }
 function closeExamModal(){ closeModal('examModal'); }
 
@@ -12718,7 +12740,7 @@ function renderGrades(){
 function openTodoModal(){
   document.getElementById('todoText').value = '';
   document.getElementById('todoDue').value = '';
-  openModal('todoModal');   // v2.19.3 收敛到 openModal/closeModal
+  openModal('todoModal');   // v2.19.4 收敛到 openModal/closeModal
 }
 function closeTodoModal(){ closeModal('todoModal'); }
 
@@ -12782,7 +12804,7 @@ function pinTodo(id){
 function renderTodo(){
   const list = document.getElementById('todoList');
   if(!list) return;
-  const today = localDateStr();   // v2.19.3 本地日期（原 UTC：凌晨时段今日待办显示为空）
+  const today = localDateStr();   // v2.19.4 本地日期（原 UTC：凌晨时段今日待办显示为空）
   if(state.todos.length === 0){
     list.innerHTML = '<div class="empty-state"><div class="icon">✅</div><div class="text">暂无待办事项</div></div>';
   } else {
