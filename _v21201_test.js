@@ -1,4 +1,4 @@
-/* v2.19.4 回归测试：修复 catDeleted 墓碑指数膨胀（msCatTomb concat 不去重）。
+/* v2.20.0 回归测试：修复 catDeleted 墓碑指数膨胀（msCatTomb concat 不去重）。
    背景：推送前必然执行 smartMergeData（本地⊕云端），msCatTomb 原实现把两侧墓碑数组
    直接 concat 且不去重 → 多设备交替同步下每轮翻倍，实测一天 156KB→12.5MB。
    修法：dirs/groups/reasons 三组 concat 后按条目名去重（墓碑语义=已删条目名的集合）。
@@ -15,11 +15,11 @@ function t(name, fn) {
 function eq(a, b, msg) { if (a !== b) throw new Error((msg || '') + `期望 ${JSON.stringify(b)}，实际 ${JSON.stringify(a)}`); }
 
 console.log('=== 静态检查 ===');
-t('index.html 版本号已升至 v2.19.4', () => {
-  if (!/v2\.19\.4/.test(html)) throw new Error('未找到 v2.19.4');
+t('index.html 版本号已升至 v2.20.0', () => {
+  if (!/v2\.20\.0/.test(html)) throw new Error('未找到 v2.20.0');
 });
-t('sw.js CACHE_NAME 已跟版 v2.19.4', () => {
-  if (!/class-manager-v2\.19\.4/.test(sw)) throw new Error('CACHE_NAME 未跟版');
+t('sw.js CACHE_NAME 已跟版 v2.20.0', () => {
+  if (!/class-manager-v2\.20\.0/.test(sw)) throw new Error('CACHE_NAME 未跟版');
 });
 t('msCatTomb 已引入 _uniqTomb 去重', () => {
   if (html.indexOf('function _uniqTomb') < 0) throw new Error('缺少 _uniqTomb');
