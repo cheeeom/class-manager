@@ -1008,3 +1008,11 @@
 - [x] **测试**：新增 _v21202_test.js 12 项（初始扫描 / 幂等 / ★办结不复活×2 / 删除墓碑+渲染过滤+不重建 / 恶化升级叠加 / 回升自动办结）；版本 token 双形态跟版 v2.19.4（33 套 162 处）→ **47 套中 35 通过，11 失败均为基线既有债务，本版 0 新增失败**。
 - [x] **推送**：随 v2.19.3 一并由老板审阅后发布（两版都在本地待推送队列）。
 
+
+### 2026-09-13（git 历史清理：filter-repo 剥离全部历史数据文件，仓库 69 MiB→2.84 MiB）
+
+- [x] **执行**（老板拍板「现在做」）：`git filter-repo --force --invert-paths --path data.json --path avatar-img.txt --path schedule-img.txt`——669 个提交全部重写，data.json（96 份明文 + 12.8MB 加密快照）与两张图片 txt 从**全部历史**剥离。仓库体积 **69.02 MiB → 2.84 MiB**；触及 data.json 的历史提交数归零。
+- [x] **安全保障**：重写前双 bundle 备份（`_cm_backup_v2194\cm_full.bundle` + `cm_pre_rewrite.bundle`）+ 加密态 data.json 单独备份；重写后以当前**加密态**（enc:1，158KB）data.json 作为全新首条数据提交（200e66b 之后再无明文）。
+- [x] **注意**：① 全部提交 SHA 已改变——旧 SHA 引用失效；② **D:\a\chee777 旧工作副本必须删除后重新 clone**（其旧历史与新历史不兼容，严禁 force push 旧历史回云端）；③ GitHub 服务端不可达对象可能残留至 GC（敏感期可联系 GitHub support 要求立即清理）；④ 设备端 localStorage/口令不受影响，无需任何操作。
+- [x] **强推**：间歇断连重试 6 次成功；Pages 以相同内容重建，站点无感。
+
