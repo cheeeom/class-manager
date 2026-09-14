@@ -3,8 +3,8 @@
         奖励券当月有效自动失效（商店买的不过期）/ 目录随云同步 / 商品详情与编辑弹窗。
    运行：node _v2179_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
-const sw = fs.readFileSync('sw.js', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
+const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {

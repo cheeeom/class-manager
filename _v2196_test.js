@@ -4,8 +4,8 @@
  * ② 寝室管理「➕ 新增寝室」：customDorms 字段支撑空寝室存在；createDormNew 可勾选学生直接入住。
  * 运行：node _v2196_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
-const sw = fs.readFileSync('sw.js', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
+const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {

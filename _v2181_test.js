@@ -1,8 +1,8 @@
 /* v2.17.30 回归测试：兑换商店学生选择器改造（无默认 + 点选候选名单）+ 学分操作「按寝室加减分」
    运行：node _v2181_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
-const sw = fs.readFileSync('sw.js', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
+const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
 let pass = 0, fail = 0;
 function t(name, fn) { try { fn(); pass++; console.log('  ✅', name); } catch (e) { fail++; console.log('  ❌', name, '—', e.message); } }
 function has(a, b, msg) { if (String(a).indexOf(b) < 0) throw new Error((msg || '') + '缺少 ' + JSON.stringify(b)); }

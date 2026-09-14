@@ -1,7 +1,7 @@
 /* v2.13.0 回归测试：班委模式（免密入口 + 白名单裁剪 + 越权拦截）
    运行：node _v2130_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {

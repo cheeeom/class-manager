@@ -1,7 +1,7 @@
 /* v2.12.0 回归测试：学分原因多级选择器（方向→大类→原因）
    从 index.html 抽取真实实现。运行：node _v2120_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {
@@ -179,16 +179,19 @@ t('无旧项时返回原目录分值且 changed=false（幂等）；纯函数不
 
 
 console.log('\n=== 组件结构断言 ===');
-t('两处容器 + 隐藏 select（rp-credit/rp-batch，creditReason/batchReason display:none）', () => {
-  eq(/id="rp-credit" class="rp"/.test(html), true);
+// v2.20.0 变更：学分「单点加减分」入口收敛为 quickCreditModal 弹窗（原因菜单 qcMenu），
+//             原页内 rp-credit / creditReason 容器已下线；页内仍保留多级选择器的仅剩
+//             批量加减分(rp-batch) 与 寝室加减分(rp-dorm)。以下断言据此重定向（不变量不变）。
+t('两处容器 + 隐藏 select（rp-batch/rp-dorm，batchReason/dormReason display:none）', () => {
   eq(/id="rp-batch" class="rp"/.test(html), true);
-  eq(/id="creditReason" style="display:none"/.test(html), true);
+  eq(/id="rp-dorm" class="rp"/.test(html), true);
   eq(/id="batchReason" style="display:none"/.test(html), true);
+  eq(/id="dormReason" style="display:none"/.test(html), true);
 });
-t('renderReasonSelects 负责幂等初始化两个选择器', () => {
+t('renderReasonSelects 负责幂等初始化页内两个选择器', () => {
   const fn = html.match(/function renderReasonSelects\([\s\S]*?\n\}/)[0];
-  ['initReasonPicker(\'rp-credit\', \'creditReason\', \'customCredit\')',
-   'initReasonPicker(\'rp-batch\', \'batchReason\', \'batchCredit\')'].forEach(s => {
+  ['initReasonPicker(\'rp-batch\', \'batchReason\', \'batchCredit\')',
+   'initReasonPicker(\'rp-dorm\', \'dormReason\', \'dormScore\')'].forEach(s => {
     if (!fn.includes(s)) throw new Error('缺少: ' + s);
   });
 });

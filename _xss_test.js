@@ -3,7 +3,7 @@
    锁死"属性上下文注入"修复——防止将来有人把实现改回 textContent→innerHTML 的旧写法。
    运行：node _xss_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 // 抽取函数定义（函数声明块）
 function extractFn(name) {

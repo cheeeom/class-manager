@@ -1,7 +1,7 @@
 /* v2.11.0 回归测试：学生排序（序号默认/学分切换）+ 名单同步（rosterParse/rosterBuildPlan）
    从 index.html 抽取真实实现。运行：node _v2110_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 function extractFn(name) {
   const re = new RegExp('function ' + name + '\\([^)]*\\)\\{[\\s\\S]*?\\n\\}');

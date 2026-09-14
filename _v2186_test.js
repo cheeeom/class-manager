@@ -3,8 +3,8 @@
         副标题明示 / 版本三处同步 v2.18.2 / 设置页 notes 新条 / 主 script 语法。
    运行：node _v2186_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
-const sw = fs.readFileSync('sw.js', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
+const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
 let pass = 0, fail = 0;
 function t(name, fn) { try { fn(); pass++; console.log('  ✅', name); } catch (e) { fail++; console.log('  ❌', name, '—', e.message); } }
 function eq(a, b, msg) { if (a !== b) throw new Error((msg || '') + `期望 ${JSON.stringify(b)}，实际 ${JSON.stringify(a)}`); }

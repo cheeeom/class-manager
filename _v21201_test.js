@@ -4,8 +4,8 @@
    修法：dirs/groups/reasons 三组 concat 后按条目名去重（墓碑语义=已删条目名的集合）。
    运行：node _v21201_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
-const sw = fs.readFileSync('sw.js', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
+const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {

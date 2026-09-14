@@ -6,7 +6,7 @@
      修复 = buildCloudPayload 显式带上 state.wipeAt。
    运行：node _v2191fix_test.js */
 const fs = require('fs');
-const html = fs.readFileSync(__dirname + '/index.html', 'utf8');
+const html = fs.readFileSync(__dirname + '/index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function check(name, cond, extra) {

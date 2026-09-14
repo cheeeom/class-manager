@@ -1,7 +1,7 @@
 /* v2.20.0 回归测试：预警中心——办结复活修复 + 删除记录墓碑 + 渲染过滤。
    运行：node _v21202_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {
@@ -12,7 +12,7 @@ function eq(a, b, msg) { if (a !== b) throw new Error((msg || '') + `期望 ${JS
 
 console.log('=== 静态检查 ===');
 t('index.html 版本号已升至 v2.20.0', () => { if (!/v2\.20\.0/.test(html)) throw new Error('未找到 v2.20.0'); });
-t('sw.js CACHE_NAME 已跟版 v2.20.0', () => { if (!/class-manager-v2\.20\.0/.test(fs.readFileSync('sw.js', 'utf8'))) throw new Error('CACHE_NAME 未跟版'); });
+t('sw.js CACHE_NAME 已跟版 v2.20.0', () => { if (!/class-manager-v2\.20\.0/.test(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'))) throw new Error('CACHE_NAME 未跟版'); });
 t('cbScanAlerts 含「办结后复活」修复（monthAll 历史仲裁）', () => { if (html.indexOf('v2.20.0 修复「办结后复活」') < 0) throw new Error('缺少修复标记'); });
 t('cbAlertDelete 已定义并挂载删除按钮', () => {
   if (html.indexOf('function cbAlertDelete') < 0) throw new Error('缺少 cbAlertDelete');

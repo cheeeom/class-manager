@@ -2,7 +2,7 @@
    云端旧大类墓碑不再在推送前合并/拉取时把整组连同新原因一起抹掉。
    运行：node _v2193_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {
@@ -191,7 +191,7 @@ t('版本标记统一 v2.18.13', () => {
   has(html, '<div class="login-version">v2.20.0</div>', '登录页');
   has(html, '<div class="sidebar-footer">v2.20.0 · 班主任工作台</div>', '侧栏');
   has(html, '🏷️ v2.20.0</span>', '设置徽标');
-  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.20.0'", 'SW');
+  has(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'), "CACHE_NAME = 'class-manager-v2.20.0'", 'SW');
 });
 t('近版更新速览含新条', () => {
   has(html, '（v2.20.0）', 'notes');

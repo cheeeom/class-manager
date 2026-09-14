@@ -9,7 +9,7 @@
  * 用法：node _v21200_test.js
  */
 const fs = require('fs');
-const html = fs.readFileSync(__dirname + '/index.html', 'utf8');
+const html = fs.readFileSync(__dirname + '/index.html', 'utf8').replace(/\r\n/g, '\n');
 let pass = 0, fail = 0;
 function t(name, fn){
   try{ fn(); pass++; console.log('  ✅ ' + name); }

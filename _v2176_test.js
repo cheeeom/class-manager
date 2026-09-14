@@ -2,7 +2,7 @@
    档案编辑/成长记录/工作留痕/荣誉四个弹窗的关闭键从此告别「标题下方左缘」，与全站 .panel-close 设计语言一致。
    运行：node _v2176_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {
@@ -20,7 +20,7 @@ console.log('\n=== v2.18.13 版本三处同步 ===');
 t('登录页 / 侧栏 / SW CACHE_NAME = v2.18.13', () => {
   if (!/login-version">v2\.20\.0</.test(html)) throw new Error('登录页版本号未更新');
   if (!/sidebar-footer">v2\.20\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.20.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n').includes('class-manager-v2.20.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 弹窗头部 CSS 基础样式（v2.17.30 修复点） ===');

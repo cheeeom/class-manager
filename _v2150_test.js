@@ -1,7 +1,7 @@
 /* v2.15.1 回归测试：学分一致性（统一写入入口 / 基线自愈 / 合并取新 / 全视图刷新）
    运行：node _v2150_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {
@@ -309,7 +309,7 @@ console.log('\n=== 版本号 ===');
 t('v2.18.13 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
   if (!/login-version">v2\.20\.0</.test(html)) throw new Error('登录页版本号未更新');
   if (!/sidebar-footer">v2\.20\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  const sw = fs.readFileSync('sw.js', 'utf8');
+  const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
   if (!sw.includes('class-manager-v2.20.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 

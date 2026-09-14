@@ -4,7 +4,7 @@
    断言其引用的每个函数都在主脚本中声明——堵死「按钮无声死亡」整类事故。
    运行：node _v21203_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {
@@ -21,7 +21,7 @@ const BUILTIN = new Set(['if', 'for', 'while', 'switch', 'catch', 'return', 'fun
 
 console.log('=== 静态检查 ===');
 t('index.html 版本号已升至 v2.20.0', () => { if (!/v2\.20\.0/.test(html)) throw new Error('未找到 v2.20.0'); });
-t('sw.js CACHE_NAME 已跟版 v2.20.0', () => { if (!/class-manager-v2\.20\.0/.test(fs.readFileSync('sw.js', 'utf8'))) throw new Error('CACHE_NAME 未跟版'); });
+t('sw.js CACHE_NAME 已跟版 v2.20.0', () => { if (!/class-manager-v2\.20\.0/.test(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'))) throw new Error('CACHE_NAME 未跟版'); });
 t('学分周报功能已挂载', () => {
   if (html.indexOf('function exportWeeklyReport') < 0) throw new Error('缺少 exportWeeklyReport');
   if (html.indexOf('function drawWeeklyPoster') < 0) throw new Error('缺少 drawWeeklyPoster');

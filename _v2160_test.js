@@ -2,7 +2,7 @@
    v2.16.1：概览卡最高/最低分；零扣分榜改为「未扣分续航」（距上次扣分天数，全程流水）
    运行：node _v2160_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {
@@ -319,7 +319,7 @@ console.log('\n=== 版本号 ===');
 t('v2.18.13 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
   if (!/login-version">v2\.20\.0</.test(html)) throw new Error('登录页版本号未更新');
   if (!/sidebar-footer">v2\.20\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  const sw = fs.readFileSync('sw.js', 'utf8');
+  const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
   if (!sw.includes('class-manager-v2.20.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 

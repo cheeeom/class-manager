@@ -1,7 +1,7 @@
 /* v2.14.0 回归测试：学分批量多选 / 劳动整改（搬水+自定义天数）/ 初始学分统一100 / 面板关闭键
    运行：node _v2140_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {

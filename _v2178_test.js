@@ -2,8 +2,8 @@
    覆盖：数据五处链路 + 币派生口径 + 结算定档 + 券去重/合并 + 预警建档升级自动办结 + UI 接入。
    运行：node _v2178_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
-const sw = fs.readFileSync('sw.js', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
+const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {

@@ -1,7 +1,7 @@
 /* v2.17.16 回归测试：原因目录删除墓碑 —— 删方向/大类/原因后刷新/云合并不复活；
    删除不影响历史流水（撤销纠正只在学分记录）。运行：node _v2174_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {

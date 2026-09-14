@@ -3,8 +3,8 @@
         学生管理页第 3 页签接线 / 学分银行页签瘦身 / cbPersist 同步钩子 / 快速操作与 adjustCredit 移除。
    运行：node _v2184_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
-const sw = fs.readFileSync('sw.js', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
+const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {

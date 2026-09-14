@@ -1,7 +1,7 @@
 /* v2.18.13 回归测试：云同步推送失败「报错人话化 + 退避重试」。
    运行：node _v2191_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {
@@ -79,10 +79,15 @@ t('版本标记统一 v2.18.13', () => {
   has(html, '<div class="login-version">v2.20.0</div>', '登录页');
   has(html, '<div class="sidebar-footer">v2.20.0 · 班主任工作台</div>', '侧栏');
   has(html, '🏷️ v2.20.0</span>', '设置徽标');
-  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.20.0'", 'SW');
+  has(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'), "CACHE_NAME = 'class-manager-v2.20.0'", 'SW');
 });
 t('近版更新速览含新条', () => {
-  has(html, '云同步推送失败自动重试', 'notes 新条');
+  // v2.20.0 维护约定（index.html「settingsAbout」上方注释）：更新速览【只保留最新一版、整体替换、不做追加】，
+  // 断言历史文案（如 v2.19.1 的「云同步推送失败自动重试」）必然随换版过期。
+  // 改为验证设计意图本身：容器在 + 标题跟着 CACHE_NAME 同版本号（自动跟版，不会再次过期）。
+  const ver = (fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n').match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/) || [])[1] || '';
+  has(html, 'id="settingsReleaseNotes"', 'notes 容器缺失');
+  has(html, '近版更新速览（' + ver + '）', 'notes 未跟版：速览标题应含与 CACHE_NAME 相同的版本号');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

@@ -10,7 +10,7 @@
 // 用法：node _sync_test.js
 
 const fs = require('fs');
-const html = fs.readFileSync(__dirname + '/index.html', 'utf8');
+const html = fs.readFileSync(__dirname + '/index.html', 'utf8').replace(/\r\n/g, '\n');
 
 // ---- 抽取实现：stripNoticeHistoryImages + 加密小节 + 推送闸门 ----
 const stripFn = html.slice(

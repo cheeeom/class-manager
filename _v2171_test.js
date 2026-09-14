@@ -3,7 +3,7 @@
    → 根因 = creditBase 反推值可能≠100 且从不展示；本套件验证体检纯函数与修复入口。
    运行：node _v2171_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {
@@ -28,7 +28,7 @@ console.log('\n=== v2.18.13 版本三处同步 ===');
 t('登录页 / 侧栏 / SW CACHE_NAME = v2.18.13', () => {
   if (!/login-version">v2\.20\.0</.test(html)) throw new Error('登录页版本号未更新');
   if (!/sidebar-footer">v2\.20\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.20.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n').includes('class-manager-v2.20.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 体检纯函数 computeCreditAudit ===');

@@ -1,7 +1,7 @@
 /* v2.17.0 回归测试：可编辑原因目录 + 多级选择器逐层化 + 班委操作（身份署名/扣分开关）
    运行：node _v2170_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {
@@ -25,11 +25,11 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 
-console.log('\n=== v2.18.13 版本三处同步 ===');
-t('登录页 / 侧栏 / SW CACHE_NAME = v2.18.13', () => {
+console.log('\n=== 版本三处同步（当前 v2.20.0） ===');
+t('登录页 / 侧栏 / SW CACHE_NAME = v2.20.0', () => {
   if (!/login-version">v2\.20\.0</.test(html)) throw new Error('登录页版本号未更新');
   if (!/sidebar-footer">v2\.20\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').includes('class-manager-v2.20.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n').includes('class-manager-v2.20.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 目录纯函数 ===');
@@ -169,12 +169,12 @@ t('v2.17.30 updateCreditBtnStates：不再引用快捷按钮组，负分（班�
 });
 t('v2.17.30 学分操作页不再有 ±快捷预设按钮组（原因自带分值）', () => {
   if (html.includes('id="quickBtnGroup"')) throw new Error('仍残留快捷按钮组 HTML');
-  // 工具栏顺序：姓名搜索 → rp-credit（原因）→ customCredit → 应用
+  // v2.20.0：学分单点入口收敛为 quickCreditModal 弹窗，弹窗内顺序应为
+  //          选学生(creditStudentInput) → 原因菜单(qcMenu) → 确认(qcConfirmBtn)
   const iS = html.indexOf('id="creditStudentInput"');
-  const iR = html.indexOf('id="rp-credit"');
-  const iC = html.indexOf('id="customCredit"');
-  const iA = html.indexOf('id="customApplyBtn"');
-  if (!(iS > 0 && iR > iS && iC > iR && iA > iC)) throw new Error('工具栏布局顺序不对：' + [iS, iR, iC, iA].join('>'));
+  const iR = html.indexOf('id="qcMenu"');
+  const iA = html.indexOf('id="qcConfirmBtn"');
+  if (!(iS > 0 && iR > iS && iA > iR)) throw new Error('弹窗布局顺序不对：' + [iS, iR, iA].join('>'));
 });
 
 console.log('\n=== 多级选择器逐层渲染（stub DOM 冒烟） ===');

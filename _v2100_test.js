@@ -1,7 +1,7 @@
 /* v2.10.0 回归测试：值日轮次制（公平轮转）+ 罚扫记录 + 组别制导出 + 饮水机顺序轮转
    从 index.html 抽取真实实现。运行：node _v2100_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 function extractFn(name) {
   const re = new RegExp('function ' + name + '\\([^)]*\\)\\{[\\s\\S]*?\\n\\}');

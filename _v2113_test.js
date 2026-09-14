@@ -1,7 +1,7 @@
 /* v2.11.3 回归测试：彻底重置机制（wipeAt 全链路）+ 整页脚本语法检查
    运行：node _v2113_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {

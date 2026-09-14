@@ -2,8 +2,8 @@
    覆盖：settleHist 快照（结算写入/同月去重/云合并按月取新）+ 学生档案聚合助手 + 档案弹窗/筛选 UI 接入。
    运行：node _v2180_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
-const sw = fs.readFileSync('sw.js', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
+const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {

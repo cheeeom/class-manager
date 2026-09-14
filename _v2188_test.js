@@ -7,8 +7,8 @@
      P2-d duty / seating / 补零 / DPR 画布 四面收敛为公共实现
    运行：node _v2188_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
-const sw = fs.readFileSync('sw.js', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
+const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
 let pass = 0, fail = 0;
 function t(name, fn) { try { fn(); pass++; console.log('  ✅', name); } catch (e) { fail++; console.log('  ❌', name, '—', e.message); } }
 function has(a, b, msg) { if (String(a).indexOf(b) < 0) throw new Error((msg || '') + ' 缺少 ' + JSON.stringify(b)); }

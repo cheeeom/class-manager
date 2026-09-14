@@ -1,7 +1,7 @@
 // 一次性冒烟测试：验证 index.html 里的加解密实现能真正跑通并互相还原
 // 直接从源码抽取「云同步加密」小节，避免手抄导致测试与实现不同步
 const fs = require('fs');
-const html = fs.readFileSync(__dirname + '/index.html', 'utf8');
+const html = fs.readFileSync(__dirname + '/index.html', 'utf8').replace(/\r\n/g, '\n');
 
 const start = html.indexOf("const SYNC_PWD_KEY");
 const endMark = "function configSyncPwd(){";

@@ -7,8 +7,8 @@
  * 断言：CSS 锚点精确匹配 + 三处版本标记 + SW 缓存名 + 设置页 notes 新条目（旧条不删）。
  */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
-const sw = fs.readFileSync('sw.js', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
+const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {

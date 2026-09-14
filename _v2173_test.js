@@ -2,7 +2,7 @@
    撤销状态随云端合并传播（任何设备/校准都不复活已撤流水）。
    运行：node _v2173_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {

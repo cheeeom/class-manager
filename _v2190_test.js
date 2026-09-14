@@ -1,7 +1,7 @@
 /* v2.18.13 回归测试：reasonScores 本地优先合并 —— 本地未推送的分值编辑不被云端旧值覆盖；
    本地已删键由 catDeleted.reasons 墓碑兜底剔除（不复活）。运行：node _v2190_test.js */
 const fs = require('fs');
-const html = fs.readFileSync('index.html', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
 function t(name, fn) {
@@ -128,7 +128,7 @@ t('版本标记统一 v2.18.13', () => {
   has(html, '🏷️ v2.20.0</span>', '设置页徽标');
 });
 t('sw.js CACHE_NAME 已升版', () => {
-  has(fs.readFileSync('sw.js', 'utf8'), "CACHE_NAME = 'class-manager-v2.20.0'", 'sw 缓存名');
+  has(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'), "CACHE_NAME = 'class-manager-v2.20.0'", 'sw 缓存名');
 });
 t('速览新增修复条目', () => {
   has(html, '（v2.20.0）', '近版更新速览');
