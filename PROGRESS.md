@@ -1073,4 +1073,11 @@
 - [x] **文档残留订正**：v2.20.0 章节原写「推送：**未推送**」，与实际已上线冲突，已订正并附上线证据。
 - [ ] **待老板拍板（不擅自承接）**：化石待办表里仍未确认的四项——`operations` 为何 0 条、`dutyDays` 含周日是否笔误、旧 GitHub Token 是否吊销、`escapeHtml` 覆盖补全。它们多为 v2.8.0 期提出，优先级需重新评估。
 - [x] **本次改动范围**：仅 `PROGRESS.md`。未动 `index.html` / `sw.js` / 测试文件，故**无需版本号跟版、无需重跑回归基线**。
+- [x] **⚠️ API 推送的已知副作用（必读）**：本轮用 `cm-push-incremental.js` 直推远端，该脚本**只改远端 ref，不动本地 HEAD**；而本机 `git fetch/pull` 到 `github.com:443` 不通（见第三节第 1 条），**本地无法用 git 追上远端**。
+  后果：本地 HEAD 会稳定落后远端 1~2 个提交，但这些提交的内容本地其实已有（本地另有一个内容相同、SHA 不同的 commit）。
+  **这不是分叉事故，也不是未提交的工作**。
+  - 对表请用：`gh api repos/cheeeom/class-manager/commits/main --jq '.sha'`
+  - 后续推送继续走 API（脚本以远端 HEAD 为基座取内容，**完全不依赖本地 HEAD/分支状态**）
+  - **切忌用 `git push` 去「追平」**——会因非快进而失败，且白等超时。
+  - 实测佐证：远端 tree（`dc637362`）可由本地 `read-tree` + `write-tree` 逐字节重建成功，仅 commit 对象 SHA 因 GitHub 侧写入差异不可本地复现（tree/parent/author/committer/message 全同且未签名）。
 
