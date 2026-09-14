@@ -1899,11 +1899,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .qc-cat{padding:7px 16px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
 .qc-cat:hover{border-color:var(--primary-light);color:var(--primary-dark)}
 .qc-cat.active{background:var(--primary);border-color:var(--primary);color:#fff}
-.qc-cat.preview{border-color:var(--primary);border-style:dashed;background:var(--bg-secondary);color:var(--primary-dark)}
-.qc-peek{font-size:12px;color:var(--text-muted);margin:-2px 0 8px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
-.qc-peek b{color:var(--primary-dark);font-weight:700}
-.qc-peek:empty{display:none}
-.qc-items{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:260px;overflow-y:auto;padding:2px}
+.qc-items{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:260px;min-height:132px;overflow-y:auto;padding:2px}
 .qc-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;
   border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text);cursor:pointer;text-align:left;font-size:14px;transition:all .12s}
 .qc-item:hover{border-color:var(--primary-light);background:var(--bg-secondary)}
@@ -1965,7 +1961,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.20.1</div>
+      <div class="login-version">v2.20.2</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2084,7 +2080,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.20.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.20.2 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2783,15 +2779,15 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.1</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.2</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.1）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.2）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 🎯 <b>原因大类改为「点击锁定」</b>：鼠标划过只<strong>实时预览</strong>该大类下的原因细则，不再自动切换；已选原因也不会因为鼠标飘过而丢失 —— 大类的切换现在<b>只有点击才生效</b><br>
-              · 🔧 修复原因菜单悬停时的跳动与卡顿：旧实现每次悬停都会整体重建菜单，光标下的按钮被换成新元素后又会再次触发悬停判定，于是来回抖<br>
-              · ℹ️ 用法：悬停时菜单顶部会显示「👁 预览 X 的细则」，点击该大类名即锁定切换；直接点预览中的细则也会自动锁定它所属的大类
+              · 🎯 <b>原因大类改为「点击才切换」</b>：菜单内已<strong>移除全部鼠标悬停响应</strong> —— 鼠标怎么划过都不会改变当前大类，也不会丢已选原因；点一下大类即在下方展开它的原因细则，点细则即选中<br>
+              · 🔧 修复原因菜单抖动（第二版）：上一版用「悬停预览」折中，但预览提示行随悬停出现/消失会让菜单高度变化、内容上下跳，触屏还会被合成的鼠标事件反复触发，抖动反而更明显；本版把悬停路径整体删除，只保留点击，并给细则区固定最小高度，切换时下方内容不再位移<br>
+              · ℹ️ 用法：全程只用点击 —— 点大类切类、点细则选原因，鼠标移动不影响任何状态
             </div>
           </div>
         </div>
@@ -3425,7 +3421,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div id="creditSelectedChips" class="credit-sel-body"></div>
       </div>
       <div class="form-group">
-        <label id="qcReasonLabel">原因（悬停或点按大类展开细则，点细则即选）</label>
+        <label id="qcReasonLabel">原因（点按大类展开细则，点细则即选）</label>
         <div id="qcMenu" class="qc-menu"></div>
       </div>
       <div id="qcPreview" class="qc-preview"></div>
@@ -9169,10 +9165,9 @@ function quickCredit(amount){
 
 /* ==================== 快速加减分（v2.20.0：方向锁定 + 印章按钮） ==================== */
 var _qcSign = 'plus';
-var _qcGroup = null;      // 已锁定的大类（v2.20.1：只有点击能改）
+var _qcGroup = null;      // 已锁定的大类（v2.20.2：唯一入口是点击，全程无悬停）
 var _qcReason = null;     // 已选细则
-var _qcHover = null;      // v2.20.1：悬停预览的大类（临时态，不提交；离开菜单即清空）
-var _qcMenuBound = false; // v2.20.1：#qcMenu 的事件委托只绑一次（重画内部不会丢/重复绑定）
+var _qcMenuBound = false; // #qcMenu 的 click 委托只绑一次（重画内部不丢、不重复）
 function qcDirName(){ return (_qcSign === 'plus') ? '加分' : '扣分'; }
 function openQuickCredit(sign){
   _qcSign = (sign === 'minus') ? 'minus' : 'plus';
@@ -9212,19 +9207,21 @@ function qcMenuData(){
   return out;
 }
 
-/* v2.20.1 交互修正：大类「悬停预览、点击锁定」
-   旧实现把 mouseenter 也接成切换动作，且切换时整体 innerHTML 重渲染——鼠标从大类上划过
-   就改状态，还会把光标下的按钮整个换掉（新元素再次触发 mouseenter），于是出现
-   「飘一下就自动跟着切、来回跳」，并且已选原因被无谓清空。
-   现拆为三层：
-     · _qcGroup = 已锁定的大类，只有 click 能改
-     · _qcHover = 悬停预览的大类，只决定细则区显示什么，不动锁定态
-     · 大类条只在整菜单重画时重建；悬停路径只切 class + 只重画细则区
-       → 光标下的按钮不会被替换，也就不会自我触发，彻底消除跳动 */
+/* v2.20.2 交互定稿：菜单内所有鼠标悬停已移除，大类与细则一律「点击」生效
+   演进史：
+     · v2.20.0：大类按钮同时绑 mouseenter + click（悬停即切换），且切换时整体 innerHTML
+       重渲染 —— 光标下的按钮被换成新元素并再次触发 mouseenter，于是「鼠标飘过就自动
+       跟着切、来回跳」，已选原因被无谓清空。
+     · v2.20.1：折中为「悬停预览 + 点击锁定」。但预览提示行随悬停出现/消失会让菜单高度
+       变化（内容上下跳），触屏还会合成 mouseover 反复触发 —— 抖动反而更明显。
+     · v2.20.2：结论是别猜心思 —— 悬停 = 完全无动作，只有 click 能改状态。
+         · 点大类 → qcCommitGroup()：切组；真换组才清空已选细则
+         · 点细则 → qcPickReason()：选中，并顺带把锁定态对齐到它所属的大类
+   两条路径都只切 class + 只重画细则区，大类按钮永不重建 → 光标下的元素不被替换，
+   既没有自我触发，也没有高度突变，抖动根因被整体移除 */
 function qcRenderMenu(){
   var menu = document.getElementById('qcMenu');
   if(!menu) return;
-  _qcHover = null;
   var data = qcMenuData();
   if(!data.length){
     menu.innerHTML = '<div class="qc-menu-empty">该方向暂无可快速使用的原因——请先到「设置」为原因预设分值</div>';
@@ -9234,27 +9231,25 @@ function qcRenderMenu(){
   var cats = data.map(function(d){
     return '<button type="button" class="qc-cat" data-g="' + escapeHtml(d.group) + '">' + escapeHtml(d.group) + '</button>';
   }).join('');
-  menu.innerHTML = '<div class="qc-cats">' + cats + '</div><div class="qc-peek"></div><div class="qc-items"></div>';
+  menu.innerHTML = '<div class="qc-cats">' + cats + '</div><div class="qc-items"></div>';
   qcSyncCatClasses();
   qcPaintItems();
   qcBindMenu();
 }
 
-// 只切 class，不重建 DOM —— 悬停路径走这里，因此不会自我触发 mouseover
+// 只切 class，不重建 DOM —— 大类按钮永远留在原位，光标下的元素不会被替换
 function qcSyncCatClasses(){
   var menu = document.getElementById('qcMenu'); if(!menu) return;
   menu.querySelectorAll('.qc-cat').forEach(function(el){
-    var g = el.getAttribute('data-g');
-    el.classList.toggle('active', g === _qcGroup);
-    el.classList.toggle('preview', g === _qcHover && g !== _qcGroup);
+    el.classList.toggle('active', el.getAttribute('data-g') === _qcGroup);
   });
 }
 
-// 只重画「细则区 + 预览提示」，大类按钮原封不动
+// 只重画细则区，大类按钮原封不动（所以点击后大类条不位移）
 function qcPaintItems(){
   var menu = document.getElementById('qcMenu'); if(!menu) return;
   var data = qcMenuData();
-  var view = _qcHover || _qcGroup;
+  var view = _qcGroup;
   var grp = null;
   data.forEach(function(d){ if(d.group === view) grp = d; });
   if(!grp) return;
@@ -9264,33 +9259,19 @@ function qcPaintItems(){
   }).join('');
   var host = menu.querySelector('.qc-items');
   if(host) host.innerHTML = items;
-  var peek = menu.querySelector('.qc-peek');
-  if(peek) peek.innerHTML = (_qcHover && _qcHover !== _qcGroup)
-    ? '👁 预览 <b>' + escapeHtml(_qcHover) + '</b> 的细则 — 点击该大类名即可锁定切换'
-    : '';
 }
 
-// 悬停：只改预览态（幂等，同一大类重复触发直接返回）
-function qcSetHover(g){
-  var next = (g && g !== _qcGroup) ? g : null;   // 悬停在已锁定的大类上不算预览
-  if(next === _qcHover) return;
-  _qcHover = next;
-  qcSyncCatClasses();
-  qcPaintItems();
-}
-
-// 点击大类：唯一的锁定/切换入口
+// 点击大类：唯一的切换入口（悬停不做任何事）
 function qcCommitGroup(g){
-  if(_qcGroup === g && !_qcHover) return;        // 点已锁定的大类且无预览：无变化
-  if(_qcGroup !== g) _qcReason = null;           // 真正换大类才清掉已选细则
+  if(_qcGroup === g) return;                     // 点的就是当前大类：无变化，不白重画
+  _qcReason = null;                              // 换大类即清掉已选细则（防跨类幽灵选中）
   _qcGroup = g;
-  _qcHover = null;
   try{ localStorage.setItem('qcLastGroup_' + qcDirName(), g); }catch(e){}
   qcSyncCatClasses();
   qcPaintItems();
 }
 
-// 点击细则：顺带锁定它所属大类（避免"选中了预览中的细则、锁定态却还在别处"的幽灵状态）
+// 点击细则：顺带锁定它所属大类（避免"选中了细则、锁定态却还在别类"的幽灵状态）
 function qcPickReason(name){
   var data = qcMenuData(), owner = null;
   data.forEach(function(d){
@@ -9300,23 +9281,19 @@ function qcPickReason(name){
     _qcGroup = owner;
     try{ localStorage.setItem('qcLastGroup_' + qcDirName(), owner); }catch(e){}
   }
-  _qcHover = null;
   _qcReason = name;
   qcSyncCatClasses();
   qcPaintItems();
   qcUpdatePreview();
 }
 
-// 事件委托：只绑一次在 #qcMenu 上（菜单元素常驻，内部重画不丢监听，也不会重复绑定）
+/* 事件委托：只绑一次在 #qcMenu 上（#qcMenu 常驻，内部重画不丢监听、也不会重复绑定）。
+   v2.20.2：这里只剩 click —— 整个 qc 菜单没有任何 mouseover / mouseenter / mouseleave，
+   鼠标怎么划过都不会改状态，触屏合成的 mouseover 也无副作用 */
 function qcBindMenu(){
   var menu = document.getElementById('qcMenu');
   if(!menu || _qcMenuBound) return;
   _qcMenuBound = true;
-  menu.addEventListener('mouseover', function(e){
-    var cat = (e.target && e.target.closest) ? e.target.closest('.qc-cat') : null;
-    if(cat) qcSetHover(cat.getAttribute('data-g'));
-  });
-  menu.addEventListener('mouseleave', function(){ qcSetHover(null); });
   menu.addEventListener('click', function(e){
     var t = e.target;
     if(!t || !t.closest) return;
