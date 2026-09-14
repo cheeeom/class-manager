@@ -50,12 +50,12 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.20\.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.20\.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.20.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.20\.1</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.20\.1 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.20.1')) throw new Error('SW CACHE_NAME 未更新');
 });
 t('设置页版本徽标随版 = v2.18.13', () => {
-  has(html, '🏷️ v2.20.0</span>', '设置页版本徽标未跟版');
+  has(html, '🏷️ v2.20.1</span>', '设置页版本徽标未跟版');
 });
 t('历史注释保护：v2.18.3 的 P0 修复注释 8 处保留（不随升版盲替）', () => {
   eq(count('v2.18.3'), 8);
@@ -64,10 +64,10 @@ t('历史注释保护：v2.18.3 的 P0 修复注释 8 处保留（不随升版�
   has(html, '处分记录补入同步链路：此前漏加 → buildCloudPayload 按本表过滤时从不带它上传');
 });
 t('设置页 notes 更新为本版条目（弹窗改造 / 改名跨设备 / 代码清理 / 调试静默）', () => {
-  has(html, '（v2.20.0）', '缺弹窗改造说明');
-  has(html, '（v2.20.0）', '缺改名跨设备说明');
-  has(html, '（v2.20.0）', '缺代码清理说明');
-  has(html, '（v2.20.0）', '缺调试静默说明');
+  has(html, '（v2.20.1）', '缺弹窗改造说明');
+  has(html, '（v2.20.1）', '缺改名跨设备说明');
+  has(html, '（v2.20.1）', '缺代码清理说明');
+  has(html, '（v2.20.1）', '缺调试静默说明');
 });
 
 /* ==================== P1-b cmPrompt 通用输入模态 ==================== */

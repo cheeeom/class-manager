@@ -1899,6 +1899,10 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .qc-cat{padding:7px 16px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
 .qc-cat:hover{border-color:var(--primary-light);color:var(--primary-dark)}
 .qc-cat.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.qc-cat.preview{border-color:var(--primary);border-style:dashed;background:var(--bg-secondary);color:var(--primary-dark)}
+.qc-peek{font-size:12px;color:var(--text-muted);margin:-2px 0 8px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.qc-peek b{color:var(--primary-dark);font-weight:700}
+.qc-peek:empty{display:none}
 .qc-items{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:260px;overflow-y:auto;padding:2px}
 .qc-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;
   border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text);cursor:pointer;text-align:left;font-size:14px;transition:all .12s}
@@ -1961,7 +1965,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.20.0</div>
+      <div class="login-version">v2.20.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2080,7 +2084,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.20.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.20.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2779,19 +2783,15 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.0</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.1</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.0）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.1）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 🔧 修复云同步安全闸门失效：云端数据超 1MB 后，「空本机覆盖云端 / 明文覆盖密文 / 推送前自动合并」三项保护全部静默失效，多设备下等于谁后推谁覆盖——现对大文件自动改用 raw 方式读取云端内容，保护恢复<br>
-              · 🔧 修复「清空数据」不跨设备生效：重置时间戳此前从未随推送上云，其他设备不会对齐清空、旧数据会整体复活<br>
-              · 🔧 修复学分银行退款合并丢失：一台设备核销、另一台设备退款时，合并后券错标「已核销」但币已退还；退款/过期现带时间戳参与合并仲裁<br>
-              · 🔧 修复东八区凌晨（0-8 点）操作日期差一天：请假默认起止 / 销假日期 / 考试默认日期 / 待办逾期判断 / 导出文件名，共 7 处<br>
-              · 🔧 修复设置含中文等非数字密码后无法登录的缺陷（历史 6 位数字密码不受影响）<br>
-              · 🧹 代码收敛约 100 行：学生搜索下拉三处合一、清空数据改表驱动（以后加字段不再怕漏）、剪贴板与设置存取去重、4 处弹窗统一走站内 helper；商品图标文案补齐转义<br>
-              · ⚠️ 已知事项：云端 data.json 已达 13MB，同步传输量大，建议尽快查明膨胀源并瘦身
+              · 🎯 <b>原因大类改为「点击锁定」</b>：鼠标划过只<strong>实时预览</strong>该大类下的原因细则，不再自动切换；已选原因也不会因为鼠标飘过而丢失 —— 大类的切换现在<b>只有点击才生效</b><br>
+              · 🔧 修复原因菜单悬停时的跳动与卡顿：旧实现每次悬停都会整体重建菜单，光标下的按钮被换成新元素后又会再次触发悬停判定，于是来回抖<br>
+              · ℹ️ 用法：悬停时菜单顶部会显示「👁 预览 X 的细则」，点击该大类名即锁定切换；直接点预览中的细则也会自动锁定它所属的大类
             </div>
           </div>
         </div>
@@ -9169,8 +9169,10 @@ function quickCredit(amount){
 
 /* ==================== 快速加减分（v2.20.0：方向锁定 + 印章按钮） ==================== */
 var _qcSign = 'plus';
-var _qcGroup = null;      // 当前展开的大类
+var _qcGroup = null;      // 已锁定的大类（v2.20.1：只有点击能改）
 var _qcReason = null;     // 已选细则
+var _qcHover = null;      // v2.20.1：悬停预览的大类（临时态，不提交；离开菜单即清空）
+var _qcMenuBound = false; // v2.20.1：#qcMenu 的事件委托只绑一次（重画内部不会丢/重复绑定）
 function qcDirName(){ return (_qcSign === 'plus') ? '加分' : '扣分'; }
 function openQuickCredit(sign){
   _qcSign = (sign === 'minus') ? 'minus' : 'plus';
@@ -9210,9 +9212,19 @@ function qcMenuData(){
   return out;
 }
 
+/* v2.20.1 交互修正：大类「悬停预览、点击锁定」
+   旧实现把 mouseenter 也接成切换动作，且切换时整体 innerHTML 重渲染——鼠标从大类上划过
+   就改状态，还会把光标下的按钮整个换掉（新元素再次触发 mouseenter），于是出现
+   「飘一下就自动跟着切、来回跳」，并且已选原因被无谓清空。
+   现拆为三层：
+     · _qcGroup = 已锁定的大类，只有 click 能改
+     · _qcHover = 悬停预览的大类，只决定细则区显示什么，不动锁定态
+     · 大类条只在整菜单重画时重建；悬停路径只切 class + 只重画细则区
+       → 光标下的按钮不会被替换，也就不会自我触发，彻底消除跳动 */
 function qcRenderMenu(){
   var menu = document.getElementById('qcMenu');
   if(!menu) return;
+  _qcHover = null;
   var data = qcMenuData();
   if(!data.length){
     menu.innerHTML = '<div class="qc-menu-empty">该方向暂无可快速使用的原因——请先到「设置」为原因预设分值</div>';
@@ -9220,24 +9232,101 @@ function qcRenderMenu(){
   }
   if(!_qcGroup || !data.some(function(d){ return d.group === _qcGroup; })) _qcGroup = data[0].group;
   var cats = data.map(function(d){
-    return '<button type="button" class="qc-cat' + (d.group === _qcGroup ? ' active' : '') + '" data-g="' + escapeHtml(d.group) + '">' + escapeHtml(d.group) + '</button>';
+    return '<button type="button" class="qc-cat" data-g="' + escapeHtml(d.group) + '">' + escapeHtml(d.group) + '</button>';
   }).join('');
-  var grp = data.find(function(d){ return d.group === _qcGroup; });
+  menu.innerHTML = '<div class="qc-cats">' + cats + '</div><div class="qc-peek"></div><div class="qc-items"></div>';
+  qcSyncCatClasses();
+  qcPaintItems();
+  qcBindMenu();
+}
+
+// 只切 class，不重建 DOM —— 悬停路径走这里，因此不会自我触发 mouseover
+function qcSyncCatClasses(){
+  var menu = document.getElementById('qcMenu'); if(!menu) return;
+  menu.querySelectorAll('.qc-cat').forEach(function(el){
+    var g = el.getAttribute('data-g');
+    el.classList.toggle('active', g === _qcGroup);
+    el.classList.toggle('preview', g === _qcHover && g !== _qcGroup);
+  });
+}
+
+// 只重画「细则区 + 预览提示」，大类按钮原封不动
+function qcPaintItems(){
+  var menu = document.getElementById('qcMenu'); if(!menu) return;
+  var data = qcMenuData();
+  var view = _qcHover || _qcGroup;
+  var grp = null;
+  data.forEach(function(d){ if(d.group === view) grp = d; });
+  if(!grp) return;
   var items = grp.items.map(function(it){
     var sel = (_qcReason === it.name) ? ' selected' : '';
     return '<button type="button" class="qc-item' + sel + '" data-r="' + escapeHtml(it.name) + '"><span>' + escapeHtml(it.name) + '</span><b>' + (it.score > 0 ? '+' : '') + it.score + '</b></button>';
   }).join('');
-  menu.innerHTML = '<div class="qc-cats">' + cats + '</div><div class="qc-items">' + items + '</div>';
-  menu.querySelectorAll('.qc-cat').forEach(function(el){
-    var g = el.getAttribute('data-g');
-    var pick = function(){ if(_qcGroup !== g){ _qcGroup = g; _qcReason = null; try{ localStorage.setItem('qcLastGroup_' + qcDirName(), g); }catch(e){} qcRenderMenu(); } };
-    el.addEventListener('mouseenter', pick);
-    el.addEventListener('click', pick);
+  var host = menu.querySelector('.qc-items');
+  if(host) host.innerHTML = items;
+  var peek = menu.querySelector('.qc-peek');
+  if(peek) peek.innerHTML = (_qcHover && _qcHover !== _qcGroup)
+    ? '👁 预览 <b>' + escapeHtml(_qcHover) + '</b> 的细则 — 点击该大类名即可锁定切换'
+    : '';
+}
+
+// 悬停：只改预览态（幂等，同一大类重复触发直接返回）
+function qcSetHover(g){
+  var next = (g && g !== _qcGroup) ? g : null;   // 悬停在已锁定的大类上不算预览
+  if(next === _qcHover) return;
+  _qcHover = next;
+  qcSyncCatClasses();
+  qcPaintItems();
+}
+
+// 点击大类：唯一的锁定/切换入口
+function qcCommitGroup(g){
+  if(_qcGroup === g && !_qcHover) return;        // 点已锁定的大类且无预览：无变化
+  if(_qcGroup !== g) _qcReason = null;           // 真正换大类才清掉已选细则
+  _qcGroup = g;
+  _qcHover = null;
+  try{ localStorage.setItem('qcLastGroup_' + qcDirName(), g); }catch(e){}
+  qcSyncCatClasses();
+  qcPaintItems();
+}
+
+// 点击细则：顺带锁定它所属大类（避免"选中了预览中的细则、锁定态却还在别处"的幽灵状态）
+function qcPickReason(name){
+  var data = qcMenuData(), owner = null;
+  data.forEach(function(d){
+    if(d.items.some(function(it){ return it.name === name; })) owner = d.group;
   });
-  menu.querySelectorAll('.qc-item').forEach(function(el){
-    el.addEventListener('click', function(){ _qcReason = el.getAttribute('data-r'); qcRenderMenu(); qcUpdatePreview(); });
+  if(owner && owner !== _qcGroup){
+    _qcGroup = owner;
+    try{ localStorage.setItem('qcLastGroup_' + qcDirName(), owner); }catch(e){}
+  }
+  _qcHover = null;
+  _qcReason = name;
+  qcSyncCatClasses();
+  qcPaintItems();
+  qcUpdatePreview();
+}
+
+// 事件委托：只绑一次在 #qcMenu 上（菜单元素常驻，内部重画不丢监听，也不会重复绑定）
+function qcBindMenu(){
+  var menu = document.getElementById('qcMenu');
+  if(!menu || _qcMenuBound) return;
+  _qcMenuBound = true;
+  menu.addEventListener('mouseover', function(e){
+    var cat = (e.target && e.target.closest) ? e.target.closest('.qc-cat') : null;
+    if(cat) qcSetHover(cat.getAttribute('data-g'));
+  });
+  menu.addEventListener('mouseleave', function(){ qcSetHover(null); });
+  menu.addEventListener('click', function(e){
+    var t = e.target;
+    if(!t || !t.closest) return;
+    var cat = t.closest('.qc-cat');
+    if(cat){ qcCommitGroup(cat.getAttribute('data-g')); return; }
+    var item = t.closest('.qc-item');
+    if(item) qcPickReason(item.getAttribute('data-r'));
   });
 }
+/* QC_MENU_ENGINE_END */
 
 function qcUpdatePreview(){
   var n = _creditSelectedIds.size;
