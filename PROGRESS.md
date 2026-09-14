@@ -1202,4 +1202,6 @@
 - **「悬停预览」这类交互不要再引入**：v2.20.0→v2.20.1→v2.20.2 连栽两轮，代价是两次发版 + 33 个文件的版本锁重写。凡涉及"鼠标跟随的中间态"，默认不做。
 - 「版本锁」成本（33 文件 / ~130 替换点）**依然存在**，本轮已再次全额支付；是否改成自洽式断言仍待老板拍板。
 - `_v2202_test.js` 的 `bodyOf()` 仍是「首个 `\n}`」定位法，局限同上。
+- **本轮发现的仓库级陷阱（已入 AGENTS.md 推送手册）**：`core.autocrlf=true` 下 **`git commit -am` 不保证把 CRLF 归一化成 LF** —— 文档提交后逐文件比 blob sha，发现**本地 HEAD 的 `AGENTS.md` 停在 CRLF**（43,903B / CRLF=479）而**远端是 LF**（43,424B / CRLF=0）。取两 blob 比对确认归一化后内容一致 → **远端无辜**（推送脚本 `git hash-object -w --` 正确应用了 clean filter），脏的是本地 index；`git add` 也被 stat 快路径跳过，只能用 `git update-index --cacheinfo` 强制修齐（本地 HEAD → `62e2d99`）。
+  → **结论：本仓文本文件提交后一律比一次 blob sha**（`git rev-parse HEAD:<f>` vs `gh api contents/<f>`）。`index.html` 走 `git add -A` 所以一直没事。
 

@@ -50,6 +50,20 @@
 > node D:/a/chee777/scripts/cm-push-incremental.js "msg" index.html sw.js --rm:_v2201_test.js
 > ```
 >
+> **推送后必做：逐文件比 blob sha**（比看字节数可靠得多，2026-09-14 实测抓到一处幽灵差异）：
+>
+> ```bash
+> for f in index.html sw.js AGENTS.md PROGRESS.md; do
+>   echo "$(git rev-parse HEAD:$f)  $(gh api repos/cheeeom/class-manager/contents/$f --jq .sha)  $f"
+> done
+> ```
+>
+> ⚠️ **`core.autocrlf=true` 下 `git commit -am` 不保证把 CRLF 归一化成 LF**：实测某次提交后
+> **本地 HEAD 的 `AGENTS.md` 停在 CRLF**（43,903B）而远端是 LF（43,424B）—— **远端无辜**（推送脚本的
+> `git hash-object -w --` 会正确应用 clean filter），脏的是本地 index（git 因 stat 匹配走了 "racily clean"
+> 快路径复用旧 blob），且 `git add` 也会被跳过。**修法**：`git update-index --cacheinfo 100644,<LF blob sha>,<path>`
+> 再 commit。**本仓 `index.html` 走 `git add -A`（会归一化）一直没问题，只有 `git commit -am` 那条路径会中招。**
+>
 > 另：**`git fetch` / `git push` 到 `github.com:443` 在本机已实测全部超时**（21.7s，无代理 / 代理 .70 / 代理 .52 三种方式皆然）；而 `api.github.com` 秒回。
 > → 对表请用 `gh api repos/cheeeom/class-manager/commits/main --jq '.sha'`，**不要用 `git fetch` 干等**。
 > → API 推送的已知副作用：它只改远端 ref、**不动本地 HEAD**，而本地又无法用 git 追平，因此**本地 HEAD 会稳定落后远端 1~2 个提交**（内容其实已有）。**非分叉事故，切忌用 `git push` 去「追平」**（会非快进失败）。
