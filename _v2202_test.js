@@ -259,20 +259,25 @@ t('重渲染（打开弹窗 / 连续记账）后：锁定态保持、无悬停�
   eq(s.menu.listeners().join(','), 'click', '重渲染不得新增悬停监听');
 });
 
-console.log('\n=== 版本号（四处跟版 v2.20.2） ===');
+console.log('\n=== 版本号（四处跟版 v2.20.3） ===');
 t('登录页 / 侧栏 / 设置徽标 / SW CACHE_NAME', () => {
-  has(html, '<div class="login-version">v2.20.2</div>', '登录页未跟版');
-  has(html, '<div class="sidebar-footer">v2.20.2 · 班主任工作台</div>', '侧栏未跟版');
-  has(html, '🏷️ v2.20.2</span>', '设置徽标未跟版');
-  has(sw, "CACHE_NAME = 'class-manager-v2.20.2'", 'SW CACHE_NAME 未跟版');
+  has(html, '<div class="login-version">v2.20.3</div>', '登录页未跟版');
+  has(html, '<div class="sidebar-footer">v2.20.3 · 班主任工作台</div>', '侧栏未跟版');
+  has(html, '🏷️ v2.20.3</span>', '设置徽标未跟版');
+  has(sw, "CACHE_NAME = 'class-manager-v2.20.3'", 'SW CACHE_NAME 未跟版');
 });
 t('速览标题与 CACHE_NAME 同版本号（自洽，不硬编码）', () => {
   const ver = (sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/) || [])[1] || '';
   has(html, '近版更新速览（' + ver + '）', '速览标题未跟版');
 });
-t('本版交互说明已进速览（老师能在设置页看到）', () => {
-  has(html, '原因大类改为「点击才切换」', '速览缺本版说明');
-  has(html, '移除全部鼠标悬停响应', '速览应明确说明悬停已移除');
+t('速览块非空 + 「悬停无动作」结论在引擎注释留档（不硬编码版本条目）', () => {
+  // 速览正文按项目约定「只保留最新一版」逐版整体替换，故不断言具体版本条目（必然逐版失效）；
+  // 改成断言不随版本流失的不变量：速览块存在且非空 + 引擎注释留档本轮结论。
+  const m = html.match(/<div id="settingsReleaseNotes"[^>]*>[\s\S]*?<\/div>/);
+  if (!m) throw new Error('缺速览块');
+  const plain = m[0].replace(/<[^>]+>/g, '').replace(/\s+/g, '');
+  if (plain.length < 60) throw new Error('速览块为空或过短：' + plain.length);
+  has(html, '菜单内所有鼠标悬停已移除', '引擎注释未留档「悬停已移除」结论');
 });
 
 console.log('\n结果：通过 ' + pass + ' 项，失败 ' + fail + ' 项');

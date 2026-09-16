@@ -1961,7 +1961,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.20.2</div>
+      <div class="login-version">v2.20.3</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2080,7 +2080,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.20.2 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.20.3 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2399,7 +2399,6 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <span class="pub-tab" data-range="semester" onclick="setPubRange('semester')">本学期</span>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn btn-outline btn-sm" onclick="exportPublicityPoster('compact')">📤 紧凑图</button>
             <button class="btn btn-primary btn-sm" onclick="exportPublicityPoster('portrait')">📤 导出竖版公示图</button>
             <button class="btn btn-primary btn-sm" onclick="exportWeeklyReport()">📰 学分周报（发家长群）</button>
           </div>
@@ -2779,15 +2778,16 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.2</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.3</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.2）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.3）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 🎯 <b>原因大类改为「点击才切换」</b>：菜单内已<strong>移除全部鼠标悬停响应</strong> —— 鼠标怎么划过都不会改变当前大类，也不会丢已选原因；点一下大类即在下方展开它的原因细则，点细则即选中<br>
-              · 🔧 修复原因菜单抖动（第二版）：上一版用「悬停预览」折中，但预览提示行随悬停出现/消失会让菜单高度变化、内容上下跳，触屏还会被合成的鼠标事件反复触发，抖动反而更明显；本版把悬停路径整体删除，只保留点击，并给细则区固定最小高度，切换时下方内容不再位移<br>
-              · ℹ️ 用法：全程只用点击 —— 点大类切类、点细则选原因，鼠标移动不影响任何状态
+                            · 📊 <b>预警中心修漏报 + 实时档位看板</b>：学生被扣分掉进预警区、之后自己加分回升会「自动办结」—— 原逻辑把这种<strong>自动办结</strong>和<strong>老师手动办结</strong>当成同一件事，于是学生<em>再掉回预警区就不再报警</em>（真实漏报）。本版只把<strong>手动办结 / 删除</strong>算作「已处理」，回升后再回落会重新建档，并标注「本月第 N 次回落」<br>
+              · 📊 <b>实时档位看板</b>：按当前学分实时统计各档人数（正常 / 黄 / 橙 / 红 / 深红），点档位即展开在档名单，每行标注<strong>本期扣分毛额 / 加回毛额 / 波动笔数</strong>，并把「扣了又加回」单独打标 —— 补上「扣完马上加回来、账面看着正常、预警里毫无痕迹」的盲区<br>
+              · 📤 <b>竖版公示图重做</b>：顶部重排（班级头像钉左上角，班级名称与班训<strong>居中放大</strong>，班训下方居中排「XXXX年X月学分公示」标题，三段文字共用同一中轴）；正文改为<strong>全班排名总榜</strong>（名次 + 姓名 + 学分，全体学生都在列），同分并列同名次、并列名次圈画空心；导出图不再包含进步榜，也不列个人流水<br>
+              · 🗑 <b>下线「紧凑图」</b>：与竖版公示图功能重复（同一份数据两套版式），统一为竖版、高度随全班人数自适应
             </div>
           </div>
         </div>
@@ -4381,6 +4381,9 @@ const CB_ALERT_TIERS = [
   { level:'dark',   label:'深红预警', act:'停课回家教育',     advice:'停课回家教育，需报学校德育处备案', min:0 }
 ];
 const CB_ALERT_MIN = 60;      // 学分 ≥60 为正常区间
+/* v2.20.3 波动观察阈值：账面仍在正常区、但本月扣分毛额 ≥ 该值 → 进「波动观察」名单。
+   「扣了又加回」净额为零，看净额永远发现不了，只能盯毛额。 */
+const CB_VOLATILE_SUB = 20;
 const CB_LEVEL_COLORS = { yellow:'#b7791f', orange:'#c05621', red:'#c53030', dark:'#7b1113' };
 
 // 默认结构兜底（load/clearData/merge 共用）
@@ -4838,6 +4841,13 @@ function cbExpireCoupons(){
 }
 /* 预警扫描（幂等，可重复调用）：同档同月仅一条、恶化升级才叠加；回升≥60 自动办结。
    返回变更数（新建 + 自动办结），供调用方决定是否落盘。 */
+/* 预警扫描（幂等，可重复调用）：同档同月仅一条、恶化升级才叠加；回升≥60 自动办结。
+   v2.20.3 修复「回升后又回落不报警」（真实漏报）：
+     原实现把「学生自己加分回升导致的自动办结」与「老师手动办结」当成同一件事，
+     于是学生回升后再掉回预警区，同月同档历史仲裁直接把它挡掉 —— 全程没有任何新预警。
+     本版给自动办结打 autoResolved 标记，历史仲裁只统计「仍代表人工决定」的记录
+     （手动办结 / 已删除）；自动办结不计入，故再次回落必重新建档，并在 note 标注第几次回落。
+   返回变更数（新建 + 自动办结），供调用方决定是否落盘。 */
 function cbScanAlerts(){
   var b = cbBankSafe();
   var month = cbMonthKey();
@@ -4854,23 +4864,29 @@ function cbScanAlerts(){
       opens.forEach(function(a){
         a.status = 'resolved';
         a.resolvedAt = Date.now();
+        a.autoResolved = true;                       // v2.20.3：学生自己回升 → 非人工处理，不构成「已处理」
         a.note = (a.note ? a.note + '；' : '') + '回升至 ' + credit + ' 分自动办结';
         changed++;
       });
       return;
     }
     if(opens.length === 0){
-      // v2.20.0 修复「办结后复活」：同月已有该生预警记录（含已办结/已删除）时，
-      // 仅当当前档位比本月历史最重档更严重（恶化升级）才新建；否则尊重办结/删除，不重建。
+      // v2.20.0 修复「办结后复活」：同月已有该生预警记录时，仅当当前档位比本月历史最重档更严重才新建。
+      // v2.20.3 修订：历史最重档只统计「仍代表人工决定」的记录；自动办结（回升）不参与抑制。
       var monthAll = b.alerts.filter(function(a){
         return String(a.sid) === sids && a.month === month;
       });
-      var worstHist = -1;
-      monthAll.forEach(function(a){ worstHist = Math.max(worstHist, cbTierSeverity(a.level)); });
+      var worstHist = -1, autoCnt = 0;
+      monthAll.forEach(function(a){
+        if(a.status === 'resolved' && a.autoResolved){ autoCnt++; return; }
+        worstHist = Math.max(worstHist, cbTierSeverity(a.level));
+      });
       if(cbTierSeverity(tier.level) <= worstHist) return;
       b.alerts.push({ id: b.nextAlertId++, sid: sids, sname: s.name || '', level: tier.level,
                       label: tier.label, act: tier.act, credit: credit, month: month,
-                      status: 'pending', time: Date.now(), resolvedAt: 0, note: '' });
+                      status: 'pending', time: Date.now(), resolvedAt: 0,
+                      relapse: autoCnt,
+                      note: autoCnt ? ('回升后再次回落，本月第 ' + (autoCnt + 1) + ' 次') : '' });
       changed++;
       return;
     }
@@ -4885,6 +4901,64 @@ function cbScanAlerts(){
     }
   });
   return changed;
+}
+/* v2.20.3 实时档位看板（纯函数）：按当前学分统计各档人数 —— 与预警工单解耦，
+   不管有没有建过档，直接看「此刻谁在预警区」。 */
+function cbTierBoard(students){
+  var z = { total:0, normal:0, yellow:0, orange:0, red:0, dark:0 };
+  (students || []).forEach(function(s){
+    z.total++;
+    var tt = cbTierOf(Number(s.credit) || 0);
+    if(!tt) z.normal++; else z[tt.level]++;
+  });
+  return z;
+}
+/* v2.20.3 某档当前在档名单（纯函数）：level='' → 全部预警档；'normal' → 正常区；否则指定档。
+   按当前学分升序（越危险越靠前），同分按学号 —— 名单列表的可复现顺序。 */
+function cbTierMembers(students, level){
+  var out = (students || []).filter(function(s){
+    var tt = cbTierOf(Number(s.credit) || 0);
+    if(level === 'normal') return !tt;
+    if(!level) return !!tt;
+    return !!tt && tt.level === level;
+  });
+  return out.slice().sort(function(a, b){
+    var d = (Number(a.credit) || 0) - (Number(b.credit) || 0);
+    return d || String(a.sid == null ? '' : a.sid).localeCompare(String(b.sid == null ? '' : b.sid));
+  });
+}
+/* v2.20.3 本期流水毛利/毛亏（纯函数）：专门算「扣了又加回」这类净额为零的波动。
+   add=加分毛额 sub=扣分毛额(正数) net=净额 adds/subs=笔数 swings=总笔数。
+   口径与 computePublicityData 的 addPts/subPts 一致（只认未撤销 + 当月 + 有时间戳的流水）。 */
+function cbMonthFlow(sid, month, ops){
+  var key = cbWalletKey(sid);
+  var add = 0, sub = 0, ca = 0, cs = 0;
+  (ops || state.operations || []).forEach(function(o){
+    if(!o || o.state === 'revoked') return;
+    if(String(o.studentId) !== key) return;
+    if(o.time == null) return;
+    if(cbMonthOfTs(o.time) !== month) return;
+    var a = Number(o.amount) || 0;
+    if(a > 0){ add += a; ca++; }
+    else if(a < 0){ sub -= a; cs++; }
+  });
+  return { add: add, sub: sub, net: add - sub, adds: ca, subs: cs, swings: ca + cs };
+}
+/* v2.20.3 波动观察名单（纯函数）：账面仍在正常区、但本月扣分毛额达阈值的「扣了又加回」学生。
+   已在预警区的走档位看板，不重复列。按扣分毛额降序 —— 净额好看 ≠ 没有反复违规。 */
+function cbVolatileStudents(students, ops, month, threshold){
+  var th = Number(threshold);
+  if(!isFinite(th) || th <= 0) th = CB_VOLATILE_SUB;
+  var mk = month || cbMonthKey();
+  var out = [];
+  (students || []).forEach(function(s){
+    if(cbTierOf(Number(s.credit) || 0)) return;
+    var f = cbMonthFlow(s.id, mk, ops);
+    if(f.sub >= th) out.push({ s: s, flow: f });
+  });
+  return out.sort(function(a, b){
+    return (b.flow.sub - a.flow.sub) || (b.flow.swings - a.flow.swings);
+  });
 }
 // 首页角标口径：仅「未处理」计数
 function cbPendingAlertCount(){
@@ -5056,6 +5130,8 @@ function cbLedgerSidClear(){ cbLedgerSid = ''; renderBankPage(); }
 function cbLedgerTypeTo(v){ cbLedgerType = v || ''; renderBankPage(); }
 /* ============ v2.17.30 预警中心：按状态筛选 ============ */
 function cbAlertStatusTo(s){ cbAlertStatus = s || ''; cbRenderStudentAlerts(); }   // v2.18.0 迁学生管理页
+/* v2.20.3 实时看板档位筛选：再次点击同一档 = 收起（全程只认点击，不做任何悬停响应） */
+function cbTierFilterTo(k){ var v = k || ''; cbTierFilter = (cbTierFilter === v ? '' : v); cbRenderStudentAlerts(); }
 // v2.20.0 收敛到 copyToClipboard/legacyCopy（原 cbCopy* 是第二套剪贴板实现）
 function cbCopyText(txt){
   copyToClipboard(txt).then(function(ok){
@@ -5071,6 +5147,7 @@ var cbProfileSid = '';         // 学生档案弹窗当前学生（操作后自�
 var cbLedgerSid = '';          // 币流水：学生筛选（'' = 全部）
 var cbLedgerType = '';         // 币流水：类型筛选（'' = 全部；redeem/refund/settle/adjust）
 var cbAlertStatus = '';        // 预警中心：状态筛选（'' = 全部；pending/notified/resolved）
+var cbTierFilter = '';         // v2.20.3 实时看板：档位筛选（'' = 全部预警；yellow/orange/red/dark/volatile）
 function cbBankTabTo(t){
   cbBankTab = t;
   renderBankPage();
@@ -6979,6 +7056,74 @@ function cbRenderStudentAlerts(){
     return '<div class="cb-chip' + (cbAlertStatus === c.v ? ' on' : '') + '" onclick="cbAlertStatusTo(\'' + c.v + '\')">' + c.l + ' <b>' + c.n + '</b></div>';
   }).join('');
   var alerts = allAlerts.filter(function(a){ return !cbAlertStatus || a.status === cbAlertStatus; });
+  /* v2.20.3 实时档位看板：按当前学分实时统计（与下面的预警工单解耦），
+     并按档展开在档名单 + 本期「扣了又加回」波动 —— 补上「净额好看所以预警全无痕迹」的盲区。
+     交互铁律：只认点击，不做任何鼠标悬停响应。 */
+  var board = cbTierBoard(state.students);
+  var monthKey0 = cbMonthKey();
+  var volList = cbVolatileStudents(state.students, state.operations, monthKey0);
+  var warnSum = board.yellow + board.orange + board.red + board.dark;
+  var tierColorOf = function(lv){ return CB_LEVEL_COLORS[lv] || '#2F7D5B'; };
+  var tierLabelOf = function(lv){
+    var hit = CB_ALERT_TIERS.filter(function(x){ return x.level === lv; })[0];
+    return hit ? hit.label : '正常';
+  };
+  var flowTxt = function(f){
+    if(!f || (!f.adds && !f.subs)) return '本期无流水';
+    var hot = f.sub >= CB_VOLATILE_SUB && f.net >= 0;
+    return '本期扣 ' + f.sub + ' / 加回 ' + f.add + ' · 波动 ' + f.swings + ' 次' +
+           (hot ? ' <b style="color:#c05621">⚠️ 扣了又加回</b>' : '');
+  };
+  var rosterRow = function(s, f, lv){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:7px 2px;border-bottom:1px solid rgba(0,0,0,.05);flex-wrap:wrap">' +
+      '<span style="min-width:84px;font-weight:600">' + cbEsc(s.name || '') + '</span>' +
+      '<span style="font-size:12px;font-weight:600;color:' + tierColorOf(lv) + '">' + tierLabelOf(lv) + '</span>' +
+      '<span style="font-size:13px;font-weight:700">' + (Number(s.credit) || 0) + ' 分</span>' +
+      '<span style="margin-left:auto;font-size:12px;color:var(--text-secondary)">' + flowTxt(f) + '</span></div>';
+  };
+  var tierChips = [
+    { k:'',         l:'全部预警', n:warnSum,            c:'#c05621' },
+    { k:'yellow',   l:'黄色',     n:board.yellow,       c:'#b7791f' },
+    { k:'orange',   l:'橙色',     n:board.orange,       c:'#c05621' },
+    { k:'red',      l:'红色',     n:board.red,          c:'#c53030' },
+    { k:'dark',     l:'深红',     n:board.dark,         c:'#7b1113' },
+    { k:'volatile', l:'波动观察', n:volList.length,     c:'#6B5B95' }
+  ].map(function(x){
+    return '<div class="cb-chip' + (cbTierFilter === x.k ? ' on' : '') + '" onclick="cbTierFilterTo(\'' + x.k + '\')">' +
+           '<span style="color:' + x.c + '">' + x.l + '</span> <b>' + x.n + '</b></div>';
+  }).join('');
+  var roster = '';
+  if(cbTierFilter === 'volatile'){
+    roster = volList.length ? volList.map(function(v){ return rosterRow(v.s, v.flow, ''); }).join('')
+      : '<div style="padding:12px 2px;font-size:13px;color:var(--text-muted)">本月无人出现「扣分后又加回」的波动 🎉</div>';
+  } else if(cbTierFilter === 'normal'){
+    roster = '<div style="padding:12px 2px;font-size:13px;color:var(--text-muted)">正常区共 ' + board.normal + ' 人，不在此展开（预警区才是要盯的）。</div>';
+  } else if(cbTierFilter){
+    var mem = cbTierMembers(state.students, cbTierFilter);
+    roster = mem.length ? mem.map(function(s){
+      var tt = cbTierOf(Number(s.credit) || 0);
+      return rosterRow(s, cbMonthFlow(s.id, monthKey0, state.operations), tt ? tt.level : '');
+    }).join('') : '<div style="padding:12px 2px;font-size:13px;color:var(--text-muted)">该档当前无人 🎉</div>';
+  } else {
+    var allWarn = cbTierMembers(state.students, '');
+    roster = allWarn.length ? allWarn.map(function(s){
+      var tt = cbTierOf(Number(s.credit) || 0);
+      return rosterRow(s, cbMonthFlow(s.id, monthKey0, state.operations), tt ? tt.level : '');
+    }).join('') : '<div style="padding:12px 2px;font-size:13px;color:var(--text-muted)">当前无人在预警区 🎉</div>';
+  }
+  var dashHtml =
+    '<div class="card" style="padding:14px 16px;margin-bottom:12px">' +
+      '<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:10px">' +
+        '<b style="font-size:14px">📊 实时档位看板</b>' +
+        '<span style="font-size:12px;color:var(--text-muted)">按当前学分实时统计（与下方预警工单无关）· 点档位展开名单，再点收起</span>' +
+      '</div>' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' + tierChips + '</div>' +
+      '<div style="background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.28);border-radius:10px;padding:8px 12px;margin:10px 0 4px;font-size:12px;color:var(--text-secondary);line-height:1.85">' +
+        '正常区 <b>' + board.normal + '</b> 人 · 预警区合计 <b>' + warnSum + '</b> 人（黄 ' + board.yellow + ' / 橙 ' + board.orange + ' / 红 ' + board.red + ' / 深红 ' + board.dark + '）' +
+        '<br>⚠️ <b>波动观察</b>：当前账面正常、但本月扣分<strong>毛额 ≥ ' + CB_VOLATILE_SUB + ' 分</strong>的有 <b>' + volList.length + '</b> 人 —— 「扣完马上加回来」净额是零，只看净额永远发现不了，得盯毛额。' +
+      '</div>' +
+      (roster ? '<div style="margin-top:8px">' + roster + '</div>' : '') +
+    '</div>';
   var aRows = '';
   alerts.forEach(function(a){
     var stMap = { pending: '<span style="color:#c05621">● 待处理</span>', notified: '<span style="color:#b7791f">● 已通知家长</span>', resolved: '<span style="color:var(--text-muted)">○ 已办结</span>' };
@@ -6989,7 +7134,9 @@ function cbRenderStudentAlerts(){
     acts += '<button class="btn btn-outline btn-sm" style="padding:1px 8px;font-size:12px" onclick="cbAlertDelete(\'' + a.sid + '\',' + a.id + ')" title="删除记录">🗑</button>'; acts += '<button class="btn btn-outline btn-sm" style="padding:2px 10px;font-size:12px" onclick="cbAlertCopy(\'' + a.sid + '\',' + a.id + ')" title="生成致家长通知草稿并复制">📋 通知草稿</button>';
     aRows += '<div class="card" style="padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-left:4px solid ' + (CB_LEVEL_COLORS[a.level] || '#ccc') + '">' +
              '<div style="min-width:220px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' + cbEsc(a.sname || '') + ' ' + cbLevelBadge(a.level, a.label) + ' <span style="font-size:12px;color:var(--text-muted)">' + a.month + ' · ' + a.act + '</span></div>' +
-             '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">当时学分 ' + a.credit + ' 分 · ' + st + (a.note ? ' · ' + cbEsc(a.note) : '') + '</div></div>' +
+             '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">当时学分 ' + a.credit + ' 分 · ' + st + (a.note ? ' · ' + cbEsc(a.note) : '') + '</div>' +
+             /* v2.20.3 预警卡挂本期毛额：扣了又加回的学生，账面可能已经回来，但毛额仍在 */
+             '<div style="font-size:12px;margin-top:3px;color:var(--text-secondary)">' + flowTxt(cbMonthFlow(a.sid, a.month, state.operations)) + '</div></div>' +
              '<div style="display:flex;gap:6px;flex-wrap:wrap">' + acts + '</div></div>';
   });
   var legend = '';
@@ -6997,10 +7144,12 @@ function cbRenderStudentAlerts(){
     legend += '<span style="margin-right:10px">' + cbLevelBadge(t.level, t.label) + ' <span style="font-size:12px;color:var(--text-muted)">' + t.min + '-' + (t.level === 'dark' ? '30' : (CB_ALERT_TIERS[cbTierSeverity(t.level) - 1] ? CB_ALERT_TIERS[cbTierSeverity(t.level) - 1].min : CB_ALERT_MIN)) + ' 分 · ' + t.act + '</span></span>';
   });
   host.innerHTML =
+    dashHtml +
     '<div class="card" style="padding:12px 16px;margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">' + chips + '</div>' +
     '<div class="card" style="padding:14px 18px;margin-bottom:12px;font-size:12px;color:var(--text-muted);line-height:1.9">' +
     '阶梯预警（按当前表现分实时扫描，同档同月一条、恶化升级才叠加）：<br>' + legend +
-    '<br>回升至 ≥' + CB_ALERT_MIN + ' 分自动办结留痕；「通知草稿」一键生成致家长文案。</div>' +
+    '<br>回升至 ≥' + CB_ALERT_MIN + ' 分自动办结留痕 —— <b>自动办结不算「已处理」</b>：学生再次回落会重新建档并标注第几次；只有<strong>老师手动办结/删除</strong>同月同档才不再重建。' +
+    '<br>「通知草稿」一键生成致家长文案。</div>' +
     (aRows ? aRows : cbEmpty(allAlerts.length === 0 ? '暂无预警 🎉 全员表现分均 ≥ ' + CB_ALERT_MIN + ' 分' : '该状态下暂无预警'));
 }
 /* v2.18.0 顶部 🚨 预警角标 → 直接跳学生管理页「预警中心」页签 */
@@ -13692,6 +13841,7 @@ function computePublicityData(students, operations, rangeKind, nowDate){
     addPts:addPtsT, subPts:subPtsT, addCnt:addCntT, subCnt:subCntT, netSum:netSum,
     avgDelta: n ? (netSum/n) : 0, topActive:topActive,
     maxRow:maxRow, minRow:minRow,
+    all:  rows.slice().sort(creditSort),        // v2.20.3 全班总榜（竖版公示图列举全体）
     top:  rows.slice().sort(creditSort).slice(0,10),
     prog: rows.filter(function(r){ return r.net > 0; }).sort(function(x,y){ return (y.net-x.net) || creditSort(x,y); }).slice(0,10),
     reg:  rows.filter(function(r){ return r.net < 0; }).sort(function(x,y){ return (x.net-y.net) || creditSort(x,y); }).slice(0,5),
@@ -13925,7 +14075,8 @@ function exportPublicityPoster(mode){
   var isCommittee = window.__cmRole === 'committee';
   if(isCommittee){ showToast('班委模式不开放导出', 'warning'); return; }
   var data = computePublicityData(state.students, state.operations, pubRange);
-  var W = 1080, H = mode === 'compact' ? 1350 : 1920;
+  var W = 1080;
+  var H = pubPosterHeight(data);   // v2.20.3 高度随全班人数自适应（原「紧凑图」版式已下线）
   var cv = document.createElement('canvas');
   cv.width = W; cv.height = H;
   var ctx = cv.getContext('2d');
@@ -14086,80 +14237,165 @@ function drawWeeklyPoster(ctx, W, H, data, avatar){
 }
 
 function rr(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+/* ==================== v2.20.3 竖版公示图版式 ====================
+   改版要点：① 正文由「Top10 + 进步榜」改为「全班排名总榜」（名次 + 姓名 + 学分，全员在列）
+            ② 顶部重排：头像钉左上角，班级名称 / 班训 / 周期标题三段共用同一中轴居中
+            ③ 同分并列同名次（competition ranking），并列圈空心
+            ④ 高度由人数推出，两栏（>80 人三栏），不再写死 1920/1350 两档
+   名单区顶部 y = PUB_POSTER_LIST_TOP，故高度完全由行数决定。 */
+var PUB_POSTER_HEAD = 340;        // 顶部色块高
+var PUB_POSTER_LIST_TOP = 522;    // 首行名单的 y
+var PUB_POSTER_ROW = 54;          // 单行高
+var PUB_POSTER_FOOT = 118;        // 名单底到画布底
+function pubPosterCols(n){ return (Number(n) || 0) > 80 ? 3 : 2; }
+function pubPosterHeight(data){
+  var n = (data && data.all && data.all.length) || 0;
+  var rows = Math.max(1, Math.ceil(n / pubPosterCols(n)));
+  return PUB_POSTER_LIST_TOP + rows * PUB_POSTER_ROW + PUB_POSTER_FOOT;
+}
+/* 文本自适应（依赖 ctx.measureText）：超宽就按比例缩字号，下限 18px。
+   海报上的班级名/班训/标题都可能是长文本，写死字号会溢出或被裁切。 */
+function pubFitFont(ctx, text, maxW, basePx, weight){
+  var pre = weight ? weight + ' ' : '';
+  var px = Number(basePx) || 20;
+  var s = String(text == null ? '' : text);
+  for(var i = 0; i < 12; i++){
+    ctx.font = pre + px + 'px sans-serif';
+    var w = ctx.measureText(s).width;
+    if(w <= maxW || px <= 18) return px;
+    px = Math.max(18, Math.floor(px * maxW / w));
+  }
+  return px;
+}
+/* 全班排名（纯函数）：标准「并列同名次」——同分占用同一名次，下一名次跳号
+   （100,100,98 → 第 1、第 1、第 3）。入参须已按学分降序。返回 [{row, rank, tie}]。 */
+function pubAssignRanks(rows){
+  var src = rows || [];
+  var out = src.map(function(r){ return { row: r, rank: 0, tie: 1 }; });
+  var i = 0;
+  while(i < out.length){
+    var j = i;
+    while(j + 1 < out.length && Number(out[j + 1].row.credit) === Number(out[i].row.credit)) j++;
+    var n = j - i + 1;
+    for(var k = i; k <= j; k++){ out[k].rank = i + 1; out[k].tie = n; }
+    i = j + 1;
+  }
+  return out;
+}
 function drawPubPoster(ctx, W, H, data, range, avatar){
-  var M = 56;                       // 边距
-  var accent = '#2F7D5B';           // 主色（绿，象征进步）
-  // 背景
+  var M = 56;
+  var accent = '#2F7D5B';
   var bg = ctx.createLinearGradient(0,0,0,H);
   bg.addColorStop(0,'#FBF7EE'); bg.addColorStop(1,'#F3EDDF');
   ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
-  // 顶部色块
-  ctx.fillStyle = accent;
-  ctx.fillRect(0,0,W,300);
+  /* ---- 顶部栏目重排：头像钉左上角；班名 / 班训 / 周期标题三段文字共用同一中轴居中 ---- */
+  var HEAD = PUB_POSTER_HEAD;
+  var hg = ctx.createLinearGradient(0,0,0,HEAD);
+  hg.addColorStop(0,'#31835F'); hg.addColorStop(1,'#26694B');
+  ctx.fillStyle = hg; ctx.fillRect(0,0,W,HEAD);
   ctx.fillStyle = 'rgba(255,255,255,0.06)';
-  ctx.beginPath(); ctx.arc(W-40, 40, 220, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(60, 320, 160, 0, Math.PI*2); ctx.fill();
-  var y = 0;
-  // 头像
+  ctx.beginPath(); ctx.arc(W-30, 20, 200, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(30, HEAD+16, 150, 0, Math.PI*2); ctx.fill();
+  var avX = 80, avY = 170, avR = 50;
   if(avatar){
-    try{ ctx.save(); ctx.beginPath(); ctx.arc(90, 108, 44, 0, Math.PI*2); ctx.clip(); ctx.drawImage(avatar, 46, 64, 88, 88); ctx.restore();
-      ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(90,108,44,0,Math.PI*2); ctx.stroke(); }catch(e){}
+    try{
+      ctx.save(); ctx.beginPath(); ctx.arc(avX, avY, avR, 0, Math.PI*2); ctx.clip();
+      ctx.drawImage(avatar, avX-avR, avY-avR, avR*2, avR*2); ctx.restore();
+      ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(avX, avY, avR, 0, Math.PI*2); ctx.stroke();
+    }catch(e){}
   } else {
-    ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.beginPath(); ctx.arc(90,108,44,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = accent; ctx.font = 'bold 40px sans-serif'; ctx.textAlign='center'; ctx.fillText('🏫', 90, 125);
+    ctx.fillStyle = 'rgba(255,255,255,0.94)'; ctx.beginPath(); ctx.arc(avX, avY, avR, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = accent; ctx.font = 'bold 44px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('🏫', avX, avY + 16);
   }
-  ctx.fillStyle = '#fff'; ctx.textAlign = 'left';
-  ctx.font = 'bold 44px sans-serif'; ctx.fillText(state.className || '班级', avatar ? 158 : 120, 100);
-  ctx.font = '22px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.92)';
-  ctx.fillText(state.classMotto || '', avatar ? 158 : 120, 142);
-  // 副标题
-  var caption = pubRangeCaption(range) + ' · 学分公示';
-  y = 380;
-  ctx.fillStyle = '#333'; ctx.textAlign='left'; ctx.font = 'bold 40px sans-serif'; ctx.fillText('🏆 学分榜 Top ' + data.top.length, M, y);
-  ctx.font = '20px sans-serif'; ctx.fillStyle = '#888';
-  ctx.fillText('全班 ' + data.count + ' 人 · 期初基准 100 分 · 按当前总分排序', M, y + 34);
-  y += 74;
-  // 榜单行
-  data.top.forEach(function(r, i){
-    var rowH = 64;
-    var lv = pubCreditLevel(r.credit);
-    // 前3行浅底
-    if(i < 3){ ctx.fillStyle = i===0 ? 'rgba(245,197,24,0.13)' : i===1 ? 'rgba(200,200,200,0.14)' : 'rgba(205,127,50,0.13)';
-      rr(ctx, M-10, y-6, W-2*M+20, rowH, 14); ctx.fill(); }
-    var noBg = ['#F5C518','#A9A9A9','#CD7F32'][i] || '#E8E0D0';
-    ctx.fillStyle = noBg; ctx.beginPath(); ctx.arc(M+22, y+rowH/2-6, 24, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = noBg === '#E8E0D0' ? '#8A7A5A' : '#fff'; ctx.font = 'bold 26px sans-serif'; ctx.textAlign='center'; ctx.fillText(String(i+1), M+22, y+rowH/2+4);
-    ctx.fillStyle = '#222'; ctx.font = 'bold 32px sans-serif'; ctx.textAlign='left'; ctx.fillText(pubDisplayName(r), M+64, y+rowH/2+8);
-    // 等级标签
-    ctx.font = '20px sans-serif'; var lw = ctx.measureText(lv.label).width + 30;
-    ctx.fillStyle = lv.color; rr(ctx, W-M-60-lw-240-10, y+rowH/2-24, lw+20, 30, 15); ctx.fill();
-    ctx.fillStyle = '#fff'; ctx.textAlign='center'; ctx.fillText(lv.label, W-M-60-lw-240+10+lw/2-10, y+rowH/2-1);
-    ctx.fillStyle = '#333'; ctx.font = 'bold 36px sans-serif'; ctx.textAlign='right'; ctx.fillText(r.credit, W-M-60, y+rowH/2+8);
-    ctx.font = '16px sans-serif'; ctx.fillStyle = '#999'; ctx.fillText('分', W-M-38, y+rowH/2+8);
-    y += rowH;
+  var CX = W / 2;
+  var freeW = W - 2 * (avX + avR + 8);
+  var clsName = state.className || '班级';
+  var motto = state.classMotto || '';
+  ctx.textAlign = 'center';
+  var namePx = pubFitFont(ctx, clsName, freeW, 58, 'bold');
+  ctx.fillStyle = '#fff'; ctx.font = 'bold ' + namePx + 'px sans-serif';
+  ctx.fillText(clsName, CX, 124);
+  if(motto){
+    var mottoPx = pubFitFont(ctx, motto, freeW, 27, '');
+    ctx.fillStyle = 'rgba(255,255,255,0.93)'; ctx.font = mottoPx + 'px sans-serif';
+    ctx.fillText(motto, CX, 178);
+  }
+  var capTitle = pubRangeCaption(range).replace(/\s+/g, '') + '学分公示';
+  var capPx = pubFitFont(ctx, capTitle, W - 220, 38, 'bold');
+  ctx.font = 'bold ' + capPx + 'px sans-serif';
+  var capW = ctx.measureText(capTitle).width;
+  var pillW = capW + 68, pillH = 58, pillX = CX - pillW / 2, pillY = 208;
+  ctx.fillStyle = 'rgba(255,255,255,0.17)'; rr(ctx, pillX, pillY, pillW, pillH, pillH / 2); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1.5;
+  rr(ctx, pillX, pillY, pillW, pillH, pillH / 2); ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.fillText(capTitle, CX, pillY + pillH / 2 + capPx * 0.36);
+  /* ---- 全班排名总榜 ---- */
+  var all = (data && data.all) || [];
+  var n = all.length;
+  var ranked = pubAssignRanks(all);
+  var cols = pubPosterCols(n);
+  var per = Math.max(1, Math.ceil(n / cols));
+  var gapX = 26;
+  var colW = (W - 2 * M - gapX * (cols - 1)) / cols;
+  var sumC = 0; all.forEach(function(r){ sumC += Number(r.credit) || 0; });
+  var avg = n ? Math.round(sumC / n * 10) / 10 : 0;
+  var y = HEAD + 76;
+  ctx.textAlign = 'left'; ctx.fillStyle = '#2F2A24'; ctx.font = 'bold 40px sans-serif';
+  ctx.fillText('🏆 学分总榜 · 全班 ' + (data.count || n) + ' 人', M, y);
+  y += 36;
+  ctx.fillStyle = '#8A8175'; ctx.font = '20px sans-serif';
+  ctx.fillText('按当前总分降序 · 同分并列同名次（名次圈空心 = 并列）· 人均 ' + avg + ' 分', M, y);
+  var hdrY = y + 54;
+  ctx.fillStyle = '#B0A695'; ctx.font = '18px sans-serif';
+  for(var c0 = 0; c0 < cols; c0++){
+    var hx = M + c0 * (colW + gapX);
+    ctx.textAlign = 'left'; ctx.fillText('名次', hx + 10, hdrY); ctx.fillText('姓名', hx + 74, hdrY);
+    ctx.textAlign = 'right'; ctx.fillText('学分', hx + colW - 6, hdrY);
+  }
+  var listTop = PUB_POSTER_LIST_TOP, rowH = PUB_POSTER_ROW;
+  var soloBg = ['#D4A017', '#9AA3AB', '#B87333'];
+  if(!n){
+    ctx.fillStyle = '#A79E90'; ctx.font = '24px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('暂无学生数据', W / 2, listTop + 60);
+  }
+  ranked.forEach(function(item, i){
+    var c = Math.floor(i / per), r = i % per;
+    var x0 = M + c * (colW + gapX);
+    var ry = listTop + r * rowH;
+    var cy = ry + rowH / 2;
+    var solo = item.rank <= 3 && item.tie === 1;      // 并列名次不给金银铜，避免误读
+    if(solo){
+      ctx.fillStyle = 'rgba(212,160,23,0.11)'; rr(ctx, x0 - 8, ry + 2, colW + 16, rowH - 4, 12); ctx.fill();
+    }
+    var bx = x0 + 22;
+    ctx.beginPath(); ctx.arc(bx, cy, 18, 0, Math.PI*2);
+    if(solo){ ctx.fillStyle = soloBg[item.rank - 1]; ctx.fill(); }
+    else {
+      ctx.fillStyle = '#F2EADC'; ctx.fill();
+      ctx.strokeStyle = 'rgba(140,124,96,0.45)'; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+    ctx.fillStyle = solo ? '#fff' : '#8A7A5A';
+    ctx.font = 'bold ' + (item.rank >= 100 ? 17 : 21) + 'px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(String(item.rank), bx, cy + 7);
+    var nm = pubDisplayName(item.row);
+    var np = pubFitFont(ctx, nm, colW - 50 - 96, 27, '');
+    ctx.fillStyle = '#2F2A24'; ctx.font = np + 'px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(nm, x0 + 50, cy + 9);
+    ctx.fillStyle = '#8A7A5A'; ctx.font = '16px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText('分', x0 + colW - 6, cy + 9);
+    ctx.fillStyle = solo ? '#B8860B' : '#4A443B'; ctx.font = 'bold 30px sans-serif';
+    ctx.textAlign = 'right'; ctx.fillText(String(Number(item.row.credit) || 0), x0 + colW - 32, cy + 10);
   });
-  y += 34;
-  // 分隔
-  ctx.strokeStyle = 'rgba(0,0,0,0.08)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(M,y); ctx.lineTo(W-M,y); ctx.stroke();
-  y += 44;
-  // 进步榜
-  ctx.fillStyle = '#333'; ctx.font = 'bold 34px sans-serif'; ctx.textAlign='left'; ctx.fillText('📈 进步榜 Top ' + Math.min(5, data.prog.length), M, y);
-  y += 14;
-  data.prog.slice(0,5).forEach(function(r, i){
-    y += 54;
-    ctx.fillStyle = '#2F7D5B'; ctx.font = 'bold 26px sans-serif'; ctx.textAlign='center';
-    ctx.beginPath(); ctx.arc(M+20, y-8, 20, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#fff'; ctx.fillText(String(i+1), M+20, y-1);
-    ctx.fillStyle = '#222'; ctx.textAlign='left'; ctx.font = '26px sans-serif'; ctx.fillText(pubDisplayName(r), M+52, y);
-    ctx.fillStyle = '#2F7D5B'; ctx.font = 'bold 28px sans-serif'; ctx.textAlign='right'; ctx.fillText('+' + r.net, W-M, y);
-    ctx.font = '18px sans-serif'; ctx.fillStyle = '#999'; ctx.fillText('分', W-M-58, y);
-  });
-  if(!data.prog.length){ ctx.fillStyle='#999'; ctx.font='22px sans-serif'; ctx.textAlign='center'; ctx.fillText('本周期暂无净增分记录', W/2, y+50); }
-  // 底部
-  var footY = H - 96;
+  var listEnd = listTop + per * rowH;
   var now = new Date();
-  ctx.fillStyle = '#aaa'; ctx.font = '20px sans-serif'; ctx.textAlign = 'center';
-  ctx.fillText('生成时间：' + now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ' · 由班主任工作台生成', W/2, footY);
+  var footY = Math.min(H - 46, listEnd + 80);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#A79E90'; ctx.font = '19px sans-serif';
+  ctx.fillText('生成时间：' + now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ' · 由班主任工作台生成', W / 2, footY);
+  ctx.fillStyle = '#BEB5A7'; ctx.font = '17px sans-serif';
+  ctx.fillText('本榜按当前总分公示，同分并列同名次；如对数据有疑问请联系班主任核对', W / 2, footY + 26);
 }
 
 /* ---- 公示页入口 ---- */

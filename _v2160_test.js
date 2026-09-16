@@ -268,11 +268,18 @@ const __orig = { doc: global.document, raf: global.requestAnimationFrame, state:
 global.rr = function (ctx, x, y, w, h, r) { ctx.beginPath(); ctx.rect(x, y, w, h); };
 global.roundRect = function (ctx, x, y, w, h, r) { ctx.beginPath(); ctx.rect(x, y, w, h); };
 global.escapeHtml = s => String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+// v2.20.3 竖版公示图改为「全班总榜」：版式常量 + 单行工具（grab 抓不到单行定义 → 直接 stub，
+// 精确语义由 _v2203_test.js 专测；此处冒烟只验证「能画完不抛异常」）
+global.PUB_POSTER_HEAD = 340; global.PUB_POSTER_LIST_TOP = 522;
+global.PUB_POSTER_ROW = 54; global.PUB_POSTER_FOOT = 118;
+global.pubPosterCols = n => (Number(n) || 0) > 80 ? 3 : 2;
 ['function pubCreditLevel(c)', 'function pubDisplayName(s)', 'function pubRangeCaption(r, nowDate)',
  'function pubCanvasReady(id, cb)', 'function pubGrid(ctx, W, H, padL, padR, padT, padB, nDiv)',
  'function drawPubTrend(id, students, operations)', 'function drawPubDaily(id, operations)',
  'function drawPubDist(id, students)', 'function drawPubReason(id, legendId, operations)',
  'function drawPubPoster(ctx, W, H, data, range, avatar)',
+ 'function pubFitFont(ctx, text, maxW, basePx, weight)', 'function pubPosterHeight(data)',
+ 'function pubAssignRanks(rows)',
  'function hiDPICanvas(canvas, cssH)'].forEach(smokeEval);   // v2.18.4：画布样板抽公共函数
 // 零扣分续航榜行渲染（纯 HTML 字符串，直接断言）
 const pubStaminaRow = eval('(' + grab('function pubStaminaRow(entry, i)') + ')');
@@ -309,7 +316,7 @@ t('canvas 冒烟环境：四图一海报函数全部可执行不抛异常', () =
   drawPubTrend('c1', stu, ops); drawPubDaily('c2', ops);
   drawPubDist('c3', stu); drawPubReason('c4', 'lg', ops);
   drawPubPoster(ctx, 1080, 1920, d, 'month', null);   // 竖版
-  drawPubPoster(ctx, 1080, 1350, d, 'today', null);   // 紧凑版
+  drawPubPoster(ctx, 1080, 860, d, 'today', null);    // v2.20.3 画布偏矮也不应抛异常（紧凑版已下线）
   if (ctx.__calls === undefined) throw new Error('绘图函数似乎没有实际调用 ctx');
 });
 // 还原全局（避免污染后续）
@@ -317,10 +324,10 @@ global.document = __orig.doc; global.requestAnimationFrame = __orig.raf; global.
 
 console.log('\n=== 版本号 ===');
 t('v2.18.13 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
-  if (!/login-version">v2\.20\.2</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.20\.2 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!/login-version">v2\.20\.3</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.20\.3 ·/.test(html)) throw new Error('侧栏版本号未更新');
   const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
-  if (!sw.includes('class-manager-v2.20.2')) throw new Error('SW CACHE_NAME 未更新');
+  if (!sw.includes('class-manager-v2.20.3')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');
