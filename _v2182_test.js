@@ -13,9 +13,9 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.20\.3</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.20\.3 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.20.3')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.20\.4</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.20\.4 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.20.4')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 候选名单按币降序 ===');
@@ -50,7 +50,7 @@ t('无默认选中/清除/未选锁定 等 v2.17.28 行为不受排序影响（�
   has(html, "if(cbStoreSid && !studs.some(function(x){ return String(x.id) === cbStoreSid; })) cbStoreSid = '';", '无默认回填被破坏');
   has(html, 'onfocus="cbStoreFocus(this)"', 'focus 展开被破坏');
   has(html, 'cbStoreClearSid()', '清除被破坏');
-  has(html, 'var can = !!selS && selCoin >= cost && remain > 0;', '未选锁定被破坏');
+  has(html, 'var can = !!selS && selElig && selCoin >= cost && remain > 0;', '未选锁定被破坏');
 });
 
 console.log('结果：' + pass + ' 通过，' + fail + ' 失败');

@@ -3,6 +3,14 @@
    运行：node _v2180_test.js */
 const fs = require('fs');
 const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
+/* v2.20.4 奖励资格线：本次改动给若干既有函数接入了新依赖（发币系数 / 资格线判定）。
+   本文件只关心原有行为，故按真实语义提供最小同名替身；
+   新依赖的完整行为由 _v2204_test.js 直接抽取源码逐项验证。 */
+const CB_REWARD_MIN = Number((html.match(/const CB_REWARD_MIN = (\d+);/) || [])[1] || 100);
+const cbRewardEligible = c => (Number(c) || 0) >= CB_REWARD_MIN;
+const cbCoinOfAmount = (amount, creditAfter) => { const a = Number(amount) || 0; return a <= 0 ? 0 : (cbRewardEligible(creditAfter) ? a : a * 0.5); };
+const cbCoinOfOp = o => { if (!o || o.state === 'revoked') return 0; const a = Number(o.amount) || 0; if (a <= 0) return 0; const c = Number(o.coin); return isFinite(c) ? c : a; };
+
 const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
@@ -68,9 +76,9 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.20\.3</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.20\.3 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.20.3')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.20\.4</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.20\.4 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.20.4')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== settleHist 数据层（月度结算统计快照）===');

@@ -86,18 +86,20 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('四处跟版 v2.20.3（登录页 / 侧栏 / 设置徽标 / SW CACHE_NAME）', () => {
-  has(html, '<div class="login-version">v2.20.3</div>', '登录页未跟版');
-  has(html, '<div class="sidebar-footer">v2.20.3 · 班主任工作台</div>', '侧栏未跟版');
-  has(html, '🏷️ v2.20.3</span>', '设置徽标未跟版');
-  has(sw, "CACHE_NAME = 'class-manager-v2.20.3'", 'SW CACHE_NAME 未跟版');
+t('四处跟版 v2.20.4（登录页 / 侧栏 / 设置徽标 / SW CACHE_NAME）', () => {
+  has(html, '<div class="login-version">v2.20.4</div>', '登录页未跟版');
+  has(html, '<div class="sidebar-footer">v2.20.4 · 班主任工作台</div>', '侧栏未跟版');
+  has(html, '🏷️ v2.20.4</span>', '设置徽标未跟版');
+  has(sw, "CACHE_NAME = 'class-manager-v2.20.4'", 'SW CACHE_NAME 未跟版');
 });
-t('速览标题与 CACHE_NAME 同版本号，且含本版三大要点', () => {
+t('速览标题与 CACHE_NAME 同版本号（容器在 + 标题自动跟版）', () => {
+  // 维护约定（index.html「settingsAbout」上方注释）：更新速览【只保留最新一版、整体替换、不做追加】。
+  // 因此断言「本版三大要点还躺在速览里」必然随换版过期（v2.20.4 已整体替换）。
+  // 改为验证设计意图：容器在 + 标题跟着 CACHE_NAME 同版本号（自动跟版，不会再次过期）；
+  // 本版三大功能本身由本文件后面的代码级断言（cbTierBoard / pubAssignRanks / compact 已下线）守住。
   const ver = (sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/) || [])[1] || '';
+  has(html, 'id="settingsReleaseNotes"', 'notes 容器缺失');
   has(html, '近版更新速览（' + ver + '）', '速览标题未跟版');
-  has(html, '实时档位看板', '速览缺「实时档位看板」');
-  has(html, '全班排名总榜', '速览缺「全班排名总榜」');
-  has(html, '下线「紧凑图」', '速览缺「下线紧凑图」');
 });
 
 console.log('\n=== ★ cbScanAlerts：回升后再回落必须重新报警（本版核心修复） ===');

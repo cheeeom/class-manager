@@ -1961,7 +1961,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.20.3</div>
+      <div class="login-version">v2.20.4</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2080,7 +2080,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.20.3 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.20.4 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2778,16 +2778,16 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.3</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.4</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.3）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.4）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-                            · 📊 <b>预警中心修漏报 + 实时档位看板</b>：学生被扣分掉进预警区、之后自己加分回升会「自动办结」—— 原逻辑把这种<strong>自动办结</strong>和<strong>老师手动办结</strong>当成同一件事，于是学生<em>再掉回预警区就不再报警</em>（真实漏报）。本版只把<strong>手动办结 / 删除</strong>算作「已处理」，回升后再回落会重新建档，并标注「本月第 N 次回落」<br>
-              · 📊 <b>实时档位看板</b>：按当前学分实时统计各档人数（正常 / 黄 / 橙 / 红 / 深红），点档位即展开在档名单，每行标注<strong>本期扣分毛额 / 加回毛额 / 波动笔数</strong>，并把「扣了又加回」单独打标 —— 补上「扣完马上加回来、账面看着正常、预警里毫无痕迹」的盲区<br>
-              · 📤 <b>竖版公示图重做</b>：顶部重排（班级头像钉左上角，班级名称与班训<strong>居中放大</strong>，班训下方居中排「XXXX年X月学分公示」标题，三段文字共用同一中轴）；正文改为<strong>全班排名总榜</strong>（名次 + 姓名 + 学分，全体学生都在列），同分并列同名次、并列名次圈画空心；导出图不再包含进步榜，也不列个人流水<br>
-              · 🗑 <b>下线「紧凑图」</b>：与竖版公示图功能重复（同一份数据两套版式），统一为竖版、高度随全班人数自适应
+              · 🎯 <b>新增「奖励资格线」：总分 100 分以上才享有奖励权益</b>：以学生<strong>当前总分</strong>为唯一口径 —— 总分 <strong>≥100 分</strong>：月度阶梯奖励正常结算、加分发币 1:1、兑换商店开放<br>
+              · 📉 <b>总分 &lt;100 分：三处收紧</b>：① 月度结算时<strong>当月净增不作数</strong>（不发币也不发券，结算前会列出被挡下的名单）；② 加分发币按 <strong>5 折</strong>计；③ <strong>兑换商店不开放</strong>，无法参与兑换<br>
+              · 🔒 <b>发币系数「写流水那一刻定死」</b>：5 折只按<em>加分当时</em>的总分判定并存进该笔流水 —— 日后分数回升<strong>不追补</strong>、跌破 100 分也<strong>不追回</strong>已得的币，不会因为一次失误把攒下的币清零<br>
+              · 🧾 <b>历史加分不追溯打折</b>：本版之前的加分记录仍按 1:1 计，不重算旧账；币余额、排行、档案页统一支持 0.5 币的显示<br>
             </div>
           </div>
         </div>
@@ -4224,6 +4224,43 @@ function applyCreditBaseFix(student, newBase, operations){
   return student.credit;
 }
 
+/* ==================== v2.20.4 奖励资格线 ====================
+   老板拍板（写死 100 分，不做可调）：一切奖励权益以「学生当前总分 credit」为唯一口径 ——
+     ≥100：月度阶梯奖励正常结算 / 加分发币 1:1 / 兑换商店开放
+      <100：当月净增不参与定档（不发月度奖励）/ 加分发币打 5 折 / 兑换商店关闭
+   关键设计：发币系数在「写流水那一刻」按当时总分定死并存进 op.coin ——
+   因此币只随撤销/恢复增减，绝不会因为日后跌破 100 被追回（否则会削掉学生既有的币，
+   把已经兑换过的账目打成负数）。 */
+const CB_REWARD_MIN = 100;
+const CB_COIN_DISCOUNT = 0.5;
+/* 奖励资格判定（纯函数）：总分 ≥CB_REWARD_MIN 视为达标 */
+function cbRewardEligible(credit){
+  return (Number(credit) || 0) >= CB_REWARD_MIN;
+}
+/* 单笔加分的发币额（纯函数）：系数由「加分后总分」决定（≥100 → ×1；<100 → ×0.5）。
+   刻意不取整：+1 分打 5 折就是 0.5 币，若四舍五入会让最常见的 +1 变成「压根没打折」。
+   0.5 在二进制浮点里是精确值，累加不会有误差。 */
+function cbCoinOfAmount(amount, creditAfter){
+  var a = Number(amount) || 0;
+  if(a <= 0) return 0;
+  return cbRewardEligible(creditAfter) ? a : a * CB_COIN_DISCOUNT;
+}
+/* 单笔流水的计币额（纯函数）：优先读 op.coin（写流水时已按当时总分定死系数）。
+   兼容：v2.20.4 之前的历史加分没有 coin 字段 → 按 1:1 计，不追溯打折。 */
+function cbCoinOfOp(o){
+  if(!o || o.state === 'revoked') return 0;
+  var a = Number(o.amount) || 0;
+  if(a <= 0) return 0;
+  var c = Number(o.coin);
+  return isFinite(c) ? c : a;
+}
+/* 币显示格式化：整数不带小数点，5 折产生的 .5 保留 1 位 */
+function cbFmtCoin(n){
+  var v = Number(n) || 0;
+  if(!isFinite(v)) v = 0;
+  return (Math.abs(v - Math.round(v)) < 1e-9) ? String(Math.round(v)) : v.toFixed(1);
+}
+
 /* 单一写入入口：快照 + 流水 + 版本戳 + 时间戳，四者原子一致。
    禁止在业务代码里裸写 student.credit += x。 */
 function applyCreditDelta(student, amount, reason, opts){
@@ -4242,6 +4279,9 @@ function applyCreditDelta(student, amount, reason, opts){
     studentId: student.id,
     studentName: student.name,
     amount: amount,
+    // v2.20.4 发币系数在写流水这一刻按当时总分定死（student.credit 已在上面更新为加分后值），
+    // 这样币只随撤销/恢复增减，不会因日后跌破 100 而被追回。
+    coin: cbCoinOfAmount(amount, student.credit),
     reason: reason || (state.reasons && state.reasons[0]) || '其他',
     time: opts.time || Date.now()
   };
@@ -4255,6 +4295,7 @@ function applyCreditDelta(student, amount, reason, opts){
   state.operations.unshift(op);
   // v2.17.30 学分银行双轨：加分自动等额发币由「币=Σ有效加分流水+银行流水」派生，
   // 此处无需额外记账——撤销→流水退出有效集→币自动回退；恢复→自动补回（与 credit 同源自愈）
+  // v2.20.4：发币额改写入 op.coin（总分 <100 时 ×0.5），派生口径同步改为 Σ cbCoinOfOp(op)
   return op;
 }
 
@@ -4345,7 +4386,13 @@ let state = buildDefaultState();
       +10 进取 / +20 勤学 / +30 优秀 / +50 卓越 / ≥+70 巅峰（封顶送全目录上架券各 1 张）；净增 <10（含 0/负）无奖励。
    ④ 阶梯预警：50-59 通报家长(黄) / 40-49 手抄《学生手册》(橙) / 30-39 请家长来校(红) /
       <30 停课回家教育(深红)；同档同月一条、恶化才升级；回升≥60 自动办结；首页角标提醒。
-   ⑤ 教师专属：page-bank 不在班委白名单（导航自动隐藏 + navigateTo 二次拦截）。 */
+   ⑤ 教师专属：page-bank 不在班委白名单（导航自动隐藏 + navigateTo 二次拦截）。
+   ⑥ v2.20.4 奖励资格线（老板拍板，写死 100 分不可调）：以「学生当前总分 credit」为唯一口径 ——
+      总分 ≥100：月度阶梯奖励正常结算、加分发币 1:1、兑换商店开放；
+      总分 <100：当月净增不参与定档（不发月度奖励）、加分发币打 5 折、兑换商店关闭。
+      发币系数在「写流水那一刻」按当时总分定死存入 op.coin —— 故不会因日后跌破 100 追回已得币；
+      v2.20.4 之前的历史加分无 coin 字段，按 1:1 计，不追溯打折
+      （否则会凭空削掉学生既有币，把已兑换过的账目打成负数）。 */
 
 /* v2.17.30 兑换商店商品目录（默认种子）。老师可在商店页增删改：
    改价格/月限/描述、下架（on:false）、新增自定义商品（builtin:false）。
@@ -4365,7 +4412,8 @@ const CB_CATS = ['特权', '餐饮', '娱乐', '学习', '实物', '其他'];
    当月净增 = 当月内发生且未撤销的加减分净额（只看当月表现，历史累计不参与定档）。
    t1 进取 +10 ｜ t2 勤学 +20 ｜ t3 优秀 +30 ｜ t4 卓越 +50 ｜ t5 巅峰 ≥+70（封顶）
    t5 一次给全目录上架券各 1 张；t4 及以下按档内券单发（由少到多递进）。
-   净增 <10（含 0 与负）无奖励；总分 <60 的阶梯预警仍按总分走，与此无关。 */
+   净增 <10（含 0 与负）无奖励；总分 <60 的阶梯预警仍按总分走，与此无关。
+   v2.20.4 起再加一道奖励资格线：总分 <CB_REWARD_MIN(100) 的学生不参与定档（见 cbDoSettle）。 */
 const CB_NET_TIERS = [
   { key:'t1', label:'进取', min:10, coin:20, coupons:['lateFree'] },
   { key:'t2', label:'勤学', min:20, coin:30, coupons:['lateFree', 'dayMonitor', 'laborWaive'] },
@@ -4609,8 +4657,8 @@ function cbSname(sid){
   var s = (state.students || []).find(function(x){ return String(x.id) === String(sid); });
   return s ? (s.name || '') : '';
 }
-/* 币余额映射（纯函数）：Σ有效加分流水（自动等额发币） + Σ银行流水（兑换扣/退还加）。
-   ops/ledger 缺省用 state（页面渲染直接传参亦可单测）。 */
+/* 币余额映射（纯函数）：Σ有效加分流水（自动等额发币；v2.20.4 起按 op.coin，含 <100 的 5 折）
+   + Σ银行流水（兑换扣/退还加）。ops/ledger 缺省用 state（页面渲染直接传参亦可单测）。 */
 function cbCoinMap(ops, ledger){
   var m = {};
   function add(k, v){
@@ -4618,9 +4666,8 @@ function cbCoinMap(ops, ledger){
     m[k] = n;
   }
   (ops || []).forEach(function(o){
-    if(!o || o.state === 'revoked') return;
-    var amt = Number(o.amount) || 0;
-    if(amt > 0 && o.studentId != null) add(cbWalletKey(o.studentId), amt);
+    var c = cbCoinOfOp(o);                                   // v2.20.4 按 op.coin 计（含 5 折）
+    if(c > 0 && o.studentId != null) add(cbWalletKey(o.studentId), c);
   });
   (ledger || []).forEach(function(e){
     if(e && e.sid != null) add(cbWalletKey(e.sid), e.delta);
@@ -4733,6 +4780,11 @@ function cbStoreItemCost(sid, it){
 function cbRedeem(sid, key){
   var s = (state.students || []).find(function(x){ return String(x.id) === String(sid); });
   if(!s){ showToast('请先选择学生', 'warning'); return null; }
+  // v2.20.4 兑换商店仅对总分 ≥CB_REWARD_MIN 的学生开放（核心层拦截，绕过 UI 也拦得住）
+  if(!cbRewardEligible(s.credit)){
+    showToast(s.name + ' 总分 ' + (Number(s.credit) || 0) + ' 分，低于 ' + CB_REWARD_MIN + ' 分不可兑换', 'warning');
+    return null;
+  }
   var it = cbStoreItemByKey(key);   // v2.17.30 实时目录；下架商品不可再兑换
   if(!it) return null;
   if(it.on === false){ showToast(it.name + ' 已下架，暂不可兑换', 'warning'); return null; }
@@ -4780,9 +4832,15 @@ function cbDoSettle(){
   // v2.18.0 月度统计（写 settleHist 快照）：counts/coins 按五档 t1..t5，vouchers 为实发券总张数
   var stat = { month: month, at: Date.now(), net: 1,
                counts: { t1: 0, t2: 0, t3: 0, t4: 0, t5: 0 },
-               coins: { t1: 0, t2: 0, t3: 0, t4: 0, t5: 0 }, vouchers: 0 };
+               coins: { t1: 0, t2: 0, t3: 0, t4: 0, t5: 0 }, vouchers: 0, blocked: 0 };
   (state.students || []).forEach(function(s){
     var net = cbMonthNetOf(s.id, month);            // v2.18.0 当月净增定档
+    // v2.20.4 奖励资格线：总分 <CB_REWARD_MIN → 当月净增不参与定档，币与券都不发。
+    // blocked 只统计「净增本已达标、被资格线挡下」的人数，便于看清政策影响面。
+    if(!cbRewardEligible(s.credit)){
+      if(net >= CB_NET_TIERS[0].min) stat.blocked++;
+      return;
+    }
     var t = cbSettleTier(net);
     var coupons = t.coupons;
     if(t.key === 't5') coupons = cbSettleLv3Coupons();   // 封顶档：全目录各 1 张
@@ -5018,12 +5076,12 @@ function cbBankProfileOf(sid){
     .sort(function(a, x){ return (x.time || 0) - (a.time || 0); });
   var opCoin = 0;
   (state.operations || []).forEach(function(o){
-    if(String(o.studentId) === key && o.amount > 0 && o.state !== 'revoked') opCoin += o.amount;
+    if(String(o.studentId) === key) opCoin += cbCoinOfOp(o);   // v2.20.4 含 <100 的 5 折系数
   });
   var lgCoin = 0;
   lg.forEach(function(e){ lgCoin += e.delta; });
   return { sid: key, s: s, name: (s && s.name) || cbSname(sid) || ('学生#' + sid),
-           credit: credit, tier: cbTierOf(credit),
+           credit: credit, tier: cbTierOf(credit), eligible: cbRewardEligible(credit),
            coin: opCoin + lgCoin, opCoin: opCoin, lgCoin: lgCoin,
            vouchers: vs, vStat: vStat, ledger: lg, alerts: al };
 }
@@ -5085,8 +5143,10 @@ function cbOpenBankProfile(sid){
     '<div style="font-size:12px;color:var(--text-muted);margin-top:2px">' + w +
     (p.s && p.s.sid != null && p.s.sid !== '' ? ' · 学号 ' + cbEsc(String(p.s.sid)) : '') + '</div></div>' +
     '<div style="text-align:right"><div style="font-size:11px;color:var(--text-muted)">当前学分币</div>' +
-    '<div style="font-size:30px;font-weight:800;color:#b7791f">' + p.coin + '<span style="font-size:13px;color:var(--text-muted)"> 币</span></div>' +
-    '<div style="font-size:11px;color:var(--text-muted)">= 加分发币 ' + p.opCoin + ' + 银行收支 ' + (p.lgCoin >= 0 ? '+' : '') + p.lgCoin + '</div></div></div>' +
+    '<div style="font-size:30px;font-weight:800;color:#b7791f">' + cbFmtCoin(p.coin) + '<span style="font-size:13px;color:var(--text-muted)"> 币</span></div>' +
+    '<div style="font-size:11px;color:var(--text-muted)">= 加分发币 ' + cbFmtCoin(p.opCoin) + ' + 银行收支 ' + (p.lgCoin >= 0 ? '+' : '') + cbFmtCoin(p.lgCoin) + '</div>' +
+    (p.eligible ? '' : '<div style="font-size:11px;color:#c53030;margin-top:2px">总分 &lt;' + CB_REWARD_MIN + ' 分：加分发币 5 折中 · 兑换未开放</div>') +
+    '</div></div>' +
     '<div style="display:flex;gap:8px;margin-bottom:14px">' + statChips + '</div>' +
     '<div class="card" style="padding:12px 14px;margin-bottom:10px"><div style="font-weight:600;font-size:14px;margin-bottom:8px">🧾 银行收支明细</div>' + lgHtml + '</div>' +
     '<div class="card" style="padding:12px 14px;margin-bottom:10px"><div style="font-weight:600;font-size:14px;margin-bottom:8px">🎟 券包（' + p.vouchers.length + ' 张）</div><div>' + chipHtml + '</div></div>' +
@@ -5244,7 +5304,8 @@ function cbOpenItemDetail(key){
   var cost = cbStoreItemCost(cbStoreSid, it);
   var used = cbStoreUsedCount(cbStoreSid, it.key, cbMonthKey());
   var remain = Math.max(0, it.limit - used);
-  var can = !!s && coin >= cost && remain > 0;
+  var elig = !!s && cbRewardEligible(s.credit);     // v2.20.4 兑换资格
+  var can = !!s && elig && coin >= cost && remain > 0;
   var host = document.getElementById('cbItemDetailBody');
   if(!host) return;
   host.innerHTML =
@@ -5256,12 +5317,15 @@ function cbOpenItemDetail(key){
     '<div style="margin-top:14px;padding:12px 14px;background:var(--background-secondary,rgba(0,0,0,.03));border-radius:10px;font-size:13px;line-height:2">' +
     '<div>售价：<b style="font-size:16px;color:#b7791f">' + cost + '</b> 币' + (cost !== it.cost ? ' <s style="color:var(--text-muted);font-size:12px">' + it.cost + '</s>（9 折生效）' : '') + '</div>' +
     '<div>每人每月限购 ' + it.limit + ' 张 · 本月剩余 <b>' + remain + '</b> 张</div>' +
-    (s ? '<div>当前学生：<b>' + cbEsc(s.name) + '</b> · 余额 <b style="color:#b7791f">' + coin + '</b> 币</div>' : '<div style="color:#c05621">请先在商店上方选择学生</div>') +
+    (s ? '<div>当前学生：<b>' + cbEsc(s.name) + '</b> · 余额 <b style="color:#b7791f">' + cbFmtCoin(coin) + '</b> 币'
+        + (elig ? '' : ' <span style="color:#c53030">（总分 ' + (Number(s.credit) || 0) + ' 分 &lt; ' + CB_REWARD_MIN + '，兑换未开放）</span>') + '</div>'
+       : '<div style="color:#c05621">请先在商店上方选择学生</div>') +
     '</div>';
   var btn = document.getElementById('cbItemDetailBtn');
   if(btn){
     btn.style.display = s ? '' : 'none';
-    btn.textContent = remain <= 0 ? '本月已兑满' : (coin < cost ? '币不足（需 ' + cost + '）' : '为 ' + (s ? s.name : '') + ' 兑换');
+    btn.textContent = remain <= 0 ? '本月已兑满'
+      : (!elig ? '总分 &lt;' + CB_REWARD_MIN + '，未开放' : (coin < cost ? '币不足（需 ' + cost + '）' : '为 ' + (s ? s.name : '') + ' 兑换'));
     btn.disabled = !can;
     btn.onclick = function(){ closeModal('cbItemDetailModal'); cbRedeemUI(key); };
   }
@@ -5349,21 +5413,34 @@ function cbPersist(){
 function cbDoSettleUI(){
   var month = cbMonthKey();
   if((state.creditBank && state.creditBank.lastSettleMonth) === month){ showToast(month + ' 已结算过，下月再结算', 'warning'); return; }
-  // v2.18.0 预览：当月净增分布
-  var nets = (state.students || []).map(function(s){ return { name: s.name, net: cbMonthNetOf(s.id, month), s: s }; });
+  // v2.18.0 预览（v2.20.4 改双条件）：当月净增达标 + 总分达奖励线，并单列被资格线挡下的人
+  var nets = (state.students || []).map(function(s){
+    return { name: s.name, net: cbMonthNetOf(s.id, month), credit: Number(s.credit) || 0, s: s };
+  });
   nets.sort(function(a, b){ return b.net - a.net; });
-  var preview = nets.filter(function(x){ return x.net >= 10; }).slice(0, 8)
+  var qual = nets.filter(function(x){ return x.net >= CB_NET_TIERS[0].min && cbRewardEligible(x.credit); });
+  var blocked = nets.filter(function(x){ return x.net >= CB_NET_TIERS[0].min && !cbRewardEligible(x.credit); });
+  var preview = qual.slice(0, 8)
     .map(function(x){ return x.name + '（净增 ' + (x.net > 0 ? '+' : '') + x.net + ' → ' + cbSettleTier(x.net).label + '）'; }).join('\n');
-  var msg = '结算 ' + month + ' 月度阶梯奖励？\n\n按「当月净增分值」定档（当月加减净变化，撤销的不算）：\n'
+  var previewBlocked = blocked.slice(0, 8)
+    .map(function(x){ return x.name + '（总分 ' + x.credit + '，净增 ' + (x.net > 0 ? '+' : '') + x.net + '）'; }).join('\n');
+  var msg = '结算 ' + month + ' 月度阶梯奖励？\n\n'
+    + '⚠ 奖励资格线：总分 ≥' + CB_REWARD_MIN + ' 分才参与定档；低于该线当月净增不作数，不发币也不发券。\n\n'
+    + '按「当月净增分值」定档（当月加减净变化，撤销的不算）：\n'
     + CB_NET_TIERS.slice().reverse().map(function(t){
         return '· ' + t.label + '（净增 ≥' + t.min + '）：' + t.coin + ' 币' + (t.key === 't5' ? ' + 全目录券各 1 张' : (t.coupons && t.coupons.length ? ' + ' + t.coupons.map(function(k){ return (cbStoreItemByKey(k) || {}).name || k; }).join(' / ') : ''));
       }).join('\n')
     + '\n· 净增 <10（含 0 / 负）：无奖励\n\n'
-    + (preview ? '本次预计获奖（净增 ≥10，前 8 名）：\n' + preview + '\n\n' : '')
+    + (preview ? '本次预计获奖（净增 ≥10 且总分 ≥' + CB_REWARD_MIN + '，前 8 名）：\n' + preview + '\n\n' : '')
+    + (previewBlocked ? '⚠ 以下同学净增已达标，但总分未到 ' + CB_REWARD_MIN + ' 分，本次不发：\n' + previewBlocked
+        + (blocked.length > 8 ? '\n……共 ' + blocked.length + ' 人' : '') + '\n\n' : '')
     + '币永久累计；奖励券当月有效，跨月自动失效。每人每月仅结算一次。';
   if(!confirm(msg)) return;
   var n = cbDoSettle();
-  showToast(n > 0 ? month + ' 结算完成：' + n + ' 项奖励已发放' : '本月无符合条件的奖励（净增均 <10）', n > 0 ? 'success' : 'info');
+  var blkTxt = blocked.length ? '（另有 ' + blocked.length + ' 人总分未达 ' + CB_REWARD_MIN + ' 分未发）' : '';
+  showToast(n > 0 ? month + ' 结算完成：' + n + ' 项奖励已发放' + blkTxt
+                  : '本月无符合条件的奖励' + (blocked.length ? '（净增达标者总分均未达 ' + CB_REWARD_MIN + ' 分）' : '（净增均 <10）'),
+            n > 0 ? 'success' : 'info');
   cbPersist();
 }
 function cbRedeemUI(key){
@@ -5371,6 +5448,11 @@ function cbRedeemUI(key){
   var it = cbStoreItemByKey(key);
   if(!it) return;
   var s = state.students.find(function(x){ return String(x.id) === cbStoreSid; });
+  // v2.20.4 兑换门禁：总分 <CB_REWARD_MIN 不开放（先于确认弹窗，避免点了才知道）
+  if(s && !cbRewardEligible(s.credit)){
+    showToast(s.name + ' 总分 ' + (Number(s.credit) || 0) + ' 分，低于 ' + CB_REWARD_MIN + ' 分不可兑换', 'warning');
+    return;
+  }
   var coin = cbCoinsOf(cbStoreSid, state.operations, state.creditBank && state.creditBank.ledger);
   var cost = cbStoreItemCost(cbStoreSid, it);
   if(!confirm(s ? (s.name || '') : '' + ' 兑换「' + it.name + '」？\n将扣除 ' + cost + ' 学分币（现有 ' + coin + ' 币），生成待核销券。')) return;
@@ -5487,13 +5569,15 @@ function renderBankPage(){
     coinTop.forEach(function(s, i){
       var c = coin[cbWalletKey(s.id)] || 0;
       var credit = Number(s.credit) || 0;
+      var elig = cbRewardEligible(credit);           // v2.20.4 是否达奖励线
       var tier = cbTierOf(credit);
       var warn = tier ? cbLevelBadge(tier.level, tier.label) : '';
       // v2.17.30 点排行行 → 学生银行档案
       rows += '<tr style="cursor:pointer" onclick="cbOpenBankProfile(' + s.id + ')" title="查看 ' + cbEsc(s.name) + ' 的银行档案">' +
               '<td style="padding:6px 8px">' + (i + 1) + '</td><td style="padding:6px 8px"><b>' + cbEsc(s.name) + '</b> <span style="font-size:11px;color:var(--text-muted)">📊</span></td>' +
               '<td style="padding:6px 8px">' + cbCreditBadge(credit) + '</td>' +
-              '<td style="padding:6px 8px"><b>' + c + '</b> 币</td>' +
+              '<td style="padding:6px 8px"><b>' + cbFmtCoin(c) + '</b> 币' +
+              (elig ? '' : ' <span style="font-size:10.5px;color:#c53030;border:1px solid rgba(197,48,48,.35);border-radius:6px;padding:0 5px;white-space:nowrap">5折发币</span>') + '</td>' +
               '<td style="padding:6px 8px">' + warn + '</td></tr>';
     });
     var settleState = settled
@@ -5504,6 +5588,8 @@ function renderBankPage(){
                (t.key === 't5' ? ' + 全目录券各 1 张' : ' + ' + (t.coupons || []).map(function(k){ return (cbStoreItemByKey(k) || {}).name || k; }).join(' / '));
       }).concat([
         '净增 &lt;10（含 0 / 负）：无奖励',
+        '<span style="color:#c05621">奖励资格线：总分 ≥' + CB_REWARD_MIN + ' 分才参与定档；总分 &lt;' + CB_REWARD_MIN + ' 分的学生当月净增不作数，不发币也不发券</span>',
+        '<span style="color:var(--text-muted)">总分 &lt;' + CB_REWARD_MIN + ' 分期间：加分发币按 <b>5 折</b>计（系数按加分当时的总分定，日后回升不追补、跌破也不追回）；兑换商店未开放</span>',
         '<span style="color:var(--text-muted)">只看当月表现：当月加减净变化 ≥10 起奖，撤销的不算，历史累计分不参与定档。币永久累计可自由兑换；奖励券当月有效，跨月自动失效留痕</span>'
       ]).map(function(x){ return '<div>· ' + x + '</div>'; }).join('');
     // v2.18.0 月度结算历史统计（settleHist 快照，最新在前；旧三档记录按 lv1→进取/lv2→卓越/lv3→巅峰 兼容映射）
@@ -5538,14 +5624,14 @@ function renderBankPage(){
     var rankHint = '<span style="font-size:11px;color:var(--text-muted);font-weight:400;margin-left:6px">点任意一行查看该生完整银行档案</span>';
     body =
       '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px">' +
-      '<div class="card" style="padding:14px 16px"><div style="font-size:12px;color:var(--text-muted)">全班学分币总量</div><div style="font-size:24px;font-weight:700">' + totalCoin + ' <span style="font-size:13px;color:var(--text-muted)">币</span></div></div>' +
+      '<div class="card" style="padding:14px 16px"><div style="font-size:12px;color:var(--text-muted)">全班学分币总量</div><div style="font-size:24px;font-weight:700">' + cbFmtCoin(totalCoin) + ' <span style="font-size:13px;color:var(--text-muted)">币</span></div></div>' +
       '<div class="card" style="padding:14px 16px"><div style="font-size:12px;color:var(--text-muted)">待核销/未用券</div><div style="font-size:24px;font-weight:700">' + unusedAll + ' <span style="font-size:13px;color:var(--text-muted)">张</span></div></div>' +
       '<div class="card" style="padding:14px 16px"><div style="font-size:12px;color:var(--text-muted)">待处理预警</div><div style="font-size:24px;font-weight:700;color:' + (pend ? '#c53030' : 'inherit') + '">' + pend + '</div></div>' +
       '<div class="card" style="padding:14px 16px"><div style="font-size:12px;color:var(--text-muted)">月度结算</div><div style="font-size:14px;font-weight:600;margin-top:6px">' + settleState + '</div></div>' +
       '</div>' +
       '<div class="card" style="padding:16px 18px;margin-bottom:14px">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">' +
-      '<div><b>💰 月度阶梯奖励结算</b><div style="font-size:12px;color:var(--text-muted);margin-top:4px">每月点一次：按「当月净增」+10 起奖、+70 五档封顶，发「学分币 + 特权券」</div></div>' +
+      '<div><b>💰 月度阶梯奖励结算</b><div style="font-size:12px;color:var(--text-muted);margin-top:4px">每月点一次：按「当月净增」+10 起奖、+70 五档封顶，发「学分币 + 特权券」；<span style="color:#c05621">总分 ≥' + CB_REWARD_MIN + ' 分才参与（低于该线当月净增不作数）</span></div></div>' +
       '<button class="btn ' + (settled ? 'btn-outline' : 'btn-primary') + '" onclick="cbDoSettleUI()"' + (settled ? ' title="本月已结算"' : '') + '>' + (settled ? '✓ 已结算 ' + month : '结算 ' + month) + '</button>' +
       '</div>' +
       '<div style="margin-top:12px;padding:12px 14px;background:rgba(166,58,43,0.05);border-radius:10px;font-size:13px;line-height:1.9">' + rewards + '</div>' +
@@ -5567,6 +5653,7 @@ function renderBankPage(){
       var selS = cbStoreSid ? studs.find(function(x){ return String(x.id) === cbStoreSid; }) : null;
       var selCoin = selS ? (coin[cbWalletKey(cbStoreSid)] || 0) : 0;
       var discount = !!selS && cbWallet(cbStoreSid).discountMonth === month;
+      var selElig = !!selS && cbRewardEligible(selS.credit);   // v2.20.4 兑换仅对总分 ≥CB_REWARD_MIN 开放
       // v2.17.30 类别筛选 chips（全部 + 目录里出现过的类别）
       var cats = cbStoreCats();
       var catHtml = '<div class="cb-chip' + (cbBankCat ? '' : ' on') + '" onclick="cbBankCatTo(\'\')">全部</div>';
@@ -5580,8 +5667,10 @@ function renderBankPage(){
         var used = cbStoreUsedCount(cbStoreSid, it.key, month);
         var cost = cbStoreItemCost(cbStoreSid, it);
         var remain = Math.max(0, it.limit - used);
-        var can = !!selS && selCoin >= cost && remain > 0;
-        var disTip = remain <= 0 ? '本月已兑满' : (!selS ? '请先在上方选择学生' : '币不足');
+        var can = !!selS && selElig && selCoin >= cost && remain > 0;
+        var disTip = remain <= 0 ? '本月已兑满'
+          : (!selS ? '请先在上方选择学生'
+          : (!selElig ? '总分低于 ' + CB_REWARD_MIN + ' 分，兑换未开放' : '币不足'));
         cards += '<div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;cursor:pointer;opacity:' + (remain > 0 ? '1' : '0.55') + '" onclick="cbOpenItemDetail(\'' + it.key + '\')">' +
                  '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:22px">' + cbEsc(it.icon) + '</span>' +
                  '<b style="font-size:14px;flex:1">' + cbEsc(it.name) + '</b>' +
@@ -5606,7 +5695,9 @@ function renderBankPage(){
         '<div id="cbStoreMatch" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;margin-top:4px;max-height:250px;overflow-y:auto;z-index:30;box-shadow:0 6px 20px rgba(0,0,0,.12)"></div>' +
         '</div>' +
         (selS
-          ? '<div style="font-size:13px">' + cbEsc(selS.name) + ' 余额 <b style="color:#b7791f;font-size:15px">' + selCoin + '</b> 币' + (discount ? '<span style="margin-left:8px;color:#2f7d32;font-size:12px">★ 9 折生效中</span>' : '') + '</div>' +
+          ? '<div style="font-size:13px">' + cbEsc(selS.name) + ' 余额 <b style="color:#b7791f;font-size:15px">' + cbFmtCoin(selCoin) + '</b> 币'
+            + (selElig ? '' : '<span style="margin-left:8px;color:#c53030;font-size:12px">⛔ 总分 ' + (Number(selS.credit) || 0) + ' 分 &lt; ' + CB_REWARD_MIN + '，兑换未开放</span>')
+            + (discount ? '<span style="margin-left:8px;color:#2f7d32;font-size:12px">★ 9 折生效中</span>' : '') + '</div>' +
             '<button class="btn btn-outline btn-sm" onclick="cbOpenBankProfile(' + cbStoreSid + ')" title="查看该生银行档案">📊 档案</button>' +
             '<button class="btn btn-outline btn-sm" style="padding:2px 10px" onclick="cbStoreClearSid()" title="取消选择">✕ 清除</button>'
           : '<span style="font-size:12px;color:var(--text-muted);background:rgba(166,58,43,0.07);padding:6px 12px;border-radius:999px">👆 点搜索框选择要兑换的学生</span>') +
@@ -5615,6 +5706,7 @@ function renderBankPage(){
         '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">' + catHtml + '</div>' +
         '<div style="margin-top:10px;font-size:12px;color:var(--text-muted)">' +
         '券兑换后进该生券包（待核销）；每月每种限购如上；已核销不可退，未使用可退还（退还退币）。商店买的券不过期；月度奖励白送的券当月有效。' +
+        '<div style="margin-top:4px;color:#c05621">奖励线：总分 ≥' + CB_REWARD_MIN + ' 分才可兑换；总分低于 ' + CB_REWARD_MIN + ' 分期间加分发币按 5 折计。</div>' +
         '</div></div>' +
         '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:12px">' + cards + '</div>';
     }
@@ -5683,18 +5775,19 @@ function renderBankPage(){
         ? '<button class="btn btn-outline btn-sm" onclick="cbLedgerSidClear()">✕ 清除筛选</button>' : '') +
       '<span style="font-size:12px;color:var(--text-muted)">共 ' + led.length + ' 条' +
       (cbLedgerSid ? ' · ' + shownName : '') + (cbLedgerType ? ' · ' + cbLedgerTypeName(cbLedgerType) : '') +
-      ' · 合计 <b style="color:' + (sumD >= 0 ? '#2f7d32' : '#c53030') + '">' + (sumD > 0 ? '+' : '') + sumD + '</b> 币</span>' +
+      ' · 合计 <b style="color:' + (sumD >= 0 ? '#2f7d32' : '#c53030') + '">' + (sumD > 0 ? '+' : '') + cbFmtCoin(sumD) + '</b> 币</span>' +
       '</div></div>';
     body = filterBar +
            '<div class="card" style="padding:14px 18px;margin-bottom:12px;font-size:12px;color:var(--text-muted);line-height:1.8">' +
-           '币余额口径：<b>币 = 历史有效加分流水合计（自动等额发币） + 银行收支</b>。加分/撤销/恢复的币变动随学分流水自动联动，不在此列；此处仅记录兑换扣币、退还退币等银行类收支。</div>' +
+           '币余额口径：<b>币 = 历史有效加分流水合计（自动等额发币） + 银行收支</b>。加分/撤销/恢复的币变动随学分流水自动联动，不在此列；此处仅记录兑换扣币、退还退币等银行类收支。' +
+           '<br><span style="color:#c05621">v2.20.4 奖励线：总分 ≥' + CB_REWARD_MIN + ' 分时加分发币 1:1；总分低于该线时按 5 折计（系数在加分当时定死，日后回升不追补、跌破不追回）。</span></div>' +
            (lRows
              ? '<div class="card" style="padding:10px 16px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><tr style="color:var(--text-muted);font-size:12px;text-align:left"><th style="padding:6px 8px;font-weight:500">学生</th><th style="padding:6px 8px;font-weight:500">类型</th><th style="padding:6px 8px;font-weight:500">项目</th><th style="padding:6px 8px;font-weight:500">变动</th><th style="padding:6px 8px;font-weight:500">时间</th></tr>' + lRows + '</table></div>'
              : cbEmpty('没有符合条件的流水' + ((allLedger.length && led.length === 0) ? ' —— 换个筛选条件试试' : '（加分发币随学分流水自动计入）')));
   }
   var html = '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px">' +
              '<div><h2 style="margin:0;font-size:20px">🏦 学分银行</h2>' +
-             '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">双轨账本 · 阶梯奖励 · 兑换商店（仅班主任可见）</div></div>' +
+             '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">双轨账本 · 阶梯奖励 · 兑换商店（仅班主任可见） · 奖励线 ' + CB_REWARD_MIN + ' 分</div></div>' +
              '<span style="font-size:12px;color:var(--text-muted)">数据随学分流水自动同步 · ' + (state.classNameFull || state.className || '') + '</span></div>' +
              tabHtml + '<div id="cbBankBody">' + body + '</div>';
   el.innerHTML = html;

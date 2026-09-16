@@ -33,9 +33,9 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.20\.3</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.20\.3 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.20.3')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.20\.4</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.20\.4 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.20.4')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== ① 兑换商店：无默认选中 + 点搜索框出候选名单 ===');
@@ -63,8 +63,11 @@ t('选中后可清除回未选态（✕ 清除按钮 + cbStoreClearSid）', () =
   has(html, 'function cbStoreClearSid(){', '缺清除函数');
 });
 t('未选学生时兑换按钮禁用并提示「请先在上方选择学生」', () => {
-  has(html, 'var can = !!selS && selCoin >= cost && remain > 0;', '缺未选锁定');
-  has(html, "(!selS ? '请先在上方选择学生' : '币不足')", '缺禁用原因文案');
+  has(html, 'var can = !!selS && selElig && selCoin >= cost && remain > 0;', '缺未选锁定');
+  // v2.20.4：禁用原因链新增一档「总分未达奖励线」，三档提示都必须在（不变量：未选学生 → 优先提示去选学生）
+  has(html, "(!selS ? '请先在上方选择学生'", '缺未选学生的提示');
+  has(html, "'总分低于 ' + CB_REWARD_MIN + ' 分，兑换未开放'", '缺奖励线提示');
+  has(html, "'币不足'", '缺币不足提示');
 });
 t('余额/档案只在选中后展示（selS 判空）', () => {
   has(html, "var selS = cbStoreSid ? studs.find(function(x){ return String(x.id) === cbStoreSid; }) : null;", '未选=null');
