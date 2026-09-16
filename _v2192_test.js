@@ -153,10 +153,10 @@ t('恢复预设清空时间戳', () => {
 
 console.log('\n=== 版本 ===');
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.20.4</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.20.4 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.20.4</span>', '设置徽标');
-  has(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'), "CACHE_NAME = 'class-manager-v2.20.4'", 'SW');
+  has(html, '<div class="login-version">v2.20.5</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.20.5 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.20.5</span>', '设置徽标');
+  has(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'), "CACHE_NAME = 'class-manager-v2.20.5'", 'SW');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

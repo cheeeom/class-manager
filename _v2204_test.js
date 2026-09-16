@@ -5,7 +5,8 @@
    覆盖：
      ① cbRewardEligible —— 资格线判定边界（99 / 100）
      ② cbCoinOfAmount —— 单笔加分发币额（系数由「加分后总分」决定，1 分打 5 折 = 0.5 币）
-     ③ cbCoinOfOp —— 单笔流水计币额，且历史加分（无 coin 字段）不追溯打折
+     ③ cbCoinOfOp —— 单笔流水计币额；无 coin 字段时按 amount 兜底
+        （历史流水的「回溯打折」不在这里做，由 v2.20.5 的 ensureOpCoin 负责，见 _v2205_test.js）
      ④ cbFmtCoin —— 0.5 币的显示格式
      ⑤ cbCoinMap —— 折扣 + 历史兼容 + 撤销排除 + 银行流水 的聚合
      ⑥ cbDoSettle —— 总分 <100 一律不发（币与券都不发）；blocked 只统计「净增达标被挡下」
@@ -105,20 +106,21 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('四处跟版 v2.20.4（登录页 / 侧栏 / 设置徽标 / SW CACHE_NAME）', () => {
-  has(html, '<div class="login-version">v2.20.4</div>', '登录页未跟版');
-  has(html, '<div class="sidebar-footer">v2.20.4 · 班主任工作台</div>', '侧栏未跟版');
-  has(html, '🏷️ v2.20.4</span>', '设置徽标未跟版');
-  has(sw, "CACHE_NAME = 'class-manager-v2.20.4'", 'SW CACHE_NAME 未跟版');
+t('四处跟版 v2.20.5（登录页 / 侧栏 / 设置徽标 / SW CACHE_NAME）', () => {
+  has(html, '<div class="login-version">v2.20.5</div>', '登录页未跟版');
+  has(html, '<div class="sidebar-footer">v2.20.5 · 班主任工作台</div>', '侧栏未跟版');
+  has(html, '🏷️ v2.20.5</span>', '设置徽标未跟版');
+  has(sw, "CACHE_NAME = 'class-manager-v2.20.5'", 'SW CACHE_NAME 未跟版');
 });
 t('速览标题跟 CACHE_NAME 同版本号，且本版要点已写入', () => {
   // 维护约定：更新速览【只保留最新一版、整体替换、不做追加】→ 只断言本版要点，历史条目会随换版消失
   const ver = (sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/) || [])[1] || '';
   has(html, '近版更新速览（' + ver + '）', '速览标题未跟版');
   has(html, 'id="settingsReleaseNotes"', 'notes 容器缺失');
-  has(html, '奖励资格线', '速览缺「奖励资格线」');
-  has(html, '5 折', '速览缺「5 折」');
-  has(html, '不追回', '速览缺「跌破不追回已得的币」说明');
+  // v2.20.5 起改为「版本无关」断言：速览正文按约定【只保留最新一版、整版替换】，
+  // 逐条钉当版要点会在下一次换版时必然过期（v2.20.3 → v2.20.4 已踩过一次）。
+  // 这里只守「标题跟 CACHE_NAME 一致 + 容器在 + 正文非空」，正文内容由当版新测试负责。
+  ok(/id="settingsReleaseNotes"[^>]*>[\s\S]{60,}<\/div>/.test(html), 'notes 正文疑似为空');
 });
 
 console.log('\n=== ① 资格线判定 cbRewardEligible ===');
@@ -170,7 +172,7 @@ t('有 coin 字段：按 coin 计（加成后总分定死的系数）', () => {
   eq(cbCoinOfOp({ amount: 3, coin: 1.5 }), 1.5, '低分档 5 折');
   eq(cbCoinOfOp({ amount: 3, coin: 3 }), 3, '高分档 1:1');
 });
-t('★ 无 coin 字段（v2.20.4 之前的历史加分）：按 amount 计，不追溯打折', () => {
+t('★ 无 coin 字段时 cbCoinOfOp 按 amount 兜底（v2.20.5 起由 ensureOpCoin 回溯补写 coin）', () => {
   eq(cbCoinOfOp({ amount: 5 }), 5, '老记录应保持 1:1，不能被追认成 2.5');
   eq(cbCoinOfOp({ amount: 100 }), 100, '老记录大额同样不缩水');
 });
@@ -210,7 +212,7 @@ t('★ 同一学生跨线前后混合：各笔按各自当时的系数，互不�
   const ops = [mkOp('s3', 6, 3), mkOp('s3', 6, 6)];
   eq(cbCoinMap(ops, [])['s3'], 9, '3 + 6');
 });
-t('历史记录（无 coin）不追溯打折', () => {
+t('cbCoinMap 自身不做回溯（只认 op.coin，缺失则兜底 amount）；回溯由 ensureOpCoin 完成', () => {
   const ops = [mkOp('s4', 40)];
   eq(cbCoinMap(ops, [])['s4'], 40, '老记录 1:1');
 });

@@ -54,9 +54,9 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.20\.4</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.20\.4 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.20.4')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.20\.5</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.20\.5 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.20.5')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 当月净增口径（cbMonthOfTs / cbMonthNetOf 纯函数）===');
@@ -171,7 +171,7 @@ t('顶部 🚨 角标直达学生页预警页签（不再跳学分银行）', ()
 });
 t('学分银行页签瘦身：只剩 概览/商店/券包/流水 四页签，无 alerts 分支', () => {
   has(html, "{ k:'overview', t:'🏦 概览' }, { k:'store', t:'🛒 兑换商店' }, { k:'vouchers', t:'🎟 券包与核销' },");
-  has(html, "{ k:'ledger', t:'🧾 币流水' }");
+  has(html, "{ k:'ledger', t:'💰 学分币明细' }");
   notHas(html, "k:'alerts'", '银行页签仍含预警');
   notHas(html, "cbBankTab === 'alerts'", '银行渲染仍残留预警分支');
   has(html, '双轨账本 · 阶梯奖励 · 兑换商店（仅班主任可见）', '银行页副标题未瘦身');
