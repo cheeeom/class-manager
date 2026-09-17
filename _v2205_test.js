@@ -124,14 +124,14 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('四处跟版均为 v2.20.5（登录页 / 侧栏 / 设置徽标 / SW CACHE_NAME）', () => {
-  has(html, '<div class="login-version">v2.20.5</div>', '登录页未跟版');
-  has(html, '<div class="sidebar-footer">v2.20.5 · 班主任工作台</div>', '侧栏未跟版');
-  has(html, '🏷️ v2.20.5</span>', '设置徽标未跟版');
-  has(sw, "const CACHE_NAME = 'class-manager-v2.20.5';", 'SW 未跟版');
+t('四处跟版均为 v2.20.6（登录页 / 侧栏 / 设置徽标 / SW CACHE_NAME）', () => {
+  has(html, '<div class="login-version">v2.20.6</div>', '登录页未跟版');
+  has(html, '<div class="sidebar-footer">v2.20.6 · 班主任工作台</div>', '侧栏未跟版');
+  has(html, '🏷️ v2.20.6</span>', '设置徽标未跟版');
+  has(sw, "const CACHE_NAME = 'class-manager-v2.20.6';", 'SW 未跟版');
 });
-t('近版更新速览标题为 v2.20.5', () => {
-  has(html, '近版更新速览（v2.20.5）', '速览标题未跟版');
+t('近版更新速览标题为 v2.20.6', () => {
+  has(html, '近版更新速览（v2.20.6）', '速览标题未跟版');
 });
 t('旧活动标记 v2.20.4 已无残留', () => {
   notHas(html, '<div class="login-version">v2.20.4</div>', '登录页仍有旧版号');
@@ -510,10 +510,16 @@ t('回溯重算跳过扣分流水（不写 coin、不计入回迁笔数）', () 
 t('设计说明补了 ⑦ 号条目（记录这次的历史遗留）', () => {
   has(html, '⑦ v2.20.5 补 ⑥ 的历史遗留', '缺设计说明');
 });
-t('近版速览含本次三项改动', () => {
-  has(html, '「币流水」改名「学分币明细」', '缺改名说明');
-  has(html, '🔍 查找', '缺查找说明');
-  has(html, '回溯', '缺回溯说明');
+t('近版速览块逐版整体替换后仍非空（v2.20.6 起不再钉当版条目）', () => {
+  // 项目约定：速览正文【只保留最新一版、逐版整体替换】。钉住当版条目必然在下一版失效
+  // （v2.20.3→v2.20.4、v2.20.5→v2.20.6 各踩过一次），故改成断言不随版本流失的不变量：
+  // 容器在 + 正文够长 + 标题跟 sw.js 的 CACHE_NAME 一致。当版正文内容由当版新测试负责。
+  const m = html.match(/<div id="settingsReleaseNotes"[^>]*>[\s\S]*?<\/div>/);
+  if (!m) throw new Error('缺速览块');
+  const plain = m[0].replace(/<[^>]+>/g, '').replace(/\s+/g, '');
+  if (plain.length < 60) throw new Error('速览块为空或过短：' + plain.length);
+  const ver = (sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/) || [])[1] || '';
+  has(html, '近版更新速览（' + ver + '）', '速览标题未跟版');
 });
 t('cbLedgerTypeTo 仍是 select 的唯一入口', () => {
   has(html, 'onchange="cbLedgerTypeTo(this.value)"', 'onchange 绑丢失');

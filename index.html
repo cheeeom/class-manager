@@ -1896,20 +1896,28 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 
 /* v2.20.0-r2 两级原因菜单 */
 .qc-cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.qc-cat{padding:7px 16px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.qc-cat{padding:7px 16px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
 .qc-cat:hover{border-color:var(--primary-light);color:var(--primary-dark)}
+/* v2.20.6 触摸端不给 hover 上色（对照 .key 的同款守卫）：
+   触屏点大类会重画细则区，浏览器把手指停点下的新按钮直接判成 :hover → 边框闪一下。
+   守卫必须写在 .active 之前，否则被选中的大类会被 hover 守卫夺走底色。 */
+@media(hover:none){.qc-cat:hover{border-color:var(--border);color:var(--text-secondary)}}
 .qc-cat.active{background:var(--primary);border-color:var(--primary);color:#fff}
 .qc-items{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:260px;min-height:132px;overflow-y:auto;padding:2px}
 .qc-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;
-  border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text);cursor:pointer;text-align:left;font-size:14px;transition:all .12s}
+  border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text);cursor:pointer;text-align:left;font-size:14px;transition:all .12s;-webkit-tap-highlight-color:transparent}
 .qc-item:hover{border-color:var(--primary-light);background:var(--bg-secondary)}
+@media(hover:none){.qc-item:hover{border-color:var(--border);background:var(--card-bg)}}
 .qc-item.selected{border-color:var(--primary);background:rgba(166,58,43,0.08)}
 .qc-item.selected::after{content:'✓';color:var(--primary);font-weight:700}
 .qc-item b{font-weight:700;font-variant-numeric:tabular-nums;flex-shrink:0}
 .qc-item b.plus{color:var(--success)}
 .qc-item b.minus{color:var(--danger)}
 .qc-menu-empty{padding:18px;text-align:center;color:var(--text-muted);font-size:13px;background:var(--bg);border-radius:10px}
-@media(max-width:768px){.qc-items{grid-template-columns:1fr}}
+/* v2.20.6 单列断点由 768 收到 520：原来平板宽度下细则排单列，各类目条数不同 →
+   菜单高度随之变化 → 居中弹窗整体重排（实测 modal.y 跳 −25 / +30px），
+   正在点的位置会在手指底下移位。收窄后平板恢复两列，默认目录各类目高度一致，弹窗不再位移。 */
+@media(max-width:520px){.qc-items{grid-template-columns:1fr}}
 
 /* v2.20.0 数据体检卡 */
 .dorm-check{background:rgba(185,124,36,0.08);border:1px solid rgba(185,124,36,0.35);border-radius:12px;padding:10px 14px;margin-bottom:10px;font-size:13px;color:var(--text-secondary);line-height:2}
@@ -1961,7 +1969,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.20.5</div>
+      <div class="login-version">v2.20.6</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2080,7 +2088,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.20.5 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.20.6 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2778,16 +2786,15 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.5</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.6</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.5）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.6）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 💰 <b>「币流水」改名「学分币明细」，并补上「🔍 查找」</b>：学分银行页签与卡片同步改名；输入姓名 / 学号后点<strong>查找</strong>即可定位该生（精确学号 → 精确姓名 → 唯一模糊命中，多人同名会展开候选让你点），不用再靠输入即弹的下拉候选<br>
-              · 🧾 <b>明细不再只列银行收支</b>：选中学生后，下方把<strong>加分发币</strong>与<strong>兑换 / 退还 / 月度奖励</strong>合并成一张按时间倒序明细表，每笔加分直接写明<strong>加了多少分 → 发了多少币</strong>（5 折会标出来）；顶部汇总「当前学分币 / 加分发币 / 银行收支 / 当前总分 / 是否达奖励线」<br>
-              · 📉 <b>历史加分按「加分当时的总分」回溯重算</b>：修掉未满 100 分的老加分没打折的问题 —— 用<em>入班基准 + 当时为止的流水</em>还原出该笔加分当时的真实总分，低于 100 分的一律补成 <strong>5 折</strong>（幂等，只算一次，之后重开不会重复变动）<br>
-              · 🚫 <b>学分币余额最低按 0 计</b>：回溯打折后若某生此前已把币花掉、账面变成负数，余额统一显示 <strong>0</strong>（明细里每一笔收支仍如实列出，方便核对）<br>
+              · 🩹 <b>修掉平板 / 手机上「细则原因框边框加深闪一下」</b>：点一次原因大类会重画细则列表，触摸端浏览器会把<strong>手指停点处新画出来的那颗按钮</strong>直接当成「鼠标悬停」上色，边框于是闪一下又恢复。现在按设备能力分流：<strong>触屏一律不给悬停上色</strong>，用鼠标的电脑端照旧保留悬停反馈<br>
+              · 📐 <b>顺带治住「点大类时菜单自己上下跳」</b>：窄屏原本把细则排成单列，各类目条数不一样 → 菜单高度变化 → 居中的弹窗整体重排，正被点的那一栏会在手指底下移位（容易点错）。平板宽度恢复两列，条数不同的类目高度一致，弹窗不再位移<br>
+              · 🖐️ <b>去掉按下去浮出来的一层灰底</b>：细则与大类按钮补上与底部导航一致的设置，点按不再有原生高亮块闪动<br>
             </div>
           </div>
         </div>
@@ -9626,6 +9633,11 @@ function qcMenuData(){
          · 点细则 → qcPickReason()：选中，并顺带把锁定态对齐到它所属的大类
    两条路径都只切 class + 只重画细则区，大类按钮永不重建 → 光标下的元素不被替换，
    既没有自我触发，也没有高度突变，抖动根因被整体移除 */
+/* v2.20.6 补 CSS 层的漏：JS 侧早就不做悬停了，但样式表里 .qc-cat:hover / .qc-item:hover 还在。
+   触摸端点一次大类会整体重画细则区，浏览器会把「手指停点」下新插入的那颗按钮直接判成 :hover
+   （实测新元素一出生 borderTopColor 就是 rgb(194,91,74)，基线是 rgb(230,222,205)）→ 老师看到
+   「边框加深闪一下」。修法：@media(hover:none) 把这两条 hover 回落成基线样式。
+   —— 结论同 v2.20.2：凡「跟随指尖的中间态」在触屏上都不做，这次连 CSS 伪类一起封掉。 */
 function qcRenderMenu(){
   var menu = document.getElementById('qcMenu');
   if(!menu) return;

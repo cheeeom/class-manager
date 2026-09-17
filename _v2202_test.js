@@ -259,12 +259,12 @@ t('重渲染（打开弹窗 / 连续记账）后：锁定态保持、无悬停�
   eq(s.menu.listeners().join(','), 'click', '重渲染不得新增悬停监听');
 });
 
-console.log('\n=== 版本号（四处跟版 v2.20.5） ===');
+console.log('\n=== 版本号（四处跟版 v2.20.6） ===');
 t('登录页 / 侧栏 / 设置徽标 / SW CACHE_NAME', () => {
-  has(html, '<div class="login-version">v2.20.5</div>', '登录页未跟版');
-  has(html, '<div class="sidebar-footer">v2.20.5 · 班主任工作台</div>', '侧栏未跟版');
-  has(html, '🏷️ v2.20.5</span>', '设置徽标未跟版');
-  has(sw, "CACHE_NAME = 'class-manager-v2.20.5'", 'SW CACHE_NAME 未跟版');
+  has(html, '<div class="login-version">v2.20.6</div>', '登录页未跟版');
+  has(html, '<div class="sidebar-footer">v2.20.6 · 班主任工作台</div>', '侧栏未跟版');
+  has(html, '🏷️ v2.20.6</span>', '设置徽标未跟版');
+  has(sw, "CACHE_NAME = 'class-manager-v2.20.6'", 'SW CACHE_NAME 未跟版');
 });
 t('速览标题与 CACHE_NAME 同版本号（自洽，不硬编码）', () => {
   const ver = (sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/) || [])[1] || '';
