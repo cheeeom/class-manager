@@ -1969,7 +1969,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.20.6</div>
+      <div class="login-version">v2.20.7</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2088,7 +2088,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.20.6 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.20.7 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2752,8 +2752,8 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <button class="btn btn-outline" style="font-size:12px;padding:4px 12px" onclick="resetCloudPwd()">🔁 重置云端加密口令</button>
           </div>
           <p style="font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.6">
-            本仓库是公开的，未加密时 data.json 任何人可下载（含学生姓名与家长电话）。<br>
-            开启同步口令后，上传的是 AES-256 密文，公开也无所谓；每台设备须设成完全相同的口令。
+            数据存于<b>私有仓库</b>（外部访客访问一律返回 404），每台设备须配置对该仓库有读写权限的 GitHub Token 才能同步。<br>
+            上传的是 AES-256 密文，云端只留密文；每台设备须设成完全相同的同步口令。
           </p>
         </div>
         <div class="settings-section">
@@ -2786,15 +2786,16 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.6</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.7</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.6）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.7）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 🩹 <b>修掉平板 / 手机上「细则原因框边框加深闪一下」</b>：点一次原因大类会重画细则列表，触摸端浏览器会把<strong>手指停点处新画出来的那颗按钮</strong>直接当成「鼠标悬停」上色，边框于是闪一下又恢复。现在按设备能力分流：<strong>触屏一律不给悬停上色</strong>，用鼠标的电脑端照旧保留悬停反馈<br>
-              · 📐 <b>顺带治住「点大类时菜单自己上下跳」</b>：窄屏原本把细则排成单列，各类目条数不一样 → 菜单高度变化 → 居中的弹窗整体重排，正被点的那一栏会在手指底下移位（容易点错）。平板宽度恢复两列，条数不同的类目高度一致，弹窗不再位移<br>
-              · 🖐️ <b>去掉按下去浮出来的一层灰底</b>：细则与大类按钮补上与底部导航一致的设置，点按不再有原生高亮块闪动<br>
+              · 🔐 <b>班级数据搬进私有仓库</b>：数据不再放在人人可下载的公开站点目录里，改存<b>私有仓库</b>（外部访客访问一律 404）。每台设备需重新填一次 GitHub Token —— 授权该私有仓库、勾 Contents 读写权限<br>
+              · ☁️ <b>读取路径换成 GitHub 接口</b>：私有仓库没有可公网访问的站点，拉取 / 恢复数据改走带 Token 的接口；并把「大文件只返回空内容」的原始接口兜底一并接上，文件变大后读取不会静默失败<br>
+              · ✅ <b>Token 校验不再误判</b>：以前靠「仓库里有没有数据文件」判断权限，新仓库还没数据文件时会被误报成「无权限」而存不下 Token；现在改为直接校验仓库是否可达<br>
+              · 📶 <b>离线缓存同步调整</b>：站点上不再有数据文件，预缓存清单已摘掉它（清单里只要有一个请求 404，整套离线缓存会安装失败）<br>
             </div>
           </div>
         </div>
@@ -3558,8 +3559,13 @@ function cmPromptSubmit(){
   if(typeof o.onOk === 'function') o.onOk(val);
 }
 // GitHub auto-sync config
+/* v2.20.7 数据托管迁移：数据从**公开站点仓** class-manager 搬到**私有数据仓** class-manager-data。
+   推送路径（doPushToCloud / reset / rekey 共四处）本来就打 api.github.com + PAT，只引用本组常量，
+   改 GH_REPO 即全部跟过去；拉取路径则必须换 —— 私有仓没有 Pages，不能再匿名读站点上的 ./data.json，
+   改走带 Token 的 Contents API，见 fetchCloudEnvelope()。
+   GH_BRANCH/GH_DATA_PATH/GH_OWNER 不变（数据仓默认分支同为 main）。 */
 const GH_OWNER = 'cheeeom';
-const GH_REPO = 'class-manager';
+const GH_REPO = 'class-manager-data';
 const GH_BRANCH = 'main';
 const GH_DATA_PATH = 'data.json';
 /* ==================== v2.19.0 STATE_SCHEMA：状态字段注册表（唯一事实源） ====================
@@ -3823,6 +3829,16 @@ function fetchCloudMeta(apiUrl, baseHeaders){
           });
         });
     });
+}
+/* v2.20.7 私有数据仓的「读」入口。私有仓没有 Pages，不能再匿名 fetch('./data.json')，
+   统一走带 Token 的 Contents API；直接复用 fetchCloudMeta（它已含 >1MB 时 content 为空 →
+   追加 raw 媒体类型 GET 的兜底），不另写解码。
+   返回解析后的云端信封（未加密时是明文对象）；云端还没有 data.json 时返回 null（视同 404）。 */
+function fetchCloudEnvelope(){
+  var headers = { 'Accept':'application/vnd.github.v3+json', 'User-Agent':'cm' };
+  var token = getGHToken();
+  if(token) headers['Authorization'] = 'token ' + token;
+  return fetchCloudMeta(cloudApiUrl(), headers).then(function(meta){ return meta ? meta.remote : null; });
 }
 // 统一的推送实现（auto / manual 共用）
 // 流程：GET(拿 sha 与云端内容) → checkPushSafety 闸门 → 与云端合并 → 加密 → PUT
@@ -6118,10 +6134,11 @@ function saveData(){
 /* ==================== Git Cloud Sync ==================== */
 var lastSyncTime=null;var cloudDataInfo=null;
 
-function getDataJsonUrl(){
-  var p=window.location.pathname;
-  if(p.indexOf('/class-manager/')>=0)return './data.json';
-  return './data.json';
+/* v2.20.7 由 getDataJsonUrl() 改写：数据搬到私有仓后，读取端不再是 Pages 上的静态文件，
+   而是 Contents API 端点（与推送侧同一串 URL）。原实现里那句"路径判断"其实两个分支都返回
+   './data.json'，等于没用，一并收掉。 */
+function cloudApiUrl(){
+  return 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH;
 }
 
 /* v2.17.7 流水归一化：应用内恒为「最新在前」（applyCreditDelta unshift）。
@@ -6386,8 +6403,7 @@ let wipeInProgress = false;
 function autoSyncFromCloud(){
   if(syncInProgress || wipeInProgress) return Promise.resolve(false);
   syncInProgress = true;
-  return fetch(getDataJsonUrl() + '?t=' + Date.now(), {cache: 'no-store'})
-    .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  return fetchCloudEnvelope()                             // v2.20.7 私有数据仓：带 Token 走 Contents API
     .then(function(env){ return decryptFromCloud(env); })   // 未加密的旧数据原样通过
     .then(function(remoteData){
       if(!remoteData || !remoteData.students) return false;
@@ -6489,7 +6505,7 @@ function autoPushToCloud(){
 }
 function configGHToken(){
   var current = hasGHToken() ? '(已配置)' : '(未配置)';
-  var token = prompt('GitHub Token ' + current + '\n\n生成方法：GitHub → Settings → Developer settings → Fine-grained tokens\n仅授权本仓库 cheeeom/class-manager，权限 Contents: Read and write。\n\n输入新 token 替换，留空清除：');
+  var token = prompt('GitHub Token ' + current + '\n\n生成方法：GitHub → Settings → Developer settings → Fine-grained tokens\n仅授权本仓库 ' + GH_OWNER + '/' + GH_REPO + '（私有数据仓），权限 Contents: Read and write。\n\n输入新 token 替换，留空清除：');
   if(token === null) return;
   token = token.trim();
   if(token === ''){
@@ -6499,8 +6515,10 @@ function configGHToken(){
     return;
   }
   // 保存前先验证 token 确实能访问本仓库，避免静默同步失败
+  // v2.20.7 校验对象从「data.json 是否存在」改为「仓库本身是否可达」：
+  // 新仓里可能还没有 data.json，按文件校验会把 404 误判成「无权限」，老师端就永远存不下 Token。
   showToast('正在验证 Token...','info');
-  fetch('https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH, {
+  fetch('https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO, {
     method: 'GET',
     headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'cm' }
   }).then(function(r){
@@ -6510,7 +6528,7 @@ function configGHToken(){
     } else if(r.status === 401){
       showToast('Token 无效或已过期，未保存','error');
     } else if(r.status === 403 || r.status === 404){
-      showToast('Token 无本仓库读写权限（需 Contents: Read and write），未保存','error');
+      showToast('Token 访问不到仓库 ' + GH_OWNER + '/' + GH_REPO + '（需 Contents: Read and write），未保存','error');
     } else {
       setGHToken(token);
       showToast('Token 已保存（未验证，HTTP ' + r.status + '）','warning');
@@ -6550,8 +6568,7 @@ function pushToCloud(){
 
 function pullFromCloud(){
   showToast("正在从云端拉取数据...","info");
-  fetch(getDataJsonUrl() + '?t=' + Date.now(), {cache:"no-store"})
-    .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+  fetchCloudEnvelope()                                   // v2.20.7 私有数据仓：带 Token 走 Contents API
     .then(function(env){ return decryptFromCloud(env); })
     .then(function(remoteData){
       if(!remoteData||!remoteData.students){showToast("云端数据格式错误","error");return;}
@@ -6579,8 +6596,7 @@ function pullFromCloud(){
 function restoreFromCloud(){
   if(!confirm('确认从云端恢复？\n\n此操作会用云端数据完全替换本地数据。\n本地存在但云端没有的数据（如测试数据）将被清除。')) return;
   if(!confirm('再次确认：本地数据将被完全覆盖，不可撤销！')) return;
-  fetch(getDataJsonUrl() + '?t=' + Date.now(), {cache:'no-store'})
-    .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  fetchCloudEnvelope()                                   // v2.20.7 私有数据仓：带 Token 走 Contents API
     .then(function(env){ return decryptFromCloud(env); })
     .then(data => {
       if(!data || !data.students){ showToast('云端数据为空','error'); return; }

@@ -124,15 +124,15 @@ t('handleImportFile 使用 mergeImportData + prevData', () => {
 
 console.log('\n=== ⑤ 版本与历史注释 ===');
 t('版本标记统一 v2.18.14', () => {
-  has(html, '<div class="login-version">v2.20.6</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.20.6 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.20.6</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.20.6'", 'SW');
+  has(html, '<div class="login-version">v2.20.7</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.20.7 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.20.7</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-v2.20.7'", 'SW');
 });
 t('设置页「近版更新速览」新增本版条目（旧条不删）', () => {
-  has(html, '（v2.20.6）', '缺 v2.18.14 notes 条目');
-  has(html, '（v2.20.6）', 'v2.18.13 旧条被删');
-  has(html, '（v2.20.6）', 'v2.18.12 旧条被删');
+  has(html, '（v2.20.7）', '缺 v2.18.14 notes 条目');
+  has(html, '（v2.20.7）', 'v2.18.13 旧条被删');
+  has(html, '（v2.20.7）', 'v2.18.12 旧条被删');
 });
 t('历史注释不被波及（v2.18.13 引入版注释保持原样）', () => {
   has(html, '// v2.18.13 表格分流：.xlsx/.csv 走学生表格导入，.json 走原备份导入', '历史注释被改动');

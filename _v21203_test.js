@@ -20,8 +20,8 @@ const BUILTIN = new Set(['if', 'for', 'while', 'switch', 'catch', 'return', 'fun
   'navigator', 'location', 'localStorage', 'sessionStorage', 'console', 'crypto']);
 
 console.log('=== 静态检查 ===');
-t('index.html 版本号已升至 v2.20.6', () => { if (!/v2\.20\.5/.test(html)) throw new Error('未找到 v2.20.6'); });
-t('sw.js CACHE_NAME 已跟版 v2.20.3', () => { if (!/class-manager-v2\.20\.6/.test(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'))) throw new Error('CACHE_NAME 未跟版'); });
+t('index.html 版本号已升至 v2.20.7', () => { if (!/v2\.20\.5/.test(html)) throw new Error('未找到 v2.20.7'); });
+t('sw.js CACHE_NAME 已跟版 v2.20.3', () => { if (!/class-manager-v2\.20\.7/.test(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'))) throw new Error('CACHE_NAME 未跟版'); });
 t('学分周报功能已挂载', () => {
   if (html.indexOf('function exportWeeklyReport') < 0) throw new Error('缺少 exportWeeklyReport');
   if (html.indexOf('function drawWeeklyPoster') < 0) throw new Error('缺少 drawWeeklyPoster');

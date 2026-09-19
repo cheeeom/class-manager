@@ -165,16 +165,16 @@ t('交互定稿注释留档 v2.20.6 的结论（防止后人把 hover 加回来�
   has(html, '凡「跟随指尖的中间态」在触屏上都不做', '缺最终结论一句话');
 });
 
-t('四处活动标记均为 v2.20.6（登录页 / 侧栏 / 设置徽标 / 速览标题）', () => {
-  has(html, '<div class="login-version">v2.20.6</div>', '登录页未跟版');
-  has(html, '<div class="sidebar-footer">v2.20.6 · 班主任工作台</div>', '侧栏未跟版');
-  has(html, '🏷️ v2.20.6</span>', '设置徽标未跟版');
-  has(html, '📝 近版更新速览（v2.20.6）', '速览标题未跟版');
+t('四处活动标记均为 v2.20.7（登录页 / 侧栏 / 设置徽标 / 速览标题）', () => {
+  has(html, '<div class="login-version">v2.20.7</div>', '登录页未跟版');
+  has(html, '<div class="sidebar-footer">v2.20.7 · 班主任工作台</div>', '侧栏未跟版');
+  has(html, '🏷️ v2.20.7</span>', '设置徽标未跟版');
+  has(html, '📝 近版更新速览（v2.20.7）', '速览标题未跟版');
 });
 
 t('sw.js CACHE_NAME 与版本标记同步', () => {
   const ver = (sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/) || [])[1] || '';
-  eq(ver, 'v2.20.6', 'SW CACHE_NAME 未跟版');
+  eq(ver, 'v2.20.7', 'SW CACHE_NAME 未跟版');
   has(html, '<div class="login-version">' + ver + '</div>', '登录页与 SW 版本不一致');
 });
 
