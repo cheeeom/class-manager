@@ -1182,11 +1182,21 @@ tbody tr.highlight{
 .seat-config-inline{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary)}
 .seat-config-inline label{font-weight:600;white-space:nowrap}
 .seat-config-inline .seat-total{color:var(--text-muted);font-size:12px;min-width:60px}
+/* v2.20.9 手机端不再把座次表压成 4 列（那会把一排 8 座折成两行、与教室对不上）。
+   改为：保持真实列数 + 放宽座位最小宽度 ⇒ 撑出横向滚动，左右滑动即可看全。
+   --seat-cell-min = 单个座位的「最小宽度」：桌面端 0px（照旧等分填满、逐像素不变），
+   ≤768px 断点里放宽到 68px。横向滚动容器单独一层，避免影响讲台等兄弟节点。 */
+.seating-scroll{
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+  margin-bottom:16px;
+}
 .seating-grid{
   display:grid;
   gap:8px;
-  margin-bottom:16px;
-  --seat-aisle:26px;   /* v2.20.8 过道宽度（≤768px 断点里隐藏过道） */
+  --seat-aisle:26px;
+  --seat-cell-min:0px;
 }
 /* v2.20.8 过道：每 3 列一组，组与组之间留一条走道；最左 / 最右是墙，不留过道。
    用一条居中虚线示意「这里是可以走人的通道」，空着不占座位语义。 */
@@ -1233,7 +1243,7 @@ tbody tr.highlight{
   cursor:pointer;font-size:11px;
   background:rgba(255,255,255,0.9);
 }
-/* v2.18.5 座次拖拽：鼠标按住直接拖 / 触屏长按约 0.2s 后拖；拖到已占座位=两人互换，拖到空位=直接移动 */
+/* v2.18.5 座次拖拽：鼠标按住直接拖 / 触屏长按约 0.5s 后拖（v2.20.9 由 0.2s 放宽，避免正常起手滑动被误判成长按）；拖到已占座位=两人互换，拖到空位=直接移动 */
 .seat{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .seat.occupied{cursor:grab}
 .seat.dragging{opacity:.4;transform:scale(.94);pointer-events:none;cursor:grabbing}
@@ -1364,8 +1374,10 @@ tbody tr.highlight{
   .stat-card{padding:12px}
   .stat-value{font-size:24px}
   .committee-grid{grid-template-columns:1fr}
-  .seating-grid{grid-template-columns:repeat(4,1fr) !important}
-  .seat-aisle{display:none !important}
+  /* v2.20.9 手机端保持真实列数（不再 repeat(4,1fr) 折行），过道也照常显示。
+     座位最小宽度 68px ⇒ 列多时自动横向滚动；左右负边距让滚动区通到屏幕边缘。 */
+  .seating-grid{--seat-cell-min:68px;--seat-aisle:18px}
+  .seating-scroll{margin-left:-12px;margin-right:-12px;padding-left:12px;padding-right:12px}
   .dash-grid{grid-template-columns:1fr !important}
   .card{padding:14px;border-radius:12px}
   .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -1981,7 +1993,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.20.8</div>
+      <div class="login-version">v2.20.9</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2100,7 +2112,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.20.8 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.20.9 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2315,9 +2327,11 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <button class="btn btn-primary btn-sm" onclick="saveSeatLayoutInline()">应用</button>
           </div>
         </div>
-        <div style="font-size:12px;color:var(--text-muted);text-align:center;margin:2px 0 8px">💡 点座位卡片即可安排 / 更换学生；按住卡片拖到别的座位即可换座（拖到已占座位＝两人互换，拖到空位＝直接移动，触屏请长按约 0.2 秒后拖动）；已占座卡片右上角 ✕ 可移除</div>
+        <div style="font-size:12px;color:var(--text-muted);text-align:center;margin:2px 0 8px">💡 点座位卡片即可安排 / 更换学生；按住卡片拖到别的座位即可换座（拖到已占座位＝两人互换，拖到空位＝直接移动，触屏需长按约 0.5 秒才开始拖动，直接滑动＝滚动页面；手机端左右滑动可看全所有列）；已占座卡片右上角 ✕ 可移除</div>
         <div class="seating-teacher">📚 讲 台 📚</div>
-        <div class="seating-grid" id="seatingGrid"></div>
+        <div class="seating-scroll" id="seatingScroll">
+          <div class="seating-grid" id="seatingGrid"></div>
+        </div>
       </div>
 
       <!-- Duty Page -->
@@ -2799,15 +2813,15 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.8</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.9</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.8）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.9）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 🪑 <b>座次表加上过道</b>：每 3 列为一组，组与组之间留出一条走道（第 3 列后、第 6 列后）；最左最右是墙，不留过道<br>
-              · 🖼️ <b>座次表可导出图片</b>：新增「导出座次表」按钮，生成 PNG 直接打印贴墙；讲台、行号列号、过道一并画出，姓名再长也不截断<br>
-              · 📐 <b>屏幕与图片共用一套排版</b>：过道位置由同一个函数算出，改列数时两边同时变，不会对不上<br>
+              · 📱 <b>手机端座次表不再走样</b>：以前在手机上被压成 4 列，一排 8 个座位折成两行、跟教室排布对不上；现在保持真实列数，左右滑动即可看全<br>
+              · 👆 <b>手机端终于能滚动了</b>：以前手指停在座位上超过 0.2 秒就被判成「长按换座」，之后整页再也滑不动；长按阈值放宽到 0.5 秒，正常滑动照常滚动<br>
+              · ↔️ <b>横向滑动看全所有列</b>：座位格最窄 68px，宽度不够时自动出现横向滚动，过道也照常显示<br>
             </div>
           </div>
         </div>
@@ -8179,7 +8193,7 @@ function renderSeating(){
   const { cols, rows, seats } = state.seating;
   // v2.20.8 过道：列序列由 seatLayoutSlots 统一给出（座位与过道相间），屏幕与导出图同源
   const slots = seatLayoutSlots(cols);
-  grid.style.gridTemplateColumns = slots.map(s => s.type === 'aisle' ? 'var(--seat-aisle)' : '1fr').join(' ');
+  grid.style.gridTemplateColumns = slots.map(s => s.type === 'aisle' ? 'var(--seat-aisle)' : 'minmax(var(--seat-cell-min,0px),1fr)').join(' ');
   let html = '';
   for(let r = 0; r < rows; r++){
     for(const slot of slots){
@@ -8284,11 +8298,16 @@ function clearSeating(){
 }
 
 /* ==================== v2.18.5 座次拖拽换座 ====================
-   手势：鼠标按住移动 ≥6px 即进入拖拽；触屏需长按约 0.2s 激活（提前移动则放弃长按，
+   手势：鼠标按住移动 ≥6px 即进入拖拽；触屏需长按约 0.5s 激活（提前移动则放弃长按，
          把滚动交还页面）。拖拽期间用非被动 touchmove preventDefault 掐断滚动。
+   阈值为何是 0.5s（v2.20.9）：原 0.2s 太短，手指落定再划（正常起手）都会超过它，
+   于是被判成长按、整页再也滑不动；座位铺满整屏时尤其明显。
    落点：拖到已占座位 → 两人互换；拖到空位 → 直接移动；拖回原位 → 取消。
    命中：elementFromPoint + .closest('.seat')；拖动卡片置 pointer-events:none 以免遮挡。 */
 let _seatDrag = null;   // { row, col, studentId, el, active, startX, startY, targetEl, timer }
+/* v2.20.9 触屏长按阈值：原 200ms 太短 —— 手指落在座位上停 ≥0.2s（正常起手滑动几乎必然）
+   就被判成「长按换座」，之后每帧 touchmove 都被掐断、整页再也滑不动。放宽到 450ms。 */
+const SEAT_HOLD_MS = 450;
 
 function seatPointerDown(ev, row, col, studentId){
   if(_seatDrag) return;
@@ -8298,8 +8317,9 @@ function seatPointerDown(ev, row, col, studentId){
   _seatDrag = { row:row, col:col, studentId:studentId, el:ev.currentTarget,
                 active:false, startX:ev.clientX, startY:ev.clientY, targetEl:null, timer:null };
   if(isTouch){
-    _seatDrag.timer = setTimeout(seatDragActivate, 200);                            // 触屏长按激活
+    _seatDrag.timer = setTimeout(seatDragActivate, SEAT_HOLD_MS);                   // 触屏长按激活
     window.addEventListener('touchmove', seatTouchMove, { passive:false });
+    window.addEventListener('scroll', seatScrollCancel, true);   // v2.20.9 滚起来了 ⇒ 这次是滑动
   }
   window.addEventListener('pointermove', seatPointerMove, { passive:false });
   window.addEventListener('pointerup', seatPointerUp);
@@ -8315,9 +8335,22 @@ function seatDragActivate(){
   if(navigator.vibrate){ try{ navigator.vibrate(15); }catch(e){} }                 // 触感反馈（支持则用）
 }
 
+function seatScrollCancel(){
+  // v2.20.9 容器已经滚起来了 ⇒ 这一下本来就是滑动，不是长按，立刻放弃
+  const d = _seatDrag;
+  if(d && !d.active) seatPointerCancel();
+}
+
 function seatTouchMove(ev){
+  const d = _seatDrag;
+  if(!d) return;
+  if(!d.active){
+    // v2.20.9 长按还没成：手指已经动了 ⇒ 这是滑动，放弃长按、把滚动交还页面
+    if(Math.abs(ev.clientX - d.startX) > 8 || Math.abs(ev.clientY - d.startY) > 8) seatPointerCancel();
+    return;
+  }
   // 长按已成 → 手指尚未移动过，浏览器还没起滚，此时掐断即可阻止页面滚动
-  if(_seatDrag && _seatDrag.active && ev.cancelable) ev.preventDefault();
+  if(ev.cancelable) ev.preventDefault();
 }
 
 function seatDropTargetAt(x, y){
@@ -8367,6 +8400,7 @@ function seatPointerCleanup(){
   if(d.el && d.el.classList) d.el.classList.remove('dragging');
   if(d.targetEl) d.targetEl.classList.remove('drag-over');
   window.removeEventListener('touchmove', seatTouchMove);
+  window.removeEventListener('scroll', seatScrollCancel, true);
   window.removeEventListener('pointermove', seatPointerMove);
   window.removeEventListener('pointerup', seatPointerUp);
   window.removeEventListener('pointercancel', seatPointerCancel);

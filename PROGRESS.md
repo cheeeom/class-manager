@@ -1627,3 +1627,110 @@ blob 由迁移时的 `7661357e2d`（172,679 B）→ **`156909fbc4ad`（172,803 B
 
 - 🐛 v2.20.7 就记下的**文案自相矛盾**：新增了「数据存于**私有仓库**」（line 2755），同页仍有 5 处旧话术说「**公开仓库**」（line 3726 / 3729 / 3740 / 6642 / 6644）。本轮为了「一次只发一件事、便于验收」**刻意没捎带**。
 - 迁移 ⑤ 删站仓 `data.json` 仍待老板发话。
+
+
+# v2.20.9 · 手机端座次表：保持真实列数 + 可左右滑动；修「手指一停，整页再也滑不动」（2026-09-25）
+
+老板原话：「手机端观看座次表时候有问题，不可以滑动。」
+追问后确认是**两个症状**：**① 左右滑不动**、**② 排成 4 列**（跟教室排布对不上）。
+两者看着像一件事，其实是**两个互不相干的根因**，只是刚好都在「窄屏把座次表揉扁」这条线上。
+
+## 一、根因
+
+### A. 窄屏把 8 列强行折成 4 列 ⇒ 压根没有可横向滚动的内容
+
+v2.20.8 在 `≤768px` 断点写了：
+
+```css
+.seating-grid{grid-template-columns:repeat(4,1fr) !important}
+.seat-aisle{display:none !important}
+```
+
+一排 8 座被折成两行 4 列 ⇒ **宽度刚好填满屏幕，横向当然没得滚**，过道也被自己掐掉了。
+当时理由是「手机上过道没意义」，代价却是**与真实教室对不上**——老师看到的「一排」其实是两排。
+
+### B. 长按阈值 200ms 太短 ⇒ 滚动手势被**永久**掐断（这才是「滑不动」的真凶）
+
+`seatPointerDown` 里 `setTimeout(seatDragActivate, 200)`；`seatTouchMove` 一旦 `_seatDrag.active`
+就 `ev.preventDefault()`。座次表铺满整屏时，老师**手指落定再划**（正常起手的滑动几乎必然 > 0.2s）
+⇒ 被判成「长按换座」⇒ 此后**每一帧** `touchmove` 都被 `preventDefault` ⇒ **这一下手势彻底不滚了**。
+
+用真实 CDP 触摸事件复现（`scripts/_mobile_scroll_repro.py`，设备 iPhone 13，测 `.content` 的 `scrollTop`）：
+
+| 手势 | scrollTop | 结论 |
+|---|---|---|
+| 快速滑动 | **255px** | 正常滚动 |
+| 停 280ms 再滑 | **0px** | ❌ 完全不滚 —— 与老板描述一致 |
+
+⚠️ **A 与 B 是连着的**：只要手指落在座位上，横向滑动同样会被长按掐断 ⇒ 光修 A 不够，两个都得修。
+
+## 二、改动清单（`index.html` 17 处 + `sw.js` 1 处）
+
+| # | 位置 | 变化 |
+|---|---|---|
+| 1 | CSS | 新增 `.seating-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}` 横向滚动容器 |
+| 2 | CSS `.seating-grid` | 新增 `--seat-cell-min:0px`（桌面端 0 ⇒ **照旧等分填满，逐像素不变**） |
+| 3 | CSS `.seating-grid` | 删掉已失效的旧注释「≤768px 断点里隐藏过道」 |
+| 4 | CSS `≤768px` | **删** `repeat(4,1fr) !important` 与 `.seat-aisle{display:none !important}` |
+| 5 | CSS `≤768px` | 新增 `.seating-grid{--seat-cell-min:68px;--seat-aisle:18px}`（保持真实列数，过道照常显示） |
+| 6 | CSS `≤768px` | `.seating-scroll` 左右负边距 + 内补 12px，让滚动区通到屏幕边缘 |
+| 7 | HTML | `#seatingGrid` 外面包一层 `<div class="seating-scroll" id="seatingScroll">` |
+| 8 | JS `renderSeating` | 列模板 `'1fr'` → `'minmax(var(--seat-cell-min,0px),1fr)'`（座位带最小宽度 ⇒ 撑出横向滚动） |
+| 9 | JS | 新增 `const SEAT_HOLD_MS = 450;`（**长按阈值抽成常量**，原 200ms 写死在 `setTimeout` 里） |
+| 10 | JS | `setTimeout(seatDragActivate, 200)` → `setTimeout(seatDragActivate, SEAT_HOLD_MS)` |
+| 11 | JS | `seatTouchMove`：未激活时**先看手指有没有移动**（>8px ⇒ 这是滑动，`seatPointerCancel()` 放弃长按、交还滚动） |
+| 12 | JS | `seatTouchMove`：`if(_seatDrag && _seatDrag.active && ev.cancelable)` → `if(ev.cancelable)`（前置分支已保证激活态） |
+| 13 | JS | 新增 `seatScrollCancel()`：**容器一旦滚动就说明这是滑动**，立刻放弃长按 |
+| 14 | JS | 以**捕获阶段**注册 `window.addEventListener('scroll', seatScrollCancel, true)`（不捕获收不到元素级滚动） |
+| 15 | JS | 清理时 `removeEventListener('scroll', seatScrollCancel, true)`（否则监听泄漏 + 误伤后续手势） |
+| 16 | JS 注释 | 拖拽说明 0.2s → 0.5s，并写明「为何是 0.5s」 |
+| 17 | 文案 | 工具栏提示改为「**触屏需长按约 0.5 秒才开始拖动，直接滑动＝滚动页面；手机端左右滑动可看全所有列**」 |
+| 18 | `sw.js` | `CACHE_NAME` → `class-manager-v2.20.9` |
+| — | 版本号 | 四处活动标记 + 速览三条（登录页 / 侧栏 / 设置徽标 / 速览标题） |
+
+## 三、关键设计
+
+**① 座位的「最小宽度」用 CSS 变量做单点开关，桌面端行为零变化。**
+`--seat-cell-min` 桌面端 `0px`、窄屏 `68px`，`minmax(var(--seat-cell-min,0px),1fr)` 两种情态统一表达：
+窄屏装不下就自动溢出、由 `.seating-scroll` 接管滚动，**不需要两套 grid 声明**。
+
+**② 「长按」与「滑动」的仲裁放在三个地方，缺一不可。**
+
+| 时机 | 判据 | 动作 |
+|---|---|---|
+| 手指动了 >8px | 长按还没成 | 放弃长按，交还滚动 |
+| 容器 `scroll` 事件 | 已经滚起来了 | 放弃长按（兜住「手指没动但页面在惯性滚」） |
+| 累计 ≥450ms 且没动 | 确实是长按 | `preventDefault` 掐断滚动，进入拖拽 |
+
+400ms 留白是关键：**正常起手滑动的手指落定时间通常在 250~400ms**，450ms 阈值把它与「刻意长按」分开了。
+
+## 四、验收
+
+- 回归 **`PASS: 55 files` / `FAIL: none`**（新增 `_v2209_test.js`，**57 项**）。
+- `_v2209_test.js` **真跑**了两处逻辑，不是字符串比对：
+  - 从 `index.html` **抽出整条 `gridTemplateColumns` 赋值语句**执行，断言 10 轨、第 4/8 轨是过道、其余 8 轨是 `minmax(...)`。
+  - 抽出整个拖拽区段 + **假定时器**跑状态机：**停 280ms 再滑 ⇒ 不激活且 `preventDefault` 次数为 0**（旧版此刻已激活）；
+    累计 500ms ⇒ 正常激活；容器先滚 ⇒ 放弃；监听器注册/注销各 1 次。
+- 真值算术：`8×68 + 2×18 + 9×8 = 652px` > 390px 屏的 366px 内容区 ⇒ **横向滚动是必须的**；
+  格内可用 `68−4−8 = 56px` ≥ 4 个 13px 汉字（52px）⇒ 姓名不截断。
+- 推前逐行对齐线上 blob：**恰好 21 个差异块**，`index.html` `90b3f38d4b`（818,463 B）→ 本地 820,647 B，**字节差 +2,184**，全部属本轮预期。
+
+## 五、本轮踩的坑
+
+1. **「整行替换」的定位子串必须是整行。** `_fix_stale_v2209.py` 用整行替换，但某条定位串只是该行的**前缀**
+   ⇒ 行尾的 `, () => {` 被一并丢掉 → `SyntaxError`；另一条定位串出现在 `has()` 的第 2 个参数里
+   ⇒ 整行被换成一个光棍表达式 → `ReferenceError: slots is not defined`。
+   **补救**：任何改 `.js` 的脚本落盘后**立刻 `node --check` 全量扫一遍**（本次一跑就到齐两个问题）。
+2. **`new Function` 抽取时别只捕等号右边。** 正则 `= ([^\n]+?);` 捕到的是**光棍表达式**，
+   赋值根本不会发生 ⇒ 读回来永远 `undefined`，测的是句空话。要捕**整条语句**（含等号左边）。
+3. **CRLF 文件用 Edit 工具会「找不到字符串」**：工具按 `\n` 匹配、文件是 `\r\n` ⇒ 直接用 Python 走**字节替换**，
+   并断言 `\r\n` 计数不变。
+4. **推翻旧决定时，断言要「改指向」而不是「删掉」。** 三处被推翻的旧断言（长按 200ms / `.seat-aisle{display:none}` / `'1fr'`）
+   全部重定向到新口径并加注释说明**为何换**；其中 `_seatDrag.active` 那处改成了更强的**结构不变式**断言
+   （激活态分支必须排在 `preventDefault` 之前）。
+
+## 六、遗留（**仍未动，等老板发话**）
+
+- 🐛 文案自相矛盾：新增了「数据存于**私有仓库**」，同页仍有 5 处旧话术说「**公开仓库**」（line 3726 / 3729 / 3740 / 6642 / 6644）。
+- 迁移 ⑤ 删站仓 `data.json` 仍待老板发话。
+- ⚠️ 本地工作区 `data.json` 是**陈旧副本**（161,327 B）而线上是 172,679 B ⇒ **推送清单永远排除 `data.json`**。

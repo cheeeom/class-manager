@@ -71,25 +71,25 @@ t('index.html 主 <script> 块可被完整编译（改动后无语法错）', ()
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2\.20\.8</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2\.20\.8 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.20.8')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2\.20\.9</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2\.20\.9 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-v2.20.9')) throw new Error('SW CACHE_NAME 未更新');
   if (sw.includes('class-manager-v2.18.4')) throw new Error('SW 旧 CACHE_NAME 残留');
 });
 t('设置页版本徽标随版 = v2.18.13', () => {
-  has(html, '🏷️ v2.20.8</span>', '设置页版本徽标未跟版');
+  has(html, '🏷️ v2.20.9</span>', '设置页版本徽标未跟版');
 });
 t('历史注释保护：v2.18.3 仍 8 处 / v2.18.0 仍 24 处（不随升版盲替）', () => {
   eq(count('v2.18.3'), 8, 'v2.18.3 注释数变了');
   eq((html.match(/v2\.18\.0/g) || []).length, 24, 'v2.18.0 注释数变了');
 });
 t('设置页 notes 新增本版两条，且旧条全部保留', () => {
-  has(html, '（v2.20.8）', '缺拖拽换座说明');
-  has(html, '（v2.20.8）', '缺只填空座说明');
-  ['（v2.20.8）', '重置云端加密口令', '（v2.20.8）',
-   '（v2.20.8）', '（v2.20.8）',
-   '（v2.20.8）', '（v2.20.8）',
-   '（v2.20.8）', '（v2.20.8）'
+  has(html, '（v2.20.9）', '缺拖拽换座说明');
+  has(html, '（v2.20.9）', '缺只填空座说明');
+  ['（v2.20.9）', '重置云端加密口令', '（v2.20.9）',
+   '（v2.20.9）', '（v2.20.9）',
+   '（v2.20.9）', '（v2.20.9）',
+   '（v2.20.9）', '（v2.20.9）'
   ].forEach(s => has(html, s, '旧 note 丢失'));
 });
 
@@ -256,11 +256,15 @@ t('拖拽不破坏既有点击链路（onclick/seatClick/removeSeat 仍在）', 
   has(src, 'removeSeat(${r},${c})', '移除按钮丢失');
   has(src, 'event.stopPropagation()', '操作按钮未阻止冒泡');
 });
-t('seatPointerDown：仅左键 / 排除操作按钮 / 触屏长按 200ms / 非被动 touchmove', () => {
+t('seatPointerDown：仅左键 / 排除操作按钮 / 触屏长按阈值 / 非被动 touchmove', () => {
   const src = fnSrc('seatPointerDown');
   has(src, "ev.pointerType === 'mouse' && ev.button !== 0", '未限制左键');
   has(src, "ev.target.closest('.seat-actions')", '未排除右上角操作按钮');
-  has(src, 'setTimeout(seatDragActivate, 200)', '触屏长按阈值非 200ms');
+  // v2.20.9：阈值由写死的 200ms 改为 SEAT_HOLD_MS 常量（450ms）——
+  // 200ms 太短，手指落定再划（正常起手滑动）会被判成「长按换座」，之后整页再也滑不动。
+  has(src, 'setTimeout(seatDragActivate, SEAT_HOLD_MS)', '未按 SEAT_HOLD_MS 常量设长按阈值');
+  has(html, 'const SEAT_HOLD_MS = 450;', '长按阈值常量缺失或非 450ms');
+  has(src, 'seatScrollCancel', 'v2.20.9 缺「容器已滚动即放弃长按」的兜底');
   has(src, "{ passive:false }", 'touchmove 非被动监听，无法掐断滚动');
   has(src, 'if(_seatDrag) return;', '未做重入保护');
 });
@@ -272,7 +276,14 @@ t('seatDragActivate：加 dragging 类 + 清长按定时器 + 触感反馈', () 
 });
 t('seatTouchMove：仅在拖拽激活时 preventDefault（未激活则放行滚动）', () => {
   const src = fnSrc('seatTouchMove');
-  has(src, '_seatDrag.active', '未判断激活态');
+  // v2.20.9：旧写法 `if(!d.active) return;` 已改为「未激活时先看手指有没有移动」——
+  // 动了就是滑动，直接放弃长按把滚动交还页面（用本地别名 d，故字面量 _seatDrag.active 不再出现）。
+  // 这里改断言更强的「结构不变式」：激活态分支必须在 preventDefault 之前。
+  const iInactive = src.indexOf('if(!d.active){');
+  const iPrevent = src.indexOf('ev.preventDefault()');
+  ok(iInactive >= 0, '未按激活态分流（缺 if(!d.active){ 分支）');
+  ok(iPrevent >= 0, '未阻断滚动（缺 ev.preventDefault()）');
+  ok(iInactive < iPrevent, '激活态判断必须排在 preventDefault 之前 ⇒ 未激活时一律放行滚动');
   has(src, 'ev.cancelable', '未判断可取消');
   has(src, 'preventDefault()', '未阻断滚动');
 });
@@ -323,7 +334,7 @@ t('CSS：.seat 禁选中 + dragging 置灰 + drag-over 高亮', () => {
 t('工具栏提示含拖拽说明，且保留 v2.18.1 原句（旧断言不破）', () => {
   has(html, '点座位卡片即可安排 / 更换学生', '旧提示句丢失');
   has(html, '按住卡片拖到别的座位即可换座', '缺拖拽说明');
-  has(html, '触屏请长按约 0.2 秒后拖动', '缺触屏长按说明');
+  has(html, '触屏需长按约 0.5 秒才开始拖动', '缺触屏长按说明');
 });
 t('三个按钮 title 均说明「不动已排座位」', () => {
   eq(count('不动已排座位）"'), 3, '三个按钮 title 未同步');

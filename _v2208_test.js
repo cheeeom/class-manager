@@ -35,9 +35,14 @@ has(html, '\u8fd1\u7248\u66f4\u65b0\u901f\u89c8\uff08' + ver + '\uff09', '速览
 console.log('\n【2】过道排版接线');
 has(html, '.seat-aisle{', '过道元素有样式');
 has(html, 'background-size:2px 100%', '过道用居中虚线示意（可走人的通道）');
-has(html, '.seat-aisle{display:none !important}', '窄屏（\u2264768px 强制 4 列）下隐藏过道，不挤坏布局');
+  // v2.20.9 推翻：窄屏不再「强制 4 列 + 隐藏过道」——那会把一排 8 座折成两行、与教室排布对不上。
+  // 现在保持真实列数 + 座位最小宽度 68px，靠 .seating-scroll 横向滚动看全。
+  assert(html.indexOf('grid-template-columns:repeat(4,1fr) !important') < 0, '窄屏不再强制 4 列折行（v2.20.9 改）');
+  has(html, '.seating-grid{--seat-cell-min:68px;--seat-aisle:18px}', '窄屏保持真实列数 + 座位最小宽度');
+  has(html, 'class="seating-scroll"', '新增横向滚动容器');
 has(html, '--seat-aisle:26px', '过道宽度可调（CSS 变量）');
-has(html, "slots.map(s => s.type === 'aisle' ? 'var(--seat-aisle)' : '1fr').join(' ')", '屏幕网格列模板按 slots 生成');
+  // v2.20.9：座位轨道由 '1fr' 改为带最小宽度的 minmax(...) —— 窄屏下不再把列压扁，而是撑出横向滚动。
+  has(html, "slots.map(s => s.type === 'aisle' ? 'var(--seat-aisle)' : 'minmax(var(--seat-cell-min,0px),1fr)').join(' ')", '屏幕网格列模板按 slots 生成（座位轨道带最小宽度）');
 has(html, 'html += \'<div class="seat-aisle"></div>\'; continue;', '屏幕网格真的插入过道元素');
 
 console.log('\n【3】导出按钮');
