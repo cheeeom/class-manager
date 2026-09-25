@@ -608,6 +608,12 @@ tbody tr.highlight{
 .empty-state .icon{font-size:48px;margin-bottom:12px;opacity:0.3}
 .empty-state .text{font-size:14px;margin-bottom:16px}
 
+/* ==================== v2.20.10 导出图片弹层（手机端长按保存 / 分享） ====================
+   为什么要有这一层：iOS 没有「把图片存进相册」的 API，download 属性在 data:/blob: 上也不保证生效，
+   唯一可靠的路是把图摆出来让用户长按 → 存储到照片。故导出后把图弹出来。 */
+#imgSaveHint{font-size:13px;line-height:1.7;color:var(--text-secondary);text-align:center;margin:0 0 10px}
+#imgSavePreview{width:100%;max-height:60vh;object-fit:contain;display:block;border:1px solid var(--border);border-radius:10px;background:#fff}
+
 /* ==================== Modal ==================== */
 .modal-overlay{
   position:fixed;inset:0;
@@ -1993,7 +1999,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.20.9</div>
+      <div class="login-version">v2.20.10</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2112,7 +2118,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.20.9 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.20.10 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2813,15 +2819,15 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.9</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.10</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.9）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.10）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 📱 <b>手机端座次表不再走样</b>：以前在手机上被压成 4 列，一排 8 个座位折成两行、跟教室排布对不上；现在保持真实列数，左右滑动即可看全<br>
-              · 👆 <b>手机端终于能滚动了</b>：以前手指停在座位上超过 0.2 秒就被判成「长按换座」，之后整页再也滑不动；长按阈值放宽到 0.5 秒，正常滑动照常滚动<br>
-              · ↔️ <b>横向滑动看全所有列</b>：座位格最窄 68px，宽度不够时自动出现横向滚动，过道也照常显示<br>
+              · 🖼️ <b>手机端导出图片修好了</b>：以前点「导出座次表」提示成功却没有文件——锚点没插进页面、又用了手机不认的 data: 链接；现在改用 blob 并真正插入页面<br>
+              · 👆 <b>导出后弹出图片，长按即可存相册</b>：iPhone 没有「直接存相册」的接口，现在把图摆出来，长按 → 存储到照片；值日表导出同样受益<br>
+              · 📤 <b>一键分享到微信</b>：弹层里新增「分享 / 存到相册」，可直接发到班级群或存进相册<br>
             </div>
           </div>
         </div>
@@ -2837,6 +2843,24 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
     <div class="modal-body" id="creditAuditBody" style="padding:4px 0 8px"></div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('creditAuditModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- v2.20.10 Modal: 导出图片 —— 手机端长按保存 / 分享 -->
+<div class="modal-overlay" id="imgSaveModal">
+  <div class="modal" style="width:94%;max-width:560px">
+    <div class="modal-header">
+      <h3 style="margin:0">🖼️ 图片已生成</h3>
+      <button class="modal-close" onclick="closeImgSave()">×</button>
+    </div>
+    <div class="modal-body" style="padding:4px 0 0">
+      <div id="imgSaveHint"></div>
+      <img id="imgSavePreview" alt="导出的图片">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeImgSave()">关闭</button>
+      <button class="btn btn-primary" id="imgSaveShareBtn" onclick="imgSaveShare()" style="display:none">📤 分享 / 存到相册</button>
     </div>
   </div>
 </div>
@@ -8935,6 +8959,83 @@ function seatCellName(ctx, name, x, y, cw, ch){
   ctx.textBaseline = 'alphabetic';
 }
 
+/* ==================== v2.20.10 导出 PNG 的统一出口 ====================
+   为什么不能只用 <a download>.click()：
+     ① 游离节点（没插进 DOM）的 click() 在 WebKit / 安卓 WebView 上不保证生效；
+     ② data: URL 上的 download 属性 iOS Safari 不认，且实测 href 长达 17 万字符；
+     ③ iOS 没有「存到相册」的 API —— 只能把图摆出来让用户长按 → 存储到照片。
+   ⇒ 桌面端照旧直接下载；触摸端下载之后再弹图（长按保存 / 分享）。 */
+let _exportUrl = null, _exportBlob = null, _exportName = '';
+
+function _isTouchOnly(){
+  try{ return !window.matchMedia('(hover:hover) and (pointer:fine)').matches; }
+  catch(e){ return ('ontouchstart' in window); }
+}
+
+function _releaseExportUrl(){
+  if(_exportUrl){ try{ URL.revokeObjectURL(_exportUrl); }catch(e){} _exportUrl = null; }
+}
+
+function pngExport(canvas, filename, okMsg){
+  if(typeof canvas.toBlob !== 'function'){                 // 极老浏览器兜底
+    const a = document.createElement('a');
+    a.download = filename; a.href = canvas.toDataURL('image/png');
+    document.body.appendChild(a); a.click(); a.remove();
+    showToast(okMsg || '已导出', 'success');
+    return;
+  }
+  canvas.toBlob(function(blob){
+    if(!blob){ showToast('图片生成失败，请重试', 'error'); return; }
+    _releaseExportUrl();
+    _exportBlob = blob; _exportName = filename; _exportUrl = URL.createObjectURL(blob);
+    // ① 先试直接下载（桌面 / 安卓 Chrome 这条稳）
+    const a = document.createElement('a');
+    a.href = _exportUrl; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();    // 必须插进 DOM：游离节点 click() 不可靠
+    if(_isTouchOnly()){
+      showImgSave();                                        // ② 触摸端：把图摆出来长按保存
+    } else {
+      setTimeout(_releaseExportUrl, 5000);
+      showToast(okMsg || '已导出', 'success');
+    }
+  }, 'image/png');
+}
+
+function _canShareFile(){
+  try{
+    return !!(navigator.canShare && window.File && navigator.canShare({
+      files:[new File([_exportBlob], _exportName || 'export.png', { type:'image/png' })]
+    }));
+  }catch(e){ return false; }
+}
+
+function showImgSave(){
+  const img = document.getElementById('imgSavePreview');
+  const hint = document.getElementById('imgSaveHint');
+  img.src = _exportUrl;
+  // 文件名含班级名（用户输入）⇒ 一律 textContent，绝不拼 innerHTML
+  hint.textContent = isIOS()
+    ? '长按上面的图片 → 选「存储到照片」，即可存进相册'
+    : '已开始下载；若没找到文件，可长按上面的图片保存';
+  document.getElementById('imgSaveShareBtn').style.display = _canShareFile() ? '' : 'none';
+  openModal('imgSaveModal');
+}
+
+function imgSaveShare(){
+  if(!_exportBlob || !_canShareFile()) return;
+  // ⚠️ 到 navigator.share 之前不许有任何 await / 异步：
+  // navigator.share 要「用户手势」，一旦让出事件循环，激活态失效、分享面板会静默不弹。
+  // new File(...) 是同步的，所以整条链路能同步跑完。
+  const file = new File([_exportBlob], _exportName || 'export.png', { type:'image/png' });
+  navigator.share({ files:[file], title:_exportName || '' }).catch(function(){ /* 用户取消，不算错 */ });
+}
+
+function closeImgSave(){
+  closeModal('imgSaveModal');
+  document.getElementById('imgSavePreview').removeAttribute('src');
+  _releaseExportUrl();                                      // 关闭时才释放，否则图会裂
+}
+
 function seatExportImage(){
   const { cols, rows, seats } = state.seating;
   const inRange = seats.filter(s => s.row < rows && s.col < cols);
@@ -9049,11 +9150,8 @@ function seatExportImage(){
   ctx.fillText((state.className || '班级') + ' · ' + rows + '排 × ' + cols + '列 · 打印张贴 · 生成于 ' + localDateStr(), W - pad, H - 22);
   ctx.textAlign = 'left';
 
-  var a = document.createElement('a');
-  a.download = (state.className || '班级') + '-座次表.png';
-  a.href = canvas.toDataURL('image/png');
-  a.click();
-  showToast('座次表已导出（' + rows + '排 × ' + cols + '列，已入座 ' + inRange.length + ' 人）','success');
+  pngExport(canvas, (state.className || '班级') + '-座次表.png',
+            '座次表已导出（' + rows + '排 × ' + cols + '列，已入座 ' + inRange.length + ' 人）');
 }
 
 /* ==================== 值日表导出（组别制，打印贴墙用） ==================== */
@@ -9115,11 +9213,8 @@ function dutyExportImage(){
   ctx.fillStyle = '#999'; ctx.font = '13px "Microsoft YaHei", sans-serif';
   ctx.fillText((state.className || '') + ' · 第' + p.round + '轮 · 打印张贴 · 生成于 ' + localDateStr(), W/2, H - 22);
 
-  var a = document.createElement('a');
-  a.download = (state.className || '班级') + '-第' + p.round + '轮值日表.png';
-  a.href = canvas.toDataURL('image/png');
-  a.click();
-  showToast('值日表已导出（第' + p.round + '轮，' + groups.length + ' 组）', 'success');
+  pngExport(canvas, (state.className || '班级') + '-第' + p.round + '轮值日表.png',
+            '值日表已导出（第' + p.round + '轮，' + groups.length + ' 组）');
 }
 
 /* 名单拆行：每行最多 2 个名字，保证不越界（列宽约 300px） */

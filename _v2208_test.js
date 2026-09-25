@@ -48,8 +48,23 @@ has(html, 'html += \'<div class="seat-aisle"></div>\'; continue;', '屏幕网格
 console.log('\n【3】导出按钮');
 has(html, 'onclick="seatExportImage()"', '工具栏有导出按钮并接线');
 has(html, '\ud83d\uddbc\ufe0f \u5bfc\u51fa\u5ea7\u6b21\u8868', '按钮文案');
-has(html, "a.download = (state.className || '\u73ed\u7ea7') + '-\u5ea7\u6b21\u8868.png'", '导出为 PNG 并带班级名文件名');
-has(html, 'canvas.toDataURL(\'image/png\')', '走 canvas.toDataURL 出图（与值日表 / 荣誉证书同一套路）');
+  // v2.20.10：出图与下载统一走 pngExport()（toBlob → ObjectURL → 先插进 DOM 再 click）。
+  // 旧写法 `a.href = canvas.toDataURL(...)` 在 iOS 上点了毫无反应，原因有二：
+  //   ① data: URL 实测长 171,170 字符，iOS Safari 不认它上面的 download 属性；
+  //   ② <a> 从没插进 DOM，游离节点的 click() 在 WebKit / 安卓 WebView 上不保证生效。
+  // ⇒ 断言改钉新实现，别再钉旧代码。
+  has(html, "pngExport(canvas, (state.className || '\u73ed\u7ea7') + '-\u5ea7\u6b21\u8868.png'", '导出为 PNG 并带班级名文件名（统一出口 pngExport）');
+  has(html, 'canvas.toBlob(', '走 canvas.toBlob 出图（不再拼超长 data: URL）');
+  // toDataURL 只允许留在「没有 toBlob」的极老浏览器兜底分支里，且那条分支也必须先 appendChild 再 click。
+  // （别写成「全文不许出现 toDataURL」—— 兜底分支留着它是对的，那不是旧写法。）
+  const _iFb = html.indexOf("typeof canvas.toBlob !== 'function'");
+  assert(_iFb >= 0, '保留了「无 toBlob」的极老浏览器兜底分支');
+  const _fb = html.slice(_iFb, _iFb + 400);
+  assert(_fb.indexOf('canvas.toDataURL') >= 0, '兜底分支才用 toDataURL');
+  assert(_fb.indexOf('document.body.appendChild(a)') >= 0, '兜底分支同样先插进 DOM 再 click');
+  const _iMain = html.indexOf('canvas.toBlob(function(blob){');
+  assert(_iMain >= 0, '主路径改用 toBlob');
+  assert(html.slice(_iMain, _iMain + 700).indexOf('toDataURL') < 0, '主路径里没有任何 toDataURL（不再拼 17 万字符的 data: URL）');
 
 console.log('\n【4】历史注释未被误伤（改版本时不许动）');
 ['\u6570\u636e\u6258\u7ba1\u8fc1\u79fb', '\u79c1\u6709\u6570\u636e\u4ed3\u7684\u300c\u8bfb\u300d\u5165\u53e3',
@@ -96,7 +111,14 @@ function makeCanvas() {
       return { width: w };
     }
   };
-  return { canvas: { width: 0, height: 0, getContext: () => ctx, toDataURL: () => 'data:image/png;base64,AAA' }, ops };
+  const canvas = {
+    width: 0, height: 0,
+    getContext: () => ctx,
+    toDataURL: () => 'data:image/png;base64,AAA',   // 只在「没有 toBlob」的极老浏览器兜底分支用得到
+    // v2.20.10 主路径走 toBlob。这里同步回调 —— 断言才能在同一个 tick 后就拿到最终结果。
+    toBlob(cb) { cb({ size: 4096, type: 'image/png' }); }
+  };
+  return { canvas, ops };
 }
 
 const NAMES = ['\u9648\u4e00', '\u738b\u5c0f\u660e', '\u6b27\u9633\u5a1c\u5a1c', '\u674e\u601d\u5f64\uff08\u5927\uff09',
@@ -115,17 +137,35 @@ function makeState(cols, rows, n) {
 let last = null;
 function runExport(state) {
   const mock = makeCanvas();
+  // 假 DOM：v2.20.10 起要求「先把 a 插进 DOM 再 click」，所以 a 得有 remove()/isConnected
+  const links = [];
+  const attached = [];      // 此刻还在 body 里的
+  const everAttached = [];  // 历史上插过的（用来证明「确实插入过」，而不只是「用完删干净了」）
+  const toasts = [];
   const doc = {
+    body: {
+      appendChild(n) { everAttached.push(n); attached.push(n); if (n) n.isConnected = true; return n; },
+      removeChild(n) { const i = attached.indexOf(n); if (i >= 0) attached.splice(i, 1); if (n) n.isConnected = false; }
+    },
     createElement(tag) {
       if (tag === 'canvas') return mock.canvas;
-      return { click() {}, href: '', download: '' };
+      const a = { href: '', download: '', isConnected: false, clicked: false,
+        click() { this.clicked = true; links.push(a); },
+        remove() { const i = attached.indexOf(a); if (i >= 0) attached.splice(i, 1); a.isConnected = false; } };
+      return a;
     }
   };
-  const fn = new Function('document', 'state', 'showToast', 'localDateStr',
+  // Node 自带的 URL 是 WHATWG 实现、没有 createObjectURL ⇒ 必须注入假的，否则主路径直接抛异常。
+  const urlApi = { n: 0, made: [], revoked: [],
+    createObjectURL(b) { this.n++; this.made.push(b); return 'blob:mock/' + this.n; },
+    revokeObjectURL(u) { this.revoked.push(u); } };
+  // 桌面：matchMedia 命中 (hover:hover) ⇒ _isTouchOnly() === false ⇒ 走直接下载、不弹图
+  const win = { matchMedia() { return { matches: true }; } };
+  const fn = new Function('document', 'state', 'showToast', 'localDateStr', 'window', 'URL',
     srcLayout + '\n' + srcExport + '\nreturn { seatLayoutSlots, seatAisleCount, seatAisleAfter, seatCellName, seatExportImage };');
-  const api = fn(doc, state, function () {}, function () { return '\u0032\u0030\u0032\u0036-09-25'; });
+  const api = fn(doc, state, function (msg, type) { toasts.push([msg, type]); }, function () { return '\u0032\u0030\u0032\u0036-09-25'; }, win, urlApi);
   api.seatExportImage();
-  last = { ops: mock.ops, canvas: mock.canvas };
+  last = { ops: mock.ops, canvas: mock.canvas, links, attached, everAttached, toasts, urlApi };
   return api;
 }
 
@@ -213,7 +253,19 @@ console.log('\n【6】真跑 seatExportImage：导出的几何');
   assert(texts.some(s => s.indexOf('3\u7ec4') >= 0), '标题条写明分几组（过道分组的直接产物）');
   for (let c = 1; c <= COLS; c++) assert(texts.indexOf('\u7b2c' + c + '\u5217') >= 0, '有「第' + c + '列」列号');
   for (let r = 1; r <= ROWS; r++) assert(texts.indexOf('\u7b2c' + r + '\u6392') >= 0, '有「第' + r + '排」行号');
-  assert(ops.some(o => o.t === 'dash' && o.a === '8,7'), '过道画了虚线（可走人通道的示意）');
+
+  // v2.20.10：下载管线的关键约束 —— 这几条正是「手机端点了没反应」的根因，逐条钉死
+  assert(last.links.length === 1, '点了恰好 1 次下载链接（实得 ' + last.links.length + '）');
+  const a0 = last.links[0];
+  assert(/^blob:/.test(a0.href), 'a.href 是 blob: 短链（实得 ' + String(a0.href).slice(0, 24) + '…）');
+  assert(a0.href.length < 200, 'a.href 只有 ' + a0.href.length + ' 字符（旧写法是 171,170 字符的 data: URL）');
+  assert(a0.download === '26级幼保2班-座次表.png', 'a.download 带班级名文件名（实得 ' + a0.download + '）');
+  assert(last.everAttached.length === 1 && last.everAttached[0] === a0, 'a 真的被插进 DOM 才 click（游离节点的 click() 在 WebKit / 安卓 WebView 上不生效）');
+  assert(a0.clicked === true, '确实调用了 click()');
+  assert(last.attached.length === 0, 'click 完立刻 remove()，DOM 不留垃圾');
+  assert(last.urlApi.made.length === 1, '恰好 createObjectURL 1 次（实得 ' + last.urlApi.made.length + '）');
+  assert(last.urlApi.revoked.length === 0, '桌面端不立即 revoke（延后 5 秒交给定时器）—— 立刻 revoke 图会裂');
+  assert(last.toasts.length === 1 && String(last.toasts[0][0]).indexOf('座次表已导出') >= 0, '桌面端只弹一次成功提示（实得 ' + JSON.stringify(last.toasts) + '）');
 }
 
 console.log('\n【7】真跑：逐格重建姓名，必须与原文逐字一致（不丢字、不截断）');

@@ -1734,3 +1734,138 @@ v2.20.8 在 `≤768px` 断点写了：
 - 🐛 文案自相矛盾：新增了「数据存于**私有仓库**」，同页仍有 5 处旧话术说「**公开仓库**」（line 3726 / 3729 / 3740 / 6642 / 6644）。
 - 迁移 ⑤ 删站仓 `data.json` 仍待老板发话。
 - ⚠️ 本地工作区 `data.json` 是**陈旧副本**（161,327 B）而线上是 172,679 B ⇒ **推送清单永远排除 `data.json`**。
+
+---
+
+# v2.20.10 · 手机端导出座次表：点了「已导出」却没有文件；改 blob 下载 + 弹图长按存相册（2026-09-26）
+
+老板原话：「**手机端为什么无法下载导出的座次表**」
+追问后确认两点：① 用的是 **iPhone**；② **「可以，只要能存下来」**（即允许中间弹一层让用户自己保存）。
+第 ② 点直接决定了修法：不能只修「下载」，还要给一条 iPhone 上确实走得通的路。
+
+## 一、根因（两条独立缺陷挤在同一段 5 行代码里）
+
+v2.20.8 的 `seatExportImage()` 结尾原本是：
+
+```js
+var a = document.createElement('a');
+a.download = (state.className || '班级') + '-座次表.png';
+a.href = canvas.toDataURL('image/png');
+a.click();
+showToast('座次表已导出（…）','success');   // 无条件报成功
+```
+
+### A. `data:` URL 上的 `download` 属性 iOS Safari 不认，而且这个 URL 长得离谱
+
+插桩实测（CDP，iPhone 13 视口，劫持 `HTMLAnchorElement.prototype.click` 抓真实锚点）：
+
+| 项 | 实测值 |
+|---|---|
+| `a.href` 协议 | `data:` |
+| `a.href.length` | **171,170 字符** |
+| `a.isConnected` | **false** |
+| `document.body.contains(a)` | **false** |
+| 页面 JS 错误 | **0** |
+| 界面提示 | 「座次表已导出」✅ |
+
+⇒ **UI 报成功、实际什么都没下载**。老板看到的就是「提示成功，但相册/文件里找不到」。
+
+### B. 锚点从没插进 DOM（游离节点）
+
+`a.click()` 对**游离节点**在 WebKit / 安卓 WebView 上不保证生效。
+
+本仓库**早就有正确写法**——`exportWeeklyReport`（line 14655）用的是
+`toBlob → createObjectURL → appendChild → click → remove → setTimeout(revoke, 3000)`。
+只有 `seatExportImage` 与 `dutyExportImage` 这两个没跟上（它们是 v2.20.8 新写的）。
+
+### C. 顺带发现：iOS 根本没有「把图片存进相册」的 API
+
+所以单靠「修好下载」在 iPhone 上**仍然不保证能落地**。唯一可靠的路是把图摆出来让用户
+**长按 → 存储到照片**。这就是本次弹层的由来，也正是老板那句「可以，只要能存下来」对应的方案。
+
+## 二、改动清单（`index.html` 11 处 + `sw.js` 1 处）
+
+| # | 位置 | 变化 |
+|---|---|---|
+| 1 | CSS | 新增 `#imgSaveHint` / `#imgSavePreview` 两条规则 + 4 行「为什么要有这一层」说明（共 6 行） |
+| 2 | HTML | 新增 `#imgSaveModal` 弹层：header「🖼️ 图片已生成」+ ×、body `#imgSaveHint` + `#imgSavePreview`、footer「关闭」+ `#imgSaveShareBtn`（共 18 行） |
+| 3 | JS | 新增「**导出 PNG 的统一出口**」代码块（77 行）：`_exportUrl/_exportBlob/_exportName`、`_isTouchOnly()`、`_releaseExportUrl()`、`pngExport()`、`_canShareFile()`、`showImgSave()`、`imgSaveShare()`、`closeImgSave()` |
+| 4 | JS `seatExportImage` | 尾部 5 行自建 `<a>` + data: URL → **`pngExport(canvas, …, okMsg)` 2 行** |
+| 5 | JS `dutyExportImage` | 同上（值日表导出同样受益） |
+| 6–9 | 版本号 | 四处活动标记 → `v2.20.10`（登录页 / 侧栏 / 设置徽标 / 速览标题） |
+| 10–12 | 速览 | 三条文案改为：手机端导出图片修好了 / 导出后弹图长按存相册 / 一键分享到微信 |
+| 13 | `sw.js` | `CACHE_NAME` → `class-manager-v2.20.10` |
+
+## 三、关键设计
+
+**① 统一出口 `pngExport()`，一处修两个调用点。**
+`seatExportImage` 与 `dutyExportImage` 都收敛到同一条管线，避免「改了一个漏一个」。
+出图 → `toBlob` → `createObjectURL` → **先 `appendChild` 再 `click`** → 立刻 `remove`。
+
+**② 桌面端与触摸端分流，桌面行为零变化。**
+用 `matchMedia('(hover:hover) and (pointer:fine)')` 判定：桌面照旧「下载 + toast」，
+触摸端「下载 + 弹出图片让用户长按」。**不能用 `'ontouchstart' in window`**——很多带触摸屏的
+Windows 笔记本会同时命中，会把桌面用户也拖进弹层。探测失败时回落到 `ontouchstart`。
+
+**③ blob URL 的释放时机分三种，各有理由。**
+
+| 场景 | 释放时机 | 为什么 |
+|---|---|---|
+| 触摸端 | **关弹层时才 revoke** | 图还挂在页面上等用户长按，提前撤 ⇒ 图裂 |
+| 桌面端 | `setTimeout(revoke, 5000)` | 下载是异步的，撤太早可能下不完 |
+| 再次导出 | `_releaseExportUrl()` | 幂等；先撤旧的再建新的，不囤积 |
+
+**④ 分享链路必须「全程同步」。**
+`navigator.share()` 要「用户手势」（transient user activation），**一个 `await` 就让出事件循环、激活态失效**，
+分享面板会静默不弹。所以 `new File([...])`（同步）到 `navigator.share` 之间**一行异步都不能有**，
+代码里也写了警示注释。探测用 `navigator.canShare({files:[…]})` 而不是只判断 `navigator.share` 存不存在。
+
+**⑤ 提示文案走 `textContent`，绝不拼 `innerHTML`。**
+文件名含班级名（＝用户输入），走 `innerHTML` 就是给自己埋 XSS。
+
+**⑥ 预览图不能落进任何 `user-select:none` / `-webkit-touch-callout:none`。**
+这两条样式一旦命中预览图，**iOS 长按菜单根本不弹**，整个方案作废。
+实测现有 CSS 里带 `user-select:none` 的选择器是 `.tl-revoked-head / th / .analytics-tab / .seat / .pf-section-head / .key / .cb-chip / .qc-btn`——都不在祖先链上。
+
+## 四、验收
+
+- 回归 **`PASS: 56 files` / `FAIL: none`**。
+- 新增 **`_v2210_test.js`（97 项）**，其中 4 条路径是**真跑**而非字符串比对：
+  - 触摸端：`toBlob` 1 次、`toDataURL` **0 次**、`href` 是 `blob:` 且 **< 200 字符**、锚点**确实插进过 DOM**、用完立刻移除、
+    弹层 `show`、预览图 `src` ＝ 同一个 blob URL、提示指向「存储到照片」、**不弹「已导出」的假成功 toast**、不提前 revoke。
+  - 桌面端：不弹图、弹一次成功 toast、排了 **5000ms** 的释放定时器、定时器到点后才 revoke。
+  - 兜底：画布没有 `toBlob` ⇒ 退回 `toDataURL`，**同样先 appendChild 再 click**，也不创建 ObjectURL。
+  - 分享：以 `files:[File]` 调 `navigator.share`，文件名正确；没有 blob / 不支持分享时直接返回不抛异常。
+- `_v2208_test.js` 从 90 → **95 项**：假 DOM 补上了 `document.body` 与 `URL.createObjectURL`，
+  并新增 8 条**下载管线断言**（blob 短链 / 插进 DOM 才 click / 桌面端不立即 revoke …）——
+  这几条正是「手机端点了没反应」的根因，静态断言一个字都抓不到。
+- 真实浏览器复核（CDP，iPhone 13 视口）：`href` 由 `data:`(171,170 字符) → **`blob:`（63 字符）**、
+  `isConnected: true`、`bodyHas: true`、下载事件触发、弹层 `display=flex`、预览图 **750×884**、
+  关闭后 `_exportUrl` 已释放、**0 JS 错误**。
+- 推前逐行对齐线上 blob（v2.20.9 `d6198bfc`，820,647 B）：**10 个差异块 / 字节差 +4757**，全部属本轮预期。
+
+## 五、本轮踩的坑
+
+1. **断言「代码里没有 X」必须先剥注释。** 我自己在新代码里写了「到 navigator.share 之前不许有任何 await」的
+   警示注释，结果断言 `imgSaveShare 里没有任何 await` **被自己的注释弄红**。修法：断言前先
+   `replace(/\/\*[\s\S]*?\*\//g,'')` 再 `replace(/\/\/[^\n]*/g,'')`。
+2. **假的 `window` 上必须挂 `File`。** 真实浏览器 `File` 挂在 window 上，而 `_canShareFile()` 读 `window.File`；
+   漏了它 `_canShareFile()` **永远返回 false**，连带 4 条断言一起红（分享按钮不可见、`navigator.share` 没被调到）。
+   这类「假环境少了真实环境里默认存在的东西」的坑，排查时先怀疑 mock 而不是被测代码。
+3. **断言别找错文件。** 那句对照说明「旧写法 `a.href = canvas.toDataURL(...)`」我写在了 `_v2208_test.js` 的注释里，
+   不在 `index.html` ⇒ 断言必然红。要钉哪句，先确认它在哪个文件。
+4. **「全文不许出现 toDataURL」是条错断言。** 极老浏览器兜底分支留着 `toDataURL` 是对的（那里没有别的手段），
+   而且该分支也已经改成「先 appendChild 再 click」。正确写法是「主路径的 700 字符窗口内不含 toDataURL」+
+   「兜底分支必须 appendChild」，而不是一刀切。
+5. **假 DOM 能力不足会被误判成源码 bug。** `_v2208_test.js` 的 mock 没有 `document.body` 也没有 `URL.createObjectURL`，
+   「真跑 `seatExportImage`」直接 `TypeError`。**这是脚手架要补的**，绝不能为了让它绿去改源码迁就。
+6. **改 `.js` 的脚本落盘后必须立刻 `node --check` 全量扫。** 本轮顺带复用了铁律：新写的 `_v2210_test.js` 自身
+   也有两处 `\u` 转义/切片边界问题，全靠这一步当场抓到。
+
+## 六、遗留（**仍未动，等老板发话**）
+
+- 🐛 文案自相矛盾：新增了「数据存于**私有仓库**」，同页仍有 5 处旧话术说「**公开仓库**」（line 3726 / 3729 / 3740 / 6642 / 6644）。
+- 迁移 ⑤ 删站仓 `data.json` 仍待老板发话。
+- ⚠️ 本地工作区 `data.json` 是**陈旧副本**（161,327 B）而线上是 172,679 B ⇒ **推送清单永远排除 `data.json`**。
+- `exportHonorCert`（line 14164）与 `downloadHistoryImage` 仍用 `data:` URL。前者有 `appendChild`、后者是
+  **重新下载已存好的 data URL**，都不在本次「手机端找不到文件」的范围内，**未动**。
