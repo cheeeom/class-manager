@@ -1186,6 +1186,17 @@ tbody tr.highlight{
   display:grid;
   gap:8px;
   margin-bottom:16px;
+  --seat-aisle:26px;   /* v2.20.8 过道宽度（≤768px 断点里隐藏过道） */
+}
+/* v2.20.8 过道：每 3 列一组，组与组之间留一条走道；最左 / 最右是墙，不留过道。
+   用一条居中虚线示意「这里是可以走人的通道」，空着不占座位语义。 */
+.seat-aisle{
+  border-radius:8px;
+  background-image:repeating-linear-gradient(180deg,rgba(43,43,51,0.20) 0 10px,rgba(43,43,51,0) 10px 20px);
+  background-size:2px 100%;
+  background-position:center;
+  background-repeat:no-repeat;
+  align-self:stretch;
 }
 .seat{
   aspect-ratio:1;
@@ -1354,6 +1365,7 @@ tbody tr.highlight{
   .stat-value{font-size:24px}
   .committee-grid{grid-template-columns:1fr}
   .seating-grid{grid-template-columns:repeat(4,1fr) !important}
+  .seat-aisle{display:none !important}
   .dash-grid{grid-template-columns:1fr !important}
   .card{padding:14px;border-radius:12px}
   .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -1969,7 +1981,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.20.7</div>
+      <div class="login-version">v2.20.8</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2088,7 +2100,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.20.7 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.20.8 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2292,6 +2304,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <button class="btn btn-outline btn-sm" onclick="autoSeat('random')" title="未入座学生随机打乱，从前往后填入空座（不动已排座位）">🎲 随机</button>
           <button class="btn btn-primary btn-sm" onclick="autoSeat('credit')" title="未入座学生按学分从高到低，从前往后填入空座（不动已排座位）">🎓 按学分排座</button>
           <button class="btn btn-outline btn-sm" onclick="autoSeat('name')" title="未入座学生按姓名拼音，从前往后填入空座（不动已排座位）">🔤 按姓名</button>
+          <button class="btn btn-outline btn-sm" onclick="seatExportImage()" title="导出为 PNG 图片，可直接打印贴墙">🖼️ 导出座次表</button>
           <button class="btn btn-outline btn-sm" onclick="clearSeating()">清空座位</button>
           <div class="seat-config-inline">
             <label>列</label>
@@ -2786,16 +2799,15 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.7</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.8</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.7）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.8）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 🔐 <b>班级数据搬进私有仓库</b>：数据不再放在人人可下载的公开站点目录里，改存<b>私有仓库</b>（外部访客访问一律 404）。每台设备需重新填一次 GitHub Token —— 授权该私有仓库、勾 Contents 读写权限<br>
-              · ☁️ <b>读取路径换成 GitHub 接口</b>：私有仓库没有可公网访问的站点，拉取 / 恢复数据改走带 Token 的接口；并把「大文件只返回空内容」的原始接口兜底一并接上，文件变大后读取不会静默失败<br>
-              · ✅ <b>Token 校验不再误判</b>：以前靠「仓库里有没有数据文件」判断权限，新仓库还没数据文件时会被误报成「无权限」而存不下 Token；现在改为直接校验仓库是否可达<br>
-              · 📶 <b>离线缓存同步调整</b>：站点上不再有数据文件，预缓存清单已摘掉它（清单里只要有一个请求 404，整套离线缓存会安装失败）<br>
+              · 🪑 <b>座次表加上过道</b>：每 3 列为一组，组与组之间留出一条走道（第 3 列后、第 6 列后）；最左最右是墙，不留过道<br>
+              · 🖼️ <b>座次表可导出图片</b>：新增「导出座次表」按钮，生成 PNG 直接打印贴墙；讲台、行号列号、过道一并画出，姓名再长也不截断<br>
+              · 📐 <b>屏幕与图片共用一套排版</b>：过道位置由同一个函数算出，改列数时两边同时变，不会对不上<br>
             </div>
           </div>
         </div>
@@ -8148,13 +8160,31 @@ function confirmStudentSelectRemove(){
 
 /* ==================== Seating ==================== */
 /* v2.18.1：移除「查看/编辑」模式切换——点座位卡片默认即可安排（seatMode/setSeatMode/initSeatIndicator 已删） */
+/* v2.20.8 座次过道排版（纯函数；屏幕网格与导出图片共用同一份真相）
+   规则：每 3 列为一组，组与组之间是一条过道；最左 / 最右是墙，不留过道。
+   即「第 3 列后、第 6 列后」有过道，最后一列之后没有。 */
+function seatAisleAfter(c, cols){ return (c + 1) % 3 === 0 && (c + 1) < cols; }
+function seatAisleCount(cols){ return Math.floor((cols - 1) / 3); }
+function seatLayoutSlots(cols){
+  const slots = [];
+  for(let c = 0; c < cols; c++){
+    slots.push({ type:'seat', c: c });
+    if(seatAisleAfter(c, cols)) slots.push({ type:'aisle' });
+  }
+  return slots;
+}
+
 function renderSeating(){
   const grid = document.getElementById('seatingGrid');
   const { cols, rows, seats } = state.seating;
-  grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  // v2.20.8 过道：列序列由 seatLayoutSlots 统一给出（座位与过道相间），屏幕与导出图同源
+  const slots = seatLayoutSlots(cols);
+  grid.style.gridTemplateColumns = slots.map(s => s.type === 'aisle' ? 'var(--seat-aisle)' : '1fr').join(' ');
   let html = '';
   for(let r = 0; r < rows; r++){
-    for(let c = 0; c < cols; c++){
+    for(const slot of slots){
+      if(slot.type === 'aisle'){ html += '<div class="seat-aisle"></div>'; continue; }
+      const c = slot.c;
       const seat = seats.find(s=>s.row===r && s.col===c);
       const student = seat ? state.students.find(st=>st.id===seat.studentId) : null;
       if(student){
@@ -8811,6 +8841,185 @@ function renderPunishments(){
       '<button class="btn btn-outline btn-sm" onclick="deletePunish(' + p.id + ')">删除</button>' +
       '</span></div>';
   }).join('');
+}
+
+/* ==================== v2.20.8 座次表导出（Canvas → PNG，打印贴墙用） ==================== */
+/* 与屏幕同一份排版（seatLayoutSlots）：讲台条 → 列号 → 行号 + 座位网格（含过道带）→ 落款。
+   姓名自适应：横排完整 → 3 字内竖排 → 长名拆两行（含「（」时按括号前后分行，不切破括号），
+   任何姓名都完整显示，不出现省略号截断。导出用固定浅色配色，跟打印一致（不随深色主题变）。 */
+function seatRoundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
+function seatCellName(ctx, name, x, y, cw, ch){
+  const maxW = cw - 8, maxH = ch - 8;
+  let fs = 22;
+  if(cw < 72) fs = 19;
+  if(cw < 58) fs = 16;
+  if(cw < 44) fs = 14;
+  const fontOf = function(f){ return 'bold ' + f + 'px "Microsoft YaHei",sans-serif'; };
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = fontOf(fs);
+  if(ctx.measureText(name).width <= maxW){
+    ctx.fillText(name, x + cw / 2, y + ch / 2);
+    ctx.textBaseline = 'alphabetic';
+    return;
+  }
+  const n = name.length;
+  if(n <= 3){
+    const vfs = Math.max(9, Math.min(fs, Math.floor(maxH / (n * 1.2))));
+    ctx.font = fontOf(vfs);
+    const startY = y + ch / 2 - ((n - 1) * vfs * 1.2) / 2;
+    for(let i = 0; i < n; i++) ctx.fillText(name[i], x + cw / 2, startY + i * vfs * 1.2);
+    ctx.textBaseline = 'alphabetic';
+    return;
+  }
+  const bi = name.indexOf('（');
+  const lines = bi > 0
+    ? [name.slice(0, bi), name.slice(bi)]
+    : [name.slice(0, Math.ceil(n / 2)), name.slice(Math.ceil(n / 2))];
+  let f2 = Math.min(fs, 20);
+  while(f2 > 8){
+    ctx.font = fontOf(f2);
+    if(ctx.measureText(lines[0]).width <= maxW && ctx.measureText(lines[1]).width <= maxW && f2 * 1.25 * 2 <= maxH) break;
+    f2--;
+  }
+  ctx.font = fontOf(f2);
+  ctx.fillText(lines[0], x + cw / 2, y + ch / 2 - f2 * 0.62);
+  ctx.fillText(lines[1], x + cw / 2, y + ch / 2 + f2 * 0.62);
+  ctx.textBaseline = 'alphabetic';
+}
+
+function seatExportImage(){
+  const { cols, rows, seats } = state.seating;
+  const inRange = seats.filter(s => s.row < rows && s.col < cols);
+  if(inRange.length === 0){ showToast('请先安排座位再导出','error'); return; }
+  const seatMap = {}, nameMap = {};
+  inRange.forEach(s => { seatMap[s.row + '-' + s.col] = s.studentId; });
+  state.students.forEach(st => { nameMap[st.id] = st.name; });
+
+  const slots = seatLayoutSlots(cols);
+  const aisleN = seatAisleCount(cols);
+  const W = 750, pad = 24;
+  const titleH = 122, podiumH = 64, colLabelH = 42, rowLabelW = 74, footH = 52;
+  const gap = 6, aisleW = 30, cellH = 66;
+  const gridW = W - pad * 2 - rowLabelW;
+  const cellW = Math.max(28, (gridW - aisleW * aisleN - gap * (slots.length - 1)) / cols);
+  const gridH = rows * cellH + gap * (rows - 1);
+  const H = pad + titleH + podiumH + colLabelH + gridH + footH + 10;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // 背景（暖米白，固定色，保证深色主题下导出的也是可直接打印的浅色图）
+  ctx.fillStyle = '#FDFBF7'; ctx.fillRect(0, 0, W, H);
+
+  // 标题条
+  ctx.fillStyle = '#A63A2B';
+  seatRoundRect(ctx, pad, pad, W - pad * 2, titleH - 16, 16); ctx.fill();
+  ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center';
+  ctx.font = 'bold 30px "Microsoft YaHei",sans-serif';
+  ctx.fillText((state.className || '班级') + ' · 座次表', W / 2, pad + 48);
+  ctx.font = '15px "Microsoft YaHei",sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.88)';
+  ctx.fillText(cols + '列 × ' + rows + '行 · ' + (aisleN ? (aisleN + 1) + '组 · ' : '') + '已入座 ' + inRange.length + ' 人', W / 2, pad + 82);
+
+  // 讲台（虚线框）
+  const py = pad + titleH;
+  ctx.fillStyle = 'rgba(166,58,43,0.06)';
+  seatRoundRect(ctx, pad, py, W - pad * 2, podiumH - 20, 10); ctx.fill();
+  ctx.strokeStyle = 'rgba(166,58,43,0.35)'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 6]);
+  seatRoundRect(ctx, pad, py, W - pad * 2, podiumH - 20, 10); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#A63A2B'; ctx.font = 'bold 22px "Microsoft YaHei",sans-serif';
+  ctx.fillText('讲 台', W / 2, py + podiumH - 22);
+
+  const gx0 = pad + rowLabelW;
+  const gy0 = pad + titleH + podiumH + colLabelH;
+
+  // 记录每个座位/过道的 x 起点（屏幕与图共用 seatLayoutSlots，顺序必然一致）
+  const xs = [];
+  let cx = gx0;
+  slots.forEach(function(sl){
+    xs.push(cx);
+    cx += (sl.type === 'aisle' ? aisleW : cellW) + gap;
+  });
+
+  // 过道带：铺满网格高度 + 一条居中虚线
+  slots.forEach(function(sl, i){
+    if(sl.type !== 'aisle') return;
+    const ax = xs[i];
+    ctx.fillStyle = 'rgba(43,43,51,0.045)';
+    seatRoundRect(ctx, ax, gy0, aisleW, gridH, 6); ctx.fill();
+    ctx.strokeStyle = 'rgba(43,43,51,0.20)'; ctx.lineWidth = 1.4; ctx.setLineDash([8, 7]);
+    ctx.beginPath();
+    ctx.moveTo(ax + aisleW / 2, gy0 + 6);
+    ctx.lineTo(ax + aisleW / 2, gy0 + gridH - 6);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  // 列号
+  ctx.font = '15px "Microsoft YaHei",sans-serif';
+  ctx.fillStyle = '#8A8172'; ctx.textAlign = 'center';
+  slots.forEach(function(sl, i){
+    if(sl.type !== 'seat') return;
+    ctx.fillText(cellW >= 56 ? '第' + (sl.c + 1) + '列' : String(sl.c + 1), xs[i] + cellW / 2, gy0 - 14);
+  });
+
+  // 行号
+  ctx.textAlign = 'right';
+  for(let r = 0; r < rows; r++){
+    const cy = gy0 + r * (cellH + gap) + cellH / 2;
+    ctx.fillText('第' + (r + 1) + '排', pad + rowLabelW - 12, cy + 5);
+  }
+
+  // 座位格子
+  slots.forEach(function(sl, i){
+    if(sl.type !== 'seat') return;
+    const x = xs[i];
+    for(let r = 0; r < rows; r++){
+      const y = gy0 + r * (cellH + gap);
+      const sid = seatMap[r + '-' + sl.c];
+      const nm = sid !== undefined ? (nameMap[sid] || '') : '';
+      if(nm){
+        ctx.fillStyle = '#FBEEE9';
+        seatRoundRect(ctx, x, y, cellW, cellH, 8); ctx.fill();
+        ctx.strokeStyle = '#A63A2B'; ctx.lineWidth = 2;
+        seatRoundRect(ctx, x, y, cellW, cellH, 8); ctx.stroke();
+        ctx.fillStyle = '#2B2B33';
+        seatCellName(ctx, nm, x, y, cellW, cellH);
+      } else {
+        ctx.strokeStyle = 'rgba(43,43,51,0.22)'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+        seatRoundRect(ctx, x, y, cellW, cellH, 8); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+  });
+
+  // 落款
+  ctx.fillStyle = '#8A8172'; ctx.font = '13px "Microsoft YaHei",sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText((state.className || '班级') + ' · ' + rows + '排 × ' + cols + '列 · 打印张贴 · 生成于 ' + localDateStr(), W - pad, H - 22);
+  ctx.textAlign = 'left';
+
+  var a = document.createElement('a');
+  a.download = (state.className || '班级') + '-座次表.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+  showToast('座次表已导出（' + rows + '排 × ' + cols + '列，已入座 ' + inRange.length + ' 人）','success');
 }
 
 /* ==================== 值日表导出（组别制，打印贴墙用） ==================== */
