@@ -1869,3 +1869,170 @@ Windows 笔记本会同时命中，会把桌面用户也拖进弹层。探测失
 - ⚠️ 本地工作区 `data.json` 是**陈旧副本**（161,327 B）而线上是 172,679 B ⇒ **推送清单永远排除 `data.json`**。
 - `exportHonorCert`（line 14164）与 `downloadHistoryImage` 仍用 `data:` URL。前者有 `appendChild`、后者是
   **重新下载已存好的 data URL**，都不在本次「手机端找不到文件」的范围内，**未动**。
+
+---
+
+# v2.20.11 · 座次表可关闭座位 + 寝室页登记走读生 + 班委职位可自定义（2026-09-26）
+
+老板原话：「座次表模块我希望提供关闭座位功能，关闭后的座位不可选择 不可以随机或者按学分排座 只有打开座位才可以。
+因为每个班级不一定都是整齐的行列。寝室管理中直接提供走读生模块，可以选择学生直接添加成走读生。
+班委模块要允许自定义增加删除职位和自定义岗位职责。」
+
+四个交互口径是老板当场定的（没让 AI 猜）：
+① 关闭座位怎么操作 → **工具栏加开关模式**；② 被关掉的座位上还坐着人 → **自动把学生移出座位**；
+③ 走读生候选名单 → **只列没寝室的学生**；④ 班委自定义范围 → **职位名 + 岗位职责 + 职数**（颜色自动分配，不自定义颜色）。
+
+## 一、需求（三件事，彼此独立）
+
+| # | 模块 | 要什么 |
+|---|---|---|
+| ① | 座次表 | 能「关闭」某些格子（教室角落缺位 / 靠墙少一列）。关闭后该格子**不是座位**：不可点选安排、不被随机 / 按学分 / 按姓名排座填入、拖拽也放不进去、导出图里要能一眼看出。只有重新「打开」才算座位 |
+| ② | 寝室管理 | 直接提供「添加走读生」入口，勾选学生即登记走读（此前只能去学生档案手打「走读」标签，寝室页只有个只读名单） |
+| ③ | 班委 | 允许**自定义增加 / 删除职位**，并且**每个职位（含常设 8 岗）的岗位职责 / 职数都能改** |
+
+## 二、改动清单（`index.html` 51 个差异块 + `sw.js` 1 处）
+
+`index.html`：825,404 → **853,939 B（LF）**，净 **+448 行**，现 15,635 行（CRLF）/ 字节 869,574（CRLF）。
+`sw.js`：`CACHE_NAME` → `class-manager-v2.20.11`（3,032 B，长度不变）。
+
+落点分五组：
+
+**A. 座次表（关闭座位）**
+1. CSS：`.seat.closed`（灰底 + 45° 斜纹 + 虚线边 + `cursor:not-allowed`）、`.seat.closed .seat-ban/.seat-num`、`.btn.btn-close-active`、`.seat-close-banner`（含 `.scb-tip`）
+2. 工具栏：新增第 6 个按钮 `#seatCloseToggleBtn`（🚫 关闭座位）；**原 5 个按钮逐字未动**
+3. HTML：新增 `#seatCloseBanner`（说明 + 全部关闭 / 全部开启 / 退出关闭模式）
+4. JS 纯函数块（插在 `function renderSeating(){` 之前）：`seatKey / isSeatClosed / seatClosedCount / pruneSeatClosed / setSeatClosed`
+5. JS 交互块（插在「v2.18.5 座次拖拽换座」之前）：`seatClosePick / toggleSeatCloseMode / syncSeatCloseModeUI / closeAllSeats / openAllSeats`
+6. `renderSeating()`：关闭格发出 `.seat.closed` 分支；结尾补 `grid.classList.toggle('seat-close-mode', …)` + `syncSeatCloseModeUI()`
+7. `seatClick` 首行拦截（关闭模式下点格子 = 关 / 开，不进候选人弹窗）
+8. `autoSeat`：跳过关闭格并计入 `closedN`；「没有空位」文案与 confirm 都带上关闭数；成功提示追加「跳过 N 个关闭座位」
+9. `seatDrop` / `seatPointerDown`：关闭格不接收落点 / 不起拖拽
+10. `saveSeatLayout` / `saveSeatLayoutInline`：改行列时 `pruneSeatClosed`
+11. `clearSeating`：原 5 行逐字未动，之后追加「关闭标记一并复位」
+12. `updateSeatTotal()`：显示「共 N 座位 · 已关闭 M」
+13. `seatExportImage()`：关闭格画灰底虚线 + 「已关闭」，副标题追加「· 已关闭 N 格」
+
+**B. 走读生**
+14. 寝室页工具栏：`🚶 添加走读生` 按钮；`#dayBoardingModal` 底部加同款入口
+15. 新增 `#dayBoardingAddModal`（搜索框 + 候选列表 + 登记）
+16. 新增 `dayBoardingCands / renderDayBoardingCands / openDayBoardingAddModal / confirmDayBoardingAdd / cancelDayBoarding`
+17. `openDayBoardingList()` 每行加 `✕ 取消走读`
+
+**C. 班委自定义职位**
+18. CSS：`.committee-card.committee-add` / `.cc-plus` / `.cc-custom-tag` / `.cc-actions{flex-wrap:wrap}`
+19. 新增 `#committeePosModal`（职位名 / 岗位职责 / 职数 + 动态提示）
+20. 新增 `COMMITTEE_POS_COLORS`、`committeeAllPositions()`、`committeePosByKey()`、`openCommitteePosEdit()`、`saveCommitteePos()`、`deleteCommitteePos()`
+21. `renderCommittee()` 重写：渲染「常设 ⊕ 自定义」，每张卡片都有「改职责」，非常设才有「✕ 删除」；末尾追加虚线「＋ 自定义职位」卡
+22. `syncCommitteeTags()` 重写：生效岗位 = 常设 ⊕ 自定义
+23. `openCommitteeSelect` / `confirmStudentSelect` 的岗位名改从 `committeePosByKey` 取
+
+**D. 数据模型与同步**
+24. `defaultSeating()` → `{ cols:8, rows:5, seats:[], closed:[] }`
+25. `STATE_SCHEMA` 新增 `committeePos`（**43 → 44 个 key**）；`MERGE_ST` 新增 `committeePos:msCommitteePos`（**25 → 26 条**）
+26. 新增同步策略 `msCommitteePos`（整体取新，与 committee / seating / duty 同口径）
+27. `loadData`：读 `committeePos`；老 `seating` 无 `closed` 字段则补空数组（自愈，不额外写盘）
+
+**E. 版本与速览**
+28. 四处活动版本标记 → `v2.20.11`；速览三条文案换成三项新功能
+29. 测试文件跟版：**38 个文件 / 189 处**
+
+## 三、关键设计
+
+**① 关闭标记塞进 `state.seating.closed`，不新开 state 字段。**
+`state.seating` 本来就是「整体取新」(`msSeating` 以 `exportedOpsCount` 为版本戳)，
+把 `closed: ['行-列']` 放进它内部，同步链路**白捡**——不会出现「新字段忘了加 `MERGE_ST`」这种漏。
+代价是 `defaultSeating()` 与老数据要自愈（`loadData` 里一句 `if(!Array.isArray(state.seating.closed)) …`）。
+同理不逐条并集：关闭 / 打开是就地改同一个集合，并集无法仲裁谁更新。
+
+**② 关闭格**同时**不挂 `data-seat-row`/`data-seat-col`、不挂 `onpointerdown`、不接 `seatClick`。**
+三条一起断才干净：`seatDropTargetAt` 只在 `seat.dataset.seatRow` 存在时返回落点 ⇒ 关闭格**天然**不是合法落点，
+不用加分支；`_v2189_test.js` 钉着的 `count('data-seat-row="') === 2` 也自动保持。
+
+**③ 关闭模式横幅必须挂在 `#seatingGrid` 之外。**
+`renderSeating()` 用 `innerHTML` 整体重画网格 —— 挂在网格内的任何节点会被下一次重画**抹掉**
+（这正是 v2.20.9「手指一停整页滑不动」的同一类坑）。所以横幅放工具栏与网格之间，只由 `syncSeatCloseModeUI()` 控制显隐。
+
+**④ 关闭格在 `autoSeat` 里要靠 `typeof` 守卫。**
+`_v2189_test.js` 把 `autoSeat` + `seatDrop` 抽进只有 `state/saveData/showToast/renderSeating/confirm/escapeHtml`
+六个全局的沙箱 —— 任何新调用都得写成 `typeof X === 'function' && X(...)`；
+`seatDrop` 里的关闭判断更是**刻意内联**（`((state.seating && state.seating.closed) || []).indexOf(toRow+'-'+toCol) >= 0`），
+抽成函数调用会在沙箱里 `ReferenceError`。同理 `var seatCloseMode = false;` 必须声明在
+`_v2209` 的拖拽切片内（`let _seatDrag = null;` → `function seatPointerCleanup(){`）才可见。
+
+**⑤ 走读生不存第二份数据。**
+候选口径 = `!isDayBoarding(s) && !dormNoOf(s)`（只列「没寝室且没走读」的人）；登记 = 给 `s.tags` 挂 `DAY_TAG`。
+登记时**顺手摘掉寝室号标签**（兜底，防脏数据）⇒ 不会出现同时挂「6栋-802室」和「走读」的人
+（`dormDataIssues` 会报标签冲突）。整个模块仍是「寝室号 / 走读 / 寝室长全部由学生标签派生」的原设计。
+
+**⑥ 班委：`committeeConfig` 当不可变的「制度常设 8 岗」，自定义岗位叠在 `state.committeePos`。**
+`committeeAllPositions()` 按 key 合并（同 key 后来者覆盖）⇒ **改常设岗 = 用同 key 覆盖**，
+新增 = 追加，两者共用一个数据结构。常设岗不可删除（删掉会把岗位标签体系掏空），
+但可以改职位名 / 职责 / 职数。
+
+**⑦ 删除职位用「墓碑」`{hidden:true}`，不真删。**
+这是本轮**测试真跑才逼出来的**设计：真删掉之后，`syncCommitteeTags` 的清理集合
+（常设标签 ∪ 各职位 tag）就再也认不出「电教员」这个名字 ⇒ 学生档案上的标签变成**谁也管不到的残留**。
+改墓碑后卡片列表按 `hidden` 过滤（老师无感），清理集合仍认得它；同名职位重新新增时**按原 key 复活**，
+墓碑不会越堆越多。口径与老数据的 `catDeleted` / `mergeTsMap` 一致。
+
+**⑧ 改名的标签策略：不改名就沿用原 tag。**
+`'副班长兼团支书'` 的标签历来是 `'副班长'`——老师进去点一下「保存」不该把全校学生的标签换掉。
+所以 `const tag = builtin ? (name === builtin.title ? builtin.tag : name) : name;`，
+**只有真的改了职位名，标签才跟着走**（旧标签由清理集合摘掉）。
+
+## 四、验收
+
+- 内联 `<script>` 用 `node --check` 编译通过（554,312 字符 / 11,906 行）。
+- `node _runall.js` → **`PASS: 57 files` / `FAIL: none`**。
+- 新增 **`_v2211_test.js`（177 项）**，6 节；其中 4 组是**真跑**而非字符串比对：
+  - 座位：置关 / 置开 / 越界 / 裁剪四类纯函数；`seatClosePick` 状态机（非关闭模式只提示不写盘、
+    确认后连人一起移出、`confirm=false` 什么都不动、空座位确认文案不提「会被移出」）；
+    `autoSeat` 跳过关闭格并计数；`seatDrop` 落到关闭格被拒；全部关闭 / 全部开启。
+  - 走读：候选只列「没寝室且没走读」、按学号 / 姓名可搜、有寝室的人搜不到；勾选登记后标签正确、写盘一次、
+    自动摘掉寝室号标签；没勾选 → 报错不写盘；取消走读只摘「走读」标签。
+  - 班委：`committeeAllPositions` 合并语义；`syncCommitteeTags` 在 `committeePos` **缺省时与 v2.20.10 逐字等价**
+    （`_v290` 的行为级断言不破）、有自定义时生效、改名后旧标签被摘、幂等、墓碑职位残留标签被摘干净。
+  - 既有契约逐条复核 + 一条新守卫（单行函数不许挂行尾 `//` 注释）。
+- `_v21200_test.js`（硬编码 schema 计数）同步跟到 44 / 44 / 42 / 26 / 41 / 44 / 41 + CFS 白名单插入 `committeePos`。
+- **推前逐行对齐线上 blob**：v2.20.10 `301999198d`（825,404 B）→ **51 个差异块 / 字节差 +28,535 / 净 +448 行**，
+  逐块核对全部属本轮预期（无「本地是旧版被推回线上」的迹象）；`sw.js` 1 块 = `CACHE_NAME`。
+- **推送后**：远端 HEAD `0c4321eb`，`index.html` blob `301999198d → 80c659df50`（853,939 B）、
+  **`data.json` blob 仍是 `7661357e2d6e`（172,679 B，纹丝未动）** ← 数据安全判据；
+  远端 tree 80 个条目（79 + 新增 `_v2211_test.js`）。
+- **Pages `built`**；线上 853,939 B（与 blob 逐字节一致），`v2.20.11` 四处标记 + 三项功能串全部命中；
+  `sw.js` `CACHE_NAME = 'class-manager-v2.20.11'`。
+
+## 五、本轮踩的坑（**全是测试脚本自伤，源码无关**）
+
+1. **中文转义抄错一个字必然红**：`座` = U+5EA7、`坐` = U+5750。速览断言首字写成 `\u5750` ⇒
+   「缺 `"坐次表能把用不上的座位关掉了"`」。**钉中文字面量就直接写中文，别写 `\u` 转义。**
+2. **`notHas(x, '')` 是恒假断言**（「不含空串」永远为假）。本意是切片自检，得写成有意义的口径
+   （如「关闭格分支确实落在 `seats.find` 之前」）。
+3. **`ok(a > b)` 把大小号写反**：`#seatCloseBanner` 在 `#seatingScroll` **之前**才是对的。
+4. **沙箱漏全局**：`DORM_SLICE` 的结束锚点正好切在 `function isDayBoarding(` **之前** ⇒ 天然不含它；
+   `cancelDayBoarding` 内部调 `confirm`，Node 里没有这个全局 ⇒ `ReferenceError` / `TypeError`。
+   **报错先怀疑脚手架，别改源码迁就。**
+5. **`new Function` 的实参错位不报错、只会「后面全变 undefined」**：补 `confirm` 形参时忘了给
+   `openDayBoardingList` 留实参占位，`confirm` 就被塞进了它的槽 ⇒ `TypeError: confirm is not a function`。
+   改完必须**数一遍形参与实参个数**。
+6. **改补丁脚本时把锚点串自身改坏**：插入块的闭合 `}` 被一起删掉，测试文件少一个花括号 ⇒
+   `SyntaxError: Unexpected end of input`。**改完脚本先 `node --check` 目标文件再跑。**
+7. **「一刀切要求 0 处」的断言会逼着改无关老代码**：`index.html` 里有 6 处 v2.20.10 之前的
+   「单行函数 + 行尾 `//` 注释」（`cbAlertStatusTo` / `msScalarFill` / `msTsMap` / `msMax1` / `msTsNewer` / `cmCanMinus`，
+   **都不在任何 `oneLine` / `extractFn` 名单里**）。正解 = 豁免单 + 「新增不许」+「被 eval 的函数一个都不许在豁免单里」，
+   而不是顺手去动 6 处老代码（那就是「捎带」）。
+8. **推送别在前台跑**：43 个 blob 逐个上传 ≈ 2 分钟，前台超时被 `SIGTERM` ⇒ **日志全丢、看起来像失败**，
+   实际 commit 已经落库。跑这类推送一律**后台 + 落日志文件**，事后用 `gh api` 核对远端事实。
+
+## 六、遗留（**仍未动，等老板发话**）
+
+- 🐛 文案自相矛盾：新增了「数据存于**私有仓库**」，同页仍有 5 处旧话术说「**公开仓库**」
+  （line 3726 / 3729 / 3740 / 6642 / 6644）。
+- 迁移 ⑤「删站仓 `data.json`」仍待老板发话。**删前必查 `sw.js` 的 `CORE_ASSETS`**——
+  `cache.addAll` 全成全败，清单里一个 404 会让整套预缓存 reject、SW 装不上。
+  目前 `CORE_ASSETS` 已不含 `./data.json`（v2.20.7 已摘），但动作前仍要复查一遍。
+- **墓碑只增不减**：`state.committeePos` 里删过的职位会一直留着（每条几十字节，体量可忽略）。
+  若将来挤到界面上，可加一个「清理墓碑」入口（当时刻意没做，避免又一层交互）。
+- ⚠️ 本地工作区 `data.json` 是**陈旧副本**（161,327 B）而线上是 172,679 B ⇒ **推送清单永远排除 `data.json`**。
+- `AGENTS.md` 正文仍停在 v2.7.0、行号全失效（本次未动，定位请继续用
+  `grep -n "^/\* =\{10,\}" index.html`）；规模真相以本文件的验收段为准。
