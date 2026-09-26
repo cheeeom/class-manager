@@ -46,9 +46,13 @@ has(v2209, 'v2.20.9', 'v2.20.9 测试文件头部历史注释保留');
 has(html, '\u4e3a\u4ec0\u4e48\u4e0d\u80fd\u53ea\u7528 <a download>.click()', '保留「为什么不能只用 <a download>.click()」的说明');
 has(html, '\u5b9e\u6d4b href \u957f\u8fbe 17 \u4e07\u5b57\u7b26', '说明里写清了 data: URL 的实测长度（免得后人又改回去）');
 has(v2208, '\u65e7\u5199\u6cd5 `a.href = canvas.toDataURL(...)`', '_v2208_test.js 里保留了「旧写法」的对照说明');
-has(html, '\u624b\u673a\u7aef\u5bfc\u51fa\u56fe\u7247\u4fee\u597d\u4e86', '速览含「手机端导出图片修好了」');
-has(html, '\u957f\u6309\u5373\u53ef\u5b58\u76f8\u518c', '速览含「长按即可存相册」');
-has(html, '\u4e00\u952e\u5206\u4eab\u5230\u5fae\u4fe1', '速览含「一键分享到微信」');
+// 「本版更新速览」按维护约定是【整体替换】（只留最新一版，不做追加）——
+// 所以这里刻意不钉某一版的文案：钉了就等于每次发版都要回来改这三行（v2.20.11 跟版时正是这么红的）。
+// 改为钉「结构不变式」：标题版本已与 CACHE_NAME 对齐（上一条），正文确实有 ≥3 条条目。
+const iNotes = html.indexOf('id="settingsReleaseNotes"');
+const notesBlock = html.slice(iNotes, html.indexOf('</div>', iNotes));
+const nBullets = cnt(notesBlock, '<br>');
+assert(nBullets >= 3, '速览正文至少 3 条（实得 ' + nBullets + ' 条）');
 
 // ============================================================
 // 【2】统一出口
@@ -121,7 +125,12 @@ assert(canBody.indexOf('catch(e){ return false; }') >= 0, '探测失败要兜住
 // ============================================================
 // 抽「统一出口」代码块 → mock 环境真跑
 // ============================================================
-const iOut = html.indexOf('/* ==================== v2.20.10 \u5bfc\u51fa PNG \u7684\u7edf\u4e00\u51fa\u53e3');
+// ⚠️ 版本无关锚点：这条注释原写作「/* ==== v2.20.10 导出 PNG 的统一出口」，
+// 但注释里的版本号会随跟版变化，拿它当代码锚点 = 每次发版自己炸自己。
+// 只认后半句（index.html 里唯一）**并且回退到注释的起点** —— 直接 slice 会从注释中间切开，
+// 切出来的碎片 `=== …` 不是合法 JS（v2.20.11 实测踩过）。
+const iOutKey = html.indexOf('\u5bfc\u51fa PNG \u7684\u7edf\u4e00\u51fa\u53e3');
+const iOut = html.lastIndexOf('/* ====', iOutKey);
 const iSeat = html.indexOf('function seatExportImage(){', iOut);
 assert(iOut >= 0 && iSeat > iOut, '能定位「导出 PNG 统一出口」代码块');
 const srcOut = html.slice(iOut, iSeat);

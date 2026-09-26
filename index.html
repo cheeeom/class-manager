@@ -1114,6 +1114,19 @@ tbody tr.highlight{
 .committee-card .cc-role.teal{background:rgba(46,110,99,0.1);color:#2E6E63}
 .committee-card .cc-role.pink{background:rgba(140,58,91,0.1);color:#8C3A5B}
 .committee-card .cc-role.indigo{background:rgba(61,78,126,0.1);color:#3D4E7E}
+/* v2.20.11 班委自定义职位：列表末尾追加一张虚线「＋ 自定义职位」卡片 */
+.committee-card.committee-add{
+  border:2px dashed var(--border);background:transparent;box-shadow:none;
+  align-items:center;justify-content:center;cursor:pointer;
+}
+.committee-card.committee-add:hover{border-color:var(--primary);box-shadow:var(--shadow);transform:translateY(-4px)}
+.committee-card .cc-plus{font-size:34px;line-height:1;color:var(--primary-lighter);font-weight:300}
+.committee-card .cc-custom-tag{
+  display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;
+  font-size:10px;font-weight:600;vertical-align:middle;
+  color:var(--primary);background:rgba(166,58,43,0.1);
+}
+.committee-card .cc-actions{flex-wrap:wrap}
 
 /* ==================== Dorm（寝室管理，标签派生） ==================== */
 .duty-progress{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:12px 16px}
@@ -1255,6 +1268,30 @@ tbody tr.highlight{
 .seat.dragging{opacity:.4;transform:scale(.94);pointer-events:none;cursor:grabbing}
 .seat.drag-over{border-color:var(--primary)!important;box-shadow:0 0 0 2px rgba(166,58,43,0.35);background:rgba(166,58,43,0.14)}
 .seat.drag-over .seat-plus{color:var(--primary)}
+/* v2.20.11 关闭座位：教室角落缺位 / 靠墙少一列 —— 这种格子「不是座位」，不排人。
+   斜纹底 + 虚线边，与「空位（细虚线 + 加号）」一眼可分；hover 不跟着变红（它本来就不是可点目标）。 */
+.seat.closed{
+  background:#EFEBE3;
+  background-image:repeating-linear-gradient(135deg,rgba(43,43,51,0.07) 0 6px,rgba(43,43,51,0) 6px 12px);
+  border-style:dashed;
+  border-color:var(--border);
+  cursor:not-allowed;
+}
+.seat.closed:hover{border-color:var(--border);box-shadow:none}
+.seat.closed .seat-ban{font-size:17px;line-height:1;opacity:.5}
+.seat.closed .seat-num{color:var(--text-muted);opacity:.75}
+/* 关闭模式开关按钮的激活态（与 .btn.active 无关，避免踩到既有按钮样式） */
+.btn.btn-close-active{background:var(--primary);color:#fff;border-color:var(--primary)}
+/* 关闭座位横幅：必须挂在 #seatingGrid 之外 —— renderSeating 用 innerHTML 整体重画网格，
+   放网格里会被连带抹掉（v2.20.9「手指一停整页滑不动」就是「重画抹掉节点」那一类坑的变体）。 */
+.seat-close-banner{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin:0 0 10px;padding:9px 12px;
+  border:1px dashed var(--primary);border-radius:10px;
+  background:rgba(166,58,43,0.06);
+  font-size:13px;color:var(--primary-dark);line-height:1.5;
+}
+.seat-close-banner .scb-tip{flex:1;min-width:180px}
 
 /* ==================== Duty ==================== */
 .duty-toolbar{
@@ -1999,7 +2036,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.20.10</div>
+      <div class="login-version">v2.20.11</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2118,7 +2155,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.20.10 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.20.11 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2300,6 +2337,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <div class="section-title" style="margin:0"><span class="dot"></span>寝室管理</div>
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
             <button class="btn btn-primary btn-sm" onclick="openDormNewModal()" title="手动新增寝室（可先建空寝室，再入住学生）">➕ 新增寝室</button>
+            <button class="btn btn-outline btn-sm" onclick="openDayBoardingAddModal()" title="把还没安排寝室的学生登记为走读生（走读标签即唯一数据源）">🚶 添加走读生</button>
             <div class="dorm-filter" id="dormFilter">
               <div class="active" data-g="all" onclick="setDormFilter('all')">全部</div>
               <div data-g="男" onclick="setDormFilter('男')">男生</div>
@@ -2324,6 +2362,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <button class="btn btn-outline btn-sm" onclick="autoSeat('name')" title="未入座学生按姓名拼音，从前往后填入空座（不动已排座位）">🔤 按姓名</button>
           <button class="btn btn-outline btn-sm" onclick="seatExportImage()" title="导出为 PNG 图片，可直接打印贴墙">🖼️ 导出座次表</button>
           <button class="btn btn-outline btn-sm" onclick="clearSeating()">清空座位</button>
+          <button class="btn btn-outline btn-sm" id="seatCloseToggleBtn" onclick="toggleSeatCloseMode()" title="关闭 / 打开座位：关闭后该格子不再算座位，不可点选安排、不会被随机 / 按学分 / 按姓名排座填入">🚫 关闭座位</button>
           <div class="seat-config-inline">
             <label>列</label>
             <input type="number" id="seatColsInline" min="3" max="15" style="width:60px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;font-size:14px">
@@ -2333,7 +2372,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <button class="btn btn-primary btn-sm" onclick="saveSeatLayoutInline()">应用</button>
           </div>
         </div>
-        <div style="font-size:12px;color:var(--text-muted);text-align:center;margin:2px 0 8px">💡 点座位卡片即可安排 / 更换学生；按住卡片拖到别的座位即可换座（拖到已占座位＝两人互换，拖到空位＝直接移动，触屏需长按约 0.5 秒才开始拖动，直接滑动＝滚动页面；手机端左右滑动可看全所有列）；已占座卡片右上角 ✕ 可移除</div>
+        <div class="seat-close-banner" id="seatCloseBanner" style="display:none">
+          <span class="scb-tip" id="seatCloseBannerTip"></span>
+          <button class="btn btn-outline btn-sm" onclick="closeAllSeats()">全部关闭</button>
+          <button class="btn btn-primary btn-sm" onclick="openAllSeats()">全部开启</button>
+          <button class="btn btn-outline btn-sm" id="seatCloseExitBtn" onclick="toggleSeatCloseMode()">退出关闭模式</button>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);text-align:center;margin:2px 0 8px">💡 点座位卡片即可安排 / 更换学生；按住卡片拖到别的座位即可换座（拖到已占座位＝两人互换，拖到空位＝直接移动，触屏需长按约 0.5 秒才开始拖动，直接滑动＝滚动页面；手机端左右滑动可看全所有列）；已占座卡片右上角 ✕ 可移除；点「🚫 关闭座位」进入关闭模式后，可把格子设为非座位（关闭的格子不排人、不可点选、不接受拖拽）</div>
         <div class="seating-teacher">📚 讲 台 📚</div>
         <div class="seating-scroll" id="seatingScroll">
           <div class="seating-grid" id="seatingGrid"></div>
@@ -2819,15 +2864,15 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.10</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.20.11</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.10）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.20.11）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 🖼️ <b>手机端导出图片修好了</b>：以前点「导出座次表」提示成功却没有文件——锚点没插进页面、又用了手机不认的 data: 链接；现在改用 blob 并真正插入页面<br>
-              · 👆 <b>导出后弹出图片，长按即可存相册</b>：iPhone 没有「直接存相册」的接口，现在把图摆出来，长按 → 存储到照片；值日表导出同样受益<br>
-              · 📤 <b>一键分享到微信</b>：弹层里新增「分享 / 存到相册」，可直接发到班级群或存进相册<br>
+              · 🚫 <b>座次表能把用不上的座位关掉了</b>：教室角落缺位、靠墙少一列？点「🚫 关闭座位」后点格子就能关掉——关闭的格子不能安排学生，也不会被随机 / 按学分 / 按姓名排座填进去，拖也拖不进去<br>
+              · 🚶 <b>寝室页可直接登记走读生</b>：新增「添加走读生」，只列出还没安排寝室的学生，勾选即登记；走读名单里可一键取消走读<br>
+              · 🧑💼 <b>班委职位可自定义</b>：可以加自己的岗位（职位名 + 岗位职责 + 职数），也能改常设 8 岗的职责与职数；自定义职位可随时删除<br>
             </div>
           </div>
         </div>
@@ -3357,7 +3402,44 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       <div id="dayBoardingList" style="max-height:360px;overflow-y:auto"></div>
     </div>
     <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('dayBoardingModal');openDayBoardingAddModal()">➕ 添加走读生</button>
       <button class="btn btn-outline" onclick="closeModal('dayBoardingModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- v2.20.11 Modal: 班委职位（新增 / 编辑 职位名 + 岗位职责 + 职数） -->
+<div class="modal-overlay" id="committeePosModal">
+  <div class="modal" style="max-width:520px;width:94vw">
+    <h3 id="committeePosTitle">＋ 自定义职位</h3>
+    <div class="modal-body">
+      <label>职位名</label>
+      <input type="text" id="committeePosName" maxlength="14" placeholder="如：电教委员 / 劳动委员 / 团支书" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px;margin-top:6px">
+      <label style="display:block;margin-top:12px">岗位职责</label>
+      <textarea id="committeePosDesc" rows="4" maxlength="200" placeholder="写清楚这个职位要做什么（会显示在班委卡片上）" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px;margin-top:6px;resize:vertical;font-family:inherit"></textarea>
+      <label style="display:block;margin-top:12px">职数</label>
+      <input type="text" id="committeePosCount" maxlength="10" placeholder="如：1人 / 2人" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px;margin-top:6px">
+      <div id="committeePosHint" style="margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.6"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="saveCommitteePos()">💾 保存</button>
+      <button class="btn btn-outline" onclick="closeModal('committeePosModal')">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- v2.20.11 Modal: 添加走读生 -->
+<div class="modal-overlay" id="dayBoardingAddModal">
+  <div class="modal" style="max-width:520px;width:94vw">
+    <h3>🚶 添加走读生</h3>
+    <div class="modal-body">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;line-height:1.6">候选只列出「还没有寝室号」的学生。已有寝室的同学请先在寝室页移出寝室（否则会同时挂着寝室号与「走读」，寝室页的数据体检会报标签冲突）。勾选后点确认即登记为走读生。</div>
+      <input type="text" id="dayBoardingKw" placeholder="🔍 按姓名 / 学号搜索" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:10px;font-size:13px" oninput="renderDayBoardingCands(this.value)">
+      <div id="dayBoardingCands" style="max-height:300px;overflow-y:auto;margin-top:8px;border:1px solid var(--border);border-radius:10px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="confirmDayBoardingAdd()">✅ 登记为走读生</button>
+      <button class="btn btn-outline" onclick="closeModal('dayBoardingAddModal')">取消</button>
     </div>
   </div>
 </div>
@@ -3534,7 +3616,10 @@ function defaultDuty(){
   return { currentWeek:0, schedule:[], waterDuty:[], waterUsedIds:[], waterRound:1,
            queue:[], cursorId:null, round:1, servedIds:[], roundLedger:[], lastGenWeek:-1, waterCursorId:null };
 }
-function defaultSeating(){ return { cols:8, rows:5, seats:[] }; }
+/* v2.20.11 closed = ['行-列'] 关闭标记（不是座位的格子，见「关闭座位」一节）。
+   ⚠️ 注释必须单独占行：_v2188 的 oneLine() 与 _v21200 的 extractFn() 会把本行整行 eval 成
+   (function …)，行尾挂 // 注释会把收尾的右括号注释掉 ⇒ SyntaxError: Unexpected end of input。 */
+function defaultSeating(){ return { cols:8, rows:5, seats:[], closed:[] }; }
 
 /* 两位补零（原先在 cbFmtTime / formatOpTime / todayStr 里各写一份局部实现） */
 function pad2(v){ return String(v).padStart(2, '0'); }
@@ -3648,6 +3733,7 @@ const STATE_SCHEMA = [
   { key:'scheduleImage', def:null, cfs:1, ms:'scheduleImage' },
   { key:'committee', def:function(){ return Object.assign({}, DEFAULT_COMMITTEE); }, cfs:1, ms:'committee' },
   { key:'seating', def:function(){ return defaultSeating(); }, cfs:1, ms:'seating' },
+  { key:'committeePos', def:function(){ return []; }, cfs:1, ms:'committeePos', sv:function(v){ return v || []; } },   // v2.20.11 老师自定义的班委职位（职位名/职责/职数）；常设 8 岗仍是 committeeConfig 常量，编辑常设岗＝按同 key 覆盖
   { key:'duty', def:function(){ return defaultDuty(); }, cfs:1, ms:'duty' },   // 值日排班（v2.10.0 轮次制）
   { key:'exportedOpsCount', def:0, cfs:1, ms:'max0' },   // 上次导出时的操作总数，用于计算未导出操作数
   { key:'classAvatar', def:null, cfs:1, ms:'classAvatar' },   // 班级头像(base64)
@@ -6089,7 +6175,11 @@ function loadData(){
       state.scheduleImage = d.scheduleImage || null;
       // 班委：旧数据可能只有 5 岗，补齐制度 8 岗的空键（已有任命原样保留）
       state.committee = Object.assign({}, DEFAULT_COMMITTEE, d.committee || {});
+      // v2.20.11 班委自定义职位（职位名 / 职责 / 职数）；老数据无此字段 → 空数组（常设 8 岗仍在 committeeConfig）
+      state.committeePos = Array.isArray(d.committeePos) ? d.committeePos : [];
       state.seating = d.seating || defaultSeating();
+      // v2.20.11 关闭座位：老数据的 seating 里没有 closed 字段 → 补空数组（自愈，不额外写盘）
+      if(!Array.isArray(state.seating.closed)) state.seating.closed = [];
       // 值日：旧数据补齐轮次制字段；已有排班视为已固化，轮次从其后开始生成
       state.duty = Object.assign(defaultDuty(), d.duty || {});
       (state.duty.schedule||[]).forEach(function(e){ if((e.week||0) > state.duty.lastGenWeek) state.duty.lastGenWeek = e.week; });
@@ -6411,6 +6501,12 @@ function msDuty(merged,localData,remoteData){
   var lts=localData.exportedOpsCount||0;var rts=remoteData.exportedOpsCount||0;
   if(rts>lts && remoteData.duty)merged.duty=remoteData.duty;
 }
+// v2.20.11 自定义班委职位：整体取新（与 committee / seating / duty 同口径，以 exportedOpsCount 为版本戳）。
+// 为什么不逐条并集：改名 / 改职责 / 改职数都是就地改同一个对象，并集无法仲裁谁更新；删除也必须能传播。
+function msCommitteePos(merged,localData,remoteData){
+  var lts=localData.exportedOpsCount||0;var rts=remoteData.exportedOpsCount||0;
+  if(rts>lts && remoteData.committeePos)merged.committeePos=remoteData.committeePos;
+}
 // scheduleImage/classAvatar are synced via data.json (compressed);
 // prefer smaller version to avoid legacy uncompressed image re-bloating data.json
 function msScheduleImage(merged,localData,remoteData){
@@ -6430,6 +6526,7 @@ var MERGE_ST = {
   punishments:msPunishments, honors:msHonors, customDorms:msCustomDorms, workLogs:msWorkLogs,
   notices:msNotices, reasons:msReasons, reasonScores:msReasonScores, reasonCatalog:msReasonCatalog,
   catTomb:msCatTomb, creditBank:msCreditBank, committee:msCommittee, seating:msSeating, duty:msDuty,
+  committeePos:msCommitteePos,
   scheduleImage:msScheduleImage, classAvatar:msClassAvatar,
   scalarFill:msScalarFill, tsmap:msTsMap, max1:msMax1, max0:msMax0, tsNewer:msTsNewer
 };
@@ -7946,10 +8043,26 @@ function addCustomTag(id){
 function syncCommitteeTags(){
   if(!state.students) return false;
   var changed = false;
+  /* v2.20.11 生效岗位 = 常设 8 岗 ⊕ 老师自定义（state.committeePos）。
+     ⚠️ 这里只能用 committeeConfig / COMMITTEE_* / state —— _v290 把本函数单独抽出来，
+     并在本地重新声明了对这几个名字的依赖；引入任何新的模块级符号都会 ReferenceError。
+     committeePos 缺省为空时，下面每一步都退化成 v2.20.10 的原行为（_v290 的行为级断言不破）。 */
+  var posOrder = [], posMap = {};
+  committeeConfig.concat(state.committeePos || []).forEach(function(c){
+    if(!c || !c.key) return;
+    if(!posMap[c.key]) posOrder.push(c.key);
+    posMap[c.key] = Object.assign({}, posMap[c.key] || {}, c);   // 同 key 后来者覆盖：自定义可改常设岗
+  });
+  var live = posOrder.map(function(k){ return posMap[k]; }).filter(function(c){ return !c.hidden; });
+  // 清理集合＝常设岗位标签 ∪ 生效岗位标签：改过名的常设岗，旧标签也要能被摘掉
+  var tagSet = {};
+  COMMITTEE_POSITION_TAGS.forEach(function(t){ tagSet[t] = 1; });
+  posOrder.forEach(function(k){ tagSet[posMap[k].tag] = 1; });
+  var allTags = Object.keys(tagSet);
   state.students.forEach(function(s){
-    var posTags = committeeConfig.filter(function(c){ return state.committee[c.key] === s.id; }).map(function(c){ return c.tag; });
+    var posTags = live.filter(function(c){ return state.committee[c.key] === s.id && c.tag; }).map(function(c){ return c.tag; });
     var kept = (s.tags||[]).filter(function(t){
-      return t !== COMMITTEE_TAG && t !== '团支书' && COMMITTEE_POSITION_TAGS.indexOf(t) < 0;
+      return t !== COMMITTEE_TAG && t !== '团支书' && allTags.indexOf(t) < 0;
     });
     var next = kept.slice();
     if(posTags.length){ next = next.concat(posTags); next.push(COMMITTEE_TAG); }
@@ -7966,7 +8079,8 @@ function renderCommittee(){
   // 进页面先校正一次标签（旧数据'团支书'标签、岗位标签残留等一律归位）
   if(syncCommitteeTags()) saveData();
   const grid = document.getElementById('committeeGrid');
-  grid.innerHTML = committeeConfig.map((cfg,idx)=>{
+  const positions = committeeAllPositions();
+  grid.innerHTML = positions.map((cfg,idx)=>{
     const studentId = state.committee[cfg.key];
     const student = studentId ? state.students.find(s=>s.id===studentId) : null;
     const name = student ? student.name : '待任命';
@@ -7976,16 +8090,122 @@ function renderCommittee(){
       <div class="top-bar ${cfg.color}"></div>
       <div class="cc-body">
         <div class="cc-avatar ${isEmpty?'empty':''}">${escapeHtml(initial)}</div>
-        <div class="cc-title">${escapeHtml(cfg.title)}</div>
+        <div class="cc-title">${escapeHtml(cfg.title)}${cfg.builtin?'':'<span class="cc-custom-tag">自定义</span>'}</div>
         <div class="cc-role ${cfg.color}">${escapeHtml(cfg.count)}</div>
         <div class="cc-name ${isEmpty?'empty':''}">${escapeHtml(name)}</div>
         <div class="cc-desc">${escapeHtml(cfg.desc)}</div>
         <div class="cc-actions">
           <button class="btn btn-primary btn-sm" onclick="openCommitteeSelect('${cfg.key}', ${studentId||'null'})">${isEmpty?'任命':'任免'}</button>
+          <button class="btn btn-outline btn-sm" onclick="openCommitteePosEdit('${cfg.key}')">改职责</button>
+          ${cfg.builtin?'':`<button class="btn btn-outline btn-sm" onclick="deleteCommitteePos('${cfg.key}')">✕ 删除</button>`}
         </div>
       </div>
     </div>`;
-  }).join('');
+  }).join('') + `<div class="committee-card committee-add stagger" style="animation-delay:${positions.length*0.06}s" onclick="openCommitteePosEdit(null)">
+      <div class="cc-body" style="align-items:center;justify-content:center;text-align:center">
+        <div class="cc-plus">＋</div>
+        <div class="cc-title">自定义职位</div>
+        <div class="cc-desc" style="text-align:center">自己写职位名、岗位职责与职数，保存后即可任命学生</div>
+      </div>
+    </div>`;
+}
+
+/* ==================== v2.20.11 班委自定义职位 ====================
+   制度常设 8 岗（committeeConfig）不可删除 —— 删掉会把岗位标签体系掏空；
+   但可以改职位名 / 岗位职责 / 职数。老师新增的职位存在 state.committeePos（随云同步，
+   合并策略 msCommitteePos 整体取新），颜色从下面这 8 色循环里自动分配。
+   「生效岗位」= 常设 ⊕ 自定义（同 key 项按 key 覆盖常设项）。 */
+const COMMITTEE_POS_COLORS = ['blue','purple','green','orange','red','teal','pink','indigo'];
+
+function committeeAllPositions(){
+  const extra = state.committeePos || [];
+  const builtinKeys = {};
+  committeeConfig.forEach(c=>{ builtinKeys[c.key] = 1; });
+  const posMap = {}, order = [];
+  committeeConfig.concat(extra).forEach(c=>{
+    if(!c || !c.key) return;
+    if(!posMap[c.key]) order.push(c.key);
+    posMap[c.key] = Object.assign({}, posMap[c.key] || {}, c);
+  });
+  return order.map(k=>{
+    const p = posMap[k];
+    return builtinKeys[k] ? Object.assign({}, p, { builtin:true }) : p;
+  }).filter(c=>!c.hidden);
+}
+
+function committeePosByKey(key){
+  return committeeAllPositions().filter(c=>c.key===key)[0] || null;
+}
+
+let _committeePosEditing = null;   // null = 新增；否则为被编辑职位的 key
+
+function openCommitteePosEdit(key){
+  _committeePosEditing = key || null;
+  const cur = key ? committeePosByKey(key) : null;
+  document.getElementById('committeePosTitle').textContent = cur ? ('编辑职位：' + cur.title) : '＋ 自定义职位';
+  document.getElementById('committeePosName').value = cur ? cur.title : '';
+  document.getElementById('committeePosDesc').value = cur ? cur.desc : '';
+  document.getElementById('committeePosCount').value = cur ? cur.count : '1人';
+  document.getElementById('committeePosHint').textContent = (cur && cur.builtin)
+    ? '这是制度常设岗位：可以改职位名 / 岗位职责 / 职数；改了职位名，学生档案上的岗位标签会跟着改。'
+    : '保存后会新增一张岗位卡片并自动分配颜色，之后就能像常设岗位一样任命学生。';
+  openModal('committeePosModal');
+}
+
+function saveCommitteePos(){
+  const name = (document.getElementById('committeePosName').value || '').trim();
+  const desc = (document.getElementById('committeePosDesc').value || '').trim();
+  const count = (document.getElementById('committeePosCount').value || '').trim() || '1人';
+  if(!name){ showToast('请填写职位名','error'); return; }
+  if(desc.length < 4){ showToast('岗位职责太短，请写清楚这个职位要做什么','error'); return; }
+  const editing = _committeePosEditing;
+  const dup = committeeAllPositions().filter(c=>c.title===name && c.key!==editing)[0];
+  if(dup){ showToast('已存在同名职位：' + name,'error'); return; }
+  const builtin = editing ? (committeeConfig.filter(c=>c.key===editing)[0] || null) : null;
+  const base = editing ? (committeePosByKey(editing) || {}) : {};
+  if(!Array.isArray(state.committeePos)) state.committeePos = [];
+  /* 职位名 → 岗位标签：没改名就沿用原标签（'副班长兼团支书' 的标签历来是 '副班长'，
+     不能因为老师进来点一下保存就把全校学生的标签换掉）；改了名才让标签跟着职位名走
+     （syncCommitteeTags 的清理集合包含常设岗位标签，旧标签会被自动摘掉）。 */
+  const tag = builtin ? (name === builtin.title ? builtin.tag : name) : name;
+  /* 新增时若撞上「删过的墓碑」（同名职位）：按原 key 复活，不新建 —— 免得墓碑越堆越多，
+     也免得同一个标签名在两处重复登记。 */
+  const tomb = editing ? null : (state.committeePos || []).filter(c=>c.hidden && c.title===name)[0];
+  const key = editing || (tomb ? tomb.key : ('pos' + Date.now()));
+  const entry = {
+    key: key, title: name, tag: tag, count: count, desc: desc,
+    color: base.color || COMMITTEE_POS_COLORS[committeeAllPositions().length % COMMITTEE_POS_COLORS.length]
+  };
+  const i = state.committeePos.map(c=>c.key).indexOf(key);
+  if(i >= 0) state.committeePos[i] = entry; else state.committeePos.push(entry);
+  syncCommitteeTags();
+  saveData();
+  closeModal('committeePosModal');
+  renderCommittee();
+  showToast((editing ? '已更新职位：' : '已新增职位：') + name, 'success');
+}
+
+function deleteCommitteePos(key){
+  if(committeeConfig.some(c=>c.key===key)){
+    showToast('制度常设岗位不能删除，可以改职位名或改职责','error');
+    return;
+  }
+  const cur = committeePosByKey(key);
+  if(!cur) return;
+  const has = !!state.committee[key];
+  if(!confirm('确认删除职位「' + cur.title + '」？' + (has ? '\n当前任命会一并解除。' : '') + '\n学生档案上的该岗位标签也会被摘掉。')) return;
+  /* v2.20.11 删除走「墓碑」而不是真删：卡片列表按 hidden 过滤（老师看不到），
+     但 syncCommitteeTags 的清理集合仍认得它的 tag —— 真删掉的话，学生档案上的
+     「电教员」标签会变成谁也管不到的残留（岗位体系里已经没有这个名字了）。
+     口径与老数据 catDeleted / mergeTsMap 的墓碑一致，随 msCommitteePos 整体取新同步。 */
+  state.committeePos = (state.committeePos || []).map(c=>{
+    return c.key === key ? Object.assign({}, c, { hidden:true }) : c;
+  });
+  if(has) state.committee[key] = null;
+  syncCommitteeTags();
+  saveData();
+  renderCommittee();
+  showToast('已删除职位：' + cur.title, 'info');
 }
 
 /* ==================== v2.17.2 学生快速选择器（共享弹窗：任命班委 / 座位 / 值日） ====================
@@ -8099,7 +8319,7 @@ function onStudentSearchKeydown(e){
 }
 
 function openCommitteeSelect(key, currentId){
-  const title = committeeConfig.find(c=>c.key===key)?.title || '班委';
+  const title = (committeePosByKey(key)||{}).title || '班委';
   document.getElementById('studentSelectTitle').textContent = `任命${title}`;
   _studentPickerPool = state.students.slice();
   _studentPickerMark = currentId || null;
@@ -8123,7 +8343,7 @@ function confirmStudentSelect(){
     syncCommitteeTags();
     saveData();
     renderCommittee();
-    const posTitle = (committeeConfig.find(c=>c.key===key)||{}).title || '班委';
+    const posTitle = (committeePosByKey(key)||{}).title || '班委';
     showToast(`已任命：${posTitle}`,'success');
   } else if(ctx === 'seating'){
     const row = parseInt(modal.dataset.row);
@@ -8212,6 +8432,46 @@ function seatLayoutSlots(cols){
   return slots;
 }
 
+/* ==================== v2.20.11 关闭座位 ====================
+   老板需求：每个班的教室不一定都是整齐的行列 —— 角落缺位、靠墙少一列。
+   被关闭的格子「不是座位」：不可点选安排、不被随机 / 按学分 / 按姓名排座填入、也不接受拖拽落点。
+   存储：state.seating.closed = ['行-列', ...]（0 基）。刻意放在 seating 内部而不是新增 state 字段 ——
+   msSeating 的「整体取新」会天然把关闭状态一起带走，少一条同步链路就少一处能忘的地方。 */
+
+function seatKey(row, col){ return row + '-' + col; }
+
+function isSeatClosed(row, col){
+  var arr = (state.seating && state.seating.closed) || [];
+  return arr.indexOf(seatKey(row, col)) >= 0;
+}
+
+function seatClosedCount(){ return ((state.seating && state.seating.closed) || []).length; }
+
+/* 行列缩小后，越界的关闭标记没有意义 —— 留着会在下次放大时「诈尸」（凭空多出几个黑格子）。 */
+function pruneSeatClosed(list, rows, cols){
+  return (Array.isArray(list) ? list : []).filter(function(k){
+    var p = String(k).split('-');
+    return p.length === 2 && p[0] !== '' && p[1] !== '' &&
+           Number(p[0]) >= 0 && Number(p[1]) >= 0 && Number(p[0]) < rows && Number(p[1]) < cols;
+  });
+}
+
+/* 置为关闭 / 开启。true = 已生效；false = 越界（调用方自己决定怎么提示）。
+   关闭时若座位上有人 → 自动把他移出座位（老板确认版：不让人留在「不是座位」的格子上）。 */
+function setSeatClosed(row, col, closed){
+  if(!state.seating) return false;
+  if(row < 0 || col < 0 || row >= state.seating.rows || col >= state.seating.cols) return false;
+  if(!Array.isArray(state.seating.closed)) state.seating.closed = [];
+  var arr = state.seating.closed, k = seatKey(row, col), i = arr.indexOf(k);
+  if(closed){
+    if(i < 0) arr.push(k);
+    state.seating.seats = state.seating.seats.filter(function(s){ return !(s.row === row && s.col === col); });
+  } else if(i >= 0){
+    arr.splice(i, 1);
+  }
+  return true;
+}
+
 function renderSeating(){
   const grid = document.getElementById('seatingGrid');
   const { cols, rows, seats } = state.seating;
@@ -8223,6 +8483,16 @@ function renderSeating(){
     for(const slot of slots){
       if(slot.type === 'aisle'){ html += '<div class="seat-aisle"></div>'; continue; }
       const c = slot.c;
+      // v2.20.11 关闭的格子：不挂 data-seat-row/col、不挂 onpointerdown ——
+      // 于是既有那个「seatDropTargetAt 只认 seat.dataset.seatRow 存在」的判定天然把它
+      // 排除在拖拽落点之外，不用另写一套「落点是不是关闭格」的分支。
+      if(state.seating.closed && state.seating.closed.indexOf(seatKey(r, c)) >= 0){
+        html += `<div class="seat closed" data-seat-closed="${r}-${c}" oncontextmenu="return false" onclick="seatClosePick(${r},${c})" title="此座位已关闭（不是座位：不可安排学生、不参与排座）">
+          <div class="seat-ban">🚫</div>
+          <div class="seat-num">R${r+1}C${c+1}</div>
+        </div>`;
+        continue;
+      }
       const seat = seats.find(s=>s.row===r && s.col===c);
       const student = seat ? state.students.find(st=>st.id===seat.studentId) : null;
       if(student){
@@ -8244,10 +8514,14 @@ function renderSeating(){
     }
   }
   grid.innerHTML = html;
+  grid.classList.toggle('seat-close-mode', !!seatCloseMode);
   syncInlineSeatInputs();
+  syncSeatCloseModeUI();
 }
 
 function seatClick(row, col, studentId){
+  // v2.20.11 关闭座位模式下：点格子 = 关 / 开该座位（不进候选人弹窗）
+  if(seatCloseMode){ seatClosePick(row, col); return; }
   // v2.18.1：默认可安排——点卡片直接弹候选名单（空位=安排 / 已占=更换），不再要求先切编辑模式
   document.getElementById('studentSelectTitle').textContent = studentId ? '更换座位' : '安排座位';
   const occupiedIds = state.seating.seats.map(s=>s.studentId);
@@ -8281,10 +8555,15 @@ function autoSeat(strategy){
   const keptCount = seats.length;
   const occupiedIds = seats.map(s => s.studentId);
   // 空座位：按「前排优先」收集（行小优先，同行列小优先）
+  // v2.20.11：已关闭的格子不是座位，直接跳过。typeof 守卫不是洁癖 ——
+  // _v2189 把本函数装进只有 6 个外部符号的沙箱，那里没有 isSeatClosed，裸调用会 ReferenceError。
   const emptySeats = [];
+  let closedN = 0;
   for(let r = 0; r < rows; r++){
     for(let c = 0; c < cols; c++){
-      if(!seats.some(s => s.row === r && s.col === c)) emptySeats.push({ row: r, col: c });
+      if(seats.some(s => s.row === r && s.col === c)) continue;
+      if(typeof isSeatClosed === 'function' && isSeatClosed(r, c)){ closedN++; continue; }
+      emptySeats.push({ row: r, col: c });
     }
   }
   const unseated = state.students.filter(s => !occupiedIds.includes(s.id));
@@ -8293,8 +8572,10 @@ function autoSeat(strategy){
     return;
   }
   if(emptySeats.length === 0){
-    // 还有未入座学生，却一个空位都没有（座位数 < 人数）
-    showToast('没有空座位可安排，请先调整行列数或移除部分座位','error');
+    // 还有未入座学生，却一个空位都没有（座位数 < 人数，或剩下的空位都被关掉了）
+    showToast(closedN > 0
+      ? ('没有可用空座位（另有 ' + closedN + ' 个座位已关闭），请先开启座位或调整行列数')
+      : '没有空座位可安排，请先调整行列数或移除部分座位','error');
     return;
   }
   let sorted = [...unseated];
@@ -8305,13 +8586,14 @@ function autoSeat(strategy){
   const strategyName = {'random':'随机','credit':'按学分从高到低','name':'按姓名拼音'}[mode];
   const fillCount = Math.min(sorted.length, emptySeats.length);
   const extra = sorted.length > fillCount ? `\n（空座位不足，剩余 ${sorted.length - fillCount} 人暂不安排）` : '';
-  if(!confirm(`按「${strategyName}」把 ${fillCount} 名未入座学生从前往后填入空座，已排的 ${keptCount} 个座位保持不变。${extra}\n确认继续？`)) return;
+  const closedNote = closedN > 0 ? `（已跳过 ${closedN} 个关闭的座位）` : '';
+  if(!confirm(`按「${strategyName}」把 ${fillCount} 名未入座学生从前往后填入空座，已排的 ${keptCount} 个座位保持不变。${extra}${closedNote}\n确认继续？`)) return;
   for(let i = 0; i < fillCount; i++){
     seats.push({ row: emptySeats[i].row, col: emptySeats[i].col, studentId: sorted[i].id });
   }
   saveData();
   renderSeating();
-  showToast(`已按「${strategyName}」补入 ${fillCount} 名学生（保留原有 ${keptCount} 个座位）`,'success');
+  showToast(`已按「${strategyName}」补入 ${fillCount} 名学生（保留原有 ${keptCount} 个座位）${closedN > 0 ? `，跳过 ${closedN} 个关闭座位` : ''}`,'success');
 }
 function clearSeating(){
   if(!confirm(`确认清空所有座位安排？这将移除 ${state.seating.seats.length} 个已分配的座位，操作不可撤销。`)) return;
@@ -8319,6 +8601,80 @@ function clearSeating(){
   saveData();
   renderSeating();
   showToast('已清空座位','info');
+  // v2.20.11 清空座位顺带把关闭状态也复位（否则「座位都清空了，还留着几个黑格子」很费解）。
+  // ⚠️ 必须落在这 5 行之后：_v2189 对这 5 行做逐字连续断言，插在中间会破约。
+  if((state.seating.closed || []).length){ state.seating.closed = []; saveData(); renderSeating(); }
+}
+
+/* ---- v2.20.11 关闭座位的交互 ----
+   一个入口管两条路径：已关闭的格子点一下＝开启（无需确认，纯回退）；
+   未关闭的格子只有在关闭模式下才可关（要点确认，因为可能把人赶出座位）。 */
+function seatClosePick(row, col){
+  if(!state.seating) return;
+  if(row < 0 || col < 0 || row >= state.seating.rows || col >= state.seating.cols) return;
+  if(isSeatClosed(row, col)){
+    setSeatClosed(row, col, false);
+    saveData();
+    renderSeating();
+    showToast('已开启 R' + (row + 1) + 'C' + (col + 1), 'success');
+    return;
+  }
+  if(!seatCloseMode){
+    showToast('此座位已关闭；点工具栏「🚫 关闭座位」进入关闭模式后可重新开启', 'info');
+    return;
+  }
+  const seat = state.seating.seats.filter(function(s){ return s.row === row && s.col === col; })[0];
+  const who = seat ? state.students.filter(function(st){ return st.id === seat.studentId; })[0] : null;
+  if(!confirm('确认关闭 R' + (row + 1) + 'C' + (col + 1) + ' 这个座位？\n该座位将不可点选、也不会被排座填入。'
+      + (who ? ('\n座位上的 ' + who.name + ' 会被移出座位。') : ''))) return;
+  setSeatClosed(row, col, true);
+  saveData();
+  renderSeating();
+  showToast('已关闭 R' + (row + 1) + 'C' + (col + 1) + (who ? ('（' + who.name + ' 已移出座位）') : ''), 'success');
+}
+
+function toggleSeatCloseMode(){
+  seatCloseMode = !seatCloseMode;
+  renderSeating();
+  showToast(seatCloseMode ? '已进入关闭座位模式：点格子即可关闭 / 打开该座位' : '已退出关闭座位模式', 'info');
+}
+
+/* 开关按钮与横幅的显隐 / 文案；renderSeating 每次重画后都会调一次。 */
+function syncSeatCloseModeUI(){
+  const btn = document.getElementById('seatCloseToggleBtn');
+  const bar = document.getElementById('seatCloseBanner');
+  const tip = document.getElementById('seatCloseBannerTip');
+  const exit = document.getElementById('seatCloseExitBtn');
+  const n = seatClosedCount();
+  if(btn) btn.classList.toggle('btn-close-active', !!seatCloseMode);
+  if(bar) bar.style.display = (seatCloseMode || n > 0) ? '' : 'none';
+  if(exit) exit.style.display = seatCloseMode ? '' : 'none';
+  if(tip) tip.textContent = seatCloseMode
+    ? ('关闭座位模式：点格子即可关闭 / 打开该座位（当前已关闭 ' + n + ' 个）。关闭的格子不参与随机 / 按学分 / 按姓名排座，也不接受拖拽落点。')
+    : ('已关闭 ' + n + ' 个座位 —— 这些格子不能安排学生、不参与排座。点「🚫 关闭座位」可继续调整。');
+}
+
+function closeAllSeats(){
+  if(!state.seating) return;
+  const cols = state.seating.cols, rows = state.seating.rows;
+  if(!confirm('确认把全部 ' + (cols * rows) + ' 个座位都关掉？\n所有已安排的学生都会被移出座位，之后请逐个开启实际要用的座位。')) return;
+  const out = [];
+  for(let r = 0; r < rows; r++) for(let c = 0; c < cols; c++) out.push(seatKey(r, c));
+  state.seating.closed = out;
+  state.seating.seats = [];
+  saveData();
+  renderSeating();
+  showToast('已关闭全部座位，请逐个开启要用的座位', 'success');
+}
+
+function openAllSeats(){
+  const n = seatClosedCount();
+  if(!n){ showToast('当前没有关闭的座位', 'info'); return; }
+  if(!confirm('确认开启全部 ' + n + ' 个已关闭的座位？')) return;
+  state.seating.closed = [];
+  saveData();
+  renderSeating();
+  showToast('已开启全部座位（' + n + ' 个）', 'success');
 }
 
 /* ==================== v2.18.5 座次拖拽换座 ====================
@@ -8333,8 +8689,15 @@ let _seatDrag = null;   // { row, col, studentId, el, active, startX, startY, ta
    就被判成「长按换座」，之后每帧 touchmove 都被掐断、整页再也滑不动。放宽到 450ms。 */
 const SEAT_HOLD_MS = 450;
 
+/* v2.20.11 关闭座位模式（仅 UI 态）：开着时点格子＝关 / 开该座位，也不起拖拽。
+   ⚠️ 这个声明必须落在「let _seatDrag」到 seatPointerCleanup 这段里 ——
+   _v2209 的拖拽沙箱正是切这一段，变量在切片外的话 seatPointerDown 一跑就 ReferenceError。 */
+var seatCloseMode = false;
+
 function seatPointerDown(ev, row, col, studentId){
   if(_seatDrag) return;
+  if(seatCloseMode) return;                                                        // v2.20.11 关闭模式下点格子＝开关座位，不起拖拽
+  if(typeof isSeatClosed === 'function' && isSeatClosed(row, col)) return;          // v2.20.11 已关闭的格子不参与拖拽（typeof 守卫＝沙箱安全）
   if(ev.pointerType === 'mouse' && ev.button !== 0) return;                        // 仅左键
   if(ev.target && ev.target.closest && ev.target.closest('.seat-actions')) return;  // 点右上角操作按钮不触发拖拽
   const isTouch = ev.pointerType === 'touch';
@@ -8433,6 +8796,10 @@ function seatPointerCleanup(){
 
 function seatDrop(fromRow, fromCol, toRow, toCol){
   if(fromRow === toRow && fromCol === toCol){ renderSeating(); return; }   // 拖回原位 = 取消
+  // v2.20.11 落点已关闭 ⇒ 不接收（关闭的格子不是座位）。这里刻意内联判断而不抽函数：
+  // _v2189 把本函数装进只有 state/saveData/showToast/renderSeating/confirm/escapeHtml 的沙箱，
+  // 引用任何外部符号（比如 _seatClosedSet）都会 ReferenceError。
+  if(((state.seating && state.seating.closed) || []).indexOf(toRow + '-' + toCol) >= 0){ renderSeating(); return; }
   const seats = state.seating.seats;
   const src = seats.find(s => s.row === fromRow && s.col === fromCol);
   if(!src){ renderSeating(); return; }
@@ -8458,6 +8825,8 @@ function saveSeatLayout(){
   state.seating.rows = rows;
   // Remove seats that are out of bounds
   state.seating.seats = state.seating.seats.filter(s=>s.row < rows && s.col < cols);
+  // v2.20.11 关闭标记同步收缩（缩小后越界的那几个留着，下次放大就会凭空多出黑格子）
+  state.seating.closed = pruneSeatClosed(state.seating.closed, rows, cols);
   saveData();
   showToast(`座位布局已更新：${cols}列 × ${rows}行`,'success');
   renderSeating();
@@ -8477,7 +8846,8 @@ function updateSeatTotal(){
   const el=document.querySelector('.seat-config-inline .seat-total');
   if(ci&&ri&&el){
     const c=parseInt(ci.value)||0,r=parseInt(ri.value)||0;
-    el.textContent=`共 ${c*r} 座位`;
+    const cn=seatClosedCount();
+    el.textContent=`共 ${c*r} 座位` + (cn ? ` · 已关闭 ${cn}` : '');
   }
 }
 
@@ -8491,6 +8861,7 @@ function saveSeatLayoutInline(){
   state.seating.cols=cols;
   state.seating.rows=rows;
   state.seating.seats=state.seating.seats.filter(s=>s.row<rows&&s.col<cols);
+  state.seating.closed=pruneSeatClosed(state.seating.closed,rows,cols);   // v2.20.11 关闭标记同步收缩
   saveData();
   // 同步设置页输入
   const sc=document.getElementById('seatColsInput');
@@ -9038,7 +9409,9 @@ function closeImgSave(){
 
 function seatExportImage(){
   const { cols, rows, seats } = state.seating;
-  const inRange = seats.filter(s => s.row < rows && s.col < cols);
+  // v2.20.11 关闭的格子：导出图里也必须画出来（贴墙打印时「这里不是座位」要一眼可见）
+  const closedKeys = Array.isArray(state.seating.closed) ? state.seating.closed : [];
+  const inRange = seats.filter(s => s.row < rows && s.col < cols && closedKeys.indexOf(s.row + '-' + s.col) < 0);
   if(inRange.length === 0){ showToast('请先安排座位再导出','error'); return; }
   const seatMap = {}, nameMap = {};
   inRange.forEach(s => { seatMap[s.row + '-' + s.col] = s.studentId; });
@@ -9069,7 +9442,8 @@ function seatExportImage(){
   ctx.fillText((state.className || '班级') + ' · 座次表', W / 2, pad + 48);
   ctx.font = '15px "Microsoft YaHei",sans-serif';
   ctx.fillStyle = 'rgba(255,255,255,0.88)';
-  ctx.fillText(cols + '列 × ' + rows + '行 · ' + (aisleN ? (aisleN + 1) + '组 · ' : '') + '已入座 ' + inRange.length + ' 人', W / 2, pad + 82);
+  ctx.fillText(cols + '列 × ' + rows + '行 · ' + (aisleN ? (aisleN + 1) + '组 · ' : '') + '已入座 ' + inRange.length + ' 人'
+    + (closedKeys.length ? ' · 已关闭 ' + closedKeys.length + ' 格' : ''), W / 2, pad + 82);
 
   // 讲台（虚线框）
   const py = pad + titleH;
@@ -9121,13 +9495,26 @@ function seatExportImage(){
     ctx.fillText('第' + (r + 1) + '排', pad + rowLabelW - 12, cy + 5);
   }
 
-  // 座位格子
+  // 座位格子（v2.20.11：关闭的格子画成灰底虚线 + 「已关闭」，与「空位（细虚线圈）」一眼可分）
   slots.forEach(function(sl, i){
     if(sl.type !== 'seat') return;
     const x = xs[i];
     for(let r = 0; r < rows; r++){
       const y = gy0 + r * (cellH + gap);
-      const sid = seatMap[r + '-' + sl.c];
+      const k = r + '-' + sl.c;
+      if(closedKeys.indexOf(k) >= 0){
+        ctx.fillStyle = '#EFEBE3';
+        seatRoundRect(ctx, x, y, cellW, cellH, 8); ctx.fill();
+        ctx.strokeStyle = 'rgba(43,43,51,0.28)'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+        seatRoundRect(ctx, x, y, cellW, cellH, 8); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#8A8172';
+        ctx.font = '13px "Microsoft YaHei",sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('已关闭', x + cellW / 2, y + cellH / 2 + 5);
+        continue;
+      }
+      const sid = seatMap[k];
       const nm = sid !== undefined ? (nameMap[sid] || '') : '';
       if(nm){
         ctx.fillStyle = '#FBEEE9';
@@ -9566,9 +9953,71 @@ function openDayBoardingList(){
     var phone = (s.profile && s.profile.phone) || '';
     return '<div class="member-row"><span><span class="mr-name">' + escapeHtml(s.name) + '</span>' +
       '<span style="font-size:12px;color:var(--text-muted);margin-left:6px">' + escapeHtml(s.sid || '') + '</span></span>' +
-      '<span style="font-size:13px;color:var(--text-secondary)">' + escapeHtml(phone) + '</span></div>';
+      '<span style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;color:var(--text-secondary)">' + escapeHtml(phone) + '</span>' +
+      '<button class="btn btn-outline btn-sm" onclick="cancelDayBoarding(' + s.id + ')">✕ 取消走读</button></span></div>';
   }).join('') || '<div class="dorm-empty">暂无走读生</div>';
   openModal('dayBoardingModal');
+}
+
+/* ==================== v2.20.11 走读生登记 ====================
+   此前登记走读只能去学生档案手打「走读」标签，寝室页只有个只读名单。
+   候选口径（老板定）：只列「没有寝室号」且尚未走读的学生 —— 有寝室的人要先移出寝室，
+   否则会出现同时挂「6栋-802室」和「走读」的脏数据（dormDataIssues 会报标签冲突）。 */
+function dayBoardingCands(kw){
+  var pool = state.students.filter(function(s){ return !isDayBoarding(s) && !dormNoOf(s); });
+  return matchStudentsByName(pool, kw);
+}
+function renderDayBoardingCands(kw){
+  var el = document.getElementById('dayBoardingCands');
+  if(!el) return;
+  var list = dayBoardingCands(kw);
+  if(!list.length){
+    el.innerHTML = '<div class="dorm-empty">没有可登记的学生<br><span style="font-size:12px">已有寝室的同学不在此列，请先在寝室页移出寝室</span></div>';
+    return;
+  }
+  el.innerHTML = list.map(function(s){
+    return '<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);cursor:pointer">' +
+      '<input type="checkbox" class="dayBoardingCk" value="' + s.id + '">' +
+      '<span class="mr-name">' + escapeHtml(s.name) + '</span>' +
+      '<span style="font-size:12px;color:var(--text-muted)">' + escapeHtml(s.sid || '') + '</span></label>';
+  }).join('');
+}
+function openDayBoardingAddModal(){
+  var kw = document.getElementById('dayBoardingKw');
+  if(kw) kw.value = '';
+  renderDayBoardingCands('');
+  openModal('dayBoardingAddModal');
+}
+function confirmDayBoardingAdd(){
+  var ids = [];
+  document.querySelectorAll('#dayBoardingCands .dayBoardingCk:checked').forEach(function(ck){ ids.push(String(ck.value)); });
+  if(!ids.length){ showToast('请先勾选要登记的学生','error'); return; }
+  var n = 0;
+  ids.forEach(function(id){
+    var s = state.students.filter(function(x){ return String(x.id) === id; })[0];
+    if(!s) return;
+    if(!s.tags) s.tags = [];
+    s.tags = s.tags.filter(function(t){ return !isDormTag(t); });   // 兜底：顺手摘掉寝室号标签，绝不制造「又住校又走读」
+    if(s.tags.indexOf(DAY_TAG) < 0) s.tags.push(DAY_TAG);
+    s.updatedAt = Date.now();
+    n++;
+  });
+  saveData();
+  closeModal('dayBoardingAddModal');
+  renderDorm();
+  showToast('已登记 ' + n + ' 名走读生', 'success');
+  openDayBoardingList();
+}
+function cancelDayBoarding(id){
+  var s = state.students.filter(function(x){ return x.id === id; })[0];
+  if(!s) return;
+  if(!confirm('确认取消 ' + s.name + ' 的走读生身份？\n将移除「走读」标签（不会自动安排寝室）。')) return;
+  s.tags = (s.tags||[]).filter(function(t){ return t !== DAY_TAG; });
+  s.updatedAt = Date.now();
+  saveData();
+  renderDorm();
+  showToast('已取消走读：' + s.name, 'info');
+  openDayBoardingList();
 }
 
 /* ==================== Credits Page ==================== */
