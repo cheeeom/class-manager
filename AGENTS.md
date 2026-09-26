@@ -208,6 +208,17 @@ JS 各模块（按小节注释定位）：
 
 ## 5. 云同步机制（接手必读）
 
+> 📌 **2026-09-26 追记 —— 本节下方是 v2.8.0 期的写法，其中两处已失效，别照着做**：
+> v2.20.7 起数据已从站点仓搬进**私有仓** `cheeeom/class-manager-data`（见 `GH_REPO` 常量）。
+> ⇒ 下面「拉取 = `fetch('./data.json?t=…')`，无需 token」**已不成立**：私有仓匿名访问一律 404，
+> **拉取与推送都必须带 Token**（读取走 `api.github.com/repos/…/contents/data.json`，
+> 站点上那份 `./data.json` 已于 2026-09-26 删除，现在返回 404）。
+> 加密改造本身仍然保留 —— 它已从「唯一根本解」降级为**第二道锁**：Token 泄露、
+> 或仓库被误设为公开时，没有口令依然打不开。
+> ⚠️ **不变的结论**：**站点仓（Pages 那个）仍然是公开的**（免费版 Pages 只能用公开仓），
+> 所以「凡是落在站点仓里的东西都必须先脱敏 / 加密」这条依然成立。
+> 📖 最新口径以 `PROGRESS.md` 文末的 v2.20.7 与 v2.20.11 章节为准。
+
 - **推送**：任何写操作 → `saveData()` → `autoPushToCloud()`（2 秒防抖）→ GitHub Contents API：GET 取 sha → PUT base64 覆盖 `data.json`（commit message `auto-sync: update data.json`）。提交历史里的大量 auto-sync 提交即来源于此。
 - **拉取**：页面加载 + `visibilitychange` 时 `autoSyncFromCloud()` → `fetch('./data.json?t=…')` → `smartMergeData()` 合并。
 - **合并规则**（`smartMergeData`）：
