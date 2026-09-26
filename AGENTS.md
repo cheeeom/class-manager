@@ -1,5 +1,6 @@
 # AGENTS.md — 班主任工作台 开发笔记
 
+> 🔒 **本机路径已脱敏**：文中凡本机目录 / 用户名一律写成〈…〉占位符（真实路径只记在本机工作区的工具记忆里，不随仓库发布）。
 > 面向后续开发者（人类或 AI 助手）的项目全景认知与接手指南。
 > 行号以 **v2.7.0（commit `1dc1af9`，2026-09-01 全量核对）** 为准，代码变动后会漂移；定位代码时优先搜小节注释（形如 `/* ==================== XXX ==================== */`）。
 >
@@ -39,15 +40,15 @@
 > **改用增量推送**（只改你指定的文件，其余一律沿用远端现状）：
 >
 > ```bash
-> GH_TOKEN=$(cat /d/a/chee777/scripts/_gh_token.txt) \
->   node D:/a/chee777/scripts/cm-push-incremental.js "提交信息" <文件1> [文件2 ...]
+> GH_TOKEN=$(cat 〈本机脚本目录〉/_gh_token.txt) \
+>   node 〈本机脚本目录〉/cm-push-incremental.js "提交信息" <文件1> [文件2 ...]
 > ```
 >
 > **删除远端文件**（v2.20.2 起支持）：把路径写成 `--rm:<路径>` 显式声明。
 > 脚本刻意**不做**「文件不存在就删」的隐式推断 —— 路径打错一个字符就会把线上文件误删。
 >
 > ```bash
-> node D:/a/chee777/scripts/cm-push-incremental.js "msg" index.html sw.js --rm:_v2201_test.js
+> node 〈本机脚本目录〉/cm-push-incremental.js "msg" index.html sw.js --rm:_v2201_test.js
 > ```
 >
 > **推送后必做：逐文件比 blob sha**（比看字节数可靠得多，2026-09-14 实测抓到一处幽灵差异）：
@@ -483,7 +484,7 @@ done
 **兜底 —— `gh` CLI + Git Data API（2026-09-02 实测可用）**：`gh` 已安装且已认证（`gh auth status` → cheeeom，`repo` 权限），走 `api.github.com`，完全不受 `github.com` 被墙影响。脚本已写好：
 
 ```bash
-cd D:/a/chee777/class-manager
+cd 〈已废弃的本机旧分叉副本〉
 git add -A                                   # 修行尾时用 git add --renormalize .
 node ../scripts/cm-push-via-api.js "提交信息"
 ```

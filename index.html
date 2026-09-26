@@ -3776,9 +3776,10 @@ function stripNoticeHistoryImages(notices){
 }
 
 /* ==================== 云同步加密（v2.8.0） ==================== */
-// 背景：仓库是 public 的，Pages 站点也公开，data.json 对全世界可读（含学生姓名与家长手机号）。
-// 转私有仓库并不能解决（Free 账户不支持私有仓库 Pages，且 Pages 站点本身始终公开），
-// 因此唯一根本解是「先加密再上云」：公开仓库里只剩密文，泄露也无意义。
+// 背景（v2.8.0）：当时数据直接躺在公开的站点仓里，data.json 对全世界可读（含学生姓名与家长手机号）。
+// 站点仓必须公开（免费版 Pages 只能用公开仓），所以加密是当时的唯一根本解 —— 云端仓库里只剩密文，泄露也无意义。
+// v2.20.7 起数据已搬进私有数据仓（见 GH_REPO），匿名访问一律 404，加密因此降级为「第二道锁」：
+// Token 泄露、或仓库被误设为公开时，没有口令依然打不开。
 // 信封格式：{ enc:1, alg, salt, iv, data }。salt/iv 明文存放是标准做法，安全性完全取决于口令强度。
 const SYNC_PWD_KEY = 'cm_sync_pwd';
 const SYNC_SALT_KEY = 'cm_sync_salt';
@@ -3833,7 +3834,7 @@ function _deriveKey(pwd, salt){
 }
 // 明文对象 → 加密信封。无口令时原样返回明文（用户显式关闭加密的既有约定）；
 // v2.20.0 加固：已配置口令但环境缺 Web Crypto（iOS 主屏模式）时【拒绝】而非静默明文——
-// 旧逻辑会把明文学生数据推上公开仓库，属隐私事故。
+// 旧逻辑会把明文学生数据推上云端仓库，属隐私事故。
 function encryptForCloud(plainObj){
   if(!hasSyncPwd()) return Promise.resolve(plainObj);
   if(!cryptoOK()) return Promise.reject(new Error('已开启同步加密，但' + cryptoFailReason()));
@@ -3859,10 +3860,10 @@ function decryptFromCloud(env){
     .catch(function(){ return Promise.reject(new Error('解密失败：同步口令不正确')); });
 }
 function configSyncPwd(){
-  var cur = hasSyncPwd() ? '（已配置）' : '（未配置 —— 数据正以明文存放在公开仓库，任何人可查看）';
+  var cur = hasSyncPwd() ? '（已配置）' : '（未配置 —— 数据以明文存放在云端仓库，未加密保护）';
   var p = prompt(
     '云同步加密口令 ' + cur + '\n\n' +
-    '作用：数据会用这个口令加密后再上传到 GitHub，公开仓库里只剩密文，\n' +
+    '作用：数据会用这个口令加密后再上传到 GitHub，云端仓库里只剩密文，\n' +
     '别人拿到也无法查看学生姓名和家长电话。\n\n' +
     '要求：\n' +
     '· 建议 12 位以上，混合字母与数字\n' +
@@ -3873,7 +3874,7 @@ function configSyncPwd(){
   if(p === null) return;
   p = p.trim();
   if(p === ''){
-    if(!confirm('关闭加密后，数据将以明文存放在公开仓库，任何人都能看到学生姓名和家长电话。\n\n确认关闭？')) return;
+    if(!confirm('关闭加密后，数据将以明文存放在云端仓库；一旦 Token 泄露或仓库被误设为公开，任何人都能看到学生姓名和家长电话。\n\n确认关闭？')) return;
     localStorage.removeItem(SYNC_PWD_KEY);
     showToast('已关闭云同步加密，数据将以明文上传','warning');
     updateCloudSyncUI();
@@ -6786,9 +6787,9 @@ function updateCloudSyncUI(){
     html += '<span style="color:var(--warning)">⚠️ 自动同步未配置</span>——数据仅保存在本机，请点击下方「配置 GitHub Token」<br>';
   }
   if(hasSyncPwd()){
-    html += '<span style="color:var(--primary)">🔒 云同步加密已开启</span>——上传到公开仓库的是 AES-256 密文';
+    html += '<span style="color:var(--primary)">🔒 云同步加密已开启</span>——上传到云端仓库的是 AES-256 密文';
   } else {
-    html += '<span style="color:var(--danger)">🔓 云同步未加密</span>——数据以明文存放在公开仓库，任何人可下载查看';
+    html += '<span style="color:var(--danger)">🔓 云同步未加密</span>——数据以明文存放在云端仓库，未加密保护';
   }
   html += '</div>';
   el.innerHTML = html;

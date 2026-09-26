@@ -1,5 +1,6 @@
 # CONTEXT.md — 项目当前快照
 
+> 🔒 **本机路径已脱敏**：文中凡本机目录 / 用户名一律写成〈…〉占位符（真实路径只记在本机工作区的工具记忆里，不随仓库发布）。
 > **接续开发必读入口。** 本文件是「压缩版上下文」，让任何 AI 工具（WorkBuddy / Claude Code / Cursor / Windsurf / Copilot）
 > 在拿到仓库的 30 秒内建立全貌，不用从 38KB 的 AGENTS.md 里翻。
 > 细节查 `AGENTS.md`（架构与约定），逐版本历史查 `PROGRESS.md`（含每次会话记录与踩坑）。
@@ -34,9 +35,9 @@
 **禁止整仓 force push / 整目录覆盖**，否则会连带把云端真实数据冲掉。
 
 ```bash
-export GH_TOKEN=$(cat /d/a/chee777/scripts/_gh_token.txt | tr -d '\r\n')
-cd /d/a/chee777/class-manager
-node D:/a/chee777/scripts/cm-push-incremental.js "提交信息" index.html sw.js PROGRESS.md CONTEXT.md
+export GH_TOKEN=$(cat 〈本机脚本目录〉/_gh_token.txt | tr -d '\r\n')
+cd 〈已废弃的本机旧分叉副本〉
+node 〈本机脚本目录〉/cm-push-incremental.js "提交信息" index.html sw.js PROGRESS.md CONTEXT.md
 ```
 
 - 脚本做**增量推送**，保住云端 `data.json`
@@ -66,7 +67,7 @@ node D:/a/chee777/scripts/cm-push-incremental.js "提交信息" index.html sw.js
 | `_xss_test.js` | 14 | XSS 防护 |
 
 ```bash
-cd /d/a/chee777/class-manager
+cd 〈已废弃的本机旧分叉副本〉
 for f in _v290 _v2100 _v2110 _v2113 _v2120 _v2130 _v2140 _v2150 _v2160 _v2170 _v2171 _v2172 _sync _xss; do node ${f}_test.js; done
 ```
 
@@ -155,5 +156,5 @@ for f in _v290 _v2100 _v2110 _v2113 _v2120 _v2130 _v2140 _v2150 _v2160 _v2170 _v
 
 ## 八、备份
 
-- `D:\a\chee777\backups\data.json.bak-20260905-154027` —— 清空前密文备份，可回滚
-- 仓库外（不进 public 仓库）：`D:\a\chee777\名单同步_26幼2_59人.txt`（59 人含两名同名）
+- `〈本机备份目录〉\data.json.bak-20260905-154027` —— 清空前密文备份，可回滚
+- 仓库外（不进 public 仓库）：`〈仓库外的名单文本文件〉`（59 人含两名同名）
