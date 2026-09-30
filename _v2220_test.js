@@ -132,7 +132,7 @@ has(html, 'class="leave-hist"', '历史记录改用具名类（不再内联样�
 has(html, 'class="leave-foot"', '底部脚区');
 has(html, 'class="leave-created"', '登记时间在脚区左侧');
 has(html, '.leave-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto', '脚区 margin-top:auto —— 同行卡片按钮对齐靠它');
-has(html, '.leave-card{\n  display:flex;flex-direction:column;min-height:176px;', '卡片是 flex column（grid 负责等高，column 负责内部压底）');
+has(html, '.leave-card{\n  display:flex;flex-direction:column;\n  background:var(--card-bg);', '卡片是 flex column（grid 负责等高，column 负责内部压底；v2.23.0 已按老板要求删掉固定 min-height）');
 has(html, 'escapeHtml(l.reason)', '原因文本已转义（原先是裸插）');
 has(html, 'escapeHtml(stuName)', '姓名文本已转义');
 has(html, "'<span class=\"leave-actions\">'+actions", '操作按钮移到脚区');
@@ -164,7 +164,7 @@ notHas(html, 'l.startDate+\' \'+spText+\' ~ \'+l.endDate', '老式长日期串�
 has(html, 'var rangeFull = l.startDate', '完整区间仍在，只是移到了 title');
 has(html, 'lvShortDate(l.startDate)', '显示走短日期');
 has(html, 'lvShortDate(l.endDate)', '结束日期同样走短日期');
-has(html, '.leave-actions .btn{padding:3px 9px;font-size:12px', '按钮在窄卡里缩小');
+has(html, '.leave-actions .btn{padding:4px 11px;font-size:12.5px', '按钮在窄卡里保持紧凑（v2.23.0 字号上调一档）');
 has(html, '-webkit-line-clamp:2', '原因最多两行');
 
 // ============================================================
