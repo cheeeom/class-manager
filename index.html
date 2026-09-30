@@ -1436,8 +1436,8 @@ tbody tr.highlight{
   .settings-section{padding:14px}
   .settings-section h3{font-size:15px}
   .chart-container{height:220px}
-  .leave-card{padding:12px 14px}
-  .leave-meta{gap:8px;font-size:12px}
+  .leave-card{padding:12px 14px;min-height:0}
+  .leave-meta{gap:5px;font-size:12.5px;padding:6px 9px}
   .exam-card{padding:14px}
   .exam-stats{gap:8px}
   .exam-stat{padding:6px 10px}
@@ -1733,25 +1733,45 @@ html.dark .tl-body{background:var(--bg)}
 .duty-water-info .round-tag{display:inline-block;background:rgba(166,58,43,0.1);color:var(--primary-dark);padding:2px 8px;border-radius:4px;font-weight:600;margin-left:6px}
 
 /* ==================== Attendance (Leave) ==================== */
-.leave-card{background:#fff;border-radius:14px;padding:16px 20px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-left:4px solid var(--primary);transition:all .2s}
-.leave-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.1)}
-.leave-card.status-pending{border-left-color:#B96A1F}
-.leave-card.status-returned{border-left-color:#2F7D5B;opacity:.75}
-.leave-card.status-extended{border-left-color:#6B5B95}
-.leave-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.leave-student{font-size:16px;font-weight:600}
-.leave-type{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:500;margin-left:8px}
+/* ==================== v2.22.0 请假卡：一行三张 ==================== */
+/* 信息优先级按班主任视角重排：谁 -> 什么假/什么状态 -> 何时走&何时回 -> 为什么 -> 登记时间+操作。
+   · 卡片 flex column + .leave-foot{margin-top:auto}：grid 已保证同行等高，auto 边距再把脚部压到底
+     => 同行卡片的按钮永远在同一水平线上（原先是各卡不等高、按钮参差）。
+   · 原 #fff / #F7F4EC 是硬编码，暗色主题下会白底突脸，一律换 var(--*)。
+   · 日期走 lvShortDate() 出「09-28」短格式（同年省年份，跨年自动补全），完整区间挂在 title 上。 */
+.leave-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:10px}
+.leave-card{
+  display:flex;flex-direction:column;min-height:176px;
+  background:var(--card-bg);border:1px solid var(--border);border-left:4px solid var(--primary);
+  border-radius:var(--radius);padding:13px 15px;
+  box-shadow:0 2px 8px rgba(43,38,28,.06);transition:box-shadow .2s,border-color .2s;
+}
+.leave-card:hover{box-shadow:0 4px 16px rgba(43,38,28,.1)}
+.leave-card.status-pending{border-left-color:var(--orange)}
+.leave-card.status-returned{border-left-color:var(--success);opacity:.75}
+.leave-card.status-extended{border-left-color:var(--purple)}
+.leave-card-header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:7px;min-width:0}
+.leave-student{font-size:16px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.leave-type{display:inline-block;padding:2px 9px;border-radius:20px;font-size:12px;font-weight:500;margin-left:7px;flex-shrink:0;vertical-align:middle}
 .leave-type.sick{background:rgba(180,35,24,0.1);color:#A34A3C}
 .leave-type.personal{background:rgba(166,58,43,0.1);color:#8C2F22}
 .leave-type.official{background:rgba(47,125,91,0.1);color:#276B4E}
-.leave-meta{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--text-muted);margin-bottom:8px}
-.leave-meta span{display:flex;align-items:center;gap:4px}
-.leave-reason{font-size:14px;color:var(--text-secondary);padding:8px 12px;background:#F7F4EC;border-radius:8px;margin-bottom:8px}
-.leave-actions{display:flex;gap:8px}
-.leave-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600}
+.leave-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600;flex-shrink:0;white-space:nowrap}
 .leave-badge.pending{background:#F5EBD8;color:#9A5A14}
 .leave-badge.returned{background:#EAF0E6;color:#2F7D5B}
 .leave-badge.extended{background:#EFEAF5;color:#584A82}
+.leave-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px;color:var(--text);background:var(--bg-secondary);border-radius:var(--radius-sm);padding:7px 10px;margin-bottom:8px;font-variant-numeric:tabular-nums}
+.leave-meta .lv-arrow{color:var(--text-muted);flex-shrink:0}
+.leave-meta .lv-dur{margin-left:auto;font-size:12px;color:var(--primary);font-weight:600;white-space:nowrap}
+.leave-reason{font-size:13px;line-height:1.55;color:var(--text-secondary);margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.leave-hist{font-size:11px;color:var(--text-muted);margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.leave-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:2px}
+.leave-created{font-size:11px;color:var(--text-muted);white-space:nowrap}
+.leave-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.leave-actions .btn{padding:3px 9px;font-size:12px;line-height:1.5;min-height:0}
+.leave-actions .todo-btn{width:26px;height:26px;min-width:0}
+@media(max-width:1100px){.leave-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){.leave-grid{grid-template-columns:1fr;gap:8px}}
 
 /* ==================== Grades ==================== */
 .exam-card{background:#fff;border-radius:14px;padding:18px 22px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
@@ -2022,9 +2042,17 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
   animation:rcPop .45s cubic-bezier(.34,1.56,.64,1);
 }
 @keyframes rcPop{0%{transform:scale(.94)}60%{transform:scale(1.14)}100%{transform:scale(1.08)}}
+/* v2.22.0 「假」字居中标定（5 倍渲染墨迹实测，非估算）：
+   旧写法 line-height:20px + text-align:center 下字心偏下 0.50px；
+   只改成 flex 居中**数值一模一样仍是 +0.50** —— flex 居中居的是行盒，
+   行盒的基线位置没动，字形在 em 框里天然偏下的那部分没被抵消。
+   唯一有效的是「只顶文字、不动徽章几何」：padding-bottom:1px 让行盒在 19px 内容区里居中
+   => 上移 0.5px，实测 dy 由 +0.50 收到 -0.10（进测量噪声）。
+   ⛔ 别用 transform:translateY 代偿 —— 它连圆一起搬走，实测反而恶化到 +0.67。 */
 .rc-badge{
   position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;
-  background:var(--success);color:#fff;font-size:11px;font-weight:600;line-height:20px;text-align:center;
+  background:var(--success);color:#fff;font-size:11px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;line-height:1;padding-bottom:1px;
   box-shadow:0 1px 3px rgba(43,38,28,.18);pointer-events:none;
 }
 .rc-panel{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
@@ -2094,7 +2122,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.21.0</div>
+      <div class="login-version">v2.22.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2216,7 +2244,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.21.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.22.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2955,15 +2983,15 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.21.0</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.22.0</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.21.0）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.22.0）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 🎲 <b>新增「课堂点名」</b>：卡片墙展示全班姓名，可自选抽 1 / 2 / 3 / 5 人；点「开始抽取」后绿色边框在候选池里快速滚动、逐级减速，定格后中签卡片亮起琥珀色边框<br>
-              · 🔁 <b>一轮内不重复抽</b>：抽中即移出候选池，抽过与老师手点过的卡片都会变灰，抽完一轮按钮自动变成「重置」；顶部实时统计已点到 / 未点到，下方列出未点到名单<br>
-              · 🏷️ <b>当天请假自动标注</b>：当天有请假记录的卡片右上角显示石绿「假」徽章，且不进入抽签池<br>
+              · 🎯 <b>请假页改「一行三张」</b>：宽屏三列、平板两列、手机一列；同行卡片等高，姓名与假别在左上、状态徽章在右上，起止时段和时长单独成块，原因最多两行，登记时间与「续假 / 销假 / 删除」收在底部对齐<br>
+              · 🧾 <b>日期与原因瘦身</b>：同年只显示「09-28」这半截（跨年自动补全年份），鼠标悬停可看完整区间与完整原因<br>
+              · 📐 <b>「假」徽章字心归正</b>：点名页卡片右上角的「假」徽章，字原先视觉上略偏下，现已按实测压回圆心正中<br>
             </div>
           </div>
         </div>
@@ -13814,6 +13842,17 @@ function formatDuration(d){
   return d + ' 天';
 }
 
+/* v2.22.0 请假卡用的短日期：同年省年份（列表里绝大多数是同年），跨年必须补全，
+   否则「09-28」到底是哪一年说不清。
+   ⚠️ 纯字符串切片，**刻意不碰 new Date()** —— 'YYYY-MM-DD' 会被解析成 UTC 午夜，
+   在 UTC+8 之外（东八区以西）会整体掉一天。 */
+function lvShortDate(ds, refYear){
+  if(!ds || typeof ds !== 'string' || ds.length < 10) return ds || '';
+  var y = ds.slice(0, 4), mm = ds.slice(5, 7), dd = ds.slice(8, 10);
+  var cur = String(refYear || new Date().getFullYear());
+  return (y === cur) ? (mm + '-' + dd) : (y + '-' + mm + '-' + dd);
+}
+
 function updateLeaveDuration(){
   var start = document.getElementById('leaveStart').value;
   var end = document.getElementById('leaveEnd').value;
@@ -13935,7 +13974,7 @@ function renderAttendance(){
     list.innerHTML = '<div class="empty-state"><div class="icon">📨</div><div class="text">暂无请假记录</div><div style="margin-top:8px"><button class="btn btn-primary btn-sm" onclick="openLeaveModal()">+ 登记请假</button></div></div>';
   } else {
     const sorted = [...state.leaves].sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
-    list.innerHTML = sorted.map(l => {
+    list.innerHTML = '<div class="leave-grid">' + sorted.map(l => {
       const stu = state.students.find(s=>s.id===l.studentId);
       const stuName = stu ? stu.name : '已删除学生';
       const typeText = LEAVE_TYPES[l.type] || l.type;
@@ -13943,28 +13982,39 @@ function renderAttendance(){
       const actions = l.status !== 'returned'
         ? `<button class="btn btn-outline btn-sm" onclick="extendLeave(${l.id})">续假</button><button class="btn btn-primary btn-sm" onclick="returnLeave(${l.id})">销假</button>`
         : '';
-      const history = l.history && l.history.length > 0
-        ? `<div style="font-size:12px;color:var(--text-muted);margin-top:4px">${l.history.map(h=>{
-          if(h.action==='extend') return `续假 ${h.from} → ${h.to}`;
-          if(h.action==='return') return `于 ${h.date} 销假`;
-          return '';
-        }).join(' · ')}</div>` : '';
-            var spText = l.startPeriod==='am'?'上午':l.startPeriod==='pm'?'下午':'全天';
+      const histText = (l.history || []).map(h=>{
+        if(h.action==='extend') return `续假 ${h.from} → ${h.to}`;
+        if(h.action==='return') return `于 ${h.date} 销假`;
+        return '';
+      }).filter(Boolean).join(' · ');
+      const history = histText ? `<div class="leave-hist" title="${histText}">${histText}</div>` : '';
+      var spText = l.startPeriod==='am'?'上午':l.startPeriod==='pm'?'下午':'全天';
       var epText = l.endPeriod==='am'?'上午':l.endPeriod==='pm'?'下午':'全天';
+      var rangeFull = l.startDate + ' ' + spText + ' ~ ' + l.endDate + ' ' + epText;
+      var cd = new Date(l.createdAt);
+      var createdTxt = isNaN(cd.getTime()) ? '' : ((cd.getMonth()+1) + '/' + cd.getDate());
       return '<div class="leave-card status-'+l.status+'">'+
               '<div class="leave-card-header">'+
-                '<div><span class="leave-student">'+stuName+'</span><span class="leave-type '+l.type+'">'+typeText+'</span>'+(statusMap[l.status]||'')+'</div>'+
-                '<div class="leave-actions">'+actions+'<button class="todo-btn" onclick="deleteLeave('+l.id+')" title="删除"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button></div>'+
+                '<div style="min-width:0;display:flex;align-items:center;overflow:hidden">'+
+                  '<span class="leave-student">'+escapeHtml(stuName)+'</span>'+
+                  '<span class="leave-type '+l.type+'">'+typeText+'</span>'+
+                '</div>'+
+                (statusMap[l.status]||'')+
               '</div>'+
-              '<div class="leave-meta">'+
-                '<span>📅 '+l.startDate+' '+spText+' ~ '+l.endDate+' '+epText+'</span>'+
-                (l.duration?'<span style="color:var(--primary);font-weight:600">⏱ '+formatDuration(l.duration)+'</span>':'')+
-                '<span>📝 '+new Date(l.createdAt).toLocaleDateString('zh-CN')+' 登记</span>'+
+              '<div class="leave-meta" title="'+rangeFull+'">'+
+                '<span>'+lvShortDate(l.startDate)+' '+spText+'</span>'+
+                '<span class="lv-arrow">→</span>'+
+                '<span>'+lvShortDate(l.endDate)+' '+epText+'</span>'+
+                (l.duration?'<span class="lv-dur">共 '+formatDuration(l.duration)+'</span>':'')+
               '</div>'+
-              '<div class="leave-reason">'+l.reason+'</div>'+
+              '<div class="leave-reason" title="'+escapeHtml(l.reason)+'">'+escapeHtml(l.reason)+'</div>'+
               history+
+              '<div class="leave-foot">'+
+                '<span class="leave-created">'+createdTxt+' 登记</span>'+
+                '<span class="leave-actions">'+actions+'<button class="todo-btn" onclick="deleteLeave('+l.id+')" title="删除"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button></span>'+
+              '</div>'+
             '</div>';
-    }).join('');
+    }).join('') + '</div>';
   }
   // stats
   const pending = state.leaves.filter(l=>l.status==='pending').length;
