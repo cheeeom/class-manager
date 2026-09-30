@@ -58,15 +58,21 @@ has(html, '<div class="login-version">' + ver + '</div>', '登录页版本与 CA
 has(html, '<div class="sidebar-footer">' + ver + ' \u00b7 \u73ed\u4e3b\u4efb\u5de5\u4f5c\u53f0</div>', '侧栏版本与 CACHE_NAME 一致');
 has(html, '\ud83c\udff7\ufe0f ' + ver + '</span>', '设置徽标版本与 CACHE_NAME 一致');
 has(html, '\u8fd1\u7248\u66f4\u65b0\u901f\u89c8\uff08' + ver + '\uff09', '速览标题版本与 CACHE_NAME 一致');
-// 本版三个功能必须写进「近版更新速览」（这一版就是它，所以钉本版文案是对的）
-has(html, '座次表能把用不上的座位关掉了', '速览含「座次表能把用不上的座位关掉了」');
-has(html, '\u5bdd\u5ba4\u9875\u53ef\u76f4\u63a5\u767b\u8bb0\u8d70\u8bfb\u751f', '速览含「寝室页可直接登记走读生」');
-has(html, '\u73ed\u59d4\u804c\u4f4d\u53ef\u81ea\u5b9a\u4e49', '速览含「班委职位可自定义」');
+// 「近版更新速览」按维护约定是【整体替换】（只留最新一版，不做追加）——
+// 所以这里刻意不钉某一版的文案：钉了就等于每次发版都要回来改这三行。
+// 改为钉「结构不变式」：标题版本已与 CACHE_NAME 对齐（上一条），正文确实有 ≥3 条条目。
+// （_v2210_test.js 早已这么改过；本版把 _v2211_test.js 也一并收口，以后跟版不再红。）
+const iNotes = html.indexOf('id="settingsReleaseNotes"');
+const notesBlock = html.slice(iNotes, html.indexOf('</div>', iNotes));
+ok(cnt(notesBlock, '<br>') >= 3, '速览正文至少 3 条（实得 ' + cnt(notesBlock, '<br>') + ' 条）');
 
 // ============================================================
 console.log('\n【2】关闭座位：纯函数 + 状态机（真跑）');
 // ============================================================
-const SEAT_SLICE = sliceFrom('/* ==================== v2.20.11 关闭座位', 'function renderSeating(){');
+// v2.21.0：锚点避开「带版本号的等号前缀」—— index.html 里那类注释永远停在旧版号，
+// 跟版脚本的 A-0 守卫见到就会直接中止。起点改从「关闭座位 =」开始（唯一命中 JS 段那条注释，
+// 不会误命中 CSS 段那条 `/* v2.20.11 关闭座位：...`），切片结果前面补回 `/* ` 让注释正常闭合。
+const SEAT_SLICE = '/* ' + sliceFrom('关闭座位 =', 'function renderSeating(){');
 const SEAT_UI_SLICE = sliceFrom('/* ---- v2.20.11 关闭座位的交互 ----', '/* ==================== v2.18.5 座次拖拽换座');
 
 function seatSandbox(o) {
