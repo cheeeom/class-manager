@@ -414,6 +414,171 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .schedule-actions .btn-sm.danger{color:var(--danger)}
 .schedule-actions .btn-sm.change{color:var(--primary-dark)}
 
+/* ==================== v2.27.0 课程表（周表格 + 手机端逐节列表） ==================== */
+.schedule-sub{font-size:12px;color:var(--text-muted);font-weight:400;margin-left:8px}
+.schedule-tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.ts-btn{padding:5px 11px;font-size:12.5px;border-radius:8px;border:1px solid var(--border);
+  background:var(--card-bg);color:var(--text-secondary);cursor:pointer;transition:all .18s;white-space:nowrap}
+.ts-btn:hover{border-color:var(--primary);color:var(--primary)}
+.ts-btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.ts-btn.primary:hover{background:var(--primary-dark);border-color:var(--primary-dark);color:#fff}
+.ts-btn.ghost{border-style:dashed}
+/* —— 今日摘要条 —— */
+.ts-today{display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  background:linear-gradient(100deg,rgba(166,58,43,.075),rgba(201,162,39,.055));
+  border:1px solid var(--primary-lighter);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.ts-today .k{font-size:11.5px;color:var(--text-muted);letter-spacing:1px}
+.ts-today b{font-size:14.5px;font-weight:800}
+.ts-today .mid{font-size:12.5px;color:var(--text-secondary);font-variant-numeric:tabular-nums}
+.ts-today .sp{flex:1 1 auto}
+.ts-today .cd{font-size:11.5px;color:var(--primary);background:rgba(166,58,43,.10);
+  padding:2px 9px;border-radius:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.ts-chip{font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:7px;white-space:nowrap}
+.ts-chip.g-cul{background:rgba(166,58,43,.11);color:#8C2F22}
+.ts-chip.g-maj{background:rgba(47,125,91,.12);color:#256349}
+.ts-chip.g-art{background:rgba(107,91,149,.13);color:#54447A}
+.ts-chip.g-gen{background:rgba(185,106,31,.13);color:#8F5217}
+/* —— 桌面周表格 —— */
+.ts-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.ts-tb{width:100%;border-collapse:separate;border-spacing:5px 4px;table-layout:fixed;min-width:860px}
+/* 🔴 本文件第 563 行有**全局 `td{padding:12px 16px;border-bottom:1px solid var(--border)}`**
+   （还有 `tbody tr:hover` 染色）。而我们的样式插在它**之前** ⇒ 同特异度会被全局盖掉。
+   必须用足够权重把自己重置干净：不重置的话 127.8px 的列只剩 96px 可用，
+   「学前儿童卫生与保健」这类长科目名会被省略号吃掉（实测 6 处）。 */
+table.ts-tb thead th,table.ts-tb tbody td{padding:0;border-bottom:none;background:transparent;
+  color:inherit;font-size:inherit;vertical-align:top}
+table.ts-tb tbody tr:hover{background:transparent}
+table.ts-tb th{font-size:13px;font-weight:700;color:var(--text-secondary);padding:2px 0 8px;
+  text-align:center;letter-spacing:.5px}
+/* 🔴 这两格必须写**表头**：table-layout:fixed 只认第一行的 width，
+   把宽度写在 body 的 td.gcell / td.pc 上等于没写（实测被忽略，白浪费 102px）。 */
+table.ts-tb th.gcol{width:25px;padding:0}
+table.ts-tb th.corner{width:74px;text-align:left;padding-left:10px;font-size:12px;color:var(--text-muted)}
+table.ts-tb th.today{color:var(--primary)}
+table.ts-tb th em{display:inline-block;font-style:normal;font-size:10px;font-weight:700;
+  background:var(--primary);color:#fff;border-radius:5px;padding:1px 5px;margin-left:5px;vertical-align:2px}
+/* 🔴 上午/下午/晚上：td 只当**居中容器**，竖排交给 shrink-wrap 的 inline-block span。
+   writing-mode:vertical-rl 的块轴是「从右往左」、文字默认贴右 ⇒ 把竖排放 td 上会整体右偏。 */
+table.ts-tb td.gcell{width:25px;padding:0;text-align:center;vertical-align:middle}
+table.ts-tb td.gcell span{display:inline-block;writing-mode:vertical-rl;text-orientation:upright;
+  font-size:15px;font-weight:700;color:var(--text-secondary);letter-spacing:2.5px;line-height:1;
+  background:var(--bg-secondary);border-radius:11px;padding:9px 3px;
+  box-shadow:inset 0 0 0 1px rgba(140,133,119,.20)}
+table.ts-tb td.gcell.cur span{color:var(--primary);background:rgba(166,58,43,.09);
+  box-shadow:inset 0 0 0 1px rgba(166,58,43,.22)}
+/* 节次列 68px：`07:20-08:00` 在 10.5px 下约 58px，68 够用；再宽就是从科目名嘴里抢空间 */
+table.ts-tb td.pc{width:68px;padding:0 2px}
+table.ts-tb td.pc b{display:block;font-size:12.5px;font-weight:800;color:var(--text-secondary);line-height:1.3}
+table.ts-tb td.pc span{display:block;font-size:10.5px;color:var(--text-muted);
+  font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+table.ts-tb td.today{background:rgba(166,58,43,.035);border-radius:10px}
+.ts-cell{height:46px;border-radius:9px;border-left:3px solid transparent;position:relative;
+  background:rgba(140,133,119,.05);padding:5px 6px;display:flex;flex-direction:column;
+  justify-content:center;overflow:hidden;cursor:pointer;transition:box-shadow .15s}
+.ts-cell:hover{box-shadow:inset 0 0 0 1px rgba(140,133,119,.38)}
+.ts-cell .cs{font-size:12.5px;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.ts-cell .ct{font-size:10.5px;color:var(--text-muted);line-height:1.3;margin-top:1px}
+.ts-cell .ce{font-size:13px;color:rgba(140,133,119,.30);text-align:center;display:block}
+.ts-cell.g-cul{background:rgba(166,58,43,.085);border-left-color:#A63A2B}
+.ts-cell.g-cul .cs{color:#8C2F22}
+.ts-cell.g-maj{background:rgba(47,125,91,.095);border-left-color:#2F7D5B}
+.ts-cell.g-maj .cs{color:#256349}
+.ts-cell.g-art{background:rgba(107,91,149,.105);border-left-color:#6B5B95}
+.ts-cell.g-art .cs{color:#54447A}
+.ts-cell.g-gen{background:rgba(185,106,31,.10);border-left-color:#B96A1F}
+.ts-cell.g-gen .cs{color:#8F5217}
+.ts-cell.cur{box-shadow:inset 0 0 0 1px rgba(166,58,43,.16)}
+/* 当前节次：外描边 + 右上角小圆点。
+   ⚠️ 别用 ::after 写「正在上」三个字 —— .ts-cell 是 relative 还好，但历史上 .cell 是 static，
+   absolute 会相对更外层定位祖先，字直接压在教师名上（出图才发现）。这里只放一个圆点。 */
+.ts-cell.now{box-shadow:0 0 0 2px var(--primary)}
+.ts-cell.now::after{content:'';position:absolute;top:-4px;right:-4px;width:10px;height:10px;
+  border-radius:50%;background:var(--primary);box-shadow:0 0 0 2px var(--card-bg)}
+/* —— 手机端逐节列表 —— */
+.ts-mob{display:none}
+.ts-seg{display:flex;background:var(--bg-secondary);border-radius:8px;padding:3px;margin-bottom:10px}
+.ts-seg span{flex:1;text-align:center;font-size:12.5px;padding:6px 0;border-radius:6px;
+  color:var(--text-muted);cursor:pointer;transition:all .15s}
+.ts-seg span.on{background:var(--card-bg);color:var(--primary);font-weight:700;
+  box-shadow:0 1px 4px rgba(43,38,28,.1)}
+.ts-mday{margin:12px 0 4px;font-size:12.5px;font-weight:800;color:var(--text-secondary)}
+.ts-mday.on{color:var(--primary)}
+.ts-mline{display:flex;gap:9px;padding:5px 2px;align-items:stretch}
+.ts-mline .mp{width:48px;flex:none;text-align:center;padding-top:2px}
+.ts-mline .mp b{display:block;font-size:11.5px;font-weight:800;color:var(--text-secondary)}
+.ts-mline .mp span{display:block;font-size:10px;color:var(--text-muted);font-variant-numeric:tabular-nums}
+.ts-mline.now .mp b{color:var(--primary)}
+.ts-mline .mc{flex:1 1 auto;min-width:0;border-left:3px solid transparent;border-radius:8px;
+  padding:6px 10px;background:rgba(140,133,119,.05);cursor:pointer}
+.ts-mline .mc .s{font-size:13.5px;font-weight:700;line-height:1.3}
+.ts-mline .mc .t{font-size:11.5px;color:var(--text-muted);margin-top:1px}
+.ts-mline .mc.empty{display:flex;align-items:center;justify-content:center;
+  font-size:12.5px;color:var(--text-muted);background:transparent;border:1px dashed var(--border)}
+.ts-mline .mc.g-cul{border-left-color:#A63A2B;background:rgba(166,58,43,.085)}
+.ts-mline .mc.g-cul .s{color:#8C2F22}
+.ts-mline .mc.g-maj{border-left-color:#2F7D5B;background:rgba(47,125,91,.095)}
+.ts-mline .mc.g-maj .s{color:#256349}
+.ts-mline .mc.g-art{border-left-color:#6B5B95;background:rgba(107,91,149,.105)}
+.ts-mline .mc.g-art .s{color:#54447A}
+.ts-mline .mc.g-gen{border-left-color:#B96A1F;background:rgba(185,106,31,.10)}
+.ts-mline .mc.g-gen .s{color:#8F5217}
+.ts-empty{border:2px dashed var(--primary-lighter);border-radius:12px;padding:34px 20px;
+  text-align:center;color:var(--text-muted)}
+.ts-empty .ic{font-size:42px;opacity:.3;margin-bottom:10px}
+.ts-empty .tx{font-size:14px;margin-bottom:6px;color:var(--text-secondary)}
+.ts-empty .ht{font-size:12px;line-height:1.8}
+.ts-empty .row{display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+/* —— 弹窗（既有的 .modal 是硬编码 #fff，深色下会白底浅字 ⇒ 这里改回主题变量）—— */
+#tsEditModal .modal,#tsImportModal .modal,#tsSetModal .modal{background:var(--card-bg);color:var(--text)}
+.ts-lb{display:block;font-size:12.5px;color:var(--text-muted);margin:12px 0 5px;font-weight:700}
+.ts-lb:first-child{margin-top:0}
+.ts-in{width:100%;padding:9px 11px;font-size:14px;border:1px solid var(--border);border-radius:8px;
+  background:var(--bg);color:var(--text);font-family:inherit}
+.ts-in:focus{outline:none;border-color:var(--primary)}
+.ts-hint{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:10px}
+.ts-drop{border:2px dashed var(--primary-lighter);border-radius:12px;padding:26px 18px;text-align:center;
+  cursor:pointer;color:var(--text-muted);transition:all .18s}
+.ts-drop:hover{border-color:var(--primary);background:rgba(166,58,43,.04)}
+.ts-drop .ic{font-size:38px;opacity:.35;margin-bottom:8px}
+.ts-drop .tx{font-size:13.5px;color:var(--text-secondary);margin-bottom:5px}
+.ts-drop .ht{font-size:11.5px;line-height:1.7}
+.ts-pv{max-height:46vh;overflow:auto;margin-top:12px;border:1px solid var(--border);border-radius:10px}
+table.ts-pvt{width:100%;border-collapse:collapse;font-size:11.5px}
+table.ts-pvt th,table.ts-pvt td{border:1px solid var(--border);padding:3px 5px;text-align:left;
+  vertical-align:top;min-width:64px}
+table.ts-pvt th{background:var(--bg-secondary);font-weight:700;color:var(--text-secondary);position:sticky;top:0}
+table.ts-pvt td.pc2{background:var(--bg-secondary);color:var(--text-muted);white-space:nowrap}
+table.ts-pvt td.has{color:var(--text)}
+.ts-setrow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.ts-setrow .no{width:46px;flex:none;font-size:12px;color:var(--text-muted);text-align:center}
+.ts-setrow input{flex:1 1 auto;min-width:0;padding:6px 8px;font-size:12.5px;border:1px solid var(--border);
+  border-radius:6px;background:var(--bg);color:var(--text);font-family:inherit}
+.ts-setrow select{flex:none;padding:6px 4px;font-size:12.5px;border:1px solid var(--border);
+  border-radius:6px;background:var(--bg);color:var(--text);font-family:inherit}
+.ts-setrow .del{flex:none;border:none;background:transparent;color:var(--text-muted);cursor:pointer;font-size:15px}
+.ts-setrow .del:hover{color:#C0392B}
+/* 深色模式：色系前景色必须跟着提亮，否则「深红字压深底」读不出来 */
+html.dark .ts-cell.g-cul .cs,html.dark .ts-mline .mc.g-cul .s{color:#E9A08F}
+html.dark .ts-cell.g-maj .cs,html.dark .ts-mline .mc.g-maj .s{color:#8FCBAE}
+html.dark .ts-cell.g-art .cs,html.dark .ts-mline .mc.g-art .s{color:#B9A9DC}
+html.dark .ts-cell.g-gen .cs,html.dark .ts-mline .mc.g-gen .s{color:#E0AE74}
+html.dark .ts-chip.g-cul{background:rgba(206,107,82,.20);color:#E9A08F}
+html.dark .ts-chip.g-maj{background:rgba(90,170,132,.20);color:#8FCBAE}
+html.dark .ts-chip.g-art{background:rgba(154,139,196,.22);color:#B9A9DC}
+html.dark .ts-chip.g-gen{background:rgba(206,139,63,.20);color:#E0AE74}
+html.dark .ts-cell,html.dark .ts-mline .mc{background:rgba(255,255,255,.045)}
+html.dark .ts-cell.g-cul,html.dark .ts-mline .mc.g-cul{background:rgba(206,107,82,.13)}
+html.dark .ts-cell.g-maj,html.dark .ts-mline .mc.g-maj{background:rgba(90,170,132,.13)}
+html.dark .ts-cell.g-art,html.dark .ts-mline .mc.g-art{background:rgba(154,139,196,.14)}
+html.dark .ts-cell.g-gen,html.dark .ts-mline .mc.g-gen{background:rgba(206,139,63,.13)}
+@media(max-width:768px){
+  .ts-scroll{display:none}
+  .ts-mob{display:block}
+  table.ts-tb{min-width:0}
+  .ts-today{gap:7px;padding:9px 12px}
+}
+
 /* ==================== Chart ==================== */
 .chart-container{position:relative;width:100%;height:240px}
 #distChart{width:100%;height:100%}
@@ -2295,7 +2460,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.26.0</div>
+      <div class="login-version">v2.27.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2417,7 +2582,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.26.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.27.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2443,18 +2608,16 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <span class="motto-edit">✏️ 点击编辑</span>
         </div>
 
-        <!-- 课程表图片区 -->
-        <div class="schedule-card stagger" style="animation-delay:0s">
+        <!-- 课程表（v2.27.0：桌面周表格 / 手机端逐节列表；#scheduleImageWrap 保留为「上传图片」降级模式） -->
+        <div class="schedule-card stagger" style="animation-delay:0s" id="scheduleCard">
           <div class="schedule-header">
-            <div class="section-title" style="margin-bottom:0"><span class="dot"></span>课程表</div>
+            <div class="section-title" style="margin-bottom:0"><span class="dot"></span>课程表<span class="schedule-sub" id="scheduleSub"></span></div>
+            <div class="schedule-tools" id="scheduleTools"></div>
           </div>
-          <div id="scheduleImageWrap">
-            <div class="schedule-empty" onclick="triggerSchedulePaste()">
-              <div class="icon">📅</div>
-              <div class="text">点击上传课程表图片</div>
-              <div class="hint">支持选择图片文件，也可 Ctrl+V 粘贴</div>
-            </div>
-          </div>
+          <div id="scheduleTodayBar"></div>
+          <div id="scheduleTableWrap"></div>
+          <div id="scheduleImageWrap" style="display:none"></div>
+          <div id="scheduleEmptyWrap" style="display:none"></div>
         </div>
 
         <div class="stat-grid" id="statGrid"><div id="onboardingBanner" class="card" style="display:none;grid-column:1/-1;text-align:center;padding:32px 24px"><div style="font-size:48px;margin-bottom:12px">👋</div><h2 style="margin-bottom:8px">欢迎使用班主任工作台！</h2><p style="color:var(--text-muted);margin-bottom:16px">开始添加学生，即可使用学分管理、数据分析、班委任命等全部功能</p><div style="display:flex;gap:8px;justify-content:center"><button class="btn btn-primary" onclick="openAddStudentModal()">+ 添加第一位学生</button><button class="btn btn-outline" onclick="loadSampleData()">加载示例数据体验</button></div></div>
@@ -3162,19 +3325,90 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.26.0</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.27.0</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.26.0）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.27.0）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 🔤 <b>姓名卡片默认按姓名排序</b>：打开课堂点名，卡片墙按姓名首字母音序自动排好，找人不用再一格格找<br>
-              · 🔀 <b>可以一键打乱顺序</b>：工具栏「重置本轮」右边新增「打乱顺序」，想随机抽查就点它；点「重置本轮」即恢复按姓名<br>
-              · 📐 <b>抽中预览栏不再往下长</b>：抽 5 人以上时预览栏改成向左侧要空间，和左边工具栏并排一行，不再把整条工具栏撑高<br>
+              · 📊 <b>首页课表改成周表格</b>：周一~周日 × 12 节一张表看全，按课程类别自动分四个色系，正在上的那一节红框标出来<br>
+              · ✏️ <b>点格子就能改</b>：点任意一格填科目与任课老师；「课表设置」里可改每节时间、增删节次，也能一键手动建空表<br>
+              · 📄 <b>教务 PDF 直接导入</b>：选入教务系统导出的课表 PDF，自动识别成表格，先预览、核对无误再确认导入<br>
+              · 📱 <b>手机上一节一行</b>：窄屏自动换成逐节列表，「今天 / 全周」一键切换，空格子也能直接点着填<br>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- v2.27.0 Modal: 编辑课格 -->
+<div class="modal-overlay" id="tsEditModal">
+  <div class="modal" style="width:94%;max-width:440px">
+    <div class="modal-header">
+      <h3 id="tsEditTitle" style="margin:0">编辑课格</h3>
+      <button class="modal-close" onclick="closeTsEdit()">×</button>
+    </div>
+    <div class="modal-body">
+      <label class="ts-lb" for="tsEditSubj">科目</label>
+      <input id="tsEditSubj" class="ts-in" maxlength="24" placeholder="如：语文（留空即清空这一格）">
+      <label class="ts-lb" for="tsEditTeacher">任课老师</label>
+      <input id="tsEditTeacher" class="ts-in" maxlength="24" placeholder="如：淳晏铭">
+      <div class="ts-hint" id="tsEditHint"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeTsEdit()">取消</button>
+      <button class="btn btn-outline" onclick="tsEditClear()">清空此格</button>
+      <button class="btn btn-primary" onclick="tsEditSave()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- v2.27.0 Modal: 导入课表 -->
+<div class="modal-overlay" id="tsImportModal">
+  <div class="modal" style="width:94%;max-width:880px">
+    <div class="modal-header">
+      <h3 style="margin:0">导入课表</h3>
+      <button class="modal-close" onclick="closeTsImport()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="ts-drop" id="tsImportDrop" onclick="tsPickPdf()">
+        <div class="ic">📄</div>
+        <div class="tx">点这里选择课表 PDF</div>
+        <div class="ht">教务系统导出的那种「电子版 PDF」（文字能选中）可以自动识别成表格<br>识别结果会先给你预览，确认无误再导入</div>
+      </div>
+      <div class="ts-hint" id="tsImportMsg"></div>
+      <div id="tsImportPreview"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeTsImport()">取消</button>
+      <button class="btn btn-primary" id="tsImportOk" onclick="tsImportConfirm()" disabled>确认导入</button>
+    </div>
+  </div>
+</div>
+
+<!-- v2.27.0 Modal: 课表设置 -->
+<div class="modal-overlay" id="tsSetModal">
+  <div class="modal" style="width:94%;max-width:560px">
+    <div class="modal-header">
+      <h3 style="margin:0">课表设置</h3>
+      <button class="modal-close" onclick="closeTsSet()">×</button>
+    </div>
+    <div class="modal-body">
+      <label class="ts-lb" for="tsSetName">课表标题</label>
+      <input id="tsSetName" class="ts-in" maxlength="40" placeholder="如：26级幼保2班">
+      <label class="ts-lb">节次与时间<span id="tsSetCount" style="font-weight:400;margin-left:6px"></span></label>
+      <div id="tsSetRows"></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="ts-btn ghost" onclick="tsSetAddPeriod()">+ 添加一节</button>
+        <button class="ts-btn ghost" onclick="tsSetDelPeriod()">− 删掉最后一节</button>
+      </div>
+      <div class="ts-hint">时段决定表格里「上午 / 下午 / 晚上」怎么分组；留空表示不分组。</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeTsSet()">取消</button>
+      <button class="btn btn-primary" onclick="tsSetSave()">保存</button>
     </div>
   </div>
 </div>
@@ -4003,6 +4237,113 @@ const GH_OWNER = 'cheeeom';
 const GH_REPO = 'class-manager-data';
 const GH_BRANCH = 'main';
 const GH_DATA_PATH = 'data.json';
+/* ==================== v2.27.0 课程表数据模型 ====================
+   state.schedule = {
+     name: '',                                      // 课表标题，如「26级幼保2班」
+     updatedAt: 0,                                  // 整表版本戳（云合并用，见 msSchedule）
+     periods: [{ t:'07:20-08:00', p:'上午' }, …],   // 节次时间 + 所属时段（p 为空串＝不分组）
+     cells:   { '1-3': { s:'语文', t:'淳晏铭' }, … } // key = `${星期}-${节次}`，星期 1..7 = 周一..周日
+   }
+   科目配色**不落盘**：由 TS_SUBJECT_GROUP（内置常见课表）+ TS_KEYWORD_GROUP（关键词兜底）派生
+   ⇒ 老师自己新起的科目名也能自动配上色，且不会因为改个名字就丢配色。 */
+var TS_DAY_NAMES = ['周一','周二','周三','周四','周五','周六','周日'];
+var TS_DEFAULT_TIMES = ['07:20-08:00','08:10-08:55','09:05-09:50','10:20-11:05','11:15-12:00',
+                        '14:40-15:25','15:35-16:20','16:30-17:15','17:25-18:05',
+                        '19:00-19:45','19:55-20:40','20:50-21:35'];
+var TS_DEFAULT_PARTS = ['上午','上午','上午','上午','上午','下午','下午','下午','下午','晚上','晚上','晚上'];
+var TS_GROUPS = [
+  { k:'cul', name:'文化基础', c:'#A63A2B' },
+  { k:'maj', name:'专业核心', c:'#2F7D5B' },
+  { k:'art', name:'艺体',     c:'#6B5B95' },
+  { k:'gen', name:'思政综合', c:'#B96A1F' }
+];
+var TS_MAX_PERIODS = 20;
+function defaultSchedule(){
+  var ps = [];
+  for(var i = 0; i < TS_DEFAULT_TIMES.length; i++) ps.push({ t:TS_DEFAULT_TIMES[i], p:TS_DEFAULT_PARTS[i] });
+  return { name:'', updatedAt:0, periods:ps, cells:{} };
+}
+/* 自愈：任何来源（老数据 / 云端 / 导入）都先过这里，保证形状可用且不越界 */
+function normSchedule(v){
+  var d = defaultSchedule();
+  if(!v || typeof v !== 'object') return d;
+  var out = { name:(typeof v.name === 'string' ? v.name : '').slice(0, 40),
+              updatedAt:Number(v.updatedAt) || 0,
+              periods:[], cells:{} };
+  var ps = Array.isArray(v.periods) ? v.periods : [];
+  if(ps.length){
+    for(var i = 0; i < ps.length && i < TS_MAX_PERIODS; i++){
+      var p = ps[i];
+      out.periods.push((p && typeof p === 'object')
+        ? { t:String(p.t || '').slice(0, 20), p:String(p.p || '').slice(0, 8) }
+        : { t:String(p || '').slice(0, 20), p:'' });
+    }
+  } else {
+    out.periods = d.periods.slice();
+  }
+  var n = out.periods.length;
+  var src = (v.cells && typeof v.cells === 'object') ? v.cells : {};
+  Object.keys(src).forEach(function(k){
+    var m = /^([1-7])-(\d{1,2})$/.exec(k);
+    if(!m) return;
+    var day = +m[1], no = +m[2];
+    if(no < 1 || no > n) return;                    // 节次数被改小 ⇒ 越界格子丢弃，别留幽灵
+    var c = src[k];
+    if(!c || typeof c !== 'object') return;
+    var s = String(c.s == null ? '' : c.s).slice(0, 24).trim();
+    var t = String(c.t == null ? '' : c.t).slice(0, 24).trim();
+    if(!s && !t) return;
+    out.cells[day + '-' + no] = { s:s, t:t };
+  });
+  return out;
+}
+function scheduleHasContent(v){
+  if(!v || !v.cells) return false;
+  for(var k in v.cells) if(Object.prototype.hasOwnProperty.call(v.cells, k)) return true;
+  return false;
+}
+function tsTouch(){
+  if(!state.schedule) state.schedule = defaultSchedule();
+  state.schedule.updatedAt = Date.now();
+}
+function tsCellKey(day, no){ return day + '-' + no; }
+function tsGetCell(day, no){
+  var s = state.schedule;
+  return (s && s.cells && s.cells[tsCellKey(day, no)]) || null;
+}
+function tsSetCell(day, no, subj, teacher, touch){
+  if(!state.schedule) state.schedule = defaultSchedule();
+  var k = tsCellKey(day, no);
+  subj = String(subj == null ? '' : subj).trim();
+  teacher = String(teacher == null ? '' : teacher).trim();
+  if(!subj && !teacher) delete state.schedule.cells[k];   // 空 ⇒ 真删，不留空壳（课表没有「墓碑」语义：删了就删了）
+  else state.schedule.cells[k] = { s:subj, t:teacher };
+  if(touch !== false) tsTouch();
+}
+/* 科目 → 色系。先查内置表，再走关键词兜底；都不中 ⇒ 无色（中性灰），不硬塞一个色。 */
+var TS_SUBJECT_GROUP = {
+  '语文':'cul','数学':'cul','英语':'cul','物理':'cul','化学':'cul','生物':'cul',
+  '思想政治':'gen','政治':'gen','历史':'gen','地理':'gen','法律':'gen','法安卫国':'gen',
+  '劳动':'gen','劳动教育':'gen','计算机应用':'gen','信息技术':'gen','心理健康':'gen',
+  '音乐':'art','美术':'art','舞蹈':'art','体育':'art','书法':'art','手工':'art',
+  '婴儿安全照护':'maj','幼儿健康照护':'maj','保育员职业素养':'maj','学前儿童卫生与保健':'maj'
+};
+var TS_KEYWORD_GROUP = [
+  ['照护','maj'],['保育','maj'],['幼儿','maj'],['学前','maj'],['护理','maj'],['专业','maj'],
+  ['语文','cul'],['数学','cul'],['英语','cul'],
+  ['音乐','art'],['美术','art'],['舞蹈','art'],['体育','art'],['书法','art'],['绘','art'],['唱','art'],
+  ['思想政治','gen'],['德育','gen'],['劳动','gen'],['计算机','gen'],['心理','gen'],['安全','gen']
+];
+function tsSubjectGroup(name){
+  var s = String(name || '').replace(/\s/g, '');
+  if(!s) return '';
+  if(TS_SUBJECT_GROUP[s]) return TS_SUBJECT_GROUP[s];
+  for(var i = 0; i < TS_KEYWORD_GROUP.length; i++){
+    if(s.indexOf(TS_KEYWORD_GROUP[i][0]) >= 0) return TS_KEYWORD_GROUP[i][1];
+  }
+  return '';
+}
+
 /* ==================== v2.19.0 STATE_SCHEMA：状态字段注册表（唯一事实源） ====================
    新增一个云同步字段的链路从「改 5 处」降为「改 1 处」——本表统一驱动：
    ① state 默认值（buildDefaultState 遍历生成） ② CLOUD_SYNC_FIELDS（cfs=1 派生，云端推送白名单）
@@ -4031,6 +4372,7 @@ const STATE_SCHEMA = [
   { key:'lastExport', def:null, cfs:1, ms:'tsNewer' },
   { key:'lastImport', def:null, cfs:1, ms:'tsNewer' },
   { key:'scheduleImage', def:null, cfs:1, ms:'scheduleImage' },
+  { key:'schedule', def:function(){ return defaultSchedule(); }, cfs:1, ms:'schedule', sv:function(v){ return normSchedule(v); } },
   { key:'committee', def:function(){ return Object.assign({}, DEFAULT_COMMITTEE); }, cfs:1, ms:'committee' },
   { key:'seating', def:function(){ return defaultSeating(); }, cfs:1, ms:'seating' },
   { key:'committeePos', def:function(){ return []; }, cfs:1, ms:'committeePos', sv:function(v){ return v || []; } },   // v2.20.11 老师自定义的班委职位（职位名/职责/职数）；常设 8 岗仍是 committeeConfig 常量，编辑常设岗＝按同 key 覆盖
@@ -4422,7 +4764,7 @@ function buildCloudPayload(parsed){
   lightData.wipeAt = Number(state && state.wipeAt) || 0;
   if(lightData.notices) lightData.notices = stripNoticeHistoryImages(lightData.notices);
   lightData.hasAvatar = !!parsed.classAvatar;
-  lightData.hasSchedule = !!parsed.scheduleImage;
+  lightData.hasSchedule = !!parsed.scheduleImage || scheduleHasContent(parsed.schedule);
   return lightData;
 }
 
@@ -6535,6 +6877,7 @@ function loadData(){
       state.lastImport = d.lastImport || null;
       state.selectedStudents = new Set();
       state.scheduleImage = d.scheduleImage || null;
+      state.schedule = normSchedule(d.schedule);
       // 班委：旧数据可能只有 5 岗，补齐制度 8 岗的空键（已有任命原样保留）
       state.committee = Object.assign({}, DEFAULT_COMMITTEE, d.committee || {});
       // v2.20.11 班委自定义职位（职位名 / 职责 / 职数）；老数据无此字段 → 空数组（常设 8 岗仍在 committeeConfig）
@@ -6877,6 +7220,14 @@ function msScheduleImage(merged,localData,remoteData){
 function msClassAvatar(merged,localData,remoteData){
   if(remoteData.classAvatar && (!localData.classAvatar || (String(localData.classAvatar).length > 150000 && String(remoteData.classAvatar).length < String(localData.classAvatar).length))) merged.classAvatar = remoteData.classAvatar;
 }
+/* v2.27.0 课程表：**整表取新**（按表内 updatedAt）。
+   为什么不逐格并集：改科目 / 换老师 / 清空格子都是就地把同一格换成另一个值，
+   并集没法仲裁谁更新，也传不出「删除」。 */
+function msSchedule(merged,localData,remoteData){
+  var l = localData.schedule || {}, r = remoteData.schedule || {};
+  var lt = Number(l.updatedAt) || 0, rt = Number(r.updatedAt) || 0;
+  if(rt > lt || (!lt && !scheduleHasContent(l) && scheduleHasContent(r))) merged.schedule = normSchedule(r);
+}
 // ---- 通用策略（按 f.key 泛化）----
 function msScalarFill(merged,localData,remoteData,key){ if(!merged[key]&&remoteData[key])merged[key]=remoteData[key]; }   // simple fields：本地为空才由云端补
 function msTsMap(merged,localData,remoteData,key){ merged[key]=mergeTsMap(merged[key]||{},remoteData[key]||{}); }   // 墓碑时间戳并集（逐键取大）
@@ -6889,6 +7240,7 @@ var MERGE_ST = {
   notices:msNotices, reasons:msReasons, reasonScores:msReasonScores, reasonCatalog:msReasonCatalog,
   catTomb:msCatTomb, creditBank:msCreditBank, committee:msCommittee, seating:msSeating, duty:msDuty,
   committeePos:msCommitteePos,
+  schedule:msSchedule,
   scheduleImage:msScheduleImage, classAvatar:msClassAvatar,
   scalarFill:msScalarFill, tsmap:msTsMap, max1:msMax1, max0:msMax0, tsNewer:msTsNewer
 };
@@ -7514,6 +7866,8 @@ function renderScheduleImage(){
     return;
   }
   window._schedRetry = 0;
+  // ===== v2.27.0：有课表数据 ⇒ 表格模式，图片与空状态整个不参与 =====
+  if(scheduleHasContent(state.schedule)){ tsRender(); return; }
   // Fallback chain: state -> DOM dataset -> module cache -> localStorage
   var src = state.scheduleImage;
   if(!src && wrap.dataset.scheduleSrc) src = wrap.dataset.scheduleSrc;
@@ -7528,6 +7882,7 @@ function renderScheduleImage(){
     }catch(e){}
   }
   if(src){
+    tsSetMode('image');
     state.scheduleImage = src;
     if(typeof _cachedScheduleImage !== 'undefined') _cachedScheduleImage = src;
     wrap.dataset.scheduleSrc = src;
@@ -7548,8 +7903,10 @@ function renderScheduleImage(){
       };
     }
   } else {
-    if(wrap.querySelector('.schedule-empty')) return;
-    wrap.innerHTML = '<div class="schedule-empty" onclick="triggerSchedulePaste()"><div class="icon">📷</div><div class="text">点击上传课程表图片</div><div class="hint">支持选择图片文件，也可 Ctrl+V 粘贴</div></div>';
+    // v2.27.0：原来的「点击上传图片」空状态换成「导入 PDF / 手动创建 / 上传图片」。
+    // triggerSchedulePaste 本身一个字没动 —— 它仍是「上传图片」的唯一入口。
+    tsSetMode('empty');
+    tsRenderEmpty();
   }
 }
 
@@ -7624,6 +7981,572 @@ document.addEventListener('paste', (e)=>{
     }
   }
 });
+
+/* ==================== v2.27.0 课程表：渲染 / 编辑 / PDF 导入 ==================== */
+function tsEsc(x){
+  return String(x == null ? '' : x).replace(/[&<>"']/g, function(c){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
+}
+function tsGClass(subj){ var g = tsSubjectGroup(subj); return g ? ' g-' + g : ''; }
+/* 周一=0（JS 的 getDay() 是周日=0） */
+function tsTodayIndex(){ return (new Date().getDay() + 6) % 7; }
+function tsMin(t){
+  var m = /^(\d{1,2}):(\d{2})/.exec(String(t || ''));
+  return m ? (+m[1]) * 60 + (+m[2]) : -1;
+}
+function tsPeriodRange(s, no){
+  var p = (s && s.periods && s.periods[no-1]) || {};
+  var m = String(p.t || '').match(/(\d{1,2}:\d{2})\s*[-~—－]\s*(\d{1,2}:\d{2})/);
+  if(!m) return null;
+  var a = tsMin(m[1]), b = tsMin(m[2]);
+  return (a < 0 || b < 0) ? null : { a:a, b:b };
+}
+function tsNowMin(){ var d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
+function tsNowPeriodNo(){
+  var s = state.schedule, cur = tsNowMin(), n = (s.periods || []).length;
+  for(var i = 1; i <= n; i++){ var r = tsPeriodRange(s, i); if(r && cur >= r.a && cur < r.b) return i; }
+  return 0;
+}
+function tsNextPeriodNo(){
+  var s = state.schedule, cur = tsNowMin(), n = (s.periods || []).length;
+  for(var i = 1; i <= n; i++){ var r = tsPeriodRange(s, i); if(r && r.a > cur) return i; }
+  return 0;
+}
+/* 模式切换：三个容器互斥显示 —— #scheduleImageWrap 是既有链路，一个字都不动，只控制显隐 */
+function tsSetMode(mode){
+  var g = function(id){ return document.getElementById(id); };
+  var iw = g('scheduleImageWrap'), tw = g('scheduleTableWrap'),
+      ew = g('scheduleEmptyWrap'), tb = g('scheduleTodayBar'), tools = g('scheduleTools');
+  if(iw) iw.style.display = (mode === 'image') ? '' : 'none';
+  if(tw) tw.style.display = (mode === 'table') ? '' : 'none';
+  if(ew) ew.style.display = (mode === 'empty') ? '' : 'none';
+  if(tb) tb.style.display = (mode === 'table') ? '' : 'none';
+  if(tools) tools.style.display = (mode === 'empty') ? 'none' : '';
+}
+/* 总入口：由 renderScheduleImage() 在有课表数据时调用 */
+function tsRender(){
+  if(!document.getElementById('scheduleCard')){
+    if(!window._tsRetry) window._tsRetry = 0;
+    if(window._tsRetry < 3){ window._tsRetry++; setTimeout(tsRender, 50); }
+    return;
+  }
+  window._tsRetry = 0;
+  var s = state.schedule;
+  tsSetMode('table');
+  var sub = document.getElementById('scheduleSub');
+  if(sub) sub.textContent = s.name || '';
+  tsRenderTools();
+  tsRenderTodayBar();
+  tsRenderBody();
+}
+function tsRenderTools(){
+  var el = document.getElementById('scheduleTools');
+  if(!el) return;
+  el.innerHTML =
+    '<button class="ts-btn" onclick="openTsImport()">导入课表</button>' +
+    '<button class="ts-btn" onclick="openTsSet()">课表设置</button>' +
+    '<button class="ts-btn ghost" onclick="tsClearSchedule()">清空</button>';
+}
+function tsRenderTodayBar(){
+  var bar = document.getElementById('scheduleTodayBar');
+  if(!bar) return;
+  var s = state.schedule, today = tsTodayIndex(), np = tsNowPeriodNo(), nx = tsNextPeriodNo();
+  var h = '<div class="ts-today"><span class="k">今天</span><b>' + TS_DAY_NAMES[today] + '</b>';
+  var c = np ? s.cells[tsCellKey(today + 1, np)] : null;
+  if(np){
+    h += '<span class="mid">第' + np + '节 ' + tsEsc(((s.periods[np-1] || {}).t) || '') + '</span>';
+    h += c ? '<span class="ts-chip' + tsGClass(c.s) + '">' + tsEsc(c.s) +
+             (c.t ? ' · ' + tsEsc(c.t) : '') + '</span>'
+           : '<span class="mid">这会儿没课</span>';
+  } else {
+    h += '<span class="mid">现在不在上课时段</span>';
+  }
+  h += '<span class="sp"></span>';
+  if(nx){
+    var r = tsPeriodRange(s, nx);
+    var left = r ? (r.a - tsNowMin()) : -1;
+    var c2 = s.cells[tsCellKey(today + 1, nx)];
+    h += '<span class="k">下一节</span><b>第' + nx + '节 ' +
+         tsEsc(((s.periods[nx-1] || {}).t) || '') + '</b>';
+    if(c2) h += '<span class="mid">' + tsEsc(c2.s) + (c2.t ? ' · ' + tsEsc(c2.t) : '') + '</span>';
+    if(left > 0) h += '<span class="cd">还有 ' + (left >= 60
+      ? Math.floor(left / 60) + ' 小时 ' + (left % 60) + ' 分钟' : left + ' 分钟') + '</span>';
+  } else {
+    h += '<span class="k">今天的课已上完</span>';
+  }
+  h += '</div>';
+  bar.innerHTML = h;
+}
+/* 按 p（时段）把连续的节次切成组；组名重复出现也切成独立的组（否则中间夹一段无名的会串组） */
+function tsGroups(s){
+  var out = [];
+  (s.periods || []).forEach(function(p, i){
+    var g = String(p.p || '');
+    var last = out[out.length-1];
+    if(last && last.name === g) last.from.push(i + 1);
+    else out.push({ name:g, from:[i + 1] });
+  });
+  return out;
+}
+function tsRenderBody(){
+  var el = document.getElementById('scheduleTableWrap');
+  if(!el) return;
+  el.innerHTML = tsTableHtml() + tsMobileHtml();
+}
+function tsTableHtml(){
+  var s = state.schedule, ps = s.periods || [];
+  var today = tsTodayIndex(), np = tsNowPeriodNo();
+  var gs = tsGroups(s), curGroup = '';
+  if(np) for(var i = 0; i < gs.length; i++) if(gs[i].from.indexOf(np) >= 0) curGroup = gs[i].name;
+  var head = '<tr><th class="gcol"></th><th class="corner">节次</th>';
+  for(var d = 0; d < 7; d++){
+    head += '<th class="' + (d === today ? 'today' : '') + '">' + TS_DAY_NAMES[d] +
+            (d === today ? '<em>今天</em>' : '') + '</th>';
+  }
+  head += '</tr>';
+  var rows = '';
+  gs.forEach(function(g){
+    g.from.forEach(function(no, k){
+      var p = ps[no-1] || {}, tds = '';
+      for(var d = 0; d < 7; d++){
+        var c = s.cells[tsCellKey(d + 1, no)];
+        var cls = 'ts-cell' + (d === today ? ' cur' : '');
+        if(d === today && no === np) cls += ' now';
+        var inner;
+        if(c){
+          var gc = tsSubjectGroup(c.s);
+          if(gc) cls += ' g-' + gc;
+          inner = '<span class="cs">' + tsEsc(c.s || '—') + '</span>' +
+                  (c.t ? '<span class="ct">' + tsEsc(c.t) + '</span>' : '');
+        } else {
+          inner = '<span class="ce">—</span>';
+        }
+        tds += '<td class="' + (d === today ? 'today' : '') + '"><div class="' + cls +
+               '" onclick="openTsEdit(' + (d + 1) + ',' + no + ')" title="点击编辑">' + inner + '</div></td>';
+      }
+      /* ⚠️ 表头的列数必须与 body 对齐：body 每行都是「gcell + pc + 7 天」= 9 格。
+         即使这一组没有组名，也要占住那个 25px 的 gcell 列，否则整张表错位一格。 */
+      var lab = '';
+      if(k === 0){
+        lab = '<td class="gcell' + (g.name && g.name === curGroup ? ' cur' : '') +
+              '" rowspan="' + g.from.length + '">' +
+              (g.name ? '<span>' + tsEsc(g.name) + '</span>' : '') + '</td>';
+      }
+      rows += '<tr>' + lab + '<td class="pc"><b>' + no + '</b><span>' + tsEsc(p.t || '') +
+              '</span></td>' + tds + '</tr>';
+    });
+  });
+  return '<div class="ts-scroll"><table class="ts-tb"><thead>' + head +
+         '</thead><tbody>' + rows + '</tbody></table></div>';
+}
+var _tsMobTab = 'today';
+function tsMobTab(t){ _tsMobTab = (t === 'week' ? 'week' : 'today'); tsRenderBody(); }
+function tsMobileHtml(){
+  var h = '<div class="ts-mob"><div class="ts-seg">' +
+    '<span class="' + (_tsMobTab === 'today' ? 'on' : '') + '" onclick="tsMobTab(\'today\')">今天</span>' +
+    '<span class="' + (_tsMobTab === 'week' ? 'on' : '') + '" onclick="tsMobTab(\'week\')">全周</span>' +
+    '</div>';
+  if(_tsMobTab === 'today') h += tsMobileDay(tsTodayIndex(), true);
+  else for(var d = 0; d < 7; d++) h += tsMobileDay(d, false);
+  return h + '</div>';
+}
+function tsMobileDay(day, showEmpty){
+  var s = state.schedule, ps = s.periods || [];
+  var today = tsTodayIndex(), np = tsNowPeriodNo(), h = '', any = false;
+  if(!showEmpty) h += '<div class="ts-mday' + (day === today ? ' on' : '') + '">' + TS_DAY_NAMES[day] + '</div>';
+  for(var i = 1; i <= ps.length; i++){
+    var c = s.cells[tsCellKey(day + 1, i)];
+    if(!c && !showEmpty) continue;
+    any = true;
+    var isNow = (day === today && i === np);
+    h += '<div class="ts-mline' + (isNow ? ' now' : '') + '">' +
+         '<div class="mp"><b>第' + i + '节</b><span>' + tsEsc(((ps[i-1] || {}).t || '').slice(0, 5)) + '</span></div>';
+    if(c){
+      h += '<div class="mc' + tsGClass(c.s) + '" onclick="openTsEdit(' + (day + 1) + ',' + i + ')">' +
+           '<div class="s">' + tsEsc(c.s) + '</div>' +
+           (c.t ? '<div class="t">' + tsEsc(c.t) + '</div>' : '') + '</div>';
+    } else {
+      h += '<div class="mc empty" onclick="openTsEdit(' + (day + 1) + ',' + i + ')">' +
+           (isNow ? '这节课空着' : '＋ 添加') + '</div>';
+    }
+    h += '</div>';
+  }
+  if(!any) h += '<div class="ts-hint">这一天没有课</div>';
+  return h;
+}
+function tsRenderEmpty(){
+  var el = document.getElementById('scheduleEmptyWrap');
+  if(!el) return;
+  el.innerHTML = '<div class="ts-empty"><div class="ic">📅</div>' +
+    '<div class="tx">还没有课程表</div>' +
+    '<div class="ht">有教务系统导出的电子版 PDF，直接导入就能自动识别成表格<br>' +
+    '没有的话手动创建，建好后点任意格子即可填课</div>' +
+    '<div class="row">' +
+      '<button class="btn btn-primary" onclick="openTsImport()">导入课表 PDF</button>' +
+      '<button class="btn btn-outline" onclick="tsCreateBlank()">手动创建空课表</button>' +
+      '<button class="btn btn-outline" onclick="triggerSchedulePaste()">上传课表图片</button>' +
+    '</div></div>';
+}
+function tsCreateBlank(){
+  if(!state.schedule || !(state.schedule.periods || []).length) state.schedule = defaultSchedule();
+  tsTouch(); saveData(); tsRender();
+  showToast('空白课表已创建，点格子就能填课', 'success');
+}
+function tsClearSchedule(){
+  if(!confirm('确定清空整个课程表？所有课格内容会被删除（节次时间保留）。')) return;
+  if(!state.schedule) state.schedule = defaultSchedule();
+  state.schedule.cells = {};
+  tsTouch(); saveData(); tsRender();
+  showToast('课程表已清空', 'info');
+}
+/* ---------------- 编辑单个课格 ---------------- */
+var _tsEditTarget = null;
+function openTsEdit(day, no){
+  _tsEditTarget = { day:day, no:no };
+  var c = tsGetCell(day, no) || { s:'', t:'' };
+  var ttl = document.getElementById('tsEditTitle');
+  if(ttl) ttl.textContent = TS_DAY_NAMES[day - 1] + ' · 第' + no + '节';
+  var si = document.getElementById('tsEditSubj'), ti = document.getElementById('tsEditTeacher');
+  if(si) si.value = c.s || '';
+  if(ti) ti.value = c.t || '';
+  tsEditHint();
+  var m = document.getElementById('tsEditModal');
+  if(m) m.classList.add('show');
+  if(si) setTimeout(function(){ try{ si.focus(); si.select(); }catch(e){} }, 60);
+}
+function closeTsEdit(){
+  var m = document.getElementById('tsEditModal');
+  if(m) m.classList.remove('show');
+  _tsEditTarget = null;
+}
+function tsEditHint(){
+  var el = document.getElementById('tsEditHint');
+  if(!el) return;
+  var v = (document.getElementById('tsEditSubj') || {}).value || '';
+  var g = tsSubjectGroup(v), gd = null;
+  for(var i = 0; i < TS_GROUPS.length; i++) if(TS_GROUPS[i].k === g) gd = TS_GROUPS[i];
+  el.innerHTML = gd
+    ? '会按「' + gd.name + '」配色 <b style="color:' + gd.c + '">' + gd.c + '</b>'
+    : '这个科目名没匹配到配色分组，会显示成中性灰。换个常见科目名（如「语文」「舞蹈」「幼儿健康照护」）就能自动上色。';
+}
+function tsEditSave(){
+  if(!_tsEditTarget) return;
+  var s = (document.getElementById('tsEditSubj') || {}).value || '';
+  var t = (document.getElementById('tsEditTeacher') || {}).value || '';
+  tsSetCell(_tsEditTarget.day, _tsEditTarget.no, s, t);
+  saveData(); tsRender();
+  showToast((String(s).trim() || String(t).trim()) ? '已保存' : '已清空这一格', 'success');
+  closeTsEdit();
+}
+function tsEditClear(){
+  if(!_tsEditTarget) return;
+  tsSetCell(_tsEditTarget.day, _tsEditTarget.no, '', '');
+  saveData(); tsRender();
+  showToast('已清空这一格', 'info');
+  closeTsEdit();
+}
+/* ---------------- 课表设置（标题 / 节次时间 / 时段分组） ---------------- */
+var _tsSetDraft = null;
+function openTsSet(){
+  _tsSetDraft = normSchedule(state.schedule);
+  var n = document.getElementById('tsSetName');
+  if(n) n.value = _tsSetDraft.name || '';
+  tsSetRows();
+  var m = document.getElementById('tsSetModal');
+  if(m) m.classList.add('show');
+}
+function closeTsSet(){
+  var m = document.getElementById('tsSetModal');
+  if(m) m.classList.remove('show');
+  _tsSetDraft = null;
+}
+function tsSetRows(){
+  var el = document.getElementById('tsSetRows');
+  if(!el || !_tsSetDraft) return;
+  var opts = ['', '上午', '下午', '晚上'], h = '';
+  _tsSetDraft.periods.forEach(function(p, i){
+    h += '<div class="ts-setrow"><span class="no">第' + (i + 1) + '节</span>' +
+      '<input value="' + tsEsc(p.t) + '" placeholder="07:20-08:00" oninput="tsSetDraftTime(' + i + ',this.value)">' +
+      '<select onchange="tsSetDraftPart(' + i + ',this.value)">' +
+      opts.map(function(o){
+        return '<option value="' + o + '"' + (p.p === o ? ' selected' : '') + '>' + (o || '不分组') + '</option>';
+      }).join('') + '</select></div>';
+  });
+  el.innerHTML = h;
+  var c = document.getElementById('tsSetCount');
+  if(c) c.textContent = '（共 ' + _tsSetDraft.periods.length + ' 节）';
+}
+function tsSetDraftTime(i, v){ if(_tsSetDraft) _tsSetDraft.periods[i].t = v; }
+function tsSetDraftPart(i, v){ if(_tsSetDraft) _tsSetDraft.periods[i].p = v; }
+function tsSetAddPeriod(){
+  if(!_tsSetDraft) return;
+  if(_tsSetDraft.periods.length >= TS_MAX_PERIODS){ showToast('最多 ' + TS_MAX_PERIODS + ' 节', 'warning'); return; }
+  var last = _tsSetDraft.periods[_tsSetDraft.periods.length - 1] || { p:'' };
+  _tsSetDraft.periods.push({ t:'', p:last.p });
+  tsSetRows();
+}
+function tsSetDelPeriod(){
+  if(!_tsSetDraft || _tsSetDraft.periods.length <= 1){ showToast('至少要保留 1 节', 'warning'); return; }
+  var n = _tsSetDraft.periods.length, used = 0;
+  Object.keys(_tsSetDraft.cells || {}).forEach(function(k){ if(+k.split('-')[1] === n) used++; });
+  if(used && !confirm('第 ' + n + ' 节还有 ' + used + ' 门课，删掉后这些课也会一起删除，确认？')) return;
+  _tsSetDraft.periods.pop();
+  Object.keys(_tsSetDraft.cells || {}).forEach(function(k){
+    if(+k.split('-')[1] > _tsSetDraft.periods.length) delete _tsSetDraft.cells[k];
+  });
+  tsSetRows();
+}
+function tsSetSave(){
+  if(!_tsSetDraft) return;
+  state.schedule = normSchedule(_tsSetDraft);
+  tsTouch(); saveData(); tsRender();
+  showToast('课表设置已保存', 'success');
+  closeTsSet();
+}
+/* ---------------- PDF 导入 ---------------- */
+function openTsImport(){
+  var m = document.getElementById('tsImportModal');
+  if(!m) return;
+  var msg = document.getElementById('tsImportMsg'); if(msg) msg.textContent = '';
+  var pv = document.getElementById('tsImportPreview'); if(pv) pv.innerHTML = '';
+  var ok = document.getElementById('tsImportOk'); if(ok) ok.disabled = true;
+  window._tsParsed = null;
+  m.classList.add('show');
+}
+function closeTsImport(){
+  var m = document.getElementById('tsImportModal');
+  if(m) m.classList.remove('show');
+}
+function tsPickPdf(){
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'application/pdf,.pdf';
+  input.onchange = function(e){ var f = e.target.files && e.target.files[0]; if(f) tsHandlePdf(f); };
+  input.click();
+}
+/* pdf.js 按需加载（本地文件，不走 CDN —— 国内网络不稳，且离线也要能用） */
+function tsLoadPdfJs(cb){
+  if(window.pdfjsLib){ cb(true); return; }
+  if(window._tsPdfQ){ window._tsPdfQ.push(cb); return; }
+  window._tsPdfQ = [cb];
+  var s = document.createElement('script');
+  s.src = './pdf.min.js';
+  var fin = function(ok){
+    var q = window._tsPdfQ; window._tsPdfQ = null;
+    if(ok){
+      try{ pdfjsLib.GlobalWorkerOptions.workerSrc = './pdf.worker.min.js'; }catch(e){}
+    }
+    (q || []).forEach(function(f){ f(ok); });
+  };
+  s.onload = function(){ fin(!!window.pdfjsLib); };
+  s.onerror = function(){ fin(false); };
+  document.head.appendChild(s);
+}
+function tsHandlePdf(file){
+  var msg = document.getElementById('tsImportMsg');
+  if(file.size > 12 * 1024 * 1024){ if(msg) msg.textContent = '文件超过 12MB，请先用其他工具压缩一下。'; return; }
+  if(msg) msg.textContent = '正在加载解析组件…';
+  tsLoadPdfJs(function(ok){
+    if(!ok){
+      if(msg) msg.textContent = '解析组件没加载成功（pdf.min.js 没取到）。你仍然可以点「课表设置」+ 点格子手动录入，或上传课表图片。';
+      return;
+    }
+    if(msg) msg.textContent = '正在读取 PDF…';
+    var fr = new FileReader();
+    fr.onload = function(){
+      pdfjsLib.getDocument({ data:new Uint8Array(fr.result) }).promise
+        .then(function(pdf){ return pdf.getPage(1).then(function(pg){ return pg.getTextContent(); }); })
+        .then(function(tc){
+          var g = tsBuildGrid(tsPdfItems(tc));
+          window._tsParsed = g;
+          if(g.err){
+            if(msg) msg.textContent = '没认出课表结构（' + g.err + '）。这份 PDF 多半是扫描件/照片、没有文字层 —— ' +
+              '这种自动识别做不了，请点「课表设置」+ 点格子手动录入，或先用「上传课表图片」顶着。';
+            return;
+          }
+          tsImportPreview(g);
+          if(msg) msg.textContent = '识别完成：' + g.periodNo.length + ' 节 × ' + g.dayIdx.length + ' 天，共 ' +
+            g.nonEmpty + ' 个格子有课。核对下面的预览，没问题就点「确认导入」。';
+          var ok2 = document.getElementById('tsImportOk');
+          if(ok2) ok2.disabled = (g.nonEmpty === 0);
+        })
+        .catch(function(e){
+          if(msg) msg.textContent = '解析失败：' + (e && e.message ? e.message : String(e));
+        });
+    };
+    fr.onerror = function(){ if(msg) msg.textContent = '读取文件失败。'; };
+    fr.readAsArrayBuffer(file);
+  });
+}
+function tsImportPreview(g){
+  var el = document.getElementById('tsImportPreview');
+  if(!el) return;
+  var h = '<div class="ts-pv"><table class="ts-pvt"><thead><tr><th>节次</th>';
+  g.dayIdx.forEach(function(d){ h += '<th>' + TS_DAY_NAMES[d] + '</th>'; });
+  h += '</tr></thead><tbody>';
+  g.periodNo.forEach(function(no){
+    h += '<tr><td class="pc2">第' + no + '节' +
+         (g.times[no] ? '<br>' + tsEsc(g.times[no]) : '') + '</td>';
+    g.dayIdx.forEach(function(d){
+      var c = g.cells[(d + 1) + '-' + no];
+      if(c && c.length){
+        h += '<td class="has">' + tsEsc(c[0]) +
+             (c.length > 1 ? '<br>' + tsEsc(c.slice(1).join('')) : '') + '</td>';
+      } else h += '<td></td>';
+    });
+    h += '</tr>';
+  });
+  el.innerHTML = h + '</tbody></table></div>';
+}
+function tsPartOf(i, n){
+  if(n === 12) return TS_DEFAULT_PARTS[i-1] || '';
+  var r = i / n;
+  return r <= 0.45 ? '上午' : (r <= 0.78 ? '下午' : '晚上');
+}
+function tsImportConfirm(){
+  var g = window._tsParsed;
+  if(!g) return;
+  var sched = { name:(g.title || '').slice(0, 40), updatedAt:0, periods:[], cells:{} };
+  var n = g.periodNo.length;
+  for(var i = 0; i < n; i++) sched.periods.push({ t:(g.times[g.periodNo[i]] || ''), p:tsPartOf(i + 1, n) });
+  g.periodNo.forEach(function(no, idx){
+    g.dayIdx.forEach(function(d){
+      var c = g.cells[(d + 1) + '-' + no];
+      if(!c || !c.length) return;
+      var subj = String(c[0] || '').trim(), teach = String(c.slice(1).join('') || '').trim();
+      if(subj || teach) sched.cells[(d + 1) + '-' + (idx + 1)] = { s:subj, t:teach };
+    });
+  });
+  state.schedule = normSchedule(sched);
+  tsTouch(); saveData(); tsRender();
+  showToast('课表已导入：' + g.nonEmpty + ' 个格子', 'success');
+  closeTsImport();
+}
+/* ---------------- PDF 解析核心（已在真实浏览器用老板的真课表实测通过） ---------------- */
+/* 🔴 两个必须处理的坑：
+   ① **NFKC**：这份 PDF 的 ToUnicode 把汉字映射成了「康熙部首」(U+2F00 区)，
+      打出来是「⽂」「⾳」「⼀」「⽇」而不是「文」「音」「一」「日」—— 长得一模一样但字符串不等。
+      不做规范化，导进来就是一堆假字：搜不到、配不上色、跟老师手输的合不上。
+   ② pdf.js 在这类 PDF 上**逐字**返回（411 项），不是整词 ⇒ 锚点识别必须先把
+      逐字项并成「行 → 词(run)」，否则「星期一」这个词压根不存在。 */
+function tsPdfItems(tc){
+  var out = [];
+  tc.items.forEach(function(it){
+    var s = String(it.str || '').normalize('NFKC').replace(/\s+/g, '');
+    if(!s) return;
+    var tr = it.transform;
+    out.push({ s:s, x:tr[4], y:tr[5], w:it.width || 0 });
+  });
+  return out;
+}
+function tsPdfLines(items){
+  var sorted = items.slice().sort(function(a, b){ return b.y - a.y; });
+  var lines = [];
+  sorted.forEach(function(it){
+    var L = lines[lines.length - 1];
+    if(L && Math.abs(L.y - it.y) <= 2.0) L.items.push(it);
+    else lines.push({ y:it.y, items:[it] });
+  });
+  lines.forEach(function(L){
+    L.items.sort(function(a, b){ return a.x - b.x; });
+    var runs = [], cur = null;
+    L.items.forEach(function(it){
+      if(cur && it.x - (cur.x + cur.w) <= 2.5){ cur.s += it.s; cur.w = it.x + it.w - cur.x; }
+      else { cur = { s:it.s, x:it.x, w:it.w }; runs.push(cur); }
+    });
+    L.runs = runs;
+  });
+  return lines;
+}
+function tsBuildGrid(items){
+  var lines = tsPdfLines(items), days = null;
+  lines.forEach(function(L){
+    var ds = [];
+    L.runs.forEach(function(r){
+      var m = /^星期([一二三四五六日])$/.exec(r.s);
+      if(m) ds.push({ d:'一二三四五六日'.indexOf(m[1]), x:r.x + r.w / 2 });
+    });
+    if(ds.length >= 6 && (!days || ds.length > days.length)) days = ds;
+  });
+  if(!days) return { err:'找不到星期表头行' };
+  days.sort(function(a, b){ return a.x - b.x; });
+  var periods = [];
+  lines.forEach(function(L){
+    L.runs.forEach(function(r){
+      var m = /^第(\d{1,2})节$/.exec(r.s);
+      if(m && r.x < days[0].x - 40) periods.push({ no:+m[1], y:L.y });
+    });
+  });
+  if(periods.length < 6) return { err:'找不到节次列（只认出 ' + periods.length + ' 个）' };
+  var ys = periods.map(function(p){ return p.y; });
+  periods.forEach(function(p, i){
+    /* ⚠️ 首行上边界要收在**表头之下**：表头「星期X」与第 1 节锚点只差约 20pt，
+       按惯例外扩会把表头包进来 ⇒ 整个「第1节」变成「星期一/星期二/…」。+18 实测正好挡住。 */
+    p.top = (i === 0) ? ys[0] + 18 : (ys[i-1] + ys[i]) / 2;
+    p.bottom = (i === periods.length - 1) ? ys[i] - 26 : (ys[i] + ys[i+1]) / 2;
+  });
+  var colX = days.map(function(d){ return d.x; }), half = (colX[1] - colX[0]) / 2;
+  function colOf(x){
+    if(x < colX[0] - half) return -1;
+    for(var i = 0; i < colX.length - 1; i++) if(x < (colX[i] + colX[i+1]) / 2) return i;
+    return colX.length - 1;
+  }
+  function rowOf(y){
+    for(var i = 0; i < periods.length; i++) if(y > periods[i].bottom && y <= periods[i].top) return i;
+    return -1;
+  }
+  var bag = {};
+  items.forEach(function(it){
+    var c = colOf(it.x), r = rowOf(it.y);
+    if(c < 0 || r < 0) return;
+    var k = (c + 1) + '-' + periods[r].no;
+    (bag[k] = bag[k] || []).push(it);
+  });
+  var cells = {};
+  Object.keys(bag).forEach(function(k){
+    var list = bag[k].slice().sort(function(a, b){ return b.y - a.y; });
+    var rowsOut = [], cy = null;
+    list.forEach(function(it){
+      if(cy === null || Math.abs(cy - it.y) > 2.0){ rowsOut.push([]); cy = it.y; }
+      rowsOut[rowsOut.length - 1].push(it);
+    });
+    var linesOut = rowsOut.map(function(g){
+      g.sort(function(a, b){ return a.x - b.x; });
+      return g.map(function(i){ return i.s; }).join('');
+    }).filter(function(x){ return x !== ''; });
+    if(linesOut.length) cells[k] = linesOut;
+  });
+  /* 顺手把左列的时间抓出来（时间在锚点下方同一行带里，逐字项里它是**整串**，可直接匹配） */
+  var times = {};
+  lines.forEach(function(L){
+    var runs = L.runs.filter(function(r){ return r.x < colX[0] - half; });
+    if(!runs.length) return;
+    var m = runs.map(function(r){ return r.s; }).join('')
+                .match(/(\d{1,2}:\d{2})\s*[-~—－]\s*(\d{1,2}:\d{2})/);
+    if(!m) return;
+    var r = rowOf(L.y);
+    if(r >= 0) times[periods[r].no] = m[1] + '-' + m[2];
+  });
+  /* 表头正上方那行通常是班级名 */
+  var headerY = null, title = '';
+  lines.forEach(function(L){
+    L.runs.forEach(function(r){
+      if(/^星期[一二三四五六日]$/.test(r.s)) headerY = (headerY === null ? L.y : Math.max(headerY, L.y));
+    });
+  });
+  if(headerY !== null){
+    var above = lines.filter(function(L){ return L.y > headerY + 4; })
+                     .sort(function(a, b){ return a.y - b.y; });
+    if(above.length) title = above[0].runs.map(function(r){ return r.s; }).join('').slice(0, 40);
+  }
+  return {
+    err:null, cells:cells, times:times, title:title,
+    dayIdx:days.map(function(d){ return d.d; }),
+    periodNo:periods.map(function(p){ return p.no; }),
+    nonEmpty:Object.keys(cells).length
+  };
+}
 
 /* ==================== Dashboard ==================== */
 function renderDashboard(){
@@ -13394,7 +14317,7 @@ function clearData(){
   // 保留类与旧手写清单逐字段比对过：品牌/配置 + 原因目录及其墓碑 + schemaVer；
   // reasonScores 的清空默认是 defaultReasonScores（非 schema 的 {}），单独处理。
   localStorage.removeItem(STORE_KEY);   // 先清旧快照：saveData 万一失败也不残留清空前数据
-  var KEEP_ON_WIPE = { className:1, classNameFull:1, classMotto:1, classAvatar:1, scheduleImage:1,
+  var KEEP_ON_WIPE = { className:1, classNameFull:1, classMotto:1, classAvatar:1, scheduleImage:1, schedule:1,
                        schemaVer:1, catDeleted:1, catDeletedAt:1, catRevived:1, reasonCatalog:1 };
   var _saved = {};
   Object.keys(KEEP_ON_WIPE).forEach(function(k){ _saved[k] = state[k]; });

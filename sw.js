@@ -1,8 +1,13 @@
 /* Service Worker - 班主任工作台 PWA */
-const CACHE_NAME = 'class-manager-v2.26.0';
+const CACHE_NAME = 'class-manager-v2.27.0';
 // v2.20.7 移除 './data.json'：数据已搬到私有仓，站仓这份稍后会删除。
 // 注意 addAll 是全成全败 —— 清单里只要有一个请求 404，整套预缓存就整体 reject，
 // SW 安装直接失败（PWA 离线与后续缓存更新全废）。所以必须在删文件之前先摘掉它。
+// v2.27.0 起站内多了 './pdf.min.js'（320KB）与 './pdf.worker.min.js'（1.06MB），
+// 供「导入课表 PDF」按需加载。**刻意不放进 CORE_ASSETS**：
+//   ① addAll 全成全败 —— 多两个入口就多两份「404 就把整套预缓存拖垮」的风险；
+//   ② 只在真正导入时才用得到，装 PWA 时白拉 1.4MB 不划算。
+// 下面的 fetch 处理器是「缓存优先 + 后台更新」⇒ 首次用到之后自动进缓存，离线再导入也走缓存。
 const CORE_ASSETS = [
   './',
   './index.html',

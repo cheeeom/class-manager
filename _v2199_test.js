@@ -7,6 +7,26 @@
  * 运行：node _v2199_test.js */
 const fs = require('fs');
 const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
+
+/* v2.27.0 补宿主全局：schema 新增 { key:'schedule', ms:'schedule' }，其策略 msSchedule 会调
+   normSchedule / scheduleHasContent。本套件只切了「合并段」，模型段不在切片里
+   ⇒ 调用 msSchedule 的那一刻这两个自由标识符会落到 Node 全局，报 `xxx is not defined`
+   （症状极像源码 bug，实际是沙箱不全）。按本项目既定口径补沙箱，**不动产品码**。
+   ⚠️ 本段说明刻意不写注释定界符的原样字面 —— 写了会把这段注释自己提前关掉。 */
+(function registerScheduleModel(){
+  const k = html.indexOf('课程表数据模型');
+  const i = html.lastIndexOf('/*', k);
+  const k2 = html.indexOf('STATE_SCHEMA：状态字段注册表', k);
+  if(k < 0 || i < 0 || k2 < 0) throw new Error('找不到 v2.27.0 课表数据模型段');
+  const j = html.lastIndexOf('\n', html.lastIndexOf('/*', k2)) + 1;
+  const seg = html.slice(i, j);
+  if((seg.split('/*').length - 1) !== (seg.split('*/').length - 1)) throw new Error('课表数据模型段切片注释不配平');
+  const m = new Function(seg + '; return { defaultSchedule: defaultSchedule, normSchedule: normSchedule,'
+    + ' scheduleHasContent: scheduleHasContent };')();
+  global.defaultSchedule = m.defaultSchedule;
+  global.normSchedule = m.normSchedule;
+  global.scheduleHasContent = m.scheduleHasContent;
+})();
 const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
 
 let pass = 0, fail = 0;
@@ -173,15 +193,15 @@ t('两条删除路径都记墓碑', () => {
 
 console.log('\n=== ⑤ 版本与历史注释 ===');
 t('版本标记统一 v2.19.0', () => {
-  has(html, '<div class="login-version">v2.26.0</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.26.0 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.26.0</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.26.0'", 'SW');
+  has(html, '<div class="login-version">v2.27.0</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.27.0 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.27.0</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-v2.27.0'", 'SW');
 });
 t('设置页「近版更新速览」新增本版条目（旧条不删）', () => {
-  has(html, '（v2.26.0）', '缺 v2.18.15 notes 条目');
-  has(html, '（v2.26.0）', 'v2.18.14 旧条被删');
-  has(html, '（v2.26.0）', 'v2.18.13 旧条被删');
+  has(html, '（v2.27.0）', '缺 v2.18.15 notes 条目');
+  has(html, '（v2.27.0）', 'v2.18.14 旧条被删');
+  has(html, '（v2.27.0）', 'v2.18.13 旧条被删');
 });
 t('历史注释不被波及（v2.18.14/v2.18.13 引入版注释保持原样）', () => {
   has(html, 'var TOMB = {};   // v2.19.0 墓碑集合由 STATE_SCHEMA.tomb 派生（新增墓碑字段只改 schema；不走覆盖，走下方取大/并集）', 'mergeImportData TOMB 更新');

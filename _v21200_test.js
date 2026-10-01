@@ -2,9 +2,9 @@
  * 旧痛点：新增一个云同步字段要改 5 处（state 默认 / loadData / saveData / CLOUD_SYNC_FIELDS / smartMergeData），
  * 漏一处就出「删除后复活 / 字段不传播 / 默认值缺失崩溃」类 P0（v2.18.3 处分、v2.18.12 荣誉、v2.18.15 学生）。
  * 本套件护栏：
- * ① schema 元完整性：44 键无重复 / CFS 派生与 v2.18.15 手写白名单逐键一致 / tomb 集合 / ms 策略全覆盖
- * ② buildDefaultState 行为：44 键、惰性工厂求值、Set/嵌套结构就位、两次构建不共享引用
- * ③ saveData 行为级：快照键集合恰为 CFS−wipeAt（41 键），sv 兜底生效
+ * ① schema 元完整性：45 键无重复 / CFS 派生与 v2.18.15 手写白名单逐键一致 / tomb 集合 / ms 策略全覆盖
+ * ② buildDefaultState 行为：45 键、惰性工厂求值、Set/嵌套结构就位、两次构建不共享引用
+ * ③ saveData 行为级：快照键集合恰为 CFS−wipeAt（42 键），sv 兜底生效
  * ④ 新引擎行为回归：学生/荣誉墓碑复活、catDeleted 三方仲裁、creditBank、nextId 取大
  * 用法：node _v21200_test.js
  */
@@ -17,6 +17,7 @@ function t(name, fn){
 }
 function has(s, sub, what){ if(s.indexOf(sub) < 0) throw new Error((what || '') + '缺少 "' + sub.slice(0, 60) + '"'); }
 function eq(a, b, what){ if(a !== b) throw new Error((what || '') + '期望 ' + JSON.stringify(b) + '，实际 ' + JSON.stringify(a)); }
+function ok(c, what){ if(!c) throw new Error(what || '断言失败'); }
 function extractFn(name){
   const s = html.indexOf('function ' + name);
   if(s < 0) throw new Error('未找到函数 ' + name);
@@ -55,16 +56,43 @@ function builtinNotices(){ return [{ id: 'stub', title: 'stub' }]; }   // 沙箱
 const DEFAULT_COMMITTEE = { banzhang: null, fubanzhang: null, jilv: null, xuexi: null, tiyu: null, shenghuo: null, wenyi: null, xinli: null };
 var state = { catDeletedAt: {}, catRevived: {} };   // smartMergeData 的 msCatTomb 会读 state.catDeletedAt/catRevived 兜底
 
+/* v2.27.0：schema 新增 { key:'schedule', sv:normSchedule }，而 saveData 遍历时会调 f.sv(v)。
+   这里从 index.html 里**原样切出**产品实现注册到全局，而不是写个 stub ——
+   stub 只会测到 stub 自己（曾经有过「用假实现把测试喂绿」的教训）。
+   ⚠️ 锚点用**标记词**、不带版本号：写 'vX.Y.Z 课程表数据模型' 的话，
+   下次发版 OLDV 变成这个版本号时，它会被跟版脚本的 A-0 ③ 判成「版本锚点、静默失效」而中止。 */
+(function registerNormSchedule(){
+  const k = html.indexOf('课程表数据模型');
+  const i = html.lastIndexOf('/*', k);
+  const k2 = html.indexOf('STATE_SCHEMA：状态字段注册表', k);
+  if(k < 0 || i < 0 || k2 < 0) throw new Error('找不到 v2.27.0 课表数据模型段（schema 的 sv 依赖 normSchedule）');
+  /* 🔴 终点退到那个注释行的**行首**：停在词上会留一截未闭合的块注释起始符，
+     块注释不嵌套 ⇒ 它一路吞到下一个注释结束符（单独切片时就地 SyntaxError）。
+     ⚠️ 本段说明**刻意不写那两个定界符的原样字面** —— 写了就会把这段注释自己提前关掉，
+     后面的中文立刻被当成 JS 解析（v2.27.0 真的栽过一次，排查了一圈才找到）。 */
+  const j = html.lastIndexOf('\n', html.lastIndexOf('/*', k2)) + 1;
+  const seg = html.slice(i, j);
+  if((seg.split('/*').length - 1) !== (seg.split('*/').length - 1)) throw new Error('课表数据模型段切片注释不配平');
+  /* ⚠️ 三个都要注册：sv 用 normSchedule，而 msSchedule 内部要调 scheduleHasContent。
+     漏一个的症状是「本套其他用例全绿，只有碰到 smartMergeData 的那几条一起报 xxx is not defined」*/
+  const f = new Function(seg + '; return { defaultSchedule: defaultSchedule, normSchedule: normSchedule,'
+      + ' scheduleHasContent: scheduleHasContent };');
+  const m = f();
+  global.defaultSchedule = m.defaultSchedule;
+  global.normSchedule = m.normSchedule;
+  global.scheduleHasContent = m.scheduleHasContent;
+})();
+
 console.log('=== 语法检查 ===');
 t('index.html 主 <script> 块可被完整编译（无语法错误）', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 
 console.log('=== ① Schema 元完整性 ===');
-t('STATE_SCHEMA 44 键、无重复、顺序与旧 state 字面量一致（抽样锚点）', () => {
-  eq(STATE_SCHEMA.length, 44, '字段数');
+t('STATE_SCHEMA 45 键、无重复、顺序与旧 state 字面量一致（抽样锚点）', () => {
+  eq(STATE_SCHEMA.length, 45, '字段数');
   const keys = STATE_SCHEMA.map(f => f.key);
-  eq(new Set(keys).size, 44, '无重复');
+  eq(new Set(keys).size, 45, '无重复');
   const idx = k => keys.indexOf(k);
   if(!(idx('selectedStudents') < idx('nextId'))) throw new Error('selectedStudents 应在 nextId 前（旧字面量顺序）');
   if(!(idx('creditBank') < idx('punishments'))) throw new Error('creditBank 应在 punishments 前');
@@ -78,12 +106,12 @@ t('CLOUD_SYNC_FIELDS 派生 = v2.18.15 手写白名单逐键一致（唯一事�
     'workLogs','nextWorkLogId','honors','nextHonorId','honorDeleted','customDorms','notices','creditBank',
     'studentDeleted',
     'punishments','nextPunishId',
-    'scheduleImage','classAvatar','wipeAt','schemaVer'];
+    'scheduleImage','schedule','classAvatar','wipeAt','schemaVer'];
   const DERIVED = STATE_SCHEMA.filter(f => f.cfs).map(f => f.key);
   const onlyOld = OLD.filter(k => !DERIVED.includes(k));
   const onlyNew = DERIVED.filter(k => !OLD.includes(k));
   if(onlyOld.length || onlyNew.length) throw new Error('CFS 漂移！仅旧有:' + onlyOld + ' 仅新有:' + onlyNew);
-  eq(DERIVED.length, 42, 'CFS 数量');
+  eq(DERIVED.length, 43, 'CFS 数量');
 });
 t('tomb 墓碑集合恰为 5 个历史墓碑字段；wipeAt nosv 仅上云不落盘', () => {
   eq(STATE_SCHEMA.filter(f => f.tomb).map(f => f.key).sort().join(','),
@@ -98,11 +126,11 @@ t('每个 cfs 字段有 def；每个 ms 名都在 MERGE_ST 表中注册', () => 
     if(f.cfs && f.def === undefined) throw new Error(f.key + ' 缺 def');
     if(f.ms && !MERGE_ST[f.ms]) throw new Error(f.key + ' 的 ms="' + f.ms + '" 未注册到 MERGE_ST');
   });
-  eq(Object.keys(MERGE_ST).length, 26, '策略数');
+  eq(Object.keys(MERGE_ST).length, 27, '策略数');
 });
 t('saveData 落盘清单 = CFS − wipeAt（遍历生成的键集合）', () => {
   const expect = STATE_SCHEMA.filter(f => f.cfs && !f.nosv).map(f => f.key);
-  eq(expect.length, 41, '落盘键数');
+  eq(expect.length, 42, '落盘键数');
   has(html, 'if(!f.cfs || f.nosv) return;', 'saveData 遍历守卫');
   has(html, 'localStorage.setItem(STORE_KEY, JSON.stringify(_snap)); }', 'saveData 快照写盘');
 });
@@ -115,12 +143,12 @@ t('新字段链路护栏：加字段只改 schema 一处即可进默认值/白�
 });
 
 console.log('=== ② buildDefaultState 行为 ===');
-t('buildDefaultState 44 键全就位；惰性工厂求值；Set / 嵌套结构 / 墓碑空 map 就位', () => {
+t('buildDefaultState 45 键全就位；惰性工厂求值；Set / 嵌套结构 / 墓碑空 map 就位', () => {
   const bs = html.indexOf('function buildDefaultState()');
   const code = html.slice(bs, html.indexOf('\n}', bs) + 2);
   const build = eval('(' + code + ')');
   const st = build();
-  eq(Object.keys(st).length, 44, 'state 键数');
+  eq(Object.keys(st).length, 45, 'state 键数');
   eq(st.selectedStudents instanceof Set, true, 'selectedStudents 为 Set');
   eq(st.notices.templates.length > 0, true, 'notices.templates 求值（工厂被调用）');
   eq(st.notices.draft, '', 'notices.draft');
@@ -154,7 +182,7 @@ const saveData = eval('(' + (function(){
   }
   return out.join('\n');
 })() + ')');
-t('saveData 落盘快照键 = CFS−wipeAt（41 键），sv 兜底（null → {} / [] / 0）', () => {
+t('saveData 落盘快照键 = CFS−wipeAt（42 键），sv 兜底（null → {} / [] / 0）', () => {
   state = {
     className: '测试班', classNameFull: '', students: [{ id: 1 }], operations: [], reasons: ['其他'],
     reasonScores: null, reasonCatalog: null, catDeleted: null, catDeletedAt: null, catRevived: null,
@@ -170,7 +198,7 @@ t('saveData 落盘快照键 = CFS−wipeAt（41 键），sv 兜底（null → {}
   saveData();
   const saved = JSON.parse(store['classManagerData']);
   const expectKeys = STATE_SCHEMA.filter(f => f.cfs && !f.nosv).map(f => f.key);
-  eq(Object.keys(saved).length, 41, '快照键数');
+  eq(Object.keys(saved).length, 42, '快照键数');
   expectKeys.forEach(k => { if(!(k in saved)) throw new Error('快照缺键: ' + k); });
   if('wipeAt' in saved) throw new Error('wipeAt 不应进本地快照（历史行为）');
   eq(saved.reasonScores && Object.keys(saved.reasonScores).length, 0, 'reasonScores sv 兜底（null → {}）');
@@ -178,6 +206,12 @@ t('saveData 落盘快照键 = CFS−wipeAt（41 键），sv 兜底（null → {}
   eq(saved.catDeleted && Array.isArray(saved.catDeleted.dirs), true, 'catDeleted sv 兜底');
   eq(saved.customDorms.length, 0, 'customDorms sv 兜底');
   eq(saved.schemaVer, 0, 'schemaVer sv 兜底（null → 0）');
+  /* v2.27.0：state.schedule 未定义时 sv 必须给出**可用**形状（12 节 + 空格表），
+     否则老用户升级后第一次落盘会写进 undefined，读回来 normSchedule 再兜一次，但云端会拿到 null */
+  ok(saved.schedule && Array.isArray(saved.schedule.periods) && saved.schedule.cells,
+     'schedule sv 兜底成合法形状');
+  eq(saved.schedule.periods.length, 12, 'schedule sv 兜底出 12 节');
+  eq(Object.keys(saved.schedule.cells).length, 0, 'schedule sv 兜底出空格表');
   eq(saved.students.length, 1, 'students 原样落盘');
   eq(saved.committee.banzhang, '张三', 'committee 原样落盘');
   state = { catDeletedAt: {}, catRevived: {} };   // 还原，防影响后续用例
