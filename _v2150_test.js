@@ -12,7 +12,7 @@ const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
   const k = html.indexOf('课程表数据模型');
   const i = html.lastIndexOf('/*', k);
   const k2 = html.indexOf('STATE_SCHEMA：状态字段注册表', k);
-  if(k < 0 || i < 0 || k2 < 0) throw new Error('找不到 v2.27.0 课表数据模型段');
+  if(k < 0 || i < 0 || k2 < 0) throw new Error('找不到课表数据模型段');
   const j = html.lastIndexOf('\n', html.lastIndexOf('/*', k2)) + 1;
   const seg = html.slice(i, j);
   if((seg.split('/*').length - 1) !== (seg.split('*/').length - 1)) throw new Error('课表数据模型段切片注释不配平');
@@ -327,10 +327,10 @@ t('撤销/恢复分值同步：afterOpStateChange 统一走 reconcile + saveData
 
 console.log('\n=== 版本号 ===');
 t('v2.18.13 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
-  if (!/login-version">v2.27.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2.27.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!/login-version">v2.27.1</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2.27.1 ·/.test(html)) throw new Error('侧栏版本号未更新');
   const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
-  if (!sw.includes('class-manager-v2.27.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!sw.includes('class-manager-v2.27.1')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

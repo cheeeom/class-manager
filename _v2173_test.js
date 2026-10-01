@@ -13,7 +13,7 @@ const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
   const k = html.indexOf('课程表数据模型');
   const i = html.lastIndexOf('/*', k);
   const k2 = html.indexOf('STATE_SCHEMA：状态字段注册表', k);
-  if(k < 0 || i < 0 || k2 < 0) throw new Error('找不到 v2.27.0 课表数据模型段');
+  if(k < 0 || i < 0 || k2 < 0) throw new Error('找不到课表数据模型段');
   const j = html.lastIndexOf('\n', html.lastIndexOf('/*', k2)) + 1;
   const seg = html.slice(i, j);
   if((seg.split('/*').length - 1) !== (seg.split('*/').length - 1)) throw new Error('课表数据模型段切片注释不配平');

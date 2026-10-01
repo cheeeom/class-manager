@@ -418,9 +418,38 @@ t('★ 合成夹具整表：12 节 × 7 天逐格归位（含空格不落库）'
   jEq(r.cells['1-2'], ['科目2', '教师1'], '格内容 = 科目行 + 教师行');
   ok(r.cells['1-1'] === undefined, '跳过的空格不许落库');
   ok(r.cells['7-12'] === undefined, '跳过的空格不许落库');
-  eq(r.title, '测试班级', '表头正上方那行当标题');
+  eq(r.title, '测试班级', '表头上方最近的非家具行当标题');
   eq(r.times['1'], '07:00-08:45', '左列时间抓取');
   eq(r.times['12'], '18:00-19:45', '最后一节时间');
+});
+/* ★★ 以下三条对着**老板真课表的实况**写：
+     y=541.0「26级幼保2班」 / y=521.9 孤零零一行「星期」（x 落在节次列上方） / y=515.8 才是星期表头。
+   老实现取「表头正上方最近一行」⇒ 课表名被写成「星期」。
+   ⚠️ 这三条是 v2.27.1 的热修闸：改动 title 选取规则前先让它们红一次。 */
+t('★★ title：表头上方漂着的「星期」是表格家具，绝不许当班级名', () => {
+  const I = (s, x, y, w) => ({ str: s, transform: [1, 0, 0, 1, x, y], width: w });
+  const fx = mkPdfItems();
+  const items = api.tsPdfItems({ items: fx.items.concat([I('星期', 90, 495.1 + 20.7 + 6.1, 12)]) });
+  const lines = api.tsPdfLines(items);
+  const hy = lines.filter(L => L.runs.some(r => /^星期[一二三四五六日]$/.test(r.s)))[0].y;
+  const near = lines.filter(L => L.y > hy + 4).sort((a, b) => a.y - b.y);
+  jEq(near.map(L => L.runs.map(r => r.s).join('')), ['星期', '测试班级'],
+       '前提：离表头最近的确实是「星期」（否则这条断言是空的）');
+  eq(api.tsBuildGrid(items).title, '测试班级', '跳过家具行，取再上面那行');
+});
+t('★★ title：表头上方的行全是家具 ⇒ 留空，不许硬凑', () => {
+  const I = (s, x, y, w) => ({ str: s, transform: [1, 0, 0, 1, x, y], width: w });
+  const fx = mkPdfItems();
+  const items = api.tsPdfItems({ items: fx.items.filter(it => it.str !== '测试班级')
+                                            .concat([I('星期', 90, 495.1 + 20.7 + 6.1, 12)]) });
+  eq(api.tsBuildGrid(items).title, '', '宁可没标题');
+});
+t('★ title：离表头 120pt 以上的行不算（防止抓到页眉/学校名）', () => {
+  const I = (s, x, y, w) => ({ str: s, transform: [1, 0, 0, 1, x, y], width: w });
+  const fx = mkPdfItems();
+  const items = api.tsPdfItems({ items: fx.items.map(it =>
+    it.str === '测试班级' ? I('某某学校', 5, 495.1 + 20.7 + 200, 60) : it) });
+  eq(api.tsBuildGrid(items).title, '', '超距必须留空');
 });
 t('★★ 首行上边界 = 锚点 +18（回归闸）：表头「星期X」绝不能被包进「第1节」', () => {
   const fx = mkPdfItems();                       // 表头 y = 515.8，锚点 y = 495.1，差 20.7pt

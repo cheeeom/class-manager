@@ -2460,7 +2460,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.27.0</div>
+      <div class="login-version">v2.27.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2582,7 +2582,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.27.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.27.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3325,12 +3325,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.27.0</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.27.1</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.27.0）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.27.1）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 🔧 <b>课表导入修正</b>：导入教务 PDF 后，课表名会正确显示班级名，不再被表头上方那行「星期」顶掉<br>
               · 📊 <b>首页课表改成周表格</b>：周一~周日 × 12 节一张表看全，按课程类别自动分四个色系，正在上的那一节红框标出来<br>
               · ✏️ <b>点格子就能改</b>：点任意一格填科目与任课老师；「课表设置」里可改每节时间、增删节次，也能一键手动建空表<br>
               · 📄 <b>教务 PDF 直接导入</b>：选入教务系统导出的课表 PDF，自动识别成表格，先预览、核对无误再确认导入<br>
@@ -8528,17 +8529,29 @@ function tsBuildGrid(items){
     var r = rowOf(L.y);
     if(r >= 0) times[periods[r].no] = m[1] + '-' + m[2];
   });
-  /* 表头正上方那行通常是班级名 */
-  var headerY = null, title = '';
+  /* 表头正上方那行通常是班级名。三个必须防住的坑（①② 都在老板的真课表上实测到）：
+     ① 取「最近一行」会踩到**表格家具** —— 这份 PDF 的星期表头正上方就漂着一行
+        孤零零的「星期」（x 落在节次列上方、只高 6.1pt），照「最近」取会把课表名写成「星期」；
+     ② 取「最高一行」也不稳 —— 有的教务导出会在最顶上再压一行学校名；
+     ③ 不能无限往上找 —— 跑到 120pt 以上多半已是页眉，不是这张表的标题。
+     ⇒ 从近到远找第一行**不是家具**的，且必须落在表头之上 4~120pt 内；
+       一个都没有就留空（宁可没标题，也不能把表头文字当班级名）。 */
+  var JUNK_TITLE = /^(星期[一二三四五六日]?|节次|时间|日期|上午|下午|晚上|备注)$/;
+  var headerY = null;
   lines.forEach(function(L){
     L.runs.forEach(function(r){
       if(/^星期[一二三四五六日]$/.test(r.s)) headerY = (headerY === null ? L.y : Math.max(headerY, L.y));
     });
   });
+  var title = '';
   if(headerY !== null){
-    var above = lines.filter(function(L){ return L.y > headerY + 4; })
-                     .sort(function(a, b){ return a.y - b.y; });
-    if(above.length) title = above[0].runs.map(function(r){ return r.s; }).join('').slice(0, 40);
+    var above = lines.filter(function(L){
+      var dy = L.y - headerY;
+      if(dy <= 4 || dy > 120) return false;
+      var txt = L.runs.map(function(r){ return r.s; }).join('').trim();
+      return !!txt && !JUNK_TITLE.test(txt);
+    }).sort(function(a, b){ return a.y - b.y; });          /* 近的优先 */
+    if(above.length) title = above[0].runs.map(function(r){ return r.s; }).join('').trim().slice(0, 40);
   }
   return {
     err:null, cells:cells, times:times, title:title,

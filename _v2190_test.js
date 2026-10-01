@@ -12,7 +12,7 @@ const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
   const k = html.indexOf('课程表数据模型');
   const i = html.lastIndexOf('/*', k);
   const k2 = html.indexOf('STATE_SCHEMA：状态字段注册表', k);
-  if(k < 0 || i < 0 || k2 < 0) throw new Error('找不到 v2.27.0 课表数据模型段');
+  if(k < 0 || i < 0 || k2 < 0) throw new Error('找不到课表数据模型段');
   const j = html.lastIndexOf('\n', html.lastIndexOf('/*', k2)) + 1;
   const seg = html.slice(i, j);
   if((seg.split('/*').length - 1) !== (seg.split('*/').length - 1)) throw new Error('课表数据模型段切片注释不配平');
@@ -143,15 +143,15 @@ t('新「本地优先」实现已写入', () => {
   has(html, 'Object.assign({}, _rs, _ls)', '本地优先合并');
 });
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.27.0</div>', '登录页版本');
-  has(html, '<div class="sidebar-footer">v2.27.0 · 班主任工作台</div>', '侧栏版本');
-  has(html, '🏷️ v2.27.0</span>', '设置页徽标');
+  has(html, '<div class="login-version">v2.27.1</div>', '登录页版本');
+  has(html, '<div class="sidebar-footer">v2.27.1 · 班主任工作台</div>', '侧栏版本');
+  has(html, '🏷️ v2.27.1</span>', '设置页徽标');
 });
 t('sw.js CACHE_NAME 已升版', () => {
-  has(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'), "CACHE_NAME = 'class-manager-v2.27.0'", 'sw 缓存名');
+  has(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'), "CACHE_NAME = 'class-manager-v2.27.1'", 'sw 缓存名');
 });
 t('速览新增修复条目', () => {
-  has(html, '（v2.27.0）', '近版更新速览');
+  has(html, '（v2.27.1）', '近版更新速览');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

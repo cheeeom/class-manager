@@ -65,7 +65,7 @@ var state = { catDeletedAt: {}, catRevived: {} };   // smartMergeData 的 msCatT
   const k = html.indexOf('课程表数据模型');
   const i = html.lastIndexOf('/*', k);
   const k2 = html.indexOf('STATE_SCHEMA：状态字段注册表', k);
-  if(k < 0 || i < 0 || k2 < 0) throw new Error('找不到 v2.27.0 课表数据模型段（schema 的 sv 依赖 normSchedule）');
+  if(k < 0 || i < 0 || k2 < 0) throw new Error('找不到课表数据模型段（schema 的 sv 依赖 normSchedule）');
   /* 🔴 终点退到那个注释行的**行首**：停在词上会留一截未闭合的块注释起始符，
      块注释不嵌套 ⇒ 它一路吞到下一个注释结束符（单独切片时就地 SyntaxError）。
      ⚠️ 本段说明**刻意不写那两个定界符的原样字面** —— 写了就会把这段注释自己提前关掉，

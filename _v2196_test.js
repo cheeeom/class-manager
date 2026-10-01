@@ -15,7 +15,7 @@ const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
   const k = html.indexOf('课程表数据模型');
   const i = html.lastIndexOf('/*', k);
   const k2 = html.indexOf('STATE_SCHEMA：状态字段注册表', k);
-  if(k < 0 || i < 0 || k2 < 0) throw new Error('找不到 v2.27.0 课表数据模型段');
+  if(k < 0 || i < 0 || k2 < 0) throw new Error('找不到课表数据模型段');
   const j = html.lastIndexOf('\n', html.lastIndexOf('/*', k2)) + 1;
   const seg = html.slice(i, j);
   if((seg.split('/*').length - 1) !== (seg.split('*/').length - 1)) throw new Error('课表数据模型段切片注释不配平');
@@ -209,16 +209,16 @@ t('★ 行为级：寝室号格式校验（非法不落盘不建寝室）', () =
 
 console.log('\n=== ⑤ 版本与历史注释 ===');
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.27.0</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.27.0 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.27.0</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.27.0'", 'SW');
+  has(html, '<div class="login-version">v2.27.1</div>', '登录页');
+  has(html, '<div class="sidebar-footer">v2.27.1 · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ v2.27.1</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-v2.27.1'", 'SW');
 });
 t('设置页「近版更新速览」新增本版两条（旧条不删）', () => {
-  has(html, '（v2.27.0）', '缺荣誉 notes');
-  has(html, '（v2.27.0）', '缺寝室 notes');
-  has(html, '（v2.27.0）', 'v2.18.11 旧条目被删');
-  has(html, '（v2.27.0）', 'v2.18.9 旧条目被删');
+  has(html, '（v2.27.1）', '缺荣誉 notes');
+  has(html, '（v2.27.1）', '缺寝室 notes');
+  has(html, '（v2.27.1）', 'v2.18.11 旧条目被删');
+  has(html, '（v2.27.1）', 'v2.18.9 旧条目被删');
 });
 t('历史注释不被波及（v2.18.9 / v2.18.11 引入版注释保持原样）', () => {
   has(html, "catDelUndo('dirs', dir);   // v2.18.9 同步 revive 所在方向", '历史注释被改动');
