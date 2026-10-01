@@ -259,17 +259,26 @@ t('触摸守卫 < rc-done < rc-pick，且新规则在 rc-pick 之后', () => {
   ok(iPick < iNew, '新规则必须插在既有选中态之后');
 });
 t('新注释里不含两个选择器的原样字面（否则 indexOf 命中位置整体前移）', () => {
-  const iNew = CSS.indexOf('/* v2.25.0 课堂点名卡片');
-  ok(iNew >= 0, '找不到本轮的新注释');
-  const seg = CSS.slice(iNew, CSS.indexOf('*/', iNew));
+  /* ⚠️ 锚点必须**版本无关**。原来写的是 CSS.indexOf('/* v2.25.0 课堂点名卡片')，
+     但「带版本号的注释」是历史注解、版本冻结不动，而本文件随版前进 ——
+     一旦有人重写那段注释，indexOf 返 -1、断言静默失真。
+     改为「先找正文短语、再 lastIndexOf('/*') 回退到注释起点」。
+     （_bump_*.py 的 A-0 第③查专抓这类写法：实参含旧版本号且无规则覆盖。） */
+  const hit = CSS.indexOf('课堂点名卡片：右上角的「已点到」绿勾');
+  ok(hit >= 0, '找不到绿勾那段说明注释');
+  const iNew = CSS.lastIndexOf('/*', hit);
+  ok(iNew >= 0, '找不到注释起点');
+  const seg = CSS.slice(iNew, CSS.indexOf('*/', hit));
   notHas(seg, '.rc-card.rc-done');
   notHas(seg, '.rc-card.rc-pick');
   notHas(seg, '.rc-badge{');
 });
 t('拆分透明度那条注释也不含选择器原样字面', () => {
-  const iNew = CSS.indexOf('/* v2.25.0 「已点到」');
-  ok(iNew >= 0, '找不到拆分透明度的注释');
-  const seg = CSS.slice(iNew, CSS.indexOf('*/', iNew));
+  const hit = CSS.indexOf('只把姓名降到 60%');       // 同样版本无关
+  ok(hit >= 0, '找不到拆分透明度的注释');
+  const iNew = CSS.lastIndexOf('/*', hit);
+  ok(iNew >= 0, '找不到注释起点');
+  const seg = CSS.slice(iNew, CSS.indexOf('*/', hit));
   notHas(seg, '.rc-card.rc-done');
   notHas(seg, '.rc-card.rc-pick');
 });

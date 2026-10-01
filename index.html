@@ -2100,13 +2100,52 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
    · 抽取人数从固定 select 改成 number 输入框，1 ~ 应到人数随意填。
    · 未点到名单**默认折叠**（老板要求），点标题行展开；折叠态由 .rc-panel.open 控制。 */
 .rc-toolbar{display:flex;align-items:stretch;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+/* v2.26.0 这一行**一字不动**（沿用线上原值 flex:1 1 430px），窄屏（<1280 视口）完全按原样跑。
+   宽屏的调整全部放在下面那条 @media(min-width:1280px) 里，用的是 max-width 封顶。
+   🔴 两个数都别乱改：
+     · 别往上抬 flex-basis：flex-wrap:wrap 的换行判定看的是 flex-basis（不是收缩后
+       的实际宽度），抬它会把「并排门槛」顶上去（现值 430+330+间距12 = 772，≈1060 视口），
+       更宽的屏反而整块掉到第二行 —— 本轮因此踩了两次。
+     · 别让它 flex-grow:0：它一不 grow 就不会被撑开，宽度小于**实测内容自然宽 566px**
+       就会在卡片内部换行（「打乱顺序」掉到第二行），工具栏从 84px 涨到 118px。
+       而本工具栏是 align-items:stretch，任一块变高都会把另一块一起拉高。 */
 .rc-controls{flex:1 1 430px;min-width:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px}
 .rc-toolbar-label{font-size:14px;color:var(--text-secondary);white-space:nowrap}
 .rc-count{padding:8px 10px;border:1px solid var(--border);border-radius:10px;font-size:15px;font-weight:600;background:var(--card-bg);color:var(--text);width:76px;text-align:center;font-variant-numeric:tabular-nums}
 .rc-count:focus{outline:none;border-color:var(--primary-light);box-shadow:0 0 0 3px rgba(166,58,43,.12)}
 .rc-hint{font-size:13px;color:var(--text-muted)}
 /* 本轮抽中预览栏（老板要求在「开始抽取」右侧）*/
-.rc-picked-panel{flex:0 1 330px;min-width:250px;background:var(--card-bg);border:1px solid var(--border);border-left:4px solid var(--success);border-radius:var(--radius);padding:11px 14px}
+/* v2.26.0 向左侧拓展（老板反馈：抽 5 人以上它就往下长，而左侧还有余量）。
+   主规则**一字不动**（flex-grow 仍是 0）—— 窄屏下余量全给左侧控制组
+   才是旧行为，它在 1188~1248 视口能避免控制组换行；一旦在这里把 grow 改成 1，
+   等分会把小容器下控制组的份额抢走，实测那 4 个点工具栏 84→118（_rm/_cmp_plan.py）。
+   ⇒ 所以改动整体搬进下面那条 @media(min-width:1280px)。 */
+.rc-picked-panel{flex:0 1 330px;min-width:330px;background:var(--card-bg);border:1px solid var(--border);border-left:4px solid var(--success);border-radius:var(--radius);padding:11px 14px}
+
+/* v2.26.0 宽屏放开（≥1280 视口 ＝ 内容区 ≥992px；覆盖 1366 / 1440 / 1920 等主流桌面）。
+   老板反馈「抽 5 人以上预览栏往下拓展，而左侧还有余量」——
+   根因是预览栏 flex-grow:0：余量一点轮不到它，全被左侧控制组吸走、撑到 880px
+   变成一片留白。本工具栏又是 align-items:stretch，预览栏一变高会把控制组一起拉高
+   （实测两块高度同步 84 → 120 → 157），看着就是「整条工具栏往下长」。
+   两条补救，都不碰并排门槛：
+     ① 预览栏只把 flex-grow 由 0 改成 1，基准宽 330 与下限 330 一律不动 ⇒ 接住余量。
+     ② 控制组用 **max-width** 封顶（不是抬 flex-basis）—— max-width 不参与
+        flex-wrap 的换行判定（hypothetical main size 里 basis 仍是 430），
+        所以并排门槛还是 772，与本次改动之前完全一致。
+        grow 给 2 是刻意的：临界容器 992 下若按 1:1 等分，控制组只拿 540px
+        （< 自然宽 566）就会内部换行；给 2 先把控制组喂到 580，剩下的才给预览栏。
+   实测（无头 Edge 跑真实 CSS，_rm/_probe_ctrl.py 与 _rm/_cmp_plan.py）：
+     容器 992（1280 视口）：控制组 650→577、预览栏 330→403 ⇒ 抽 5 人 2 行变 1 行
+     容器 1078（1366 视口）：预览栏 330→486 ⇒ 抽 12 人 3 行变 2 行
+     容器 1152（1440 视口）：预览栏 330→560 ⇒ 抽 12 人 3 行变 1 行
+     容器 1632（1920 视口）：预览栏 330→1040 ⇒ 抽 12 人 3 行变 1 行
+     <1280 视口：本段规则不生效 ⇒ 与改动前逐像素一致，零退化。
+   ⚠️ 别把断点往下调：容器 <980px 时余量不足以同时喂饱控制组（需 ~566）和预览栏，
+      会退化成控制组内部换行（118px）—— 这正是上一版被实测打回的原因。 */
+@media(min-width:1280px){
+  .rc-picked-panel{flex:1 1 330px}
+  .rc-controls{flex:2 1 430px;max-width:580px}
+}
 .rc-picked-title{font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:8px}
 .rc-picked-cnt{font-size:12px;color:var(--text-muted);font-weight:400}
 .rc-picked-names{display:flex;flex-wrap:wrap;gap:6px;min-height:30px;align-items:center}
@@ -2236,6 +2275,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <symbol id="i-pin" viewBox="0 0 24 24"><path d="M9 3.5h6l-.7 6 3.2 3.5H6.5l3.2-3.5z"/><path d="M12 13v7.5"/></symbol>
 <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
 <symbol id="i-roll" viewBox="0 0 24 24"><path d="M6.8 10 8.8 20.2h6.4L17.2 10z"/><path d="M5.8 10h12.4"/><path d="M12 9.7 12.6 3.4"/><path d="M9.4 9.7 10 5.6"/><path d="M14.6 9.7 15.2 6.2"/></symbol>
+<symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3 7h3.5l11 10H21"/><path d="M3 17h3.5l11-10H21"/><path d="M18.5 4 21 7l-2.5 3"/><path d="M18.5 14 21 17l-2.5 3"/></symbol>
 <symbol id="i-dorm" viewBox="0 0 24 24">
 <symbol id="i-credit-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
 <symbol id="i-credit-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol><path d="M3.5 12 7 6h10l3.5 6"/><path d="M5 12v7.5h14V12"/><path d="M8.5 19.5v-4h7v4"/><path d="M12 16V9.5"/></symbol>
@@ -2255,7 +2295,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.25.0</div>
+      <div class="login-version">v2.26.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2377,7 +2417,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.25.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.26.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2806,6 +2846,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <span class="rc-toolbar-label">人</span>
             <button class="btn btn-primary" id="rcStartBtn" onclick="rcStartDraw()">开始抽取</button>
             <button class="btn btn-success" id="rcResetBtn" onclick="rcReset()"><svg class="ic ic-sm"><use href="#i-refresh"/></svg>重置本轮</button>
+            <button class="btn btn-outline" id="rcShuffleBtn" onclick="rcShuffle()"><svg class="ic ic-sm"><use href="#i-shuffle"/></svg>打乱顺序</button>
             <span class="rc-hint" id="rcHint"></span>
           </div>
           <div class="rc-picked-panel">
@@ -3121,15 +3162,15 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.25.0</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.26.0</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.25.0）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.26.0）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · ✅ <b>点名卡片加了「已点到」绿勾</b>：点过的学生卡片右上角会亮起一个绿色勾号，扫一眼就知道还剩谁没点到<br>
-              · 🎯 <b>抽中当场就亮勾</b>：抽签揭晓那一刻中签同学立刻亮起绿勾；下一轮它的黄框落回灰底，勾仍然留着<br>
-              · 🌒 <b>深色主题一并调好</b>：勾号在深色背景下同样清晰，位置与尺寸跟「请假」徽章对齐，右上角标记保持一套语言<br>
+              · 🔤 <b>姓名卡片默认按姓名排序</b>：打开课堂点名，卡片墙按姓名首字母音序自动排好，找人不用再一格格找<br>
+              · 🔀 <b>可以一键打乱顺序</b>：工具栏「重置本轮」右边新增「打乱顺序」，想随机抽查就点它；点「重置本轮」即恢复按姓名<br>
+              · 📐 <b>抽中预览栏不再往下长</b>：抽 5 人以上时预览栏改成向左侧要空间，和左边工具栏并排一行，不再把整条工具栏撑高<br>
             </div>
           </div>
         </div>
@@ -14367,6 +14408,81 @@ var rcPickedSet = [];    // 本批中签（黄框）
 var rcDate = '';         // 当前点名日期
 var rcLoaded = false;
 
+/* --- v2.26.0 卡片墙顺序：默认按姓名首字母音序，可一键打乱 --- */
+/* rcOrder 只存 id，是「显示顺序」的唯一真相；空数组 = 尚未定序 ⇒ 首次渲染自然落到姓名音序。
+   存 sessionStorage（与已点到 / 中签同一条会话记录），**不进 state** ——
+   顺序是本机会话态，不该同步到云端，也不该为它新开一个 state 字段（少一条会忘的同步链路）。 */
+var rcOrder = [];
+var RC_COLLATOR = null;
+/* 多音字姓氏 → 同音代理字（只参与比较，不动显示）。
+   ICU 的中文排序对多音字按**字面默认读音**排，姓氏读音与之不同的字会落到错误音段。
+   ⚠️ 表里每一条都是**实测**筛出来的：把候选字与「该读音的同音常用字」分别跟一批
+      读音已知的锚点字混排，**邻居完全相同**才算 ICU 读对、才不进表。
+      实测 ICU 本来就对、刻意不列的有：隗 任 相 阚 纪 舍 长。
+   ⚠️ 加新字照做同样两件事（与同音字混排比邻居），别照字面猜读音。 */
+var RC_SURNAME_ALIAS = {
+  '曾':'增', '单':'善', '解':'谢', '查':'渣', '仇':'求', '区':'欧', '朴':'瓢', '尉':'玉',
+  '覃':'秦', '缪':'妙', '翟':'宅', '员':'运', '华':'化', '种':'虫', '乐':'月', '都':'督',
+  '召':'邵', '折':'舌', '藏':'葬', '秘':'闭', '乜':'聂', '句':'勾', '术':'竹'
+};
+function rcCollator(){
+  if(RC_COLLATOR === null){
+    try{ RC_COLLATOR = new Intl.Collator('zh-Hans-CN', { usage: 'sort' }); }
+    catch(e){ RC_COLLATOR = undefined; }   // 无 Intl 的极老环境：退回码点比较
+  }
+  return RC_COLLATOR || null;
+}
+function rcNameKey(name){
+  var s = String(name == null ? '' : name);
+  if(!s) return '';
+  var ch = s.charAt(0);
+  /* 必须走 hasOwnProperty：直接下标取会把 constructor / toString 这类原型键当命中 */
+  if(Object.prototype.hasOwnProperty.call(RC_SURNAME_ALIAS, ch)){
+    return RC_SURNAME_ALIAS[ch] + s.slice(1);
+  }
+  return s;
+}
+function rcCompareName(a, b){
+  var x = rcNameKey(a), y = rcNameKey(b);
+  var c = rcCollator();
+  if(c) return c.compare(x, y);
+  return x < y ? -1 : (x > y ? 1 : 0);
+}
+/* 姓名音序排序；同音同名用 id 兜底 ⇒ 顺序稳定、可复现（不依赖 sort 的实现细节） */
+function rcSortByName(list){
+  return list.slice().sort(function(a, b){
+    var c = rcCompareName(a.name, b.name);
+    return c !== 0 ? c : (a.id - b.id);
+  });
+}
+/* 卡片墙顺序：rcOrder 里**仍在册**的按 rcOrder 排，未登记的（新加的学生）追加到末尾并按音序。
+   ⇒ 学生增删后不需要维护 rcOrder，也绝不会少人、绝不会留空洞。 */
+function rcOrderedStudents(){
+  var pos = {}, i;
+  for(i = 0; i < rcOrder.length; i++){
+    if(!Object.prototype.hasOwnProperty.call(pos, rcOrder[i])) pos[rcOrder[i]] = i;
+  }
+  var known = [], fresh = [];
+  rcSortByName(state.students).forEach(function(s){
+    if(Object.prototype.hasOwnProperty.call(pos, s.id)) known.push(s); else fresh.push(s);
+  });
+  known.sort(function(a, b){ return pos[a.id] - pos[b.id]; });
+  return known.concat(fresh);
+}
+function rcShuffle(){
+  if(RC.phase !== 'idle') return;                 // 动效期间不响应
+  rcEnsureToday();
+  var list = rcOrderedStudents();
+  for(var i = list.length - 1; i > 0; i--){       // Fisher-Yates 全量洗牌
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = list[i]; list[i] = list[j]; list[j] = t;
+  }
+  rcOrder = list.map(function(s){ return s.id; });
+  rcSave();
+  renderRollCall();
+  showToast('顺序已打乱', 'info');
+}
+
 function rcEnsureToday(){
   if(!rcDate) rcDate = localDateStr();
 }
@@ -14379,12 +14495,13 @@ function rcLoad(){
     rcDate = o.date;
     rcDoneSet = Array.isArray(o.done) ? o.done : [];
     rcPickedSet = Array.isArray(o.picked) ? o.picked : [];
+    rcOrder = Array.isArray(o.order) ? o.order : [];
   }catch(e){}
 }
 function rcSave(){
   try{
     sessionStorage.setItem(RC_SESSION_KEY, JSON.stringify({
-      date: rcDate, done: rcDoneSet, picked: rcPickedSet
+      date: rcDate, done: rcDoneSet, picked: rcPickedSet, order: rcOrder
     }));
   }catch(e){}
 }
@@ -14440,7 +14557,7 @@ function renderRollCall(){
     return;
   }
   var lm = rcLeaveMap(rcDate);
-  wall.innerHTML = state.students.map(function(s){
+  wall.innerHTML = rcOrderedStudents().map(function(s){
     var cls = 'rc-card';
     if(lm[s.id]) cls += ' rc-leave';
     else if(rcHas(rcPickedSet, s.id)) cls += ' rc-pick';
@@ -14473,7 +14590,7 @@ function rcRefreshStats(){
   var lm = rcLeaveMap(rcDate);
   var total = 0, leaveN = 0, doneN = 0;
   var pend = [];
-  state.students.forEach(function(s){
+  rcOrderedStudents().forEach(function(s){
     if(lm[s.id]){ leaveN++; return; }
     total++;
     if(rcHas(rcDoneSet, s.id)) doneN++;
@@ -14506,7 +14623,7 @@ function rcRefreshStats(){
         真实页面里这些节点也可能因渲染时机不存在，崩了会连带整个 renderRollCall 挂掉。 */
   var pkBox = document.getElementById('rcPickedNames');
   if(pkBox){
-    var pickedStu = state.students.filter(function(s){ return rcHas(rcPickedSet, s.id); });
+    var pickedStu = rcOrderedStudents().filter(function(s){ return rcHas(rcPickedSet, s.id); });
     pkBox.innerHTML = pickedStu.length
       ? pickedStu.map(function(s){
           return '<span class="rc-picked-chip">' + escapeHtml(s.name) + '</span>';
@@ -14556,10 +14673,11 @@ function rcReset(){
   rcCancelRoll();
   rcDoneSet = [];
   rcPickedSet = [];
+  rcOrder = [];        // v2.26.0 重置顺带恢复默认音序（洗牌只影响这一次会话）
   rcDate = localDateStr();
   rcSave();
   renderRollCall();
-  showToast('已重置，全班重新开始','info');
+  showToast('已重置，全班重新开始（顺序已恢复按姓名）','info');
 }
 function rcCancelRoll(){
   if(RC.raf){ cancelAnimationFrame(RC.raf); RC.raf = 0; }
