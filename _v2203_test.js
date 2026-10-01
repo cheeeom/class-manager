@@ -86,11 +86,11 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('四处跟版 v2.23.0（登录页 / 侧栏 / 设置徽标 / SW CACHE_NAME）', () => {
-  has(html, '<div class="login-version">v2.23.0</div>', '登录页未跟版');
-  has(html, '<div class="sidebar-footer">v2.23.0 · 班主任工作台</div>', '侧栏未跟版');
-  has(html, '🏷️ v2.23.0</span>', '设置徽标未跟版');
-  has(sw, "CACHE_NAME = 'class-manager-v2.23.0'", 'SW CACHE_NAME 未跟版');
+t('四处跟版 v2.24.0（登录页 / 侧栏 / 设置徽标 / SW CACHE_NAME）', () => {
+  has(html, '<div class="login-version">v2.24.0</div>', '登录页未跟版');
+  has(html, '<div class="sidebar-footer">v2.24.0 · 班主任工作台</div>', '侧栏未跟版');
+  has(html, '🏷️ v2.24.0</span>', '设置徽标未跟版');
+  has(sw, "CACHE_NAME = 'class-manager-v2.24.0'", 'SW CACHE_NAME 未跟版');
 });
 t('速览标题与 CACHE_NAME 同版本号（容器在 + 标题自动跟版）', () => {
   // 维护约定（index.html「settingsAbout」上方注释）：更新速览【只保留最新一版、整体替换、不做追加】。
@@ -387,10 +387,19 @@ t('50 人海报：可执行不抛异常，且 50 名学生姓名与学分全部�
   const all = Array.from({ length: 50 }, (_, i) => ({ id: i + 1, sid: 'S' + (100 + i), name: '学生' + (i + 1), credit: 100 - i }));
   const data = { count: 50, all: all };
   state = { className: '高二(3)班', classMotto: '笃学慎思', classAvatar: null };
+  // 🔴 这里原来把期望写死成「2026年9月」⇒ 是个**定时炸弹**：10 月 1 日一到就自己变红
+  //    （本轮真踩到，与源码无关）。drawPubPoster 的周期标题走 pubRangeCaption(range)，
+  //    内部就是 `new Date()` 取当天，且它**不接受外部注入日期**（第 6 个参数是头像 avatar）。
+  //    修法：期望值跟着当天算 —— 守卫的语义不变（「<年>年<月>月学分公示」且空格被去掉），
+  //    但断言永久稳定。绝不为了迁就测试去改产品码。
+  const _n = new Date();
+  const EXP_CAP = _n.getFullYear() + '年' + (_n.getMonth() + 1) + '月学分公示';
   drawPubPoster(ctx, 1080, pubPosterHeight(data), data, 'month', null);
   const j = ctx.seen.join('|');
   has(j, '学分总榜', '未画总榜标题');
-  has(j, '2026年9月学分公示', '未画周期标题（pubRangeCaption 去空格 + 学分公示）');
+  has(j, EXP_CAP, '未画周期标题（pubRangeCaption 去空格 + 学分公示），期望 ' + EXP_CAP);
+  ok(/^\d{4}年\d{1,2}月学分公示$/.test(EXP_CAP), '周期标题形态：<年>年<月>月学分公示（空格已去掉、无多余字符）');
+  notHas(j, ' 年 ', '标题里的空格确实被 replace(/\\s+/g,\'\') 去掉了');
   has(j, '高二(3)班', '未画班级名');
   has(j, '笃学慎思', '未画班训');
   let missName = 0, missCredit = 0;

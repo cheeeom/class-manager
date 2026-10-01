@@ -31,9 +31,9 @@ t('index.html 主 <script> 块可被完整编译（选择器改造无语法错�
 
 console.log('\n=== v2.18.13 版本三处同步 ===');
 t('登录页 / 侧栏 / SW CACHE_NAME = v2.18.13', () => {
-  if (!/login-version">v2.23.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2.23.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n').includes('class-manager-v2.23.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!/login-version">v2.24.0</.test(html)) throw new Error('登录页版本号未更新');
+  if (!/sidebar-footer">v2.24.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n').includes('class-manager-v2.24.0')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== v2.17.30 热修：内联事件 this 陷阱 ===');
@@ -151,7 +151,10 @@ t('三入口都注入候选池并刷新列表（committee / seating / duty）', 
   const s = grab('function seatClick(row, col, studentId)');
   if (!s.includes('_studentPickerPool = state.students.filter')) throw new Error('座位未注入剔除已占座候选');
   if (!s.includes('refreshStudentPicker();')) throw new Error('座位未刷新列表');
-  const d = grab('function dutyCellClick(day, area)');
+  // v2.24.0 重定向：值日表改成「小组划分」后，单元格点击入口 dutyCellClick(day, area) 已移除，
+  // 换人入口变成 dutyMemClick(teamIdx, role, slot)。断言的不变量不变 ——
+  // 「值日换人也必须注入全体候选池 + 刷新选择器列表」，只把锚点挪到新入口上。
+  const d = grab('function dutyMemClick(teamIdx, role, slot)');
   if (!d.includes('_studentPickerPool = state.students.slice()')) throw new Error('值日未注入候选');
   if (!d.includes('refreshStudentPicker();')) throw new Error('值日未刷新列表');
 });

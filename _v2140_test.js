@@ -109,9 +109,12 @@ t('整改天数为自定义数字输入（1-30），openPunishModal 默认 7', (
   const cp = html.match(/function confirmPunish\(\)\{[\s\S]*?\n\}/)[0];
   if (!cp.includes('days > 30')) throw new Error('天数上限 30 未校验');
 });
-t('流水原因前缀更新为「劳动整改·」，兼容旧记录不变（punishStatusFor 未动）', () => {
-  eq(/'劳动整改·' \+ area/.test(html), true);
+t('劳动整改不再扣分（v2.24.0），旧记录与 punishStatusFor 仍兼容', () => {
+  if (/'劳动整改·' \+ area/.test(html) || /applyCredit\(id, -deduct/.test(html))
+    throw new Error('劳动整改仍在写扣分流水');
+  eq(/deduct: 0,/.test(html), true);          // 新记录固定 0 分
   eq(/function punishStatusFor\(p, today\)\{[\s\S]*?\n\}/.test(html), true);
+  eq(/p\.deduct \? '已扣 ' \+ p\.deduct \+ ' 分' : '不扣分'/.test(html), true);   // 历史记录照旧显示已扣分
 });
 
 console.log('\n=== 详情面板关闭键美化 ===');

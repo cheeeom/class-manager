@@ -53,7 +53,10 @@ function ruleBody(sel) {
 // 🔴 请假卡的规则名在 CSS 里出现**两次**：主规则 + 移动端断点里的紧凑版，
 //    而且移动端断点在文件里**更早**（L1439 一带），所以 `html.indexOf('.leave-student{')`
 //    会命中那条 16px 的、断言必然落空。→ 断言主规则必须**限定在主 CSS 块范围内**。
-const LC_START = html.indexOf('v2.23.0 \u8bf7\u5047\u5361\u300c\u6392\u7248\u52a0\u6599\u300d');
+// 🔴 切片锚点**不带版本号**：`v2.23.0 「请假卡排版加料」` 那个 CSS 注释是**历史注释**，
+//    跟版时 index.html 里那一行不会被改（改的只是四处活动标记），所以锚点里一旦写死版本号，
+//    下次跟版就会切片失败、整套静默崩掉。这是「带版本号的注释不许当代码锚点」的同一条铁律。
+const LC_START = html.indexOf('\u8bf7\u5047\u5361\u300c\u6392\u7248\u52a0\u6599\u300d');
 const LC_END = html.indexOf('@media(max-width:680px){.leave-grid', LC_START);
 const LC = (LC_START >= 0 && LC_END > LC_START) ? html.slice(LC_START, LC_END) : '';
 function lcRule(sel) {
