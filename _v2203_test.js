@@ -86,11 +86,11 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('四处跟版 v2.24.1（登录页 / 侧栏 / 设置徽标 / SW CACHE_NAME）', () => {
-  has(html, '<div class="login-version">v2.24.1</div>', '登录页未跟版');
-  has(html, '<div class="sidebar-footer">v2.24.1 · 班主任工作台</div>', '侧栏未跟版');
-  has(html, '🏷️ v2.24.1</span>', '设置徽标未跟版');
-  has(sw, "CACHE_NAME = 'class-manager-v2.24.1'", 'SW CACHE_NAME 未跟版');
+t('四处跟版 v2.25.0（登录页 / 侧栏 / 设置徽标 / SW CACHE_NAME）', () => {
+  has(html, '<div class="login-version">v2.25.0</div>', '登录页未跟版');
+  has(html, '<div class="sidebar-footer">v2.25.0 · 班主任工作台</div>', '侧栏未跟版');
+  has(html, '🏷️ v2.25.0</span>', '设置徽标未跟版');
+  has(sw, "CACHE_NAME = 'class-manager-v2.25.0'", 'SW CACHE_NAME 未跟版');
 });
 t('速览标题与 CACHE_NAME 同版本号（容器在 + 标题自动跟版）', () => {
   // 维护约定（index.html「settingsAbout」上方注释）：更新速览【只保留最新一版、整体替换、不做追加】。

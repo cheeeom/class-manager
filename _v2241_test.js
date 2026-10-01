@@ -66,7 +66,7 @@ t('★ 窗口末端锚点全文唯一（注释里写它原样字面就会把窗�
   eq(html.split(CT_DECL).length - 1, 1, '该声明出现次数必须是 1');
 });
 t('★ 锁的全部符号都落在切片窗口内', () => {
-  ['/* v2.24.1 推送互斥',
+  ['推送互斥：同刻只跑一笔',
    'var _pushInFlight = null;',
    'function _freezeResponse(res){',
    'function _afterPushSettled(){',
@@ -160,8 +160,11 @@ t('★ 退避重试逻辑一行未动（_v2191_test.js 钉着的那些）', () =
 
 console.log('\n=== ② 行为级真跑：锁（沙箱注入假 _doPushOnce） ===');
 
-/* 抽锁代码：从区段注释到 _doPushOnce 定义之前 */
-const lockStart = html.indexOf('/* v2.24.1 推送互斥');
+/* 抽锁代码：从第一行锁变量到 _doPushOnce 定义之前。
+   ⚠️ 起点**刻意不用那段带版本号的区段注释** —— 那是「拿带版本号的注释当切片锚点」，
+      跟版时 index.html 的注释不会跟着改，锚点就静默失效、整套测试崩。
+      （v2.24.0 立 A-0 护栏就是为了防这个；v2.25.0 把本文件这一处也一并换掉。） */
+const lockStart = html.indexOf('var _pushInFlight = null;');
 const lockEnd = html.indexOf('function _doPushOnce(message){');
 if (lockStart < 0 || lockEnd < 0 || lockStart > lockEnd) {
   console.log('  ❌ 锁代码抽取失败');

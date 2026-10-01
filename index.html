@@ -2129,7 +2129,12 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .rc-card:hover{transform:translateY(-2px);border-color:var(--primary-light)}
 /* 触摸端守卫：必须写在 .rc-done / .rc-pick 之前（同特异度靠源序，否则选中态被 hover 夺走） */
 @media(hover:none){.rc-card:hover{transform:none;border-color:var(--border)}}
-.rc-card.rc-done{background:var(--bg-secondary);color:var(--text-muted);opacity:.6}
+/* v2.25.0 「已点到」只把姓名降到 60%。原先这一层 60% 加在整张卡片上，
+   会把右上角新加的绿勾一起冲淡 —— 60% 合成下最深也只能到灰绿，出不来
+   --success 那支石绿，于是灰底卡与琥珀框卡上的勾一深一浅、两处不一致。
+   ⚠️ 别把这行 opacity 挪回卡片上。 */
+.rc-card.rc-done{background:var(--bg-secondary);color:var(--text-muted)}
+.rc-card.rc-done .rc-name{opacity:.6}
 .rc-card.rc-leave{background:var(--bg-secondary);color:var(--text-muted);cursor:default}
 .rc-card.rc-roll{border-color:var(--success);box-shadow:0 0 0 3px rgba(47,125,91,.20);transform:scale(1.06);z-index:2}
 .rc-card.rc-pick{
@@ -2138,6 +2143,28 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
   animation:rcPop .45s cubic-bezier(.34,1.56,.64,1);
 }
 @keyframes rcPop{0%{transform:scale(.94)}60%{transform:scale(1.14)}100%{transform:scale(1.08)}}
+/* v2.25.0 课堂点名卡片：右上角的「已点到」绿勾。
+   勾挂在「已点到」这一语义上 —— 灰底卡与刚抽中的琥珀框卡都算，滚动闪烁中的卡不算
+   （那时还没进已点到集合，揭晓那一刻才落勾，形成「绿框定格 → 琥珀框 + 绿勾」的节奏）。
+   纯 CSS 伪元素实现：单卡刷新只 toggle 类名、不重建 DOM，勾必须由类名驱动、零 JS 改动。
+   ⛔ 别改用勾形字符 —— 本项目所有勾选框一律不用字形（会渲染成彩色 emoji，项目已踩过）。
+   几何刻意与请假徽章对齐（同一位置、同一尺寸），让右上角标记保持一套视觉语言。
+   ⚠️ 卡片是 flex 容器，伪元素必须 absolute 脱离流，否则会挤走姓名的居中。
+   ⚠️ 两个 13px 是反算出来的：圆径 20 贴角 3 ⇒ 圆心距顶/右各 13；
+      勾元素「距顶/右各 13px + translate(50%,-50%)」正落在此心。改圆径要同步改这两个 13。 */
+.rc-card.rc-done::after,
+.rc-card.rc-pick::after{
+  content:'';position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;
+  background:var(--success);box-shadow:0 1px 3px rgba(43,38,28,.18);
+  pointer-events:none;z-index:1;
+}
+.rc-card.rc-done::before,
+.rc-card.rc-pick::before{
+  content:'';position:absolute;top:13px;right:13px;width:5px;height:9px;
+  border:solid #fff;border-width:0 2px 2px 0;
+  transform:translate(50%,-50%) rotate(45deg);
+  pointer-events:none;z-index:2;
+}
 /* v2.22.0 「假」字居中标定（5 倍渲染墨迹实测，非估算）：
    旧写法 line-height:20px + text-align:center 下字心偏下 0.50px；
    只改成 flex 居中**数值一模一样仍是 +0.50** —— flex 居中居的是行盒，
@@ -2228,7 +2255,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.24.1</div>
+      <div class="login-version">v2.25.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2350,7 +2377,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.24.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.25.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3094,15 +3121,15 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.24.1</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.25.0</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.24.1）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.25.0）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 🔒 <b>推送加了互斥锁</b>：连着改数据不再弹「推送被拒」—— 同一时刻只跑一笔推送，期间攒下的改动会在这一笔结束后立刻补推一次，最后一次改动必定上云<br>
-              · 🔁 <b>云端冲突改为自动重试</b>：GitHub 的 sha 冲突码本来是 409，旧版只认 422 才当并发 ⇒ 撞车时既不提示也不重试、数据只留在本机；现已一并纳入自动重试<br>
-              · ⏱️ <b>出错提示多留一会儿</b>：错误留 8 秒、警告留 5 秒（成功与提示仍是 3 秒，日常手感不变），便于看清原因或截图<br>
+              · ✅ <b>点名卡片加了「已点到」绿勾</b>：点过的学生卡片右上角会亮起一个绿色勾号，扫一眼就知道还剩谁没点到<br>
+              · 🎯 <b>抽中当场就亮勾</b>：抽签揭晓那一刻中签同学立刻亮起绿勾；下一轮它的黄框落回灰底，勾仍然留着<br>
+              · 🌒 <b>深色主题一并调好</b>：勾号在深色背景下同样清晰，位置与尺寸跟「请假」徽章对齐，右上角标记保持一套语言<br>
             </div>
           </div>
         </div>
