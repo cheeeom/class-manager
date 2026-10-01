@@ -558,7 +558,7 @@ t('saveData 走 sv，schedule 会被 normSchedule 兜底（不会把 undefined �
 
 console.log('\n=== ⑧ CSS：本轮真栽过的三条坑，逐条立闸 ===');
 t('★ 列宽写在**表头 th** 上（table-layout:fixed 只认第一行的 width）', () => {
-  has(CSS_SEG, 'table.ts-tb th.gcol{width:25px', '分组列宽');
+  has(CSS_SEG, 'table.ts-tb th.gcol{width:33px', '分组列宽');
   has(CSS_SEG, 'table.ts-tb th.corner{width:74px', '节次列宽');
 });
 t('★ 重置全局 td（index.html 第 563 行的 td{padding:12px 16px} 会压住课格）', () => {
@@ -581,8 +581,32 @@ t('★ 竖排徽章挂在 span 上，不是挂在 td 上（vertical-rl 的块轴
   has(td, 'text-align:center', 'td 负责居中');
   has(td, 'vertical-align:middle', 'td 负责垂直居中');
 });
-t('徽章字号 15px（老板反馈「不够大」，这是修后的值，不许掉回 12/13px）', () => {
-  has(blockOf(CSS_SEG, 'table.ts-tb td.gcell span{'), 'font-size:15px');
+t('★ 徽章字号 17px（老板两次反馈「不够大」，这是修后的值，不许掉回 15/13/12px）', () => {
+  has(blockOf(CSS_SEG, 'table.ts-tb td.gcell span{'), 'font-size:17px');
+});
+/* ★★ 以下两条对着**真机实测的几何**立闸（v2.27.2 老板原话：
+   「应该在这个区域内上下左右居中排版…不要紧贴着字体，稍微留一点空挡」）。
+   ⚠️ 断言里只写「CSS 文本 + 数值区间」，不写具体像素结果 —— 像素由 Edge 探针保。 */
+t('★★ 徽章上下左右居中：td 必须 line-height:0', () => {
+  const td = blockOf(CSS_SEG, 'table.ts-tb td.gcell{');
+  has(td, 'line-height:0', 'inline-block 的基线是它 margin-box 底边，td 的 strut 还占着 descent');
+  has(td, 'vertical-align:middle', '仍靠表格单元格做垂直居中');
+  has(td, 'text-align:center', '水平居中');
+  /* 实测：不加 line-height:0 时徽章整体偏上 3.3px（line box 被 strut 撑高，
+     vertical-align:middle 居中的是那个被撑高的 line box、不是 span）。 */
+});
+t('★★ 椭圆要给字体留空挡，且分组列宽装得下它', () => {
+  const span = blockOf(CSS_SEG, 'table.ts-tb td.gcell span{');
+  const m = /padding:(\d+)px (\d+)px/.exec(span);
+  ok(!!m, '必须显式写 padding');
+  const vt = +m[1], hz = +m[2];
+  ok(vt >= 10, '上下留空 ' + vt + 'px（应 ≥10）');
+  ok(hz >= 6, '左右留空 ' + hz + 'px（应 ≥6）—— 竖排时左右＝块轴，最容易被字贴满（实测曾左1右0）');
+  has(span, 'border-radius:999px', '药丸圆角（固定小圆角会被撑成方角）');
+  const fs = +(/font-size:(\d+)px/.exec(span))[1];
+  const wsp = +(/width:(\d+)px/.exec(blockOf(CSS_SEG, 'table.ts-tb th.gcol{'))) [1];
+  ok(wsp >= fs + 2 * hz, '分组列宽 ' + wsp + ' 必须 ≥ 字号 ' + fs + ' + 左右留空 ' + (2 * hz) +
+     '（否则椭圆会被列挤扁）');
 });
 t('手机断点：表格隐藏 + 列表显示（成对出现）', () => {
   const mq = braced(CSS_SEG, '@media(max-width:768px){');
