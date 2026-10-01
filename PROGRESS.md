@@ -2788,3 +2788,239 @@ v2.23.0 做到「改 10 处 + 跟版 189 处，既有 59 套零改动全绿」�
   抽所有含 `/* ====` 的字符串字面量与 `function xxx(` 签名，逐个查是否还在 `index.html` 里），
   纳入发版流程，就不会再靠自觉了。
 
+# v2.24.1 · 推送互斥锁 + 409 纳入自动重试 + 出错提示延长
+
+> 2026-10-01。老板原话：**「给推送加一把锁，然后推送」**。
+> 起因是老板反馈：「为什么有时候修改数据后弹窗推送被拒？弹窗太快了我没办法截屏给你看，
+> 你能否查一下什么原因？推送被拒是不是数据有影响？」
+>
+> 先说结论：**数据没有任何影响。**「推送被拒」是 GitHub 内容接口的并发冲突（sha 过期），
+> 服务端**拒绝写入**，云端保持在上一次成功推送的完整状态 —— 不是丢数据、也不是写坏数据。
+
+## 一、根因：去抖窗口比推送耗时短，导致「自己撞自己」
+
+一次推送的时长是可测的：
+
+| 步骤 | 实测耗时 |
+|---|---|
+| `GET` 云端 `data.json`（约 160 KB） | **2.6 ~ 2.7 s** |
+| PBKDF2 25 万轮 ×2（加密 + 解密校验） | **≈ 160 ms × 2** |
+| `PUT` 写回 + 元数据刷新 | 合计 |
+| **一次推送全程** | **≈ 6 s** |
+
+而编辑后的**去抖窗口是 2000 ms**。于是：
+
+```
+t=0.0s  改一笔 → 启动推送 A（读到 sha=S1）
+t=2.0s  再改一笔 → 去抖到点 → 启动推送 B（也读到 sha=S1）
+t=6.0s  A 写回成功，云端 sha 变成 S2
+t=6.1s  B 带着过期的 S1 去写 → 409 Conflict
+```
+
+**只要两次编辑间隔 < 6 秒，就必然重叠。** 老板连续改两笔数据时，这个窗口很容易撞上。
+控制台里现场长这样：`PUT failed: 409 Conflict`，然后界面弹一句「推送被拒」。
+
+### 1.1 为什么没自动重试（这是真写错了）
+
+`friendlyPushError()` 把错误分了两类：
+
+```js
+if(/PUT failed:\s*422/.test(msg)) return '云端数据有并发更新，将自动重试';
+if(/PUT failed/.test(msg))       return '推送被拒（' + msg + '）';
+```
+
+`recoverable` 判据是 `/网络|并发|重试/`。
+
+⚠️ **GitHub Contents API 的 sha 冲突码是 409，不是 422。** 422 是校验失败。
+所以 409 掉进了第二条分支 ⇒ 文案变成「推送被拒」⇒ `recoverable` 的正则**命中不了**
+⇒ 不走退避重试，直接弹窗报错。**老板看到的正是这一条。**
+
+## 二、两条改动
+
+### 2.1 🔒 推送互斥锁（老板点名那条）
+
+新增一把**模块级**的锁，语义是「**同刻只跑一笔**」：
+
+- 正在推送时又来了新改动 ⇒ **不新开一笔**，只登记 `_pushAgainPending = true`，
+  **复用同一笔的 Promise** 返回（调用方的 `await` 语义不变）；
+- 当前这笔**成功或失败都释放锁**，释放时若发现有待补推的改动 ⇒ `autoPushToCloud()` 补推一次。
+
+```js
+var _pushInFlight = null;        // 进行中的推送（复用同一 Promise，消灭 sha 竞态）
+var _pushAgainPending = false;   // 飞行期间又来了新改动 ⇒ 本笔结束后补推一次
+
+function doPushToCloud(message){
+  if(_pushInFlight){
+    _pushAgainPending = true;
+    dbg('[Sync] push in flight, coalesce (re-push after settle):', message);
+    return _pushInFlight;                       // ← 复用，不新开
+  }
+  var inflight = _doPushOnce(message).then(_freezeResponse);
+  _pushInFlight = inflight;
+  function settle(){
+    if(_pushInFlight === inflight) _pushInFlight = null;
+    _afterPushSettled();                        // 有待补推就补一次
+  }
+  inflight.then(settle, settle);                // ← 成功失败双侧、就地注册
+  return inflight;
+}
+```
+
+**三个关键设计理由（都是踩出来的）：**
+
+1. **`_freezeResponse`**：多个调用方共享**同一个** `Response` 对象，而 `body` 只能读一次。
+   所以把 `res.text()` 的结果缓存起来，代一个形状不变的对象（`ok` / `status` / `text()` / `json()`），
+   谁读都拿到同一份文本。
+2. 🔴 **`inflight.then(settle, settle)` 必须「就地双侧」注册**。
+   我第一版写成了 `inflight.then(noop, noop).then(settle)` —— 那会**晚一个微任务**才释放锁。
+   后果：一个**串行**的调用方（`await push(); await push();`）在第二笔进来时，
+   看见锁**还没被清掉**，于是把它误判成「并发」、错误地复用了上一笔的响应 ⇒ 新改动根本没推上去。
+   `_v2191fix_test.js`（真跑串行 `await`）当场抓出了这个 bug，症状是
+   「空本地 + 云端有人 → 推送被阻止」。
+3. **`doPushToCloud` 的签名与返回值形状一字不变** ⇒ `autoPushToCloud()` 与手动推送
+   两个调用点**零改动**。新逻辑收在函数内部，外部谁都不用知道。
+
+### 2.2 ⏱️ 409 归类 + 出错提示延长（回应「弹窗太快截不到图」）
+
+- `if(/PUT failed:\s*422/` → **`if(/PUT failed:\s*(409|422)/`** ⇒ 409 也归到
+  「云端数据有并发更新，将自动重试」⇒ `recoverable` 命中 ⇒ 走退避重试
+  （3s → 6s → 12s → 24s，`PUSH_MAX_RETRY = 4`）。
+- `showToast()` 的停留时长改成按类型分档：
+
+  ```js
+  const ms = duration || (type === 'error' ? 8000 : (type === 'warning' ? 5000 : 3000));
+  ```
+
+  错误 **8 s** / 警告 **5 s** / 其余 **3 s**（第三参仍可覆盖；成功与普通提示的手感**完全不变**）。
+
+## 三、改动清单
+
+| # | 位置 | 内容 |
+|---|---|---|
+| 1 | 新增 | `_pushInFlight` / `_pushAgainPending` 两个模块级变量 + 注释 |
+| 2 | 新增 | `_freezeResponse(res)` —— 共享 Response 的单次读取代理 |
+| 3 | 新增 | `_afterPushSettled()` —— 结算后补推 |
+| 4 | 改名 | `function doPushToCloud(message)` → `_doPushOnce(message)`（**内部实现一字未动**） |
+| 5 | 新增 | 新的 `doPushToCloud(message)` —— 加锁入口，签名/返回值形状不变 |
+| 6 | 下移 | `let cloudSyncTimer = null;` 挪到 `function cloneReasonCatalog(cat){` 之前（见 §5.1） |
+| 7 | 改一行 | `friendlyPushError` 的正则：`422` → `(409\|422)` + 3 行说明注释 |
+| 8 | 改一行 | `showToast` 的 `setTimeout` 时长分档 |
+| 9 | 版本号 | `v2.24.1` × 4 处活动标记（登录页 / 侧栏 / 设置徽标 / 速览标题）+ 速览正文 3 条 bullet |
+
+**契约保全**（既有测试真跑的符号，一个都不能少）：
+`doPushToCloud` / `_doPushOnce` / `friendlyPushError` / `autoPushToCloud` / `toggleLocalMode` /
+`showToast` / `checkPushSafety` / `wipeInProgress`（≥6 处）/ `_pushRetryCount` /
+`PUSH_MAX_RETRY = 4` / `Math.min(30000, 3000 * Math.pow(2, _pushRetryCount - 1))` /
+`PUT failed: 422 validation` 的转译 / `autoPushToCloud(){\n  if(isLocalMode()){`。
+
+`index.html` 910,619 → **915,307** 字节（工作区 CRLF；LF 口径 894,275 → **898,896**，Δ **+4,621**）；
+内联 JS 572,201 → **575,036 字符**（`node --check` ✓）；
+`sw.js` 的 `CACHE_NAME → class-manager-v2.24.1`。
+
+## 四、验收
+
+- 新增 `_v2241_test.js`（**28 项全过**，版本号从 `sw.js` 的 `CACHE_NAME` 反推，与版本解耦）：
+  - **⑤ 抽取窗口契约** —— 花括号配平验 `applyCloudData` / `buildCloudPayload` 被窗口**完整**包住；
+    窗口内函数声明白名单（12 个），防测试的 `_sliceFn` 撞名；
+    「模拟切片」用例：模拟两套测试的 `indexOf…indexOf` 切法，确认切出来的片段能独立 `new Function` 通。
+  - **① 锁的形状与调用方零改动** —— 6 个符号各恰好 1 次；
+    `autoPushToCloud()` / 手动推送两个调用点**一字未改**。
+  - **② 行为级真跑** —— 把锁源码 + `doPushToCloud` 源码 `new Function` 起来，注入
+    `_doPushOnce` 替身与 `oneShotResponse` 替身：三连点只发 1 次请求、三个 Promise **同一个对象**、
+    `_pushAgainPending` 置位、失败后锁必须释放、释放后补推恰好 1 次。
+  - **★ 定点回归 1**：`has(fn,'inflight.then(settle, settle);')` +
+    `notHas(fn,'.then(function(){}, function(){}).then(')` ——钉死「就地双侧注册」形态。
+  - **★ 定点回归 2**：**串行两笔**（只用 `await`、不加 `setTimeout`）—— 前一笔 `await` 结束后
+    立刻再推，**必须真的新开一笔**（专治「晚一个微任务释放锁」那个 bug）。
+  - **③ 409 归类** —— `classify(friendlyPushError(...))` 判会不会重试；409 / 422 / 500 三态。
+  - **④ `showToast` 时长分档真跑** —— 错误 8000 / 警告 5000 / 成功 3000 / 显式覆盖。
+- `node _runall.js` → **`PASS: 62 files` / `FAIL: none`**（61 → 62，用时 32.8s）
+- 跟版 `_bump_v2241.py`：**38 个文件 / 189 处**；命中 0 次的规则「**无** ✓」；
+  历史注解保护命中 1 处；未授权残留 **0 处**
+- 真实浏览器冒烟（Edge 无头 + 本地 HTTP）：DOM 796,886 字符、含 `🏷️ v2.24.1`
+  与速览「推送加了互斥锁」、**控制台零页面错误**
+
+## 五、本轮踩的坑
+
+### 5.1 🔴 抽取窗口：一行的位置，牵动四套测试
+
+`_sync_test.js` 与 `_v2191fix_test.js` 都用**同一对锚点**切片并 `eval`：
+
+```js
+html.indexOf("const SYNC_PWD_KEY") → html.indexOf("let cloudSyncTimer = null;")
+```
+
+这个窗口原本**刚好**只装得下旧 `doPushToCloud`，**余量只有约 20 字符**。
+本轮要在里面加锁 ⇒ 必然越界。
+
+试错过程（三版）：
+
+| 版本 | 把 `cloudSyncTimer` 声明挪到哪 | 结果 |
+|---|---|---|
+| V1 | 原位不动，代码硬塞 | 窗口**越界**，切丢了 `applyCloudData` / `buildCloudPayload` |
+| V2 | 挪到 `buildCloudPayload` 之后 | 中间发现**真凶不是位置**，见下 |
+| V3 | 挪到 `function cloneReasonCatalog(` **之前** | ✅ 可用余量 2054 字符；窗口 `[223046, 235230)` = 12184 字符 |
+
+**V2 期间发现的真凶**：我在 `_afterPushSettled` 的注释里写了
+`` `let cloudSyncTimer = null;` `` 的**原样字面**（用来说明「声明在别处」）⇒
+`indexOf` 命中了**注释里的那一处**、而不是真的声明 ⇒ 窗口被提前截断。
+**修法**：注释改成不带字面的说法（「cloudSyncTimer 声明那一行」），
+并在补丁脚本里加硬断言「**该声明全文出现次数必须为 1**」。
+
+**V3 之后撞的第二个坑**：窗口一旦往后包住 `cloneReasonCatalog` 等函数，
+`_v2191fix_test.js` 的 `_sliceFn` 会把这些函数 **eval 到测试自己的作用域**，
+而它自己也 eval 了一份同名的 ⇒
+**`SyntaxError: Identifier 'cloneReasonCatalog' has already been declared`**
+（`_sync_test.js` + `_v2191fix_test.js` 双双崩）。
+
+**修法**：声明只下移到 `cloneReasonCatalog` **之前**（窗口刚好不含它），
+说明注释写在**声明之后**（落在窗口之外，**不占配额**）；
+补丁脚本加 `WIN_FN_OK` 白名单，窗口内只允许出现 12 个指定函数声明。
+
+> 🔑 **通用教训一：窗口锚点的原样字面，绝不能在注释里出现** ——
+> 与「`count('X')` 数全文（含注释）」「反向判据要先剥块注释」是同一族的坑。
+>
+> 🔑 **通用教训二：判断「窗口够不够大」，别去算偏移量，要用本质判据 ——**
+> 花括号配平求出函数结尾（`fn_end`），断言「窗口必须**完整**包住 `applyCloudData` 与
+> `buildCloudPayload`」，以及「窗口内的函数声明集合 ⊆ 白名单」。算偏移量只会算错。
+
+### 5.2 🔴 跟版脚本的第三道闸：历史注解要用**哨兵占位**，不能放宽闸门
+
+`_v2140_test.js` 里有一条测试标签：
+
+```js
+t('劳动整改不再扣分（v2.24.0），…', …)
+```
+
+这是**历史注解**（记录「哪一版改成不扣分的」），`v2.24.0` **必须保留**。
+但 v2.24.0 起 C 段有了「替换后非注释行仍残留旧版本号即中止」的硬闸 ⇒ 会误杀。
+
+**不能**为了让这一条过关而放宽闸门（那等于把闸门废掉）。做法是**哨兵占位**：
+替换前先把它换成 `\u0000KEEPVER\u0000`，**全部规则跑完再还原**。
+本轮命中 1 处，闸门其余部分照常生效（未授权残留 0 处）。
+
+### 5.3 一句话复述：`str.replace` 是**字面**查找
+
+`r'v2\.24\.0'` 这种「正则写法」在 `str.replace` 里**永远命中 0 次**。
+本轮规则表一律**字面**；两条只有长形态能表达、短形态注定 0 次的规则，用 `EXPECT_ZERO` 显式声明。
+
+### 5.4 测试自身的坑（写新测试时踩的）
+
+- **`SyntaxError: Unexpected string`** —— 我那次字面替换把行尾的**逗号吃掉了**。
+- **计数失配** —— 我插入新用例后，后面用例里写死的 `eq(calls.length, 2/3/4)`
+  与 `pendings[1..5]` 索引**全部错位**（报「期望 2，实际 4」）。
+  改用**相对计数**：`const before = calls.length;` + `pendings[pendings.length - 1]`。
+- **无头浏览器这条路本轮没走通**（可选增强，未阻塞）：`--dump-dom` **不输出 `console.log`**；
+  改成「把结果写进 DOM」后仍无输出（`--virtual-time-budget` 与 `setTimeout` 轮询交互导致提前结束）。
+  已完成的 **DOM 冒烟（零页面错误）+ 62 文件回归**已足够。
+
+## 六、遗留
+
+- ⚠️ 全站 **12 处同类硬编码白底**（深色主题下的潜在同类 bug）—— 仍未清。
+- ⚠️ `<symbol id="i-dorm">` 约 L2085 的畸形写法仍在 —— 仍未修。
+- ⚠️ git 历史里那份内部操作单 —— 仍等老板发话。
+- 💡 建议把「**改码前扫既有测试锚点**」做成脚本纳入发版流程
+  （抽所有含 `/* ====` 的字符串字面量与 `function xxx(` 签名，逐个查是否还在 `index.html`）。
+  v2.24.0 漏做导致 4 套回归变红；v2.24.1 靠**手工普查**避开了（逐个读了 `_v2191_test.js` /
+  `_v2195_test.js` / `_v2113_test.js` / `_v2191fix_test.js` / `_sync_test.js` / `_crypto_test.js`，
+  并全仓 grep 确认**没有任何测试断言 `showToast` 的 3000ms**）。

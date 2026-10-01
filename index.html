@@ -2228,7 +2228,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.24.0</div>
+      <div class="login-version">v2.24.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2350,7 +2350,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.24.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.24.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3094,15 +3094,15 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.24.0</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.24.1</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.24.0）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.24.1）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 🧹 <b>值日改成「小组划分」</b>：全班切成每 8 人一组（4 人教室 + 4 人公共区），一组值一周；所有小组一次铺开，点名字即可换人，不再有「周几」标记<br>
-              · 🖼️ <b>值日分组表可导出图片</b>：教室 / 公共区分列、本周组高亮、落款日期，A4 宽幅打印张贴用<br>
-              · 🔧 <b>顺手修三处</b>：饮水机卡片在深色主题下发白、劳动整改卡片上方多出的一圈边框（HTML 结构错误）、劳动整改不再扣学分<br>
+              · 🔒 <b>推送加了互斥锁</b>：连着改数据不再弹「推送被拒」—— 同一时刻只跑一笔推送，期间攒下的改动会在这一笔结束后立刻补推一次，最后一次改动必定上云<br>
+              · 🔁 <b>云端冲突改为自动重试</b>：GitHub 的 sha 冲突码本来是 409，旧版只认 422 才当并发 ⇒ 撞车时既不提示也不重试、数据只留在本机；现已一并纳入自动重试<br>
+              · ⏱️ <b>出错提示多留一会儿</b>：错误留 8 秒、警告留 5 秒（成功与提示仍是 3 秒，日常手感不变），便于看清原因或截图<br>
             </div>
           </div>
         </div>
@@ -4211,7 +4211,34 @@ function fetchCloudEnvelope(){
 }
 // 统一的推送实现（auto / manual 共用）
 // 流程：GET(拿 sha 与云端内容) → checkPushSafety 闸门 → 与云端合并 → 加密 → PUT
-function doPushToCloud(message){
+/* v2.24.1 推送互斥：同刻只跑一笔；在飞时后来者复用同一笔并登记「结束后补推一次」。
+   根因与设计说明统一写在 cloudSyncTimer 声明那一行**之后**（窗口之外），不占窗口配额。 */
+var _pushInFlight = null;        // 进行中的推送（复用同一 Promise，消灭 sha 竞态）
+var _pushAgainPending = false;   // 飞行期间又来了新改动 ⇒ 本笔结束后补推一次
+
+/* Response body 只能读一次；互斥后多个调用方共享同一响应，包一层把 body 缓存住。
+   形状保持 ok / status / text() / json() 不变，所以调用方零改动。 */
+function _freezeResponse(res){
+  var bodyOnce = res.text();
+  return {
+    ok: res.ok,
+    status: res.status,
+    text: function(){ return bodyOnce; },
+    json: function(){ return bodyOnce.then(function(t){ return t ? JSON.parse(t) : {}; }); }
+  };
+}
+
+/* 本笔收尾：把飞行期间攒下的改动补推一次。
+   ⚠️ 必须 try 包住 —— 两套同步测试的抽取窗口里没有 autoPushToCloud，裸调会 ReferenceError。
+   ⚠️ 窗口末端锚点是那一行声明本身，本节注释**不能出现它的原样字面**，否则窗口被提前截断。 */
+function _afterPushSettled(){
+  if(!_pushAgainPending) return;
+  _pushAgainPending = false;
+  dbg('[Sync] re-push queued change');
+  try{ autoPushToCloud(); }catch(e){ console.warn('[Sync] re-push schedule failed:', e); }
+}
+
+function _doPushOnce(message){
   if(wipeInProgress){ dbg('[Sync] wipe in progress, skip push:', message); return Promise.resolve(); }
   var token = getGHToken();
   var apiUrl = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_DATA_PATH;
@@ -4250,6 +4277,26 @@ function doPushToCloud(message){
         });
       });
     });
+}
+/* v2.24.1 对外入口：加一把锁。auto / manual 都走这里，签名与返回值形状不变。 */
+function doPushToCloud(message){
+  if(_pushInFlight){
+    _pushAgainPending = true;
+    dbg('[Sync] push in flight, coalesce (re-push after settle):', message);
+    return _pushInFlight;
+  }
+  var inflight = _doPushOnce(message).then(_freezeResponse);
+  _pushInFlight = inflight;
+  /* 成功失败都要释放锁（否则一次失败会永久堵死后续推送）。
+     ⚠️ 必须**就地**注册这两个回调，不能写成 inflight.then(noop,noop).then(settle) ——
+        那样释放会晚一个微任务，紧跟着来的下一笔推送会看到还没释放的锁、误判成「并发」
+        而错误地复用上一笔的响应（实测被 _v2191fix_test.js 的串行 await 抓出来过）。 */
+  function settle(){
+    if(_pushInFlight === inflight) _pushInFlight = null;
+    _afterPushSettled();
+  }
+  inflight.then(settle, settle);
+  return inflight;
 }
 // 统一的云端数据落地逻辑（解密后与明文走同一条路）
 function applyCloudData(remoteData){
@@ -4311,7 +4358,6 @@ function buildCloudPayload(parsed){
   return lightData;
 }
 
-let cloudSyncTimer = null;
 // Token 仅保存在各设备本地（localStorage），不再内置于源码。
 // 生成方法：GitHub → Settings → Developer settings → Fine-grained tokens，
 // 仅授权本仓库（cheeeom/class-manager），权限 Contents: Read and write。
@@ -4367,6 +4413,21 @@ const REASON_CATALOG_FLAT = Object.values(REASON_CATALOG)
    （结构相同：方向 → 大类 → [原因…]），班主任可在设置页增删改，
    多设备随云端同步；reasons 一维列表改为目录的派生扁平（不再独立编辑）。
    分值仍统一存 state.reasonScores（目录与原因都不存分值）。 */
+let cloudSyncTimer = null;
+/* ⚠️ 上面那一行声明是**刻意下移到这里**的，这段说明也必须写在它**之后** ——
+   抽取窗口 = [「推送前安全闸门」, 那个声明)，注释落在窗口之外才不占窗口配额。
+   为什么非移不可：
+     · 原位（buildCloudPayload 之后）时窗口刚好只装得下旧的推送实现（余量约 20 字符），
+       往推送里加锁就会把新符号挤出窗口 ⇒ 两套同步测试直接 ReferenceError；
+     · 但窗口也不能顺手缩小 —— _v2191fix_test.js 明确导出 buildCloudPayload 并真跑它；
+     · 也不能无脑往后放 —— 那两套测试的 _sliceFn 会把原因目录那一批函数
+       （cloneReasonCatalog / defaultReasonCatalog / flattenReasonCatalog / mergeReasonCatalog /
+        cloneCatDeleted / catDelAdd / applyCatTombstones / mergeTsMap / catTombReviveFilter）
+       eval 到测试自己的作用域，窗口一旦包住它们就是重复声明 ⇒ SyntaxError（本轮实测踩到过）。
+   所以只能落在「刚好装得下锁代码、又早于那一批函数」的这段窄缝里。
+   位置变化对运行时无影响：引用它的都是函数体，调用时声明早已执行。
+   ⚠️ 本注释与上方所有注释都**不能出现那一行声明的原样字面** —— 两套测试都拿它当窗口末端锚点。
+   ⚠️ 也不能出现「function + 上面那批函数名」的原样签名 —— _sliceFn 用 indexOf 找函数头。 */
 function cloneReasonCatalog(cat){ return JSON.parse(JSON.stringify(cat)); }
 function defaultReasonCatalog(){ return cloneReasonCatalog(REASON_CATALOG); }
 // 目录 → 原因一维扁平（保序去重）
@@ -6811,7 +6872,7 @@ var PUSH_MAX_RETRY = 4;       // 最多重试 4 次（含首次）
 function friendlyPushError(msg){
   if(/GET SHA failed:\s*40[13]/.test(msg)) return 'GitHub Token 已失效或权限不足，请到设置页重新配置 Token';
   if(/GET SHA failed/.test(msg)) return '读取云端失败（' + msg + '）';
-  if(/PUT failed:\s*422/.test(msg)) return '云端数据有并发更新，将自动重试';
+  if(/PUT failed:\s*(409|422)/.test(msg)) return '云端数据有并发更新，将自动重试';
   if(/PUT failed/.test(msg)) return '推送被拒（' + msg + '）';
   if(/口令|加密/.test(msg)) return msg;   // 口令相关本已人话，原样
   if(/Failed to fetch|NetworkError|fetch|网络|ECONN/.test(msg)) return '网络连接失败，将自动重试';
@@ -6865,7 +6926,9 @@ function autoPushToCloud(){
       .catch(function(e){
         var msg = friendlyPushError(e.message || '');
         console.error('[Sync] Push failed:', e.message);
-        // 可恢复错误（网络/并发 422）：退避重试，最多 PUSH_MAX_RETRY 次，避免偶发抖动误报
+        // 可恢复错误（网络/并发 409/422）：退避重试，最多 PUSH_MAX_RETRY 次，避免偶发抖动误报
+    // v2.24.1：GitHub Contents API 的 sha 冲突码是 **409 Conflict**（旧版只认 422）⇒ 此前 409
+    //          落到「推送被拒」既不被上面的 recoverable 正则命中、也不会重试，被当成永久失败。
         var recoverable = /网络|并发|重试/.test(msg) && !/口令|Token|加密/.test(msg);
         if(recoverable && _pushRetryCount < PUSH_MAX_RETRY){
           _pushRetryCount++;
@@ -7166,7 +7229,7 @@ function closeMoreDrawer(){
 }
 
 /* ==================== Toast ==================== */
-function showToast(msg, type='info'){
+function showToast(msg, type='info', duration){
   const c = document.getElementById('toastContainer');
   const t = document.createElement('div');
   t.className = 'toast '+type;
@@ -7177,7 +7240,11 @@ function showToast(msg, type='info'){
   const bd = document.createElement('span'); bd.textContent = msg;
   t.appendChild(ic); t.appendChild(bd);
   c.appendChild(t);
-  setTimeout(()=>t.remove(), 3000);
+  /* v2.24.1：3000ms 对一闪而过的技术细节确实不够按下截图键（老板反馈）。
+     错误 8 秒、警告 5 秒，成功/提示维持 3 秒不变 —— 日常操作手感完全不受影响。
+     第三参 duration 可显式覆盖，便于个别场合微调。 */
+  const ms = duration || (type === 'error' ? 8000 : (type === 'warning' ? 5000 : 3000));
+  setTimeout(()=>t.remove(), ms);
 }
 
 /* ==================== Ripple ==================== */
