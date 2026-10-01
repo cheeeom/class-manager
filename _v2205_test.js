@@ -124,14 +124,14 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('四处跟版均为 v2.27.2（登录页 / 侧栏 / 设置徽标 / SW CACHE_NAME）', () => {
-  has(html, '<div class="login-version">v2.27.2</div>', '登录页未跟版');
-  has(html, '<div class="sidebar-footer">v2.27.2 · 班主任工作台</div>', '侧栏未跟版');
-  has(html, '🏷️ v2.27.2</span>', '设置徽标未跟版');
-  has(sw, "const CACHE_NAME = 'class-manager-v2.27.2';", 'SW 未跟版');
+t('四处跟版均为 v2.27.3（登录页 / 侧栏 / 设置徽标 / SW CACHE_NAME）', () => {
+  has(html, '<div class="login-version">v2.27.3</div>', '登录页未跟版');
+  has(html, '<div class="sidebar-footer">v2.27.3 · 班主任工作台</div>', '侧栏未跟版');
+  has(html, '🏷️ v2.27.3</span>', '设置徽标未跟版');
+  has(sw, "const CACHE_NAME = 'class-manager-v2.27.3';", 'SW 未跟版');
 });
-t('近版更新速览标题为 v2.27.2', () => {
-  has(html, '近版更新速览（v2.27.2）', '速览标题未跟版');
+t('近版更新速览标题为 v2.27.3', () => {
+  has(html, '近版更新速览（v2.27.3）', '速览标题未跟版');
 });
 t('旧活动标记 v2.20.4 已无残留', () => {
   notHas(html, '<div class="login-version">v2.20.4</div>', '登录页仍有旧版号');

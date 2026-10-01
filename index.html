@@ -24,6 +24,12 @@
   --bg:#F6F2E9;
   --bg-secondary:#EFE9DC;
   --card-bg:#FFFDF7;
+  /* 🔴 行/格子的「浅色底面」统一收在这里（v2.27.3）。
+     以前 Top5 的第 4/5 名、进步榜进度项、座位格、成绩表悬停各自硬编码了一个米色，
+     而 html.dark 只重定义变量、吃不到硬编码 ⇒ 暗色下那几处会留下白块
+     （hover 时才「看着正常」，是因为 hover 用的是半透明色、透出了暗底）。
+     ⚠️ 本变量的值 == 原来那个硬编码米色 ⇒ 浅色模式像素不变；暗色由 html.dark 覆盖。 */
+  --row-bg:#FBF8F1;
   --text:#2B2B33;
   --text-secondary:#5C574F;
   --text-muted:#8C8577;
@@ -58,6 +64,7 @@ html.dark{
   --bg:#191613;
   --bg-secondary:#26221B;
   --card-bg:#23201A;
+  --row-bg:#26221B;   /* 与暗色 --bg-secondary 同值：略亮于卡片底，读作「卡片内的一条」 */
   --text:#EAE4D6;
   --text-secondary:#B3AA98;
   --text-muted:#7E776A;
@@ -595,7 +602,7 @@ html.dark .ts-cell.g-gen,html.dark .ts-mline .mc.g-gen{background:rgba(206,139,6
   display:flex;align-items:center;gap:12px;
   padding:10px 14px;
   border-radius:10px;
-  background:#FBF8F1;
+  background:var(--row-bg);
   transition:all var(--transition);
   position:relative;
   overflow:hidden;
@@ -1221,7 +1228,7 @@ tbody tr.highlight{
 .progress-item{
   display:flex;align-items:center;gap:12px;
   padding:10px 14px;border-radius:10px;
-  background:#FBF8F1;font-size:13px;
+  background:var(--row-bg);font-size:13px;
 }
 .progress-item .arrow{font-size:16px}
 .progress-item .arrow.up{color:var(--success)}
@@ -1412,7 +1419,7 @@ tbody tr.highlight{
   align-items:center;justify-content:center;
   cursor:pointer;
   transition:all .2s;
-  background:#FBF8F1;
+  background:var(--row-bg);
   font-size:12px;
   text-align:center;
   position:relative;
@@ -2036,7 +2043,7 @@ html.dark .tl-body{background:var(--bg)}
 .grade-table{width:100%;border-collapse:collapse;font-size:13px}
 .grade-table th{background:#F5F0E6;padding:8px 10px;text-align:left;font-weight:600;border-radius:6px}
 .grade-table td{padding:8px 10px;border-bottom:1px solid #EAE4D6}
-.grade-table tr:hover{background:#FBF8F1}
+.grade-table tr:hover{background:var(--row-bg)}
 .grade-rank-1{color:#B42318;font-weight:700}
 .grade-rank-2{color:#B96A1F;font-weight:700}
 .grade-rank-3{color:#3B6E8F;font-weight:700}
@@ -2466,7 +2473,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.27.2</div>
+      <div class="login-version">v2.27.3</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2588,7 +2595,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.27.2 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.27.3 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3331,12 +3338,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.27.2</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.27.3</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.27.2）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.27.3）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 🌙 <b>暗色模式修白块</b>：Top 5 排行榜的第 4、5 名以前在暗色下是一块白底、字看不清，现在会跟着暗色走（进步榜、座位表、成绩表悬停的同类问题一并修好）<br>
               · 📐 <b>课表时段标签对齐</b>：「上午 / 下午 / 晚上」现在严格在各自那几节课（上午 1-5 节、下午 6-9 节、晚上 10-12 节）的范围内居中，字号加大、椭圆也留出了空挡<br>
               · 🔧 <b>课表导入修正</b>：导入教务 PDF 后，课表名会正确显示班级名，不再被表头上方那行「星期」顶掉<br>
               · 📊 <b>首页课表改成周表格</b>：周一~周日 × 12 节一张表看全，按课程类别自动分四个色系，正在上的那一节红框标出来<br>
