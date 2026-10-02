@@ -80,7 +80,7 @@ console.log('\n\u30103\u3011请假卡一行三张（三列 + 两档断点）');
 // ============================================================
 has(html, '.leave-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))', '三列网格（minmax(0,1fr) 防内容撑破）');
 has(html, '@media(max-width:1100px){.leave-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}', '≤1100px 降两列');
-has(html, '@media(max-width:680px){.leave-grid{grid-template-columns:1fr;gap:8px}}', '≤680px 降一列');
+has(html, '@media(max-width:680px){.leave-grid{grid-template-columns:minmax(0,1fr);gap:8px}}', '≤680px 降一列（本版由裸 1fr 改为 minmax(0,1fr)：1fr = minmax(auto,1fr)，auto 下限取 grid item 的最小内容宽度，会被 nowrap 的长文本撑破容器 ⇒ 手机端横向滚动）');
 has(html, "'<div class=\"leave-grid\">' + sorted.map(l => {", '渲染时用 leave-grid 包裹');
 has(html, ".join('') + '</div>';", 'grid 容器正确闭合');
 

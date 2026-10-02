@@ -40,7 +40,7 @@ global.localStorage = { getItem: k => (k in store ? store[k] : null), setItem: (
 global.sessionStorage = { getItem: () => null, setItem() {}, removeItem() {} };
 function fakeEl() { return { classList: { add() {}, remove() {}, toggle() {}, contains: () => false }, style: {}, dataset: {}, children: [], innerHTML: '', textContent: '', value: '', querySelector: () => null, querySelectorAll: () => [], appendChild(c) { this.children.push(c); }, remove() {}, addEventListener() {}, scrollIntoView() {}, focus() {}, click() {}, getBoundingClientRect: () => ({ width: 100, height: 100 }), getContext: () => { const noop = () => {}; return { scale: noop, clearRect: noop, fillText: noop, fillRect: noop, beginPath: noop, moveTo: noop, lineTo: noop, stroke: noop, fill: noop, arc: noop, clip: noop, save: noop, restore: noop, drawImage: noop, createLinearGradient: () => ({ addColorStop: noop }), measureText: () => ({ width: 10 }) }; } }; }
 global.document = { querySelectorAll: () => [], querySelector: () => fakeEl(), getElementById: () => fakeEl(), addEventListener() {}, createElement: () => fakeEl(), documentElement: fakeEl(), body: fakeEl() };
-global.window = { addEventListener() {}, location: { pathname: '/class-manager/' } };
+global.window = { addEventListener() {}, scrollTo() {}, location: { pathname: '/class-manager/' } };   // scrollTo：本版 navigateTo 切页重置滚动时会调用（沙箱缺宿主全局，补在沙箱里）
 global.navigator = {};
 global.fetch = () => new Promise(() => {});
 global.confirm = () => true;

@@ -47,7 +47,7 @@ global.sessionStorage = { getItem: () => null, setItem() {}, removeItem() {} };
 function ctxStub() { const noop = () => {}; return { scale: noop, clearRect: noop, fillText: noop, fillRect: noop, beginPath: noop, moveTo: noop, lineTo: noop, stroke: noop, fill: noop, arc: noop, clip: noop, save: noop, restore: noop, drawImage: noop, closePath: noop, quadraticCurveTo: noop, createLinearGradient: () => ({ addColorStop: noop }), measureText: () => ({ width: 10 }) }; }
 function fakeEl() { return { classList: { add() {}, remove() {}, toggle() {}, contains: () => false }, style: {}, dataset: {}, children: [], innerHTML: '', textContent: '', value: '', querySelector: () => null, querySelectorAll: () => [], appendChild(c) { this.children.push(c); }, removeChild(c) { this.children = this.children.filter(x => x !== c); }, remove() {}, addEventListener() {}, scrollIntoView() {}, focus() {}, click() {}, select() {}, getBoundingClientRect: () => ({ width: 100, height: 100, left: 0, top: 0 }), getContext: () => ctxStub() }; }
 global.document = { querySelectorAll: () => [], querySelector: () => fakeEl(), getElementById: () => fakeEl(), addEventListener() {}, createElement: () => fakeEl(), documentElement: fakeEl(), body: fakeEl() };
-global.window = { addEventListener() {}, location: { pathname: '/class-manager/' } };
+global.window = { addEventListener() {}, scrollTo() {}, location: { pathname: '/class-manager/' } };   // scrollTo：本版 navigateTo 切页重置滚动时会调用（沙箱缺宿主全局，补在沙箱里）
 global.navigator = {};
 global.fetch = () => new Promise(() => {});
 

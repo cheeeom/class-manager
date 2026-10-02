@@ -2024,6 +2024,11 @@ html.dark .tl-body{background:var(--bg)}
   background:var(--card-bg);border:1px solid var(--border);border-left:4px solid var(--primary);
   border-radius:var(--radius);padding:12px 14px 10px;
   box-shadow:0 2px 8px rgba(43,38,28,.06);transition:box-shadow .2s,border-color .2s;
+  /* v3.0.1 手机端横向滚动：grid item 的 min-width:auto 会取「最小内容宽度」，
+     而卡片里 .leave-hist 是 white-space:nowrap ⇒ 它的最小内容宽度就是整段历史文字的宽
+     （实测两条续假并排 = 407px，卡片被撑到 440px）。把轨道改成 minmax(0,1fr) 只挡住
+     轨道本身、挡不住 item ⇒ item 这一侧也必须显式 min-width:0。 */
+  min-width:0;
 }
 .leave-card:hover{box-shadow:0 4px 16px rgba(43,38,28,.1)}
 .leave-card.status-pending{border-left-color:var(--orange)}
@@ -2045,14 +2050,17 @@ html.dark .tl-body{background:var(--bg)}
 .leave-meta .lv-dur b{font-size:20px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
 .leave-meta .lv-dur i{font-size:12px;font-style:normal;font-weight:600}
 .leave-reason{font-size:13.5px;line-height:1.55;color:var(--text-secondary);margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
-.leave-hist{font-size:11.5px;color:var(--text-muted);margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.leave-hist{font-size:11.5px;color:var(--text-muted);margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .leave-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:4px}
 .leave-created{font-size:12px;color:var(--text-muted);white-space:nowrap}
 .leave-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .leave-actions .btn{padding:4px 11px;font-size:12.5px;line-height:1.5;min-height:0}
 .leave-actions .todo-btn{width:28px;height:28px;min-width:0}
 @media(max-width:1100px){.leave-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:680px){.leave-grid{grid-template-columns:1fr;gap:8px}}
+@media(max-width:680px){.leave-grid{grid-template-columns:minmax(0,1fr);gap:8px}}
+/* 🔴 这里必须是 minmax(0,1fr)，不能写裸 1fr：1fr 等价于 minmax(auto,1fr)，
+   而 auto 的下限是该 grid item 的**最小内容宽度** ⇒ 卡片里只要有 nowrap 的长文本
+   （.leave-hist 的历史流水），轨道就会被撑到比容器还宽，横向滚动条就出来了。 */
 
 /* ==================== Grades ==================== */
 .exam-card{background:#fff;border-radius:14px;padding:18px 22px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
@@ -2496,7 +2504,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.0.0</div>
+      <div class="login-version">v3.0.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2617,7 +2625,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.0.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.0.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3367,12 +3375,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.0.0</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.0.1</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v3.0.0）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v3.0.1）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 📱 <b>手机端两个修复</b>：① <b>请假条不用再左右滑</b> —— 有「续假」历史的记录会把卡片撑得比屏幕还宽、整页跟着横向滚动，现在超长历史自动省略号收尾，卡片始终贴合屏幕宽度；② <b>切模块回主页能看见课程表了</b> —— 从往下翻过的长页面（请假 / 德育 / 座位）点回「首页」时不再停在上一页的滚动位置，回首页即从头开始，最上面的课程表直接可见<br>
               · 🚀 <b>v3.0.0 大版本</b>：班委协作只允许 <b>班长、副班长、纪律委员</b> 三人进入，班委可看<b>课表</b>、看<b>请假人数与姓名</b>（不可登记，课表/请假页均为只读）；新增「<b>登录密码仅限本机</b>」—— 开启后其它设备密码对了也进不了，输入管理员密码授权一次即可；手机底栏「待办」换成「<b>请假</b>」，待办挪进「更多」；学生档案右上角新增<b>关闭按钮</b>；<b>德育记录</b>默认折叠只显 20 条、可展开看全学期流水，筛选新增「<b>本月</b>」；<b>工作留痕</b>支持添加图片（自动压缩，每条最多 4 张）；修复「<b>删除请假记录后刷新又复活</b>」的同步 bug；删除学生时自动清掉 TA 的请假记录<br>
               · 🚫 <b>关闭座位防误触</b>：退出「关闭座位模式」后，座次表顶端的提示条不再一直挂着；已关闭的格子也不会再「点一下就打开」—— 不管关还是开，都要先进「🚫 关闭座位」模式再点格子<br>
               · 👥 <b>值日不再有 2 人小组</b>：一组改成 <b>3—4 人</b> —— 先按 4 人切满，末尾不足 3 人时与前面几组重新均分（一组仍是「一周教室 + 一周公卫」的同一批人）。本班 58 人 → 13 组 4 人 + 2 组 3 人，仍是 15 组一轮<br>
@@ -7647,6 +7656,20 @@ function navigateTo(page){
   if(window.__cmRole === 'committee' && COMMITTEE_PAGES.indexOf(page) < 0){
     showToast('班委模式仅开放：首页、学分、公示、值日、座次、待办、荣誉','warning');
     return;
+  }
+  /* v3.0.1 切页重置滚动位置（手机端「点别的模块再回主页，课程表不显示」的根因）：
+     `.content` 是全站唯一的滚动容器，而切页时谁都没重置它 —— 上一页的 scrollTop 会原样
+     带到下一页。手机端页面是单列、很长（请假 / 德育 / 座位），班主任往下翻过之后点「首页」，
+     首页就停在半截：最上面的课程表已经在视口之上（实测 scrollTop=700 ⇒ 卡片 rect.top=-520），
+     看起来就是「课程表无法显示」；再从短页面切回来时 scrollTop 被浏览器夹回 0，又正常了
+     ⇒ 时好时坏、循环出现。
+     ⚠️ 只在「真的换了页」时重置：renderAll()/refreshData()/跨标签合并都会带着当前页再调一次
+     navigateTo，那时候把用户读到一半的位置弹回顶部是帮倒忙。 */
+  var _prevPageEl = document.querySelector('.page.active');
+  if(!_prevPageEl || _prevPageEl.id !== 'page-' + page){
+    var _scrollBox = document.getElementById('content');
+    if(_scrollBox) _scrollBox.scrollTop = 0;
+    window.scrollTo(0, 0);
   }
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
   document.querySelectorAll('.mobile-tab').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
