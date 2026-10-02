@@ -7,7 +7,7 @@ const V = (function () {
 })();
 if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
 const VR = V.replace(/\./g, '\\.');
-/* v3.0.0 回归测试：关闭/协作/档案/德育/留痕/请假墓碑六大件 ——
+/* 本版 回归测试：关闭/协作/档案/德育/留痕/请假墓碑六大件 ——
  * ① 请假删除墓碑（bug#7：本地删掉后刷新/拉取又复活 —— 根因 msLeaves 按 id 并集无墓碑）
  * ② 删学生自动清请假记录（两条删除路径 + 墓碑）
  * ③ 班委协作收紧：仅班长/副班长/纪律委员；课表只读；请假页只读（白名单含 attendance）
@@ -115,7 +115,7 @@ t('请假页对班委只读：登记/续假/销假/删除全部拦截或隐藏',
     const seg = html.slice(html.indexOf(f), html.indexOf(f) + 300);
     has(seg, '班委模式只可查看请假记录', f + ' 缺只读拦截');
   });
-  has(html, "const isCm = window.__cmRole === 'committee';   // v3.0.0 班委只读", 'renderAttendance 缺 isCm');
+  has(html, "const isCm = window.__cmRole === 'committee';", 'renderAttendance 缺 isCm');
   has(html, "(l.status !== 'returned' && !isCm)", '续假/销假按钮未按 isCm 隐藏');
   has(html, "'addLeaveBtn'", 'applyCommitteeRestrictions 未隐藏登记按钮');
 });
@@ -159,7 +159,7 @@ t('设置页开关 + 设备指纹函数就位', () => {
   has(html, 'id="pwdLocalOnlyHint"', '缺说明');
   has(html, 'function cmDeviceId(){', '缺设备指纹');
   has(html, 'function onPwdLocalOnlyChange(){', '缺开关处理');
-  has(html, 'renderPwdLocalOnlyUI();   // v3.0.0 登录密码仅限本机：开关与说明回填', '设置回填未接');
+  has(html, 'renderPwdLocalOnlyUI();', '设置回填未接');
 });
 
 console.log('\n=== ④ 底部导航 / 档案关闭 ===');
