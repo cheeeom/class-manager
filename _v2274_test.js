@@ -167,6 +167,9 @@ function mkDuty(students, confirmRet, dirty) {
     'function renderDutyToday(){ env.renders.push("today"); }',
     'function renderDutyProgress(){ env.renders.push("progress"); }',
     constDecl('DUTY_GROUP_SIZE'),
+    constDecl('DUTY_GROUP_MIN'),
+    braceFn('dutyGroupSizes'),
+    braceFn('dutyGroupSizesEven'),
     braceFn('dutyShuffleIds'),
     braceFn('dutyEnsureQueue'),
     braceFn('dutySyncTeamOrder'),
@@ -196,7 +199,7 @@ function mkDuty(students, confirmRet, dirty) {
   eq(m.env.renders.join(','), 'duty,today,progress', '按学号：三个渲染入口都被刷新');
   eq(m.env.toasts[0][1], 'success', '按学号：toast 是 success');
   has(m.env.toasts[0][0], '\u5df2\u6309\u5b66\u53f7\u5206\u7ec4', '按学号：toast 文案');
-  eq(m.plan().length, 15, '58 人按学号切成 15 组（一组 4 人，末组 2 人）');
+  eq(m.plan().length, 15, '58 人按学号切成 15 组（每组 3—4 人，末两组各 3 人）');
 }
 
 {
@@ -390,7 +393,8 @@ try {
   const m2 = mkDuty(students, true);
   const byEmpty = m2.plan();
   const direct = new Function([
-    constDecl('DUTY_GROUP_SIZE'), braceFn('dutyTeamPlan'),
+    constDecl('DUTY_GROUP_SIZE'), constDecl('DUTY_GROUP_MIN'),
+    braceFn('dutyGroupSizes'), braceFn('dutyGroupSizesEven'), braceFn('dutyTeamPlan'),
     'return dutyTeamPlan;'
   ].join('\n'))();
   const byFull = direct(students, students.map(s => s.id));

@@ -64,20 +64,28 @@ has(html, '\ud83d\udcdd \u8fd1\u7248\u66f4\u65b0\u901f\u89c8\uff08' + V + '\uff0
 has(sw, "CACHE_NAME = 'class-manager-" + V + "'", 'sw.js CACHE_NAME 与之一致');
 
 // ============================================================
-console.log('\n\u2461 \u5207\u7ec4\u5f15\u64ce dutyTeamPlan \u771f\u8dd1\uff08v2.28.0\uff1a\u4e00\u7ec4 4 \u4eba\uff09');
+console.log('\n\u2461 \u5207\u7ec4\u5f15\u64ce dutyTeamPlan \u771f\u8dd1\uff08\u6bcf\u7ec4 3\u20144 \u4eba\uff09');
 // ============================================================
-/* v2.28.0 重定向：老板拿班级轮值表要求「按对应人数」重做 —— 原表 G1—G14 各 4 人、
-   G15 只有 3 人（备注「（3人组）」）⇒ 一组 = 4 人，**末段不足 4 人也自成一组**，
-   不再有「尾巴 ≥5 才独立成组、否则并给前面」那套（DUTY_TEAM_MIN_TAIL 已删）。 */
+/* v2.28.0：老板拿班级轮值表要求「按对应人数」重做 —— 原表 G1—G14 各 4 人、G15 只有 3 人
+   （备注「（3人组）」），不再有「尾巴 ≥5 才独立成组、否则并给前面」那套（DUTY_TEAM_MIN_TAIL 已删）。
+
+   🔁 重定向：原表 59 人时末段正好 3 人，但**本班 58 人**按「每 4 人一段」会切出**末组 2 人**
+   （两人包一周教室 + 公卫太重）⇒ 老板要求不再出现 2 人小组 ⇒ 改成**每组 3—4 人**：
+   先按 4 人切满，末段不足 3 人时与前面若干组**重新均分**（见 dutyGroupSizes）。
+   58 人 → 13 组 4 人 + 2 组 3 人（仍 15 组）；59 人 → 14 组 4 人 + 1 组 3 人（与原表逐格不变）。 */
 const TEAM = new Function([
   constDecl('DUTY_GROUP_SIZE'),
+  constDecl('DUTY_GROUP_MIN'),
+  braceFn('dutyGroupSizes'),
+  braceFn('dutyGroupSizesEven'),
   braceFn('dutySyncTeamOrder'),
   braceFn('dutyTeamPlan'),
   braceFn('dutyWeekGroupIndex'),
-  'return { plan: dutyTeamPlan, sync: dutySyncTeamOrder, weekIdx: dutyWeekGroupIndex, SIZE: DUTY_GROUP_SIZE };'
+  'return { plan: dutyTeamPlan, sync: dutySyncTeamOrder, weekIdx: dutyWeekGroupIndex, SIZE: DUTY_GROUP_SIZE, MIN: DUTY_GROUP_MIN };'
 ].join('\n'))();
 
-eq(TEAM.SIZE, 4, '一组 4 人（对齐轮值表：教室组 / 公共卫生组各 4 人）');
+eq(TEAM.SIZE, 4, '一组**基准** 4 人（对齐轮值表：教室组 / 公共卫生组各 4 人）');
+eq(TEAM.MIN, 3, '一组**最少** 3 人（末段不足 3 人时与前面的组均分，杜绝 2 人小组）');
 
 function mkStudents(n) {
   const out = [];
@@ -88,13 +96,14 @@ const S16 = mkStudents(16);
 const S48 = mkStudents(48);
 const S58 = mkStudents(58);
 
-// --- 老板班额 58 人：本版的核心场景（58 ÷ 4 = 14 组 ×4 人 + 末组 2 人 = 15 组）---
+// --- 老板班额 58 人：本版的核心场景（58 = 13 组 ×4 人 + 末两组各 3 人 = 15 组）---
 const p58 = TEAM.plan(S58, []);
 eq(p58.length, 15, '58 \u4eba \u2192 15 \u7ec4');
-eq(p58.map(t => t.members.length).join(','), '4,4,4,4,4,4,4,4,4,4,4,4,4,4,2',
-   '14 组各 4 人 + 末组 2 人（末段不足 4 人也自成一组）');
+eq(p58.map(t => t.members.length).join(','), '4,4,4,4,4,4,4,4,4,4,4,4,4,3,3',
+   '13 组各 4 人 + 末两组各 3 人（每组 3—4 人，不再有 2 人小组）');
 eq(p58.map(t => t.no).join(','), '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15', '组号 1..15 连续');
-ok(p58.slice(0, 14).every(t => t.members.length === 4), '前 14 组恰好各 4 人');
+ok(p58.slice(0, 13).every(t => t.members.length === 4), '前 13 组恰好各 4 人');
+ok(p58.every(t => t.members.length >= 3), '58 人：每一组都 >=3 人（杜绝 2 人小组）');
 ok(p58.every(t => Array.isArray(t.members) && t.members.length > 0), '每个组都有人');
 ok(p58.every(t => t.classroom === undefined && t.area === undefined),
    '组对象不再带 classroom / area —— 岗位按周轮，不按组内前后半切');
@@ -107,7 +116,8 @@ ok(flat58.every(id => S58ids.has(id)), '组员全部来自本班名单');
 const chunk0 = S58.slice(0, 4), chunk1 = S58.slice(4, 8);
 eq(p58[0].members.join(','), chunk0.map(s => s.id).join(','), '第 1 组 = 学号前 4 人，且保持原顺序');
 eq(p58[1].members.join(','), chunk1.map(s => s.id).join(','), '第 2 组 = 紧接着的 4 人');
-eq(p58[14].members.join(','), S58.slice(56).map(s => s.id).join(','), '末组 = 剩下的人（2 人）');
+eq(p58[14].members.join(','), S58.slice(55).map(s => s.id).join(','), '末组 = 剩下的人（3 人）');
+eq(p58[13].members.join(','), S58.slice(52, 55).map(s => s.id).join(','), '第 14 组 = 第 53～55 人（3 人）');
 
 // --- 原表班额 59 人（G1—G14 各 4 + G15 三人组）：这是「按轮值表」的原始场景 ---
 const p59 = TEAM.plan(mkStudents(59), []);
@@ -120,10 +130,13 @@ const p48 = TEAM.plan(S48, []);
 eq(p48.length, 12, '48 \u4eba \u2192 12 \u7ec4');
 ok(p48.every(t => t.members.length === 4), '48 \u4eba \u2192 \u6bcf\u7ec4\u6070\u597d 4 \u4eba');
 
-// --- 45 人 → 11 组 ×4 + 末组 1 人 ---
+// --- 45 人 → 9 组 ×4 + 末三组各 3 人（45 % 4 = 1 ⇒ b = 3）---
 const p45 = TEAM.plan(mkStudents(45), []);
 eq(p45.length, 12, '45 \u4eba \u2192 12 \u7ec4');
-eq(p45[11].members.length, 1, '末组 1 人也自成一组（不并给前面的组）');
+/* 45 % 4 = 1 ⇒ b = 3：9 组各 4 人 + 末三组各 3 人（旧的切法会留一个 1 人组）。 */
+eq(p45.map(t => t.members.length).join(','), '4,4,4,4,4,4,4,4,4,3,3,3', '9 组各 4 人 + 末三组各 3 人');
+eq(p45[11].members.length, 3, '末组 3 人（不再有 1 人组）');
+ok(p45.every(t => t.members.length >= 3 && t.members.length <= 4), '45 人：每组都在 3—4 人之间');
 
 // --- 52 人 → 13 组整 ---
 const p52 = TEAM.plan(mkStudents(52), []);
@@ -138,12 +151,17 @@ eq(TEAM.plan(mkStudents(1), [])[0].members.length, 1, '1 人组人数正确');
 eq(TEAM.plan(mkStudents(3), []).length, 1, '全班 3 人 → 1 组（凑不满也自成一组）');
 eq(TEAM.plan(mkStudents(3), [])[0].members.length, 3, '3 人组人数正确');
 eq(TEAM.plan(mkStudents(4), []).length, 1, '全班 4 人 → 1 组');
-eq(TEAM.plan(mkStudents(5), []).map(t => t.members.length).join(','), '4,1', '5 人 → 4 + 1');
+/* ⚠️ 1 / 2 / 5 人**凑不出「每组 3—4 人」**（3a + 4b = n 对这三个数无解）⇒ 退回均分兜底：
+   1 → [1]、2 → [2]、5 → [3,2]。现实班额用不到，但**不能崩**。6 人起每一组都 >=3 人。 */
+eq(TEAM.plan(mkStudents(5), []).map(t => t.members.length).join(','), '3,2',
+   '5 人 → 3 + 2（无解，退回均分；仍保 2 组 = ceil(5/4)）');
+eq(TEAM.plan(mkStudents(6), []).map(t => t.members.length).join(','), '3,3', '6 人 → 3 + 3（6 = 3×2）');
 eq(TEAM.plan(mkStudents(8), []).length, 2, '全班 8 人 → 2 组');
-eq(TEAM.plan(mkStudents(9), []).map(t => t.members.length).join(','), '4,4,1', '9 人 → 4 + 4 + 1');
-eq(TEAM.plan(mkStudents(13), []).map(t => t.members.length).join(','), '4,4,4,1', '13 人 → 4 + 4 + 4 + 1');
+eq(TEAM.plan(mkStudents(8), []).map(t => t.members.length).join(','), '4,4', '8 人 → 4 + 4');
+eq(TEAM.plan(mkStudents(9), []).map(t => t.members.length).join(','), '3,3,3', '9 人 → 3 + 3 + 3（9 = 3×3）');
+eq(TEAM.plan(mkStudents(13), []).map(t => t.members.length).join(','), '4,3,3,3', '13 人 → 4 + 3 + 3 + 3');
 eq(TEAM.plan(mkStudents(16), []).length, 4, '16 人 → 4 组');
-eq(TEAM.plan(mkStudents(17), []).map(t => t.members.length).join(','), '4,4,4,4,1', '17 人 → 4 + 4 + 4 + 4 + 1');
+eq(TEAM.plan(mkStudents(17), []).map(t => t.members.length).join(','), '4,4,3,3,3', '17 人 → 4 + 4 + 3 + 3 + 3');
 
 // --- order 优先于 students ---
 const ord16 = S16.map(s => s.id).reverse();
@@ -260,6 +278,9 @@ console.log('\n\u2464 \u6362\u4eba dutySwapOrder\uff08\u53ea\u5bf9\u8c03\u4f4d\u
   const mk = () => new Function([
     'var state = ' + JSON.stringify({ students: students, duty: { teamOrder: students.map(s => s.id) } }) + ';',
     constDecl('DUTY_GROUP_SIZE'),
+    constDecl('DUTY_GROUP_MIN'),
+    braceFn('dutyGroupSizes'),
+    braceFn('dutyGroupSizesEven'),
     braceFn('dutySyncTeamOrder'),
     braceFn('dutyTeamPlan'),
     braceFn('dutySwapOrder'),
@@ -471,7 +492,9 @@ console.log('\n\u2469 \u5bfc\u51fa\u56fe\u4e0e\u65b0\u5206\u7ec4\u540c\u6e90');
   has(body, 'dutyTeamPlan(', '\u5bfc\u51fa\u56fe\u7528\u7684\u662f\u540c\u4e00\u4efd dutyTeamPlan\uff08\u4e0d\u53e6\u7b97\u4e00\u5957\u5207\u7ec4\uff09');
   has(body, 'dutyScheduleTable(', '本周高亮与逐周内容走同一份 dutyScheduleTable（屏幕与导出同源）');
   has(body, '\u503c\u65e5\u8f6e\u503c\u8868', '标题为「值日轮值表」');
-  has(body, 'DUTY_GROUP_SIZE', '副标题引用同一常量');
+  has(body, 'dutySizeText(plan)', '落款与两张表头共用同一份人数文案（dutySizeText，不是写死的「4 人」）');
+  eq(cnt(body, 'dutySizeText(plan)'), 3, '导出图 3 处人数文案都走 dutySizeText（落款 + 教室表头 + 公卫表头）');
+  notHas(body, "4 人一组", '不再写死「4 人一组」（每组 3—4 人时要显示「3—4 人」）');
   has(body, '\u6559\u5ba4\u536b\u751f', '表头「教室卫生」');
   has(body, '\u516c\u5171\u536b\u751f', '表头「公共卫生」');
   has(body, '\u5468\u6b21', '表头有「周次」（对齐原表）');

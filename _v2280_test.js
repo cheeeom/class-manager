@@ -73,6 +73,9 @@ has(sw, "CACHE_NAME = 'class-manager-" + V + "'", 'sw.js CACHE_NAME 与之一致
 function envSrc() {
   return [
     constDecl('DUTY_GROUP_SIZE'),
+    constDecl('DUTY_GROUP_MIN'),
+    braceFn('dutyGroupSizes'),
+    braceFn('dutyGroupSizesEven'),
     braceFn('dutyWeekGroupIndex'),
     braceFn('dutyRoleName'),
     braceFn('dutyExpandRole'),
@@ -176,7 +179,7 @@ console.log('\n\u2462 \u5207\u7ec4\u4e0e\u57fa\u7ebf\u5c55\u5f00');
 try {
 {
   const T = mk(S28, {}, true);
-  eq(T.SIZE, 4, '一组 4 人');
+  eq(T.SIZE, 4, '一组**基准** 4 人（末段不足 3 人时会与前面的组均分）');
   eq(T.plan().length, 7, '28 人 → 7 组');
   eq(T.plan().map(g => g.members.length).join(','), '4,4,4,4,4,4,4', '每组恰好 4 人');
   ok(T.plan().every(g => g.classroom === undefined && g.area === undefined),
