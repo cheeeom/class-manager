@@ -142,10 +142,21 @@ ok(SEAT_SLICE.indexOf('function setSeatClosed(row, col, closed){') >= 0, '切片
 }
 // ---- seatClosePick 状态机 ----
 {
-  // 已关闭的格子：任何模式下点一下都直接开回来（无需确认）
-  const sb = seatSandbox({ closed: ['0-1'] });
+  // v2.29.1 收紧：关闭模式没开时，点已关闭的格子只提示、不开启（防误触）
+  const sb = seatSandbox({ closed: ['0-1'], mode: false });
   sb.api.seatClosePick(0, 1);
-  ok(!sb.api.isSeatClosed(0, 1), '点已关闭的格子 → 开启');
+  ok(sb.api.isSeatClosed(0, 1), '非关闭模式点已关闭的格子 → 保持关闭');
+  eq(sb.calls.saves, 0, '不写盘');
+  eq(sb.calls.renders, 0, '不重绘');
+  eq(sb.calls.confirms.length, 0, '不弹确认');
+  eq(sb.calls.toasts[0].k, 'info', '给 info 提示');
+  has(sb.calls.toasts[0].m, '\u5173\u95ed\u6a21\u5f0f', '提示里指明要去关闭模式');
+}
+{
+  // 关闭模式开着：点已关闭的格子直接开回来（无需确认，纯回退）
+  const sb = seatSandbox({ closed: ['0-1'], mode: true });
+  sb.api.seatClosePick(0, 1);
+  ok(!sb.api.isSeatClosed(0, 1), '关闭模式下点已关闭的格子 → 开启');
   eq(sb.calls.saves, 1, '开启后写盘一次');
   eq(sb.calls.renders, 1, '开启后重绘一次');
   eq(sb.calls.confirms.length, 0, '开回来不需要确认');
@@ -297,6 +308,9 @@ ok(html.indexOf('id="seatCloseBanner"') < html.indexOf('id="seatingScroll"'), '\
 has(html, 'function toggleSeatCloseMode(){', '有模式切换函数');
 has(html, 'function closeAllSeats(){', '有全部关闭');
 has(html, 'function openAllSeats(){', '有全部开启');
+// v2.29.1 收紧：横幅只在关闭模式里出现（退出模式后不再常驻）
+has(html, "bar.style.display = seatCloseMode ? '' : 'none';", '\u2605 横幅显隐只看 seatCloseMode（v2.29.1）');
+notHas(html, "seatCloseMode || n > 0", '旧的常驻显隐条件已移除');
 
 // ============================================================
 console.log('\n【4】走读生：候选口径 + 登记/取消（真跑）');

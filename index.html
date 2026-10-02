@@ -2496,7 +2496,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.29.0</div>
+      <div class="login-version">v2.29.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2618,7 +2618,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.29.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.29.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3364,12 +3364,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.29.0</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.29.1</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.29.0）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.29.1）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 🚫 <b>关闭座位防误触</b>：退出「关闭座位模式」后，座次表顶端的提示条不再一直挂着；已关闭的格子也不会再「点一下就打开」—— 不管关还是开，都要先进「🚫 关闭座位」模式再点格子<br>
               · 👥 <b>值日不再有 2 人小组</b>：一组改成 <b>3—4 人</b> —— 先按 4 人切满，末尾不足 3 人时与前面几组重新均分（一组仍是「一周教室 + 一周公卫」的同一批人）。本班 58 人 → 13 组 4 人 + 2 组 3 人，仍是 15 组一轮<br>
               · 🔁 <b>值日按轮值表重做</b>：每周教室 1 组 + 公共卫生 1 组，按组数循环，和班里的轮值表逐格对得上<br>
               · 🔴 <b>一键罚扫 / 延缓</b>：本周两个岗位上各有两个按钮 ——「🔴 下周继续罚扫」让这组下周再做一次（只作记录，<b>不自动扣分</b>）；「⏸ 延缓一周」让这周该岗位轮空、这组和后面全体顺延一周（方便插入别的罚扫组）。两者都只动它那一个岗位，教室罚扫不影响公卫轮值<br>
@@ -9829,7 +9830,7 @@ function renderSeating(){
       // 于是既有那个「seatDropTargetAt 只认 seat.dataset.seatRow 存在」的判定天然把它
       // 排除在拖拽落点之外，不用另写一套「落点是不是关闭格」的分支。
       if(state.seating.closed && state.seating.closed.indexOf(seatKey(r, c)) >= 0){
-        html += `<div class="seat closed" data-seat-closed="${r}-${c}" oncontextmenu="return false" onclick="seatClosePick(${r},${c})" title="此座位已关闭（不是座位：不可安排学生、不参与排座）">
+        html += `<div class="seat closed" data-seat-closed="${r}-${c}" oncontextmenu="return false" onclick="seatClosePick(${r},${c})" title="此座位已关闭（不是座位：不可安排学生、不参与排座）。进「🚫 关闭座位」模式后点一下可开启">
           <div class="seat-ban">🚫</div>
           <div class="seat-num">R${r+1}C${c+1}</div>
         </div>`;
@@ -9949,20 +9950,21 @@ function clearSeating(){
 }
 
 /* ---- v2.20.11 关闭座位的交互 ----
-   一个入口管两条路径：已关闭的格子点一下＝开启（无需确认，纯回退）；
-   未关闭的格子只有在关闭模式下才可关（要点确认，因为可能把人赶出座位）。 */
+   v2.29.1 收紧：关 / 开都必须先进关闭模式（老板 2026-10-02：退出关闭模式后，
+   单击已关闭的格子不该把它直接打开，容易误触）⇒ 模式守卫提到最前，
+   关 / 开两条路径都先看 seatCloseMode；模式外点格子只提示、不动数据。 */
 function seatClosePick(row, col){
   if(!state.seating) return;
   if(row < 0 || col < 0 || row >= state.seating.rows || col >= state.seating.cols) return;
+  if(!seatCloseMode){
+    showToast('点工具栏「🚫 关闭座位」进入关闭模式后，才可开启 / 关闭座位', 'info');
+    return;
+  }
   if(isSeatClosed(row, col)){
     setSeatClosed(row, col, false);
     saveData();
     renderSeating();
     showToast('已开启 R' + (row + 1) + 'C' + (col + 1), 'success');
-    return;
-  }
-  if(!seatCloseMode){
-    showToast('此座位已关闭；点工具栏「🚫 关闭座位」进入关闭模式后可重新开启', 'info');
     return;
   }
   const seat = state.seating.seats.filter(function(s){ return s.row === row && s.col === col; })[0];
@@ -9989,11 +9991,10 @@ function syncSeatCloseModeUI(){
   const exit = document.getElementById('seatCloseExitBtn');
   const n = seatClosedCount();
   if(btn) btn.classList.toggle('btn-close-active', !!seatCloseMode);
-  if(bar) bar.style.display = (seatCloseMode || n > 0) ? '' : 'none';
+  if(bar) bar.style.display = seatCloseMode ? '' : 'none';   // v2.29.1：退出关闭模式后不再常驻
   if(exit) exit.style.display = seatCloseMode ? '' : 'none';
-  if(tip) tip.textContent = seatCloseMode
-    ? ('关闭座位模式：点格子即可关闭 / 打开该座位（当前已关闭 ' + n + ' 个）。关闭的格子不参与随机 / 按学分 / 按姓名排座，也不接受拖拽落点。')
-    : ('已关闭 ' + n + ' 个座位 —— 这些格子不能安排学生、不参与排座。点「🚫 关闭座位」可继续调整。');
+  // v2.29.1：横幅只在关闭座位模式里出现；模式外关闭的格子靠自身 🚫 图标 + title 提示。
+  if(tip) tip.textContent = '关闭座位模式：点格子即可关闭 / 打开该座位（当前已关闭 ' + n + ' 个）。关闭的格子不参与随机 / 按学分 / 按姓名排座，也不接受拖拽落点。';
 }
 
 function closeAllSeats(){
