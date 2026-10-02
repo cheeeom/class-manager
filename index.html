@@ -2496,7 +2496,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.29.1</div>
+      <div class="login-version">v3.0.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2532,7 +2532,6 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       <div id="cmIdentityPanel" style="display:none">
         <div class="login-pwd-label">选择你的班委身份 <span style="font-size:11px;color:var(--text-muted);font-weight:400">（学分加减将署名，可在时间线追溯）</span></div>
         <div id="cmIdentityList" style="margin:12px 0;display:flex;flex-direction:column;gap:8px"></div>
-        <button class="btn btn-outline btn-sm" style="width:100%" onclick="cmLoginAs('')">以「通用班委」进入（不署名）</button>
         <button class="btn btn-sm" style="width:100%;margin-top:6px" onclick="cmLoginBack()">‹ 返回密码登录</button>
       </div>
     </div>
@@ -2618,7 +2617,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.29.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.0.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3020,7 +3019,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       <div class="page" id="page-attendance">
         <div class="page-toolbar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
           <h3 style="margin:0">请假记录</h3>
-          <button class="btn btn-primary btn-sm" onclick="openLeaveModal()">+ 新增请假</button>
+          <button class="btn btn-primary btn-sm" id="addLeaveBtn" onclick="openLeaveModal()">+ 新增请假</button>
         </div>
         <div class="stat-grid" id="leaveStats" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
           <div class="stat-card"><div class="stat-label">待销假</div><div class="stat-value" id="leavePending" style="color:#B96A1F">0</div></div>
@@ -3290,7 +3289,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <input type="checkbox" id="cmCanMinusChk" onchange="onCmCanMinusChange()" style="width:16px;height:16px"> 允许班委扣分（减分）
           </label>
           <div style="margin-top:8px;font-size:12px;color:var(--text-muted);line-height:1.7">
-            班委在学分页可协助加减分（留痕署名：谁操作的、什么身份一目了然）。关闭扣分后班委只能加分，减分统一由你操作。
+            仅<b>班长、副班长、纪律委员</b>三人可进入班委协作（v3.0.0）；可看课表、看请假人数与姓名（不可登记），学分页可协助加减分（留痕署名：谁操作的、什么身份一目了然）。关闭扣分后班委只能加分，减分统一由你操作。
           </div>
         </div>
 <div class="settings-section">
@@ -3346,6 +3345,10 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           </div>
           <button class="btn btn-primary btn-sm" onclick="changeLoginPwd()">保存新密码</button>
           <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">密码经哈希加密存储，请妥善保管</div>
+          <label style="display:flex;gap:8px;align-items:center;font-size:14px;cursor:pointer;margin-top:12px">
+            <input type="checkbox" id="pwdLocalOnlyChk" onchange="onPwdLocalOnlyChange()" style="width:16px;height:16px"> 登录密码仅限本机登录
+          </label>
+          <div id="pwdLocalOnlyHint" style="margin-top:6px;font-size:12px;color:var(--text-muted);line-height:1.7"></div>
         </div>
 
         <div class="settings-section">
@@ -3364,12 +3367,13 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.29.1</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.0.0</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.29.1）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v3.0.0）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 🚀 <b>v3.0.0 大版本</b>：班委协作只允许 <b>班长、副班长、纪律委员</b> 三人进入，班委可看<b>课表</b>、看<b>请假人数与姓名</b>（不可登记，课表/请假页均为只读）；新增「<b>登录密码仅限本机</b>」—— 开启后其它设备密码对了也进不了，输入管理员密码授权一次即可；手机底栏「待办」换成「<b>请假</b>」，待办挪进「更多」；学生档案右上角新增<b>关闭按钮</b>；<b>德育记录</b>默认折叠只显 20 条、可展开看全学期流水，筛选新增「<b>本月</b>」；<b>工作留痕</b>支持添加图片（自动压缩，每条最多 4 张）；修复「<b>删除请假记录后刷新又复活</b>」的同步 bug；删除学生时自动清掉 TA 的请假记录<br>
               · 🚫 <b>关闭座位防误触</b>：退出「关闭座位模式」后，座次表顶端的提示条不再一直挂着；已关闭的格子也不会再「点一下就打开」—— 不管关还是开，都要先进「🚫 关闭座位」模式再点格子<br>
               · 👥 <b>值日不再有 2 人小组</b>：一组改成 <b>3—4 人</b> —— 先按 4 人切满，末尾不足 3 人时与前面几组重新均分（一组仍是「一周教室 + 一周公卫」的同一批人）。本班 58 人 → 13 组 4 人 + 2 组 3 人，仍是 15 组一轮<br>
               · 🔁 <b>值日按轮值表重做</b>：每周教室 1 组 + 公共卫生 1 组，按组数循环，和班里的轮值表逐格对得上<br>
@@ -4432,6 +4436,7 @@ const STATE_SCHEMA = [
   { key:'classMotto', def:'不积跬步，无以至千里；不积小流，无以成江海。', cfs:1, ms:'scalarFill' },
   { key:'leaves', def:function(){ return []; }, cfs:1, ms:'leaves' },
   { key:'nextLeaveId', def:1, cfs:1, ms:'max1' },
+  { key:'leaveDeleted', def:function(){ return {}; }, cfs:1, tomb:1, ms:'tsmap', sv:function(v){ return v || {}; } },   // v3.0.0 请假删除墓碑（id→删除时刻）：云端旧副本并集不再复活已删请假
   { key:'exams', def:function(){ return []; }, cfs:1, ms:'exams' },
   { key:'nextExamId', def:1, cfs:1, ms:'max1' },
   { key:'todos', def:function(){ return []; }, cfs:1, ms:'todos' },
@@ -4442,6 +4447,7 @@ const STATE_SCHEMA = [
   { key:'nextHonorId', def:1, cfs:1, ms:'max1' },
   { key:'honorDeleted', def:function(){ return {}; }, cfs:1, tomb:1, ms:'tsmap', sv:function(v){ return v || {}; } },   // v2.18.12 荣誉删除墓碑（id→删除时间戳）：云端旧副本并集不再复活已删荣誉
   { key:'studentDeleted', def:function(){ return {}; }, cfs:1, tomb:1, ms:'tsmap', sv:function(v){ return v || {}; } }, // v2.18.15 学生删除墓碑（id→删除时间戳）：云端/其他设备旧副本不再复活已删学生
+  { key:'pwdDeviceLock', def:function(){ return { enabled:false, devices:[], at:0 }; }, cfs:1, ms:'pwdLock', sv:function(v){ return v || { enabled:false, devices:[], at:0 }; } },   // v3.0.0 登录密码仅限本机：enabled + 授权设备列表（按 at 新者胜合并）
   { key:'customDorms', def:function(){ return []; }, cfs:1, ms:'customDorms', sv:function(v){ return v || []; } },      // v2.18.12 手动新增的寝室号（空寝室也显示；成员仍由学生标签派生）
   { key:'notices', def:function(){ return { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 }; }, cfs:1, ms:'notices' },
   { key:'creditBank', def:function(){ return cbDefaultBank(); }, cfs:1, ms:'creditBank' },   // v2.17.30 学分银行（双轨账本）
@@ -7104,14 +7110,18 @@ function msOps(merged,localData,remoteData){
 }
 // leaves: merge by id
 function msLeaves(merged,localData,remoteData){
+  merged.leaveDeleted = mergeTsMap(merged.leaveDeleted || {}, remoteData.leaveDeleted || {});   // v3.0.0 墓碑并集
+  var _lvDel = merged.leaveDeleted || {};
   if(remoteData.leaves&&Array.isArray(remoteData.leaves)){
     var lvmap={};(localData.leaves||[]).forEach(function(l){lvmap[l.id]=l;});
     remoteData.leaves.forEach(function(rl){
+      if(_lvDel[rl.id]) return;   // v3.0.0 已删请假不再从云端副本复活（bug#7）
       var ll=lvmap[rl.id];if(!ll){lvmap[rl.id]=rl;}
       else{var lt=ll.updatedAt||ll.createdAt||0;var rt=rl.updatedAt||rl.createdAt||0;if(rt>lt)lvmap[rl.id]=rl;}
     });
     merged.leaves=Object.keys(lvmap).map(function(k){return lvmap[k];});
   }
+  if(Object.keys(_lvDel).length){ merged.leaves=(merged.leaves||[]).filter(function(l){ return l && !_lvDel[l.id]; }); }   // v3.0.0 双向防御剔除
 }
 // todos: merge by id
 function msTodos(merged,localData,remoteData){
@@ -7284,11 +7294,18 @@ function msTsMap(merged,localData,remoteData,key){ merged[key]=mergeTsMap(merged
 function msMax1(merged,localData,remoteData,key){ merged[key]=Math.max(localData[key]||1,remoteData[key]||1); }   // nextId 系列: max
 function msMax0(merged,localData,remoteData,key){ merged[key]=Math.max(localData[key]||0,remoteData[key]||0); }
 function msTsNewer(merged,localData,remoteData,key){ if(remoteData[key]&&(!localData[key]||remoteData[key]>localData[key]))merged[key]=remoteData[key]; }   // timestamps: 较新者胜
+// v3.0.0 设备锁：整体按 at 新者胜（本机没有则取云端；两边都有则较新者胜，平局留本机）
+function msPwdLock(merged,localData,remoteData,key){
+  var l=localData[key]||null,r=remoteData[key]||null;
+  if(!r) return;
+  if(!l){ merged[key]=r; return; }
+  if((r.at||0)>(l.at||0)) merged[key]=r;
+}
 var MERGE_ST = {
   students:msStudents, ops:msOps, leaves:msLeaves, todos:msTodos, exams:msExams,
   punishments:msPunishments, honors:msHonors, customDorms:msCustomDorms, workLogs:msWorkLogs,
   notices:msNotices, reasons:msReasons, reasonScores:msReasonScores, reasonCatalog:msReasonCatalog,
-  catTomb:msCatTomb, creditBank:msCreditBank, committee:msCommittee, seating:msSeating, duty:msDuty,
+  catTomb:msCatTomb, creditBank:msCreditBank, committee:msCommittee, seating:msSeating, duty:msDuty, pwdLock:msPwdLock,
   committeePos:msCommitteePos,
   schedule:msSchedule,
   scheduleImage:msScheduleImage, classAvatar:msClassAvatar,
@@ -8093,6 +8110,7 @@ function tsRender(){
 function tsRenderTools(){
   var el = document.getElementById('scheduleTools');
   if(!el) return;
+  if(window.__cmRole === 'committee'){ el.innerHTML = ''; return; }   // v3.0.0 班委课表只读（导入/设置/清空全部不出现）
   el.innerHTML =
     '<button class="ts-btn" onclick="openTsImport()">导入课表</button>' +
     '<button class="ts-btn" onclick="openTsSet()">课表设置</button>' +
@@ -8253,6 +8271,7 @@ function tsClearSchedule(){
 /* ---------------- 编辑单个课格 ---------------- */
 var _tsEditTarget = null;
 function openTsEdit(day, no){
+  if(window.__cmRole === 'committee'){ showToast('班委模式课表只读','warning'); return; }   // v3.0.0
   _tsEditTarget = { day:day, no:no };
   var c = tsGetCell(day, no) || { s:'', t:'' };
   var ttl = document.getElementById('tsEditTitle');
@@ -9045,6 +9064,10 @@ function deleteStudent(id){
   if(!state.studentDeleted) state.studentDeleted = {};
   state.studentDeleted[id] = Date.now();   // v2.18.15 删除墓碑：防云端旧副本/旧备份复活
   state.selectedStudents.delete(id);
+  // v3.0.0 删学生自动清掉 TA 的请假记录（同样记墓碑，防云端旧副本复活）
+  if(!state.leaveDeleted) state.leaveDeleted = {};
+  (state.leaves || []).forEach(function(l){ if(l && l.studentId === id) state.leaveDeleted[l.id] = Date.now(); });
+  state.leaves = (state.leaves || []).filter(function(l){ return l && l.studentId !== id; });
   // Clean up committee/seating/duty references
   for(const k in state.committee){
     if(state.committee[k] === id) state.committee[k] = null;
@@ -9263,6 +9286,8 @@ function confirmRosterSync(){
     state.students = state.students.filter(s => s.id !== r.id);
     if(!state.studentDeleted) state.studentDeleted = {};
     state.studentDeleted[r.id] = Date.now();   // v2.18.15 名单同步移除=主动删除，同样记墓碑防复活
+    if(!state.leaveDeleted) state.leaveDeleted = {};
+    (state.leaves || []).forEach(function(l){ if(l && l.studentId === r.id) state.leaveDeleted[l.id] = Date.now(); });   // v3.0.0 连请假记录一起清（墓碑防复活）
     state.selectedStudents.delete(r.id);
     for(const k in state.committee){ if(state.committee[k] === r.id) state.committee[k] = null; }
     state.seating.seats = state.seating.seats.filter(x => x.studentId !== r.id);
@@ -13136,12 +13161,28 @@ function renderProfileList(){
 }
 function selectProfile(id){
   _profileSelectedId = id;
+  _pfDevyOpen = false; _pfDevyAll = false;   // v3.0.0 换人后德育记录回到默认折叠
   renderProfileList();
   const s = state.students.find(x=>x.id===id);
   if(s) renderProfileDetail(s);
 }
 /* ---- v2.17.30 档案详情新版式辅助 ---- */
-var _pfOpScope = 'term';   // 德育记录范围：term=本学期 / all=全部
+var _pfOpScope = 'term';   // 德育记录范围：month=本月 / term=本学期 / all=全部
+var _pfDevyOpen = false;   // v3.0.0 德育记录默认折叠
+var _pfDevyAll = false;    // v3.0.0 折叠态只显前 20 条，展开看全量
+/* v3.0.0 档案详情右上角关闭：回到未选中态 */
+function closeProfileDetail(){
+  _profileSelectedId = null;
+  renderProfileList();
+  const el = document.getElementById('profileDetail');
+  if(el) el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px 20px"><div style="font-size:40px;margin-bottom:12px">📁</div><div>从左侧选择一名学生查看/编辑档案</div></div>';
+}
+function pfDevyToggle(){
+  _pfDevyOpen = !_pfDevyOpen;
+  const b = document.getElementById('pfDevyBody'), c = document.getElementById('pfDevyChev');
+  if(b) b.style.display = _pfDevyOpen ? '' : 'none';
+  if(c){ c.textContent = _pfDevyOpen ? '▾' : '▸'; c.classList.toggle('open', _pfDevyOpen); }
+}
 function pfSectionToggle(bodyId, chevId){
   const b = document.getElementById(bodyId), c = document.getElementById(chevId);
   if(!b) return;
@@ -13151,6 +13192,7 @@ function pfSectionToggle(bodyId, chevId){
 }
 function setPfOpScope(sc){
   _pfOpScope = sc;
+  _pfDevyAll = false;   // v3.0.0 切换时间段后回到折叠的 20 条
   if(_profileSelectedId != null){
     const s = state.students.find(x => x.id === _profileSelectedId);
     if(s) renderProfileDetail(s);
@@ -13164,16 +13206,23 @@ function pfSemesterStartTs(){
   else { startY = y - 1; mon = 9; }    // 1 月 → 上学期（上年 9/1）
   return new Date(startY, mon - 1, 1).getTime();
 }
+function pfMonthStartTs(){
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), 1).getTime();
+}
 function pfOpRowsHtml(s){
   const ops = liveOps(state.operations).filter(o => {
     if(!o || o.studentId !== s.id) return false;
+    if(_pfOpScope === 'month' && !(Number(o.time) >= pfMonthStartTs())) return false;
     if(_pfOpScope === 'term' && !(Number(o.time) >= pfSemesterStartTs())) return false;
     return true;
   });
   if(ops.length === 0){
-    return '<div class="pf-empty">' + (_pfOpScope === 'term' ? '本学期暂无学分变动' : '暂无学分变动记录') + '</div>';
+    return '<div class="pf-empty">' + (_pfOpScope === 'month' ? '本月暂无学分变动' : _pfOpScope === 'term' ? '本学期暂无学分变动' : '暂无学分变动记录') + '</div>';
   }
-  return ops.map(op => {
+  var shown = ops, hidden = 0;
+  if(!_pfDevyAll && ops.length > 20){ shown = ops.slice(0, 20); hidden = ops.length - 20; }   // v3.0.0 折叠态只显 20 条
+  return shown.map(op => {
     const amount = Number(op.amount) || 0;
     const color = amount > 0 ? 'var(--success)' : 'var(--danger)';
     const cm = (op.by === 'cm') ? ' <span class="deyu-cm">👩‍💼 ' + escapeHtml(op.byName || '通用班委') + '</span>' : '';
@@ -13182,7 +13231,16 @@ function pfOpRowsHtml(s){
       '<span class="deyu-why">' + escapeHtml(op.reason || '未填原因') + cm + '</span>' +
       '<span class="deyu-time">' + formatOpTime(op) + '</span>' +
     '</div>';
-  }).join('');
+  }).join('') + (hidden > 0
+    ? '<button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="pfDevyExpand()">展开全部 ' + ops.length + ' 条</button>'
+    : (_pfDevyAll && ops.length > 20 ? '<button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="pfDevyExpand()">收起（只显前 20 条）</button>' : ''));
+}
+function pfDevyExpand(){
+  _pfDevyAll = !_pfDevyAll;
+  if(_profileSelectedId != null){
+    const s = state.students.find(x => x.id === _profileSelectedId);
+    if(s) renderProfileDetail(s);
+  }
 }
 function studentHonorsOf(s){
   return state.honors.filter(h => h && h.scope === '个人' && (h.persons || []).indexOf(s.name) >= 0);
@@ -13224,7 +13282,7 @@ function renderProfileDetail(s){
         </div>`;
       }).join('');
   el.innerHTML = `
-    <div class="pf-summary">
+    <div class="pf-summary" style="position:relative">
       <div class="pf-avatar">${escapeHtml(s.name.charAt(0))}</div>
       <div style="min-width:0">
         <div class="pf-name">${escapeHtml(s.name)}</div>
@@ -13239,19 +13297,21 @@ function renderProfileDetail(s){
         <div style="font-size:12px;color:var(--text-muted);margin-top:4px">当前学分</div>
       </div>
       <button class="btn btn-primary btn-sm" onclick="openProfileEdit(${s.id})">✏️ 编辑资料</button>
+      <button class="btn btn-outline btn-sm" style="position:absolute;top:12px;right:12px;padding:4px 10px" onclick="closeProfileDetail()" title="关闭档案详情">✕</button>
     </div>
     <div class="pf-notes">${p.notes ? escapeHtml(p.notes) : '备注：无（可填写特异体质、需特别关心等事项）'}</div>
 
     <div class="pf-section">
-      <div class="pf-section-head" onclick="pfSectionToggle('pfDevyBody','pfDevyChev')">
+      <div class="pf-section-head" onclick="pfDevyToggle()">
         <h3>📊 德育记录（学分变动）</h3>
         <span class="pf-seg" onclick="event.stopPropagation()">
+          <span class="${_pfOpScope==='month'?'on':''}" onclick="setPfOpScope('month')">本月</span>
           <span class="${_pfOpScope==='term'?'on':''}" onclick="setPfOpScope('term')">本学期</span>
           <span class="${_pfOpScope==='all'?'on':''}" onclick="setPfOpScope('all')">全部</span>
         </span>
-        <span class="pf-chev open" id="pfDevyChev">▾</span>
+        <span class="pf-chev ${_pfDevyOpen?'open':''}" id="pfDevyChev">${_pfDevyOpen?'▾':'▸'}</span>
       </div>
-      <div class="pf-section-body" id="pfDevyBody">
+      <div class="pf-section-body" id="pfDevyBody" style="${_pfDevyOpen ? '' : 'display:none'}">
         <div class="deyu-scroll">${pfOpRowsHtml(s)}</div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:8px">仅显示 ${_pfOpScope==='term'?'本学期':'全部'}流水 · 详细操作与撤销请到 <a href="javascript:void(0)" onclick="navigateTo('credits')" style="color:var(--primary)">学分页</a></div>
       </div>
@@ -13393,6 +13453,7 @@ function renderWorkLogs(){
             <span style="font-size:12px;color:var(--text-muted)">${escapeHtml(w.date)}</span>
           </div>
           ${w.content ? `<div style="margin-top:8px;font-size:14px;color:var(--text-secondary);white-space:pre-wrap">${escapeHtml(w.content)}</div>` : ''}
+          ${(w.images && w.images.length) ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${w.images.map(src=>`<img src="${escapeAttr(src)}" onclick="wlZoom(this.getAttribute('src'))" style="width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid var(--border);cursor:zoom-in">`).join('')}</div>` : ''}
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0">
           <button class="btn btn-sm" onclick="openWorkLogEdit(${w.id})"><svg class="ic ic-sm"><use href="#i-pen"/></svg></button>
@@ -13411,6 +13472,7 @@ function openWorkLogAdd(){
   document.getElementById('wlCat').value = '常规';
   document.getElementById('wlContent').value = '';
   document.getElementById('wlModalDate').value = todayStr();
+  _wlPicked = []; wlRenderImgPreview();
 }
 function openWorkLogEdit(id){
   const w = state.workLogs.find(x=>x.id===id);
@@ -13422,6 +13484,7 @@ function openWorkLogEdit(id){
   document.getElementById('wlCat').value = w.category || '常规';
   document.getElementById('wlContent').value = w.content || '';
   document.getElementById('wlModalDate').value = w.date || todayStr();
+  _wlPicked = (w.images || []).slice(); wlRenderImgPreview();
 }
 function saveWorkLog(){
   const id = parseInt(document.getElementById('wlId').value) || 0;
@@ -13432,9 +13495,9 @@ function saveWorkLog(){
   const content = document.getElementById('wlContent').value.trim();
   if(id){
     const w = state.workLogs.find(x=>x.id===id);
-    if(w){ w.title=title; w.date=date; w.category=category; w.content=content; }
+    if(w){ w.title=title; w.date=date; w.category=category; w.content=content; w.images=_wlPicked.slice(); }
   } else {
-    state.workLogs.push({ id: state.nextWorkLogId++, title, date, category, content });
+    state.workLogs.push({ id: state.nextWorkLogId++, title, date, category, content, images:_wlPicked.slice() });
   }
   saveData();
   closeModal('workLogModal');
@@ -13448,6 +13511,47 @@ function deleteWorkLog(id){
   renderWorkLogs();
   showToast('已删除','success');
 }
+/* v3.0.0 工作留痕配图：压缩后以 dataURL 随记录落盘（复用课程表图的 compressImage，单图压到 1000px / q0.7） */
+var _wlPicked = [];
+var WL_IMG_MAX = 4;
+function wlAddImages(files){
+  var overflow = _wlPicked.length + files.length > WL_IMG_MAX;
+  for(var i = 0; i < files.length && _wlPicked.length < WL_IMG_MAX; i++){
+    (function(file){
+      var rd = new FileReader();
+      rd.onload = function(){
+        if(_wlPicked.length >= WL_IMG_MAX) return;
+        compressImage(rd.result, 1000, 0.7, function(out){
+          if(_wlPicked.length < WL_IMG_MAX){ _wlPicked.push(out); wlRenderImgPreview(); }
+        });
+      };
+      rd.readAsDataURL(file);
+    })(files[i]);
+  }
+  document.getElementById('wlImgInput').value = '';
+  if(overflow) showToast('每条记录最多 ' + WL_IMG_MAX + ' 张图片','warning');
+}
+function wlRemoveImg(i){ _wlPicked.splice(i, 1); wlRenderImgPreview(); }
+function wlRenderImgPreview(){
+  var pv = document.getElementById('wlImgPreview');
+  if(pv) pv.innerHTML = _wlPicked.map(function(src, i){
+    return '<div style="position:relative"><img src="' + src + '" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--border)"><button onclick="wlRemoveImg(' + i + ')" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:none;background:var(--danger);color:#fff;font-size:12px;cursor:pointer;line-height:1">×</button></div>';
+  }).join('');
+  var cnt = document.getElementById('wlImgCount');
+  if(cnt) cnt.textContent = _wlPicked.length ? (_wlPicked.length + '/' + WL_IMG_MAX) : '';
+}
+function wlZoom(src){
+  var ov = document.getElementById('wlZoomOverlay');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id = 'wlZoomOverlay';
+    ov.style.cssText = 'position:fixed;left:0;top:0;right:0;bottom:0;z-index:3000;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;cursor:zoom-out';
+    ov.onclick = function(){ ov.style.display = 'none'; };
+    document.body.appendChild(ov);
+  }
+  ov.innerHTML = '<img src="' + src + '" style="max-width:92vw;max-height:92vh;border-radius:8px">';
+  ov.style.display = 'flex';
+}
 function copyMonthLogs(){
   const date = document.getElementById('wlDate').value || todayStr();
   const month = date.slice(0,7);
@@ -13457,7 +13561,7 @@ function copyMonthLogs(){
   let cur = '';
   list.forEach(w=>{
     if(w.date !== cur){ cur = w.date; txt += `\n📅 ${cur}\n`; }
-    txt += `【${w.category}】${w.title}\n`;
+    txt += `【${w.category}】${w.title}${w.images && w.images.length ? ' [图' + w.images.length + ']' : ''}\n`;
     if(w.content) txt += w.content + '\n';
   });
   copyToClipboard(txt);
@@ -13469,7 +13573,7 @@ function exportMonthLogs(){
   const list = state.workLogs.filter(w=>w.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date)||a.id-b.id);
   if(list.length === 0){ showToast('本月暂无记录','error'); return; }
   let txt = `【${month} 工作留痕台账】\n`;
-  list.forEach(w=>{ txt += `\n[${w.date}] ${w.title} (${w.category})\n${w.content||''}\n`; });
+  list.forEach(w=>{ txt += `\n[${w.date}] ${w.title} (${w.category})${w.images && w.images.length ? ' [图' + w.images.length + ']' : ''}\n${w.content||''}\n`; });
   const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -13763,6 +13867,7 @@ function renderSettings(){
   // v2.17.0 班委协作设置回填
   var cmChk = document.getElementById('cmCanMinusChk');
   if(cmChk) cmChk.checked = cmCanMinus();
+  renderPwdLocalOnlyUI();   // v3.0.0 登录密码仅限本机：开关与说明回填
 }
 
 /* v2.16.0 公示设置事件 */
@@ -15003,7 +15108,8 @@ function loginClear(){
    无学生档案/成绩/请假/通知/设置，无导入导出/添加学生。数据同步照常（班委的操作入云不丢）。 */
 const CM_ROLE_KEY = 'cm_role';
 const CM_UID_KEY = 'cm_uid';   // v2.17.0 班委身份：已任命班委的 studentId，用于操作署名
-const COMMITTEE_PAGES = ['dashboard','credits','publicity','duty','seating','todo','honors'];
+const COMMITTEE_PAGES = ['dashboard','attendance','credits','publicity','duty','seating','todo','honors'];   // v3.0.0 起含 attendance（只读：班委可看请假人数/姓名，不可登记）
+const CM_COLLAB_KEYS = ['banzhang', 'fubanzhang', 'jilv'];   // v3.0.0 仅班长 / 副班长 / 纪律委员可参与协作
 function isCommitteeMode(){ return sessionStorage.getItem(CM_ROLE_KEY) === 'committee'; }
 // v2.17.0 班委身份解析：按 cm_uid 找学生与其岗位；学生已删除/未选身份 → 匿名（通用班委）
 function resolveCmIdentity(){
@@ -15026,6 +15132,17 @@ function enterApp(msg){
 function loginSubmit(){
   if(loginInput.length !== 6){ showToast('请输入6位数字密码','error'); return; }
   if(verifyLoginPwd(loginInput)){
+    // v3.0.0 登录密码仅限本机：密码对了还要过设备授权闸（管理员密码可给新设备授权）
+    var _lock = state.pwdDeviceLock;
+    if(_lock && _lock.enabled && (_lock.devices || []).indexOf(cmDeviceId()) < 0){
+      var _ap = prompt('本设备未授权（已开启「登录密码仅限本机登录」）。\n请输入管理员密码，授权此设备登录：');
+      if(_ap === null){ loginInput = ''; renderPwdDots(); return; }
+      if(!verifyAdminPwd(_ap)){ showToast('管理员密码错误，无法授权此设备','error'); loginInput = ''; renderPwdDots(); return; }
+      _lock.devices.push(cmDeviceId());
+      _lock.at = Date.now();
+      saveData();
+      showToast('本设备已授权','success');
+    }
     sessionStorage.setItem(SESSION_KEY, '1');
     sessionStorage.removeItem(CM_ROLE_KEY);
     loginInput = '';
@@ -15047,6 +15164,7 @@ function enterCommitteeMode(){
 function openCmIdentityPanel(){
   var entries = [];
   (committeeConfig || []).forEach(function(cfg){
+    if(CM_COLLAB_KEYS.indexOf(cfg.key) < 0) return;   // v3.0.0 仅班长 / 副班长 / 纪律委员可进入协作
     var sid = state.committee[cfg.key];
     if(sid == null) return;
     var s = (state.students || []).find(function(x){ return x.id === sid; });
@@ -15058,7 +15176,7 @@ function openCmIdentityPanel(){
           '<span>👩‍💼 ' + escapeHtml(a.name) + '</span>' +
           '<span style="color:var(--text-muted);font-size:12px">' + escapeHtml(a.post) + '</span></button>';
       }).join('')
-    : '<div class="login-help" style="text-align:center">班主任还没任命班委岗位（在 班委管理 页任命后这里会出现名单）。<br>可先以「通用班委」身份进入。</div>';
+    : '<div class="login-help" style="text-align:center">只有班长、副班长、纪律委员可以进入协作。<br>班主任在 班委管理 页任命这三个岗位后，这里会出现名单。</div>';
   document.getElementById('loginPwdArea').style.display = 'none';
   document.getElementById('loginKeypad').style.display = 'none';
   document.getElementById('cmIdentityPanel').style.display = '';
@@ -15097,7 +15215,7 @@ function applyCommitteeRestrictions(){
     if(COMMITTEE_PAGES.indexOf(n.dataset.page) < 0) n.classList.add('cm-hide');
   });
   // 顶栏：导出/导入/添加学生（导出会把含家长信息的全量数据落文件，必须屏蔽）
-  ['topExportBtn','topImportBtn','topAddStudentBtn'].forEach(function(id){
+  ['topExportBtn','topImportBtn','topAddStudentBtn','addLeaveBtn'].forEach(function(id){   // v3.0.0 addLeaveBtn：班委请假页只读
     var el = document.getElementById(id); if(el) el.classList.add('cm-hide');
   });
   // 侧栏底部：班委标识 + 退出
@@ -15128,6 +15246,36 @@ function changeLoginPwd(){
   document.getElementById('adminPwdInput').value = '';
   document.getElementById('newLoginPwdInput').value = '';
   showToast('登录密码已修改','success');
+}
+
+/* v3.0.0 登录密码仅限本机：state.pwdDeviceLock 随云同步（enabled + 授权设备列表，按 at 新者胜合并），
+   设备指纹 cmDeviceId 只存本机 localStorage —— 其它设备密码对了也进不来，须用管理员密码授权一次。 */
+function cmDeviceId(){
+  var k = 'cmDeviceId', v = localStorage.getItem(k);
+  if(!v){ v = 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem(k, v); }
+  return v;
+}
+function renderPwdLocalOnlyUI(){
+  var chk = document.getElementById('pwdLocalOnlyChk');
+  var lock = state.pwdDeviceLock || { enabled:false, devices:[], at:0 };
+  if(chk) chk.checked = !!lock.enabled;
+  var hint = document.getElementById('pwdLocalOnlyHint');
+  if(hint){
+    var mine = (lock.devices || []).indexOf(cmDeviceId()) >= 0;
+    hint.textContent = lock.enabled
+      ? ('已开启：只有授权设备能用登录密码进入（当前授权 ' + (lock.devices || []).length + ' 台，本机' + (mine ? '已授权' : '未授权') + '）。新设备：输对登录密码后再输管理员密码即可授权。')
+      : '关闭状态：登录密码在任何设备都有效。开启后，其它设备即使密码正确也进不了，须用管理员密码授权一次。';
+  }
+}
+function onPwdLocalOnlyChange(){
+  var chk = document.getElementById('pwdLocalOnlyChk');
+  state.pwdDeviceLock = state.pwdDeviceLock || { enabled:false, devices:[], at:0 };
+  state.pwdDeviceLock.enabled = !!chk.checked;
+  state.pwdDeviceLock.at = Date.now();
+  if(chk.checked && (state.pwdDeviceLock.devices || []).indexOf(cmDeviceId()) < 0) state.pwdDeviceLock.devices.push(cmDeviceId());
+  saveData();
+  renderPwdLocalOnlyUI();
+  showToast(chk.checked ? '已开启：其它设备需管理员密码授权' : '已关闭：登录密码在任何设备都有效', 'success');
 }
 
 // 键盘输入支持：数字键输入、退格删除、回车提交（仅登录页可见时生效）
@@ -15419,6 +15567,7 @@ function escapeAttr(s){
 let _leaveSelectedId = null;
 
 function openLeaveModal(){
+  if(window.__cmRole === 'committee'){ showToast('班委模式只可查看请假记录','warning'); return; }   // v3.0.0
   var modal = document.getElementById('leaveModal');
   document.getElementById('leaveStudentInput').value = '';
   document.getElementById('leaveStudentSelect').value = '';
@@ -15581,6 +15730,7 @@ function confirmAddLeave(){
 }
 
 function extendLeave(id){
+  if(window.__cmRole === 'committee'){ showToast('班委模式只可查看请假记录','warning'); return; }   // v3.0.0
   var leave = state.leaves.find(l=>l.id===id);
   if(!leave) return;
   cmPrompt({
@@ -15611,6 +15761,7 @@ function extendLeaveApply(leave, newEnd){
 }
 
 function returnLeave(id){
+  if(window.__cmRole === 'committee'){ showToast('班委模式只可查看请假记录','warning'); return; }   // v3.0.0
   const leave = state.leaves.find(l=>l.id===id);
   if(!leave) return;
   const today = localDateStr();   // v2.20.0 本地日期（原 UTC：凌晨销假记的是昨天）
@@ -15623,7 +15774,10 @@ function returnLeave(id){
 }
 
 function deleteLeave(id){
+  if(window.__cmRole === 'committee'){ showToast('班委模式只可查看请假记录','warning'); return; }   // v3.0.0 班委只读
   if(!confirm('确认删除这条请假记录？')) return;
+  if(!state.leaveDeleted) state.leaveDeleted = {};
+  state.leaveDeleted[id] = Date.now();   // v3.0.0 删除墓碑：刷新/其它设备拉取不再复活（bug#7）
   state.leaves = state.leaves.filter(l=>l.id!==id);
   saveData();
   renderAttendance();
@@ -15634,15 +15788,18 @@ function renderAttendance(){
   const list = document.getElementById('leaveList');
   if(!list) return;
   if(state.leaves.length === 0){
-    list.innerHTML = '<div class="empty-state"><div class="icon">📨</div><div class="text">暂无请假记录</div><div style="margin-top:8px"><button class="btn btn-primary btn-sm" onclick="openLeaveModal()">+ 登记请假</button></div></div>';
+    list.innerHTML = window.__cmRole === 'committee'
+      ? '<div class="empty-state"><div class="icon">📨</div><div class="text">暂无请假记录</div></div>'
+      : '<div class="empty-state"><div class="icon">📨</div><div class="text">暂无请假记录</div><div style="margin-top:8px"><button class="btn btn-primary btn-sm" onclick="openLeaveModal()">+ 登记请假</button></div></div>';
   } else {
+    const isCm = window.__cmRole === 'committee';   // v3.0.0 班委只读：不渲染续假/销假/删除
     const sorted = [...state.leaves].sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
     list.innerHTML = '<div class="leave-grid">' + sorted.map(l => {
       const stu = state.students.find(s=>s.id===l.studentId);
       const stuName = stu ? stu.name : '已删除学生';
       const typeText = LEAVE_TYPES[l.type] || l.type;
       const statusMap = {pending:'<span class="leave-badge pending">待销假</span>',returned:'<span class="leave-badge returned">已销假</span>',extended:'<span class="leave-badge extended">已续假</span>'};
-      const actions = l.status !== 'returned'
+      const actions = (l.status !== 'returned' && !isCm)
         ? `<button class="btn btn-outline btn-sm" onclick="extendLeave(${l.id})">续假</button><button class="btn btn-primary btn-sm" onclick="returnLeave(${l.id})">销假</button>`
         : '';
       const histText = (l.history || []).map(h=>{
@@ -15674,7 +15831,7 @@ function renderAttendance(){
               history+
               '<div class="leave-foot">'+
                 '<span class="leave-created">'+createdTxt+' 登记</span>'+
-                '<span class="leave-actions">'+actions+'<button class="todo-btn" onclick="deleteLeave('+l.id+')" title="删除"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button></span>'+
+                '<span class="leave-actions">'+actions+(isCm?'':'<button class="todo-btn" onclick="deleteLeave('+l.id+')" title="删除"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button>')+'</span>'+
               '</div>'+
             '</div>';
     }).join('') + '</div>';
@@ -17716,7 +17873,7 @@ function renderPublicity(){
 <nav class="mobile-tabbar" id="mobileTabbar">
   <div class="mobile-tab active" data-page="dashboard" onclick="navigateTo('dashboard')"><span class="tab-icon"><svg class="ic"><use href="#i-dash"/></svg></span><span class="tab-label">首页</span></div>
   <div class="mobile-tab" data-page="students" onclick="navigateTo('students')"><span class="tab-icon"><svg class="ic"><use href="#i-students"/></svg></span><span class="tab-label">学生</span></div>
-  <div class="mobile-tab" data-page="todo" onclick="navigateTo('todo')"><span class="tab-icon"><svg class="ic"><use href="#i-todo"/></svg></span><span class="tab-label">待办</span></div>
+  <div class="mobile-tab" data-page="attendance" onclick="navigateTo('attendance')"><span class="tab-icon"><svg class="ic"><use href="#i-leave"/></svg></span><span class="tab-label">请假</span></div>
   <div class="mobile-tab" data-page="credits" onclick="navigateTo('credits')"><span class="tab-icon"><svg class="ic"><use href="#i-pen"/></svg></span><span class="tab-label">学分</span></div>
   <div class="mobile-tab" data-page="settings" onclick="navigateTo('settings')"><span class="tab-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span class="tab-label">设置</span></div>
   <div class="mobile-tab more-tab" id="moreTabBtn" onclick="toggleMoreDrawer()"><span class="tab-icon"><svg class="ic"><use href="#i-more"/></svg></span><span class="tab-label">更多</span></div>
@@ -17735,6 +17892,7 @@ function renderPublicity(){
     <div class="more-item" data-page="seating" onclick="navigateTo('seating')"><span class="more-icon"><svg class="ic"><use href="#i-seat"/></svg></span><span>座次</span></div>
     <div class="more-item" data-page="duty" onclick="navigateTo('duty')"><span class="more-icon"><svg class="ic"><use href="#i-duty"/></svg></span><span>值日</span></div>
     <div class="more-item" data-page="attendance" onclick="navigateTo('attendance')"><span class="more-icon"><svg class="ic"><use href="#i-leave"/></svg></span><span>请假</span></div>
+    <div class="more-item" data-page="todo" onclick="navigateTo('todo')"><span class="more-icon"><svg class="ic"><use href="#i-todo"/></svg></span><span>待办</span></div>
     <div class="more-item" data-page="rollcall" onclick="navigateTo('rollcall')"><span class="more-icon"><svg class="ic"><use href="#i-roll"/></svg></span><span>点名</span></div>
     <div class="more-item" data-page="grades" onclick="navigateTo('grades')"><span class="more-icon"><svg class="ic"><use href="#i-grades"/></svg></span><span>成绩</span></div>
     <div class="more-item" data-page="notices" onclick="navigateTo('notices')"><span class="more-icon"><svg class="ic"><use href="#i-horn"/></svg></span><span>通知</span></div>
@@ -17811,6 +17969,14 @@ function renderPublicity(){
       </div>
       <div class="form-group"><label>标题</label><input type="text" id="wlTitle" placeholder="今天做了什么？" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text)"></div>
       <div class="form-group"><label>详情（可选）</label><textarea id="wlContent" rows="4" placeholder="记录细节..." style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text);resize:vertical"></textarea></div>
+      <div class="form-group"><label>图片（可选，最多 4 张）</label>
+        <input type="file" id="wlImgInput" accept="image/*" multiple style="display:none" onchange="wlAddImages(this.files)">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('wlImgInput').click()">🖼 添加图片</button>
+          <span id="wlImgCount" style="font-size:12px;color:var(--text-muted)"></span>
+        </div>
+        <div id="wlImgPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('workLogModal')">取消</button>

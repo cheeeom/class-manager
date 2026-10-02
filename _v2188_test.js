@@ -131,8 +131,8 @@ t('抽出执行体便于测试：extendLeaveApply / resetCloudPwdApply 均已定
   has(html, 'function resetCloudPwdApply(p){');
   has(fnBody('extendLeave'), 'extendLeaveApply(leave, newEnd)');
 });
-t('全站仅剩 3 处原生 prompt（同步口令 / 确认口令 / GitHub Token），无业务输入', () => {
-  eq(count('= prompt('), 3);
+t('全站仅剩 4 处原生 prompt（同步口令 / 确认口令 / GitHub Token / v3.0.0 设备授权），无业务输入', () => {
+  eq(count('= prompt('), 4);
   has(html, "var token = prompt('GitHub Token ");
   has(html, "var again = prompt('请再次输入口令以确认：')");
 });

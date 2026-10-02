@@ -89,10 +89,10 @@ t('index.html 主 <script> 块可被完整编译（无语法错误）', () => {
 });
 
 console.log('=== ① Schema 元完整性 ===');
-t('STATE_SCHEMA 45 键、无重复、顺序与旧 state 字面量一致（抽样锚点）', () => {
-  eq(STATE_SCHEMA.length, 45, '字段数');
+t('STATE_SCHEMA 47 键、无重复、顺序与旧 state 字面量一致（抽样锚点）', () => {
+  eq(STATE_SCHEMA.length, 47, '字段数');
   const keys = STATE_SCHEMA.map(f => f.key);
-  eq(new Set(keys).size, 45, '无重复');
+  eq(new Set(keys).size, 47, '无重复');
   const idx = k => keys.indexOf(k);
   if(!(idx('selectedStudents') < idx('nextId'))) throw new Error('selectedStudents 应在 nextId 前（旧字面量顺序）');
   if(!(idx('creditBank') < idx('punishments'))) throw new Error('creditBank 应在 punishments 前');
@@ -102,20 +102,20 @@ t('STATE_SCHEMA 45 键、无重复、顺序与旧 state 字面量一致（抽样
 t('CLOUD_SYNC_FIELDS 派生 = v2.18.15 手写白名单逐键一致（唯一事实源护栏）', () => {
   const OLD = ['className','classNameFull','students','operations','reasons','reasonScores','reasonCatalog','catDeleted','catDeletedAt','catRevived','nextId','nextOpId','nextSid',
     'lastExport','lastImport','committee','seating','committeePos','duty','exportedOpsCount','classMotto',
-    'leaves','nextLeaveId','exams','nextExamId','todos','nextTodoId',
+    'leaves','nextLeaveId','leaveDeleted','exams','nextExamId','todos','nextTodoId',
     'workLogs','nextWorkLogId','honors','nextHonorId','honorDeleted','customDorms','notices','creditBank',
-    'studentDeleted',
+    'studentDeleted','pwdDeviceLock',
     'punishments','nextPunishId',
     'scheduleImage','schedule','classAvatar','wipeAt','schemaVer'];
   const DERIVED = STATE_SCHEMA.filter(f => f.cfs).map(f => f.key);
   const onlyOld = OLD.filter(k => !DERIVED.includes(k));
   const onlyNew = DERIVED.filter(k => !OLD.includes(k));
   if(onlyOld.length || onlyNew.length) throw new Error('CFS 漂移！仅旧有:' + onlyOld + ' 仅新有:' + onlyNew);
-  eq(DERIVED.length, 43, 'CFS 数量');
+  eq(DERIVED.length, 45, 'CFS 数量');
 });
-t('tomb 墓碑集合恰为 5 个历史墓碑字段；wipeAt nosv 仅上云不落盘', () => {
+t('tomb 墓碑集合恰为 6 个历史墓碑字段；wipeAt nosv 仅上云不落盘', () => {
   eq(STATE_SCHEMA.filter(f => f.tomb).map(f => f.key).sort().join(','),
-     'catDeleted,catDeletedAt,catRevived,honorDeleted,studentDeleted', 'tomb 集合');
+     'catDeleted,catDeletedAt,catRevived,honorDeleted,leaveDeleted,studentDeleted', 'tomb 集合');
   const w = STATE_SCHEMA.find(f => f.key === 'wipeAt');
   eq(w.cfs, 1, 'wipeAt cfs');
   eq(w.nosv, 1, 'wipeAt nosv');
@@ -126,11 +126,11 @@ t('每个 cfs 字段有 def；每个 ms 名都在 MERGE_ST 表中注册', () => 
     if(f.cfs && f.def === undefined) throw new Error(f.key + ' 缺 def');
     if(f.ms && !MERGE_ST[f.ms]) throw new Error(f.key + ' 的 ms="' + f.ms + '" 未注册到 MERGE_ST');
   });
-  eq(Object.keys(MERGE_ST).length, 27, '策略数');
+  eq(Object.keys(MERGE_ST).length, 28, '策略数');
 });
 t('saveData 落盘清单 = CFS − wipeAt（遍历生成的键集合）', () => {
   const expect = STATE_SCHEMA.filter(f => f.cfs && !f.nosv).map(f => f.key);
-  eq(expect.length, 42, '落盘键数');
+  eq(expect.length, 44, '落盘键数');
   has(html, 'if(!f.cfs || f.nosv) return;', 'saveData 遍历守卫');
   has(html, 'localStorage.setItem(STORE_KEY, JSON.stringify(_snap)); }', 'saveData 快照写盘');
 });
@@ -143,19 +143,19 @@ t('新字段链路护栏：加字段只改 schema 一处即可进默认值/白�
 });
 
 console.log('=== ② buildDefaultState 行为 ===');
-t('buildDefaultState 45 键全就位；惰性工厂求值；Set / 嵌套结构 / 墓碑空 map 就位', () => {
+t('buildDefaultState 47 键全就位；惰性工厂求值；Set / 嵌套结构 / 墓碑空 map 就位', () => {
   const bs = html.indexOf('function buildDefaultState()');
   const code = html.slice(bs, html.indexOf('\n}', bs) + 2);
   const build = eval('(' + code + ')');
   const st = build();
-  eq(Object.keys(st).length, 45, 'state 键数');
+  eq(Object.keys(st).length, 47, 'state 键数');
   eq(st.selectedStudents instanceof Set, true, 'selectedStudents 为 Set');
   eq(st.notices.templates.length > 0, true, 'notices.templates 求值（工厂被调用）');
   eq(st.notices.draft, '', 'notices.draft');
   eq(Array.isArray(st.creditBank.ledger), true, 'creditBank 工厂求值');
   eq(st.reasonCatalog && typeof st.reasonCatalog === 'object' && Object.keys(st.reasonCatalog).length > 0, true, 'reasonCatalog 工厂求值');
   eq(st.catDeleted.dirs.length, 0, 'catDeleted 空墓碑');
-  eq(Object.keys(st.honorDeleted).length === 0 && Object.keys(st.studentDeleted).length === 0, true, '两墓碑空 map');
+  eq(Object.keys(st.honorDeleted).length === 0 && Object.keys(st.studentDeleted).length === 0 && Object.keys(st.leaveDeleted).length === 0 && st.pwdDeviceLock.enabled === false, true, '墓碑空 map + 设备锁默认关');
   eq(st.className, '高一（1）班', 'className');
   eq(st.schemaVer, 2, 'schemaVer');
   const st2 = build();
@@ -198,7 +198,7 @@ t('saveData 落盘快照键 = CFS−wipeAt（42 键），sv 兜底（null → {}
   saveData();
   const saved = JSON.parse(store['classManagerData']);
   const expectKeys = STATE_SCHEMA.filter(f => f.cfs && !f.nosv).map(f => f.key);
-  eq(Object.keys(saved).length, 42, '快照键数');
+  eq(Object.keys(saved).length, 44, '快照键数');
   expectKeys.forEach(k => { if(!(k in saved)) throw new Error('快照缺键: ' + k); });
   if('wipeAt' in saved) throw new Error('wipeAt 不应进本地快照（历史行为）');
   eq(saved.reasonScores && Object.keys(saved.reasonScores).length, 0, 'reasonScores sv 兜底（null → {}）');
