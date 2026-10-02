@@ -2473,7 +2473,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.27.3</div>
+      <div class="login-version">v2.27.4</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2595,7 +2595,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.27.3 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.27.4 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2834,7 +2834,8 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <button onclick="dutyNextWeek()" title="下一周" aria-label="下一周">›</button>
           </div>
           <button class="btn btn-outline btn-sm" onclick="dutyGoRoundStart()">回到本轮开头</button>
-          <button class="btn btn-primary btn-sm" onclick="dutyRescheduleAll()">⚡ 重新分组</button>
+          <button class="btn btn-primary btn-sm" onclick="dutyRescheduleShuffle()">🎲 随机分组</button>
+          <button class="btn btn-outline btn-sm" onclick="dutyRescheduleAll()">按学号分组</button>
           <button class="btn btn-outline btn-sm" onclick="dutyExportImage()">🖼️ 导出图片</button>
         </div>
         <div class="duty-now" id="dutyTodayCard" style="display:none"></div>
@@ -2844,7 +2845,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <span class="duty-teams-hint" id="dutyTeamsHint"></span>
         </div>
         <div class="duty-teams" id="dutyTeams"></div>
-        <div id="dutyEmptyHint" class="empty-state" style="display:none"><div class="icon">🧹</div><div class="text">暂无值日安排</div><div style="margin-top:8px"><button class="btn btn-primary btn-sm" onclick="dutyRescheduleAll()">⚡ 重新分组</button></div></div>
+        <div id="dutyEmptyHint" class="empty-state" style="display:none"><div class="icon">🧹</div><div class="text">暂无值日安排</div><div style="margin-top:8px"><button class="btn btn-primary btn-sm" onclick="dutyRescheduleShuffle()">🎲 随机分组</button></div></div>
         <!-- 劳动整改卡片。
              🔴 v2.24.0 修结构：这一块原先被写在 <table> 内部、<tbody> 之后
                 （跟着 #dutyEmptyHint 一起），HTML 解析器按 foster-parenting 规则
@@ -3338,19 +3339,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.27.3</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.27.4</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.27.3）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.27.4）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 🎲 <b>值日可随机分组</b>：值日排表页把「重新分组」拆成两个按钮，一键「🎲 随机分组」把全班打乱后重新切小组，想恢复整齐就用旁边的「按学号分组」<br>
               · 🌙 <b>暗色模式修白块</b>：Top 5 排行榜的第 4、5 名以前在暗色下是一块白底、字看不清，现在会跟着暗色走（进步榜、座位表、成绩表悬停的同类问题一并修好）<br>
               · 📐 <b>课表时段标签对齐</b>：「上午 / 下午 / 晚上」现在严格在各自那几节课（上午 1-5 节、下午 6-9 节、晚上 10-12 节）的范围内居中，字号加大、椭圆也留出了空挡<br>
               · 🔧 <b>课表导入修正</b>：导入教务 PDF 后，课表名会正确显示班级名，不再被表头上方那行「星期」顶掉<br>
               · 📊 <b>首页课表改成周表格</b>：周一~周日 × 12 节一张表看全，按课程类别自动分四个色系，正在上的那一节红框标出来<br>
               · ✏️ <b>点格子就能改</b>：点任意一格填科目与任课老师；「课表设置」里可改每节时间、增删节次，也能一键手动建空表<br>
               · 📄 <b>教务 PDF 直接导入</b>：选入教务系统导出的课表 PDF，自动识别成表格，先预览、核对无误再确认导入<br>
-              · 📱 <b>手机上一节一行</b>：窄屏自动换成逐节列表，「今天 / 全周」一键切换，空格子也能直接点着填<br>
             </div>
           </div>
         </div>
@@ -10374,12 +10375,34 @@ function dutySwapOrder(aId, bId){
 /* 回到本轮开头（第 1 组值日的那一周） */
 function dutyGoRoundStart(){ switchWeek(0); }
 
-/* 重新分组：丢掉手动换人的调整，按学号重新切分，并回到第 1 周。
-   （旧函数名保留 —— 页面按钮与既有调用点都还叫 dutyRescheduleAll） */
-function dutyRescheduleAll(){
+/* Fisher-Yates 全量洗牌（就地改数组并返回数组）。
+   rcShuffle / rcSample 里各有一份同款内联实现，这里抽一个可复用的，免得再写第四份。 */
+function dutyShuffleIds(a){
+  for(var i = a.length - 1; i > 0; i--){
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+/* 重新分组（v2.27.4）：mode='shuffle' 随机打乱 / 其它值 = 按学号。
+   🔑 两条路径**共用一个函数体**是有意的 —— 复位字段有 11 行，各抄一份的话，
+   将来给其中一条加个字段就会漏掉另一条，留下跟旧分组对不上的残数据。 */
+function dutyReschedule(mode){
   if(state.students.length === 0){ showToast('请先添加学生','error'); return; }
-  if(!confirm('确认重新分组？将清空手动换人的调整，按学号重新切分小组，并回到第 1 周。')) return;
-  state.duty.teamOrder = [];
+  var bySid = (mode !== 'shuffle');
+  if(!confirm(bySid
+    ? '确认按学号重新分组？将清空手动换人的调整，按学号重新切分小组，并回到第 1 周。'
+    : '确认随机分组？将清空手动换人的调整，把全班随机打乱后重新切分小组，并回到第 1 周。')) return;
+  /* 🔴 按学号 → **空数组**：空数组是「按学号」在 dutyTeamPlan / dutySyncTeamOrder 里的规范表示
+     （order 为空 ⇒ 回落按学号排序），_v2240_test.js 钉着这条契约。
+     随机 → **真实的打乱结果**：留空或写成别的都会被 dutySyncTeamOrder 按学号补齐 ⇒
+     刷新一次分组就白随机了，所以必须落盘。 */
+  if(bySid){
+    state.duty.teamOrder = [];
+  } else {
+    state.duty.teamOrder = dutyShuffleIds(state.students.map(function(s){ return s.id; }));
+  }
   state.duty.currentWeek = 0;
   /* 旧的按天排班数据（v2.24.0 起 UI 已不再使用）一并清掉，免得云端还留着一份对不上的旧表 */
   state.duty.schedule = [];
@@ -10387,12 +10410,19 @@ function dutyRescheduleAll(){
   state.duty.roundLedger = [];
   state.duty.round = 1;
   state.duty.lastGenWeek = -1;
-  dutyEnsureQueue(state.duty, state.students);
+  dutyEnsureQueue(state.duty, state.students);   // 轮值队列仍按学号（老板 2026-10-02：先不动）
   state.duty.cursorId = state.duty.queue[0] || null;
   saveData();
   renderDuty(); renderDutyToday(); renderDutyProgress();
-  showToast('已重新分组：全班切成 ' + dutyTeamPlan(state.students, state.duty.teamOrder).length + ' 组，从第 1 周开始','success');
+  showToast((bySid ? '已按学号分组：' : '已随机分组：') + '全班切成 '
+    + dutyTeamPlan(state.students, state.duty.teamOrder).length + ' 组，从第 1 周开始','success');
 }
+
+/* 按学号分组。旧名字与 () 签名保留 —— 页面按钮、既有调用点、_v2240_test.js 都还认它。 */
+function dutyRescheduleAll(){ dutyReschedule('sid'); }
+
+/* 随机分组（老板 2026-10-02：重新分组要支持随机安排） */
+function dutyRescheduleShuffle(){ dutyReschedule('shuffle'); }
 
 /* 清空本周及后续：回退游标，按当前队列从本周重新生成 */
 function dutyClearFromWeek(){

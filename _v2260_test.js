@@ -322,6 +322,18 @@ t('洗牌会落盘 + 给一次提示', () => {
   ok(s3.toasts.length === 1, '应提示一次，实际 ' + s3.toasts.length);
 });
 
+/* 🔴 绝不能写死日期（v2.27.4 当场撞上）：
+   rcLoad 有一道「跨天自动失效」闸 —— `if(!o || o.date !== localDateStr()) return;`。
+   本文件原先把会话日期写死成 '2026-10-01'，于是 2026-10-02 一到，凡是「当天会话」的用例
+   全部静默变红（顺序读不回来）。更阴的是其中两条「老会话缺字段 / 字段类型不对」的用例
+   反而**因为日期不匹配而变绿** —— 看着通过，其实根本没测到它要测的那件事。
+   期望值必须跟着当天算。 */
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+const TODAY = todayStr();
+
 /* ============================================================ */
 console.log('\n=== ⑤ rcOrderedStudents：学生增删的不变量 ===');
 t('rcOrder 为空 ⇒ 落到姓名音序（这就是「默认按音序」的落点）', () => {
@@ -376,7 +388,7 @@ t('rcSave 写入 order / rcLoad 读回', () => {
   const st = { students: [stu(1, '甲'), stu(2, '乙')], leaves: [] };
   const s5 = mkSandbox(st);
   s5.api.setLoaded(true);
-  s5.api.setDate('2026-10-01');
+  s5.api.setDate(TODAY);   // 必须是「今天」，否则会被跨天闸拦掉
   s5.api.setOrder([2, 1]);
   s5.api.rcSave();
   const raw = JSON.parse(s5.session.getItem('cm_rc_state'));
@@ -388,7 +400,7 @@ t('rcSave 写入 order / rcLoad 读回', () => {
 t('★ 老会话没有 order 字段 ⇒ 落到空数组（回音序），不崩', () => {
   const st = { students: [stu(1, '张小明'), stu(2, '安然')], leaves: [] };
   const session = {
-    _m: { cm_rc_state: JSON.stringify({ date: '2026-10-01', done: [1], picked: [] }) },
+    _m: { cm_rc_state: JSON.stringify({ date: TODAY, done: [1], picked: [] }) },
     getItem(k) { return this._m[k] === undefined ? null : this._m[k]; },
     setItem(k, v) { this._m[k] = String(v); }
   };
@@ -403,7 +415,7 @@ t('★ 老会话没有 order 字段 ⇒ 落到空数组（回音序），不崩'
 t('order 字段类型不对（不是数组）时也回落到空数组', () => {
   const st = { students: [stu(1, '甲')], leaves: [] };
   const session = {
-    _m: { cm_rc_state: JSON.stringify({ date: '2026-10-01', done: [], picked: [], order: 'oops' }) },
+    _m: { cm_rc_state: JSON.stringify({ date: TODAY, done: [], picked: [], order: 'oops' }) },
     getItem(k) { return this._m[k] === undefined ? null : this._m[k]; },
     setItem(k, v) { this._m[k] = String(v); }
   };

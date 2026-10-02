@@ -478,11 +478,17 @@ has(html, 'function dutyTeamPlan(students, order){', 'dutyTeamPlan 就位');
 has(html, 'function dutyWeekGroupIndex(teamCount, week){', 'dutyWeekGroupIndex 就位');
 has(html, 'function dutySwapOrder(aId, bId){', 'dutySwapOrder 就位');
 {
-  const b = braceFn('dutyRescheduleAll');
+  /* v2.27.4 重定向：重新分组拆成「随机 / 按学号」两条入口，但**共用一个函数体**
+     dutyReschedule(mode)。这 4 条是「重新分组」这个**操作**的保证，语义没变，
+     所以搬到共用体上继续钉（旧名 dutyRescheduleAll 已退化成无参薄壳）。 */
+  const b = braceFn('dutyReschedule');
   has(b, 'teamOrder = []', '重新分组会清空 teamOrder（丢掉手动调整）');
   has(b, 'currentWeek = 0', '重新分组会回到第 1 周');
   has(b, 'confirm(', '重新分组有二次确认');
   has(b, 'showToast(', '有结果反馈');
+  /* 接线：两个入口必须各自委托给正确的那一路（旧名 = 按学号） */
+  has(html, "function dutyRescheduleAll(){ dutyReschedule('sid'); }", 'dutyRescheduleAll 仍委托 mode=sid');
+  has(html, "function dutyRescheduleShuffle(){ dutyReschedule('shuffle'); }", 'dutyRescheduleShuffle 委托 mode=shuffle');
 }
 {
   const b = braceFn('dutyMemClick');
