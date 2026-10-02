@@ -64,19 +64,20 @@ has(html, '\ud83d\udcdd \u8fd1\u7248\u66f4\u65b0\u901f\u89c8\uff08' + V + '\uff0
 has(sw, "CACHE_NAME = 'class-manager-" + V + "'", 'sw.js CACHE_NAME 与之一致');
 
 // ============================================================
-console.log('\n\u2461 \u5207\u7ec4\u5f15\u64ce dutyTeamPlan \u771f\u8dd1');
+console.log('\n\u2461 \u5207\u7ec4\u5f15\u64ce dutyTeamPlan \u771f\u8dd1\uff08v2.28.0\uff1a\u4e00\u7ec4 4 \u4eba\uff09');
 // ============================================================
+/* v2.28.0 重定向：老板拿班级轮值表要求「按对应人数」重做 —— 原表 G1—G14 各 4 人、
+   G15 只有 3 人（备注「（3人组）」）⇒ 一组 = 4 人，**末段不足 4 人也自成一组**，
+   不再有「尾巴 ≥5 才独立成组、否则并给前面」那套（DUTY_TEAM_MIN_TAIL 已删）。 */
 const TEAM = new Function([
-  constDecl('DUTY_TEAM_SIZE'),
-  constDecl('DUTY_TEAM_MIN_TAIL'),
+  constDecl('DUTY_GROUP_SIZE'),
   braceFn('dutySyncTeamOrder'),
   braceFn('dutyTeamPlan'),
   braceFn('dutyWeekGroupIndex'),
-  'return { plan: dutyTeamPlan, sync: dutySyncTeamOrder, weekIdx: dutyWeekGroupIndex, SIZE: DUTY_TEAM_SIZE, TAIL: DUTY_TEAM_MIN_TAIL };'
+  'return { plan: dutyTeamPlan, sync: dutySyncTeamOrder, weekIdx: dutyWeekGroupIndex, SIZE: DUTY_GROUP_SIZE };'
 ].join('\n'))();
 
-eq(TEAM.SIZE, 8, '一组 8 人');
-eq(TEAM.TAIL, 5, '尾巴门槛 5（最小可值班组合「教室 4 + 公区 1」）');
+eq(TEAM.SIZE, 4, '一组 4 人（对齐轮值表：教室组 / 公共卫生组各 4 人）');
 
 function mkStudents(n) {
   const out = [];
@@ -87,91 +88,122 @@ const S16 = mkStudents(16);
 const S48 = mkStudents(48);
 const S58 = mkStudents(58);
 
-// --- 老板班额 58 人：本版的核心场景 ---
+// --- 老板班额 58 人：本版的核心场景（58 ÷ 4 = 14 组 ×4 人 + 末组 2 人 = 15 组）---
 const p58 = TEAM.plan(S58, []);
-eq(p58.length, 7, '58 \u4eba \u2192 7 \u7ec4');
-eq(p58.map(t => t.members.length).join(','), '9,9,8,8,8,8,8', '58 \u4eba \u2192 9/9/8/8/8/8/8\uff08\u5c3e\u5df4 2 \u4eba\u5e76\u5165\u524d\u4e24\u7ec4\uff09');
-eq(p58.map(t => t.no).join(','), '1,2,3,4,5,6,7', '组号 1..7 连续');
-ok(p58.every(t => t.classroom.length === 4), '\u6bcf\u7ec4\u6559\u5ba4\u6052\u4e3a 4 \u4eba');
-eq(p58[0].area.length, 5, '第 1 组（9 人）公区 5 人');
-eq(p58[6].area.length, 4, '第 7 组（8 人）公区 4 人');
-ok(p58.every(t => t.classroom.length + t.area.length === t.members.length), '教室 + 公区 = 组员总数');
+eq(p58.length, 15, '58 \u4eba \u2192 15 \u7ec4');
+eq(p58.map(t => t.members.length).join(','), '4,4,4,4,4,4,4,4,4,4,4,4,4,4,2',
+   '14 组各 4 人 + 末组 2 人（末段不足 4 人也自成一组）');
+eq(p58.map(t => t.no).join(','), '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15', '组号 1..15 连续');
+ok(p58.slice(0, 14).every(t => t.members.length === 4), '前 14 组恰好各 4 人');
+ok(p58.every(t => Array.isArray(t.members) && t.members.length > 0), '每个组都有人');
+ok(p58.every(t => t.classroom === undefined && t.area === undefined),
+   '组对象不再带 classroom / area —— 岗位按周轮，不按组内前后半切');
 const flat58 = p58.reduce((a, t) => a.concat(t.members), []);
 eq(flat58.length, 58, '58 人全员恰好出现一次（数量）');
 eq(new Set(flat58).size, 58, '58 人全员恰好出现一次（无重复）');
 const S58ids = new Set(S58.map(s => s.id));
 ok(flat58.every(id => S58ids.has(id)), '组员全部来自本班名单');
-// 尾巴 2 人被并进的是「最前面的组」（chunks[0] / chunks[1]）
-const chunk0 = S58.slice(0, 8), chunk1 = S58.slice(8, 16);
-ok(p58[0].members.includes(chunk0[0].id) && p58[0].members.includes(S58[56].id), '尾巴第 1 人并入第 1 组');
-ok(p58[1].members.includes(chunk1[0].id) && p58[1].members.includes(S58[57].id), '尾巴第 2 人并入第 2 组');
-ok(p58[2].members.length === 8 && !p58[2].members.includes(S58[56].id), '尾巴未污染后面的组');
+// 顺序切分：第 k 组 = 第 4k..4k+3 人
+const chunk0 = S58.slice(0, 4), chunk1 = S58.slice(4, 8);
+eq(p58[0].members.join(','), chunk0.map(s => s.id).join(','), '第 1 组 = 学号前 4 人，且保持原顺序');
+eq(p58[1].members.join(','), chunk1.map(s => s.id).join(','), '第 2 组 = 紧接着的 4 人');
+eq(p58[14].members.join(','), S58.slice(56).map(s => s.id).join(','), '末组 = 剩下的人（2 人）');
+
+// --- 原表班额 59 人（G1—G14 各 4 + G15 三人组）：这是「按轮值表」的原始场景 ---
+const p59 = TEAM.plan(mkStudents(59), []);
+eq(p59.length, 15, '59 \u4eba \u2192 15 \u7ec4\uff08\u4e0e\u539f\u8868\u4e00\u81f4\uff09');
+eq(p59.map(t => t.members.length).join(','), '4,4,4,4,4,4,4,4,4,4,4,4,4,4,3',
+   'G1—G14 各 4 人 + G15 三人组（对齐原表「（3人组）」）');
 
 // --- 整除 ---
 const p48 = TEAM.plan(S48, []);
-eq(p48.length, 6, '48 \u4eba \u2192 6 \u7ec4');
-ok(p48.every(t => t.members.length === 8), '48 \u4eba \u2192 \u6bcf\u7ec4\u6070\u597d 8 \u4eba');
+eq(p48.length, 12, '48 \u4eba \u2192 12 \u7ec4');
+ok(p48.every(t => t.members.length === 4), '48 \u4eba \u2192 \u6bcf\u7ec4\u6070\u597d 4 \u4eba');
 
-// --- 尾巴 = 5（自成一组的门槛，教室 4 + 公区 1）---
+// --- 45 人 → 11 组 ×4 + 末组 1 人 ---
 const p45 = TEAM.plan(mkStudents(45), []);
-eq(p45.length, 6, '45 \u4eba \u2192 6 \u7ec4');
-eq(p45[5].members.length, 5, '尾巴 5 人自成一组');
-eq(p45[5].classroom.length, 4, '尾巴组教室 4 人');
-eq(p45[5].area.length, 1, '尾巴组公区 1 人（刚好凑得出一个岗位）');
+eq(p45.length, 12, '45 \u4eba \u2192 12 \u7ec4');
+eq(p45[11].members.length, 1, '末组 1 人也自成一组（不并给前面的组）');
 
-// --- 尾巴 = 4 且已有整组 → 拆开并入（老板原话「最后一组两人的，就分别分配一人到其他组」）---
+// --- 52 人 → 13 组整 ---
 const p52 = TEAM.plan(mkStudents(52), []);
-eq(p52.length, 6, '52 \u4eba \u2192 6 \u7ec4\uff08\u5c3e\u5df4 4 \u4eba\u62c6\u5f00\u5e76\u5165\uff09');
-eq(p52.map(t => t.members.length).join(','), '9,9,9,9,8,8', '4 人依次并给最前面的 4 个组');
+eq(p52.length, 13, '52 \u4eba \u2192 13 \u7ec4');
 eq(p52.reduce((a, t) => a + t.members.length, 0), 52, '人数守恒');
+eq(new Set(p52.reduce((a, t) => a.concat(t.members), [])).size, 52, '52 人无重复无遗漏');
 
-// --- 边界：全班不足 8 人 ---
+// --- 边界：人数不足一组也要能算出排班 ---
 eq(TEAM.plan([], []).length, 0, '空名单 → 0 组（不崩）');
+eq(TEAM.plan(mkStudents(1), []).length, 1, '全班 1 人 → 1 组');
+eq(TEAM.plan(mkStudents(1), [])[0].members.length, 1, '1 人组人数正确');
 eq(TEAM.plan(mkStudents(3), []).length, 1, '全班 3 人 → 1 组（凑不满也自成一组）');
 eq(TEAM.plan(mkStudents(3), [])[0].members.length, 3, '3 人组人数正确');
 eq(TEAM.plan(mkStudents(4), []).length, 1, '全班 4 人 → 1 组');
-eq(TEAM.plan(mkStudents(5), [])[0].area.length, 1, '5 人组：教室 4 + 公区 1');
-eq(TEAM.plan(mkStudents(8), []).length, 1, '全班 8 人 → 1 组');
-eq(TEAM.plan(mkStudents(9), []).length, 1, '9 人 → 1 组（尾巴 1 人并入，不单独成组）');
-eq(TEAM.plan(mkStudents(13), []).map(t => t.members.length).join(','), '8,5', '13 人 → 8 + 5');
-eq(TEAM.plan(mkStudents(16), []).length, 2, '16 人 → 2 组');
-eq(TEAM.plan(mkStudents(17), []).map(t => t.members.length).join(','), '9,8', '17 人 → 9 + 8');
-eq(TEAM.plan(mkStudents(1), [])[0].classroom.length, 1, '单人班：教室 1 人（不足 4 不报错）');
+eq(TEAM.plan(mkStudents(5), []).map(t => t.members.length).join(','), '4,1', '5 人 → 4 + 1');
+eq(TEAM.plan(mkStudents(8), []).length, 2, '全班 8 人 → 2 组');
+eq(TEAM.plan(mkStudents(9), []).map(t => t.members.length).join(','), '4,4,1', '9 人 → 4 + 4 + 1');
+eq(TEAM.plan(mkStudents(13), []).map(t => t.members.length).join(','), '4,4,4,1', '13 人 → 4 + 4 + 4 + 1');
+eq(TEAM.plan(mkStudents(16), []).length, 4, '16 人 → 4 组');
+eq(TEAM.plan(mkStudents(17), []).map(t => t.members.length).join(','), '4,4,4,4,1', '17 人 → 4 + 4 + 4 + 4 + 1');
 
 // --- order 优先于 students ---
 const ord16 = S16.map(s => s.id).reverse();
 const pA = TEAM.plan(S16, ord16);
 eq(pA[0].members[0], ord16[0], '传入 teamOrder 时按它切组（不再按学号）');
-eq(pA.length, 2, 'order 路径组数正确');
+eq(pA.length, 4, 'order 路径组数正确（16 人 ÷ 4 = 4 组；v2.28.0 前一组 8 人才是 2 组）');
 const pB = TEAM.plan(S16, []);
 eq(pB[0].members[0], S16[0].id, 'order 为空数组时回落到「按学号排序」');
 const badOrder = ['\u4e0d\u5b58\u5728\u7684id'];
 eq(TEAM.plan(S16, badOrder).length, 1, 'order 里塞了非法 id 也不崩（按它切出 1 组）');
 
 // ============================================================
-console.log('\n\u2462 \u8f6e\u503c\u6620\u5c04 dutyWeekGroupIndex\uff08\u7ec4\u53f7\u5373\u5468\u5e8f\uff09');
+console.log('\n\u2462 \u8f6e\u503c\u6620\u5c04 dutyWeekGroupIndex\uff08\u9010\u5468\u4e24\u5c97\u4f4d\uff09');
 // ============================================================
-eq(TEAM.weekIdx(7, 0), 0, '第 1 周 → 第 1 组');
-eq(TEAM.weekIdx(7, 6), 6, '第 7 周 → 第 7 组');
-eq(TEAM.weekIdx(7, 7), 0, '第 8 周绕回第 1 组（7 周一轮）');
-eq(TEAM.weekIdx(7, 13), 6, '第 14 周 → 第 7 组');
-eq(TEAM.weekIdx(7, 14), 0, '第 15 周 → 第 1 组');
-eq(TEAM.weekIdx(1, 5), 0, '只有 1 组时恒为第 1 组');
-eq(TEAM.weekIdx(0, 3), -1, '0 组 → -1（调用方据此隐藏本周卡）');
-eq(TEAM.weekIdx(-2, 3), -1, '负数分组 → -1（不崩）');
-eq(TEAM.weekIdx(7, -1), 6, '负周号取模后落到第 7 组（不出现负下标）');
-eq(TEAM.weekIdx(7, '3'), 3, '字符串周号能解析');
-eq(TEAM.weekIdx(7, null), 0, 'null 周号回落第 0 周');
-eq(TEAM.weekIdx(7, '\u4e5d'), 0, '非数字周号回落第 0 周（不产生 NaN）');
+/* v2.28.0 重定向：不再是「组号即周序」。第 w 周有**两格** —— 教室 = 组下标 (2w)、
+   公卫 = (2w+1)（n 为奇数时）。逐周与原表核对：
+     第1周 G1/G2 · 第2周 G3/G4 · 第8周 G15/G1 · 第15周 G14/G15 · 第16周 = 第1周 */
+const ROOM = 0, AREA = 1;
+eq(TEAM.weekIdx(15, 0, ROOM), 0, '第 1 周教室 → 第 1 组（原表 G1）');
+eq(TEAM.weekIdx(15, 0, AREA), 1, '第 1 周公卫 → 第 2 组（原表 G2）');
+eq(TEAM.weekIdx(15, 1, ROOM), 2, '第 2 周教室 → 第 3 组（原表 G3）');
+eq(TEAM.weekIdx(15, 1, AREA), 3, '第 2 周公卫 → 第 4 组（原表 G4）');
+eq(TEAM.weekIdx(15, 7, ROOM), 14, '第 8 周教室 → 第 15 组（原表 G15）');
+eq(TEAM.weekIdx(15, 7, AREA), 0, '第 8 周公卫 → 第 1 组（原表 G1，15 是奇数才会绕回来）');
+eq(TEAM.weekIdx(15, 14, ROOM), 13, '第 15 周教室 → 第 14 组（原表 G14）');
+eq(TEAM.weekIdx(15, 14, AREA), 14, '第 15 周公卫 → 第 15 组（原表 G15）');
+eq(TEAM.weekIdx(15, 15, ROOM), 0, '第 16 周教室 → 第 1 组（与第 1 周相同，循环往复）');
+eq(TEAM.weekIdx(15, 15, AREA), 1, '第 16 周公卫 → 第 2 组（与第 1 周相同）');
+eq(TEAM.weekIdx(15, '3', ROOM), 6, '字符串周号能解析');
+eq(TEAM.weekIdx(15, null, ROOM), 0, 'null 周号回落第 0 周');
+eq(TEAM.weekIdx(15, '\u4e5d', ROOM), 0, '非数字周号回落第 0 周（不产生 NaN）');
+eq(TEAM.weekIdx(15, -1, ROOM), 13, '负周号取模后落到合法下标（不出现负数）');
+eq(TEAM.weekIdx(1, 5, ROOM), 0, '只有 1 组时恒为第 1 组');
+eq(TEAM.weekIdx(0, 3, ROOM), -1, '0 组 → -1（调用方据此隐藏本周卡）');
+eq(TEAM.weekIdx(-2, 3, ROOM), -1, '负数分组 → -1（不崩）');
+eq(TEAM.weekIdx(15, 0, 'area'), 1, "role 传字符串 'area' 也认（等价于 1）");
 {
-  const seen = new Set();
-  for (let w = 0; w < 7; w++) seen.add(TEAM.weekIdx(7, w));
-  eq(seen.size, 7, '一轮 7 周里 7 个组各值一次（无偏心）');
+  /* 🔑 15 周循环的核心性质：两个岗位**各**恰好覆盖全班一次 ⇒ 每组各做 1 次教室 + 1 次公卫 */
+  const room = new Set(), area = new Set();
+  for (let w = 0; w < 15; w++) { room.add(TEAM.weekIdx(15, w, ROOM)); area.add(TEAM.weekIdx(15, w, AREA)); }
+  eq(room.size, 15, '15 周里 15 个组各做一次教室（无偏心）');
+  eq(area.size, 15, '15 周里 15 个组各做一次公卫');
+  ok([...room].every(i => i >= 0 && i < 15) && [...area].every(i => i >= 0 && i < 15), '下标都在 0..14');
+  const union = new Set([...room, ...area]);
+  eq(union.size, 15, '两岗位覆盖的还是同一批 15 组（没有组被漏掉）');
+}
+{
+  /* 偶数分组（48 人 12 组）：2 与 12 不互素 ⇒ 必须退化，否则半数组永远轮不到教室 */
+  const room = new Set(), area = new Set();
+  for (let w = 0; w < 12; w++) { room.add(TEAM.weekIdx(12, w, ROOM)); area.add(TEAM.weekIdx(12, w, AREA)); }
+  eq(room.size, 12, '偶数分组下教室序列仍覆盖全部 12 组（走 (w, w+1) 退化分支）');
+  eq(area.size, 12, '偶数分组下公卫序列也覆盖全部 12 组');
+  eq(TEAM.weekIdx(12, 0, ROOM), 0, '12 组：第 1 周教室 → 第 1 组');
+  eq(TEAM.weekIdx(12, 0, AREA), 1, '12 组：第 1 周公卫 → 第 2 组');
+  eq(TEAM.weekIdx(12, 1, ROOM), 1, '12 组：第 2 周教室 → 第 2 组');
 }
 {
   const seen = new Set();
-  for (let w = 0; w < 70; w++) seen.add(TEAM.weekIdx(7, w));
-  eq(seen.size, 7, '轮转 70 周仍只覆盖这 7 组');
+  for (let w = 0; w < 150; w++) seen.add(TEAM.weekIdx(15, w, ROOM));
+  eq(seen.size, 15, '轮转 150 周仍只覆盖这 15 组');
 }
 
 // ============================================================
@@ -224,11 +256,10 @@ console.log('\n\u2463 \u540d\u5355\u5bf9\u9f50 dutySyncTeamOrder');
 console.log('\n\u2464 \u6362\u4eba dutySwapOrder\uff08\u53ea\u5bf9\u8c03\u4f4d\u7f6e\uff09');
 // ============================================================
 {
-  const students = mkStudents(18);
+  const students = mkStudents(18);   // 18 ÷ 4 → 5 组（4,4,4,4,2）
   const mk = () => new Function([
     'var state = ' + JSON.stringify({ students: students, duty: { teamOrder: students.map(s => s.id) } }) + ';',
-    constDecl('DUTY_TEAM_SIZE'),
-    constDecl('DUTY_TEAM_MIN_TAIL'),
+    constDecl('DUTY_GROUP_SIZE'),
     braceFn('dutySyncTeamOrder'),
     braceFn('dutyTeamPlan'),
     braceFn('dutySwapOrder'),
@@ -256,8 +287,9 @@ console.log('\n\u2464 \u6362\u4eba dutySwapOrder\uff08\u53ea\u5bf9\u8c03\u4f4d\u
   eq(m2.getOrder().join(','), students.map(s => s.id).join(','), '失败的换人不改任何状态');
 
   // 跨组换人：把第 1 组的人换到第 2 组
+  // v2.28.0 重定向：一组 4 人 ⇒ 「第 2 组第 1 个位置」的下标是 4（原来一组 8 人是 8）
   const m3 = mk();
-  const a = m3.getOrder()[0], b = m3.getOrder()[8];
+  const a = m3.getOrder()[0], b = m3.getOrder()[4];
   m3.swap(a, b);
   const p3 = m3.plan();
   ok(p3[1].members.includes(a), '第 1 组的人确实进了第 2 组');
@@ -434,14 +466,18 @@ console.log('\n\u2469 \u5bfc\u51fa\u56fe\u4e0e\u65b0\u5206\u7ec4\u540c\u6e90');
 // ============================================================
 {
   const body = braceFn('dutyExportImage');
+  /* v2.28.0 重定向：导出图从「按组分块」改成**按周次的轮值表**（周次 / 教室 / 公共卫生），
+     这正是老板给的 xlsx 的形状，打印出来就能贴墙。 */
   has(body, 'dutyTeamPlan(', '\u5bfc\u51fa\u56fe\u7528\u7684\u662f\u540c\u4e00\u4efd dutyTeamPlan\uff08\u4e0d\u53e6\u7b97\u4e00\u5957\u5207\u7ec4\uff09');
-  has(body, 'dutyWeekGroupIndex(', '本周高亮同样走 dutyWeekGroupIndex');
-  has(body, '\u503c\u65e5\u5206\u7ec4\u8868', '标题为「值日分组表」');
-  has(body, 'DUTY_TEAM_SIZE', '副标题引用同一常量');
-  has(body, '\u6559\u5ba4\uff084 \u4eba\uff09', '表头「教室（4 人）」');
-  has(body, '\u516c\u5171\u533a', '表头「公共区」');
+  has(body, 'dutyScheduleTable(', '本周高亮与逐周内容走同一份 dutyScheduleTable（屏幕与导出同源）');
+  has(body, '\u503c\u65e5\u8f6e\u503c\u8868', '标题为「值日轮值表」');
+  has(body, 'DUTY_GROUP_SIZE', '副标题引用同一常量');
+  has(body, '\u6559\u5ba4\u536b\u751f', '表头「教室卫生」');
+  has(body, '\u516c\u5171\u536b\u751f', '表头「公共卫生」');
+  has(body, '\u5468\u6b21', '表头有「周次」（对齐原表）');
+  has(body, '\u8f6e\u7a7a', '有「轮空」格（延缓让位时导出也要看得出来）');
   has(body, '\u6253\u5370\u5f20\u8d34', '落款含「打印张贴」');
-  has(body, '-值日分组表.png', '文件名后缀正确');
+  has(body, '-值日轮值表.png', '文件名后缀正确');
   notHas(body, 'chunkNames(', '不再用旧的手搓切组分块');
 }
 has(html, 'function dutyExportImage(){', 'dutyExportImage 仍在');
@@ -475,7 +511,8 @@ has(html, 'function dutyShowRoundList(){', 'dutyShowRoundList 仍在');
 has(html, 'function dutyRescheduleAll(){', 'dutyRescheduleAll 仍在（按钮仍叫这个名字）');
 has(html, 'function dutySyncTeamOrder(duty, students){', 'dutySyncTeamOrder 就位');
 has(html, 'function dutyTeamPlan(students, order){', 'dutyTeamPlan 就位');
-has(html, 'function dutyWeekGroupIndex(teamCount, week){', 'dutyWeekGroupIndex 就位');
+has(html, 'function dutyWeekGroupIndex(teamCount, week, role){',
+  'dutyWeekGroupIndex 就位（v2.28.0 起加 role 参数：0 教室 / 1 公共卫生）');
 has(html, 'function dutySwapOrder(aId, bId){', 'dutySwapOrder 就位');
 {
   /* v2.27.4 重定向：重新分组拆成「随机 / 按学号」两条入口，但**共用一个函数体**
@@ -517,7 +554,9 @@ has(html, 'function dutySwapOrder(aId, bId){', 'dutySwapOrder 就位');
 }
 
 // ============================================================
+// 汇总行用项目现行格式「结果：N 通过，M 失败」—— _rm/_runall_mirror.py 只认这个格式取断言条数。
+// （本文件早期写的是「通过 N 项，失败 M 项」，那套的 262 项条数在全量统计里一直被漏掉。）
 console.log('\n' + '='.repeat(56));
-console.log('\u901a\u8fc7 ' + pass + ' \u9879\uff0c\u5931\u8d25 ' + fail + ' \u9879');
+console.log('\u7ed3\u679c\uff1a' + pass + ' \u901a\u8fc7\uff0c' + fail + ' \u5931\u8d25');
 if (fail) { console.log('\n\u5931\u8d25\u9879\uff1a'); failures.forEach(f => console.log('  \u2717 ' + f)); }
 process.exit(fail ? 1 : 0);

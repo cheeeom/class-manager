@@ -83,15 +83,38 @@ t('下拉多选交互：点选后保持展开，已选打 ✓', () => {
 });
 
 console.log('\n=== 劳动整改（原罚扫） ===');
-t('UI 文案全部替换为「劳动整改」，「罚扫」仅存于注释', () => {
-  const lines = html.split('\n').map((l, i) => ({ no: i + 1, text: l }));
-  const hits = lines.filter(l => l.text.includes('罚扫'));
-  hits.forEach(l => {
-    const t2 = l.text.trim();
-    const isComment = t2.startsWith('<!--') || t2.startsWith('/*') || t2.startsWith('*') || t2.startsWith('//');
-    if (!isComment) throw new Error('第 ' + l.no + ' 行有用户可见「罚扫」: ' + t2.slice(0, 80));
-  });
-  eq(hits.length >= 1, true);   // 注释保留作为历史脉络
+/* v2.28.0 重定向：值日模块新增了**另一个**「罚扫」（老板 2026-10-02 要的
+   「一键点击接续下一周罚扫」），那是轮值续排功能，与「劳动整改」（原名也叫罚扫）
+   是两个不同的东西。原断言扫全文件、把两者混为一谈 ⇒ 把范围收窄到
+   **劳动整改自己的区域**，判定意图（「整改链路里不许再有用户可见的罚扫」）一字不变。 */
+t('劳动整改链路里不再有用户可见「罚扫」（值日模块的「罚扫」是另一回事，不算）', () => {
+  const brace = (n) => {
+    const i = html.indexOf('function ' + n + '(');
+    if (i < 0) return '';
+    let d = 0, began = false, out = '';
+    for (let k = i; k < html.length; k++) {
+      const ch = html[k]; out += ch;
+      if (ch === '{') { d++; began = true; }
+      else if (ch === '}') { d--; if (began && d === 0) break; }
+    }
+    return out;
+  };
+  const zones = [];
+  const a = html.indexOf('<div class="modal-overlay" id="punishModal">');
+  const b = html.indexOf('<!-- Modal:', a + 10);
+  if (a >= 0 && b > a) zones.push(html.slice(a, b));            // 记劳动整改弹窗
+  zones.push(html.slice(html.indexOf('id="punishTodayBanner"'),
+                        html.indexOf('</div>', html.indexOf('不回溯退分')) + 6));  // 值日页里的整改卡
+  ['openPunishModal', 'confirmPunish', 'renderPunishments', 'finishPunish',
+   'deletePunish', 'onPunishAreaChange', 'punishStatusFor'].forEach(n => zones.push(brace(n)));
+  const real = zones.filter(z => z.length > 0);
+  if (real.length < 5) throw new Error('没能定位劳动整改区域（只有 ' + real.length + ' 块）');
+  const bad = real.filter(z => z.includes('罚扫'));
+  if (bad.length) throw new Error('劳动整改链路里仍有「罚扫」：' + bad[0].replace(/\n/g, ' ').slice(0, 90));
+  // 历史脉络仍留在注释里
+  const cmt = html.split('\n').filter(l => { const s = l.trim();
+    return (s.startsWith('/*') || s.startsWith('*') || s.startsWith('//') || s.startsWith('<!--')) && s.includes('罚扫'); });
+  eq(cmt.length >= 1, true, '注释里仍保留「罚扫」的历史脉络');
 });
 t('劳动类型三种：教室/公共区/搬水劳动', () => {
   const sel = html.match(/<select id="punishArea"[\s\S]*?<\/select>/)[0];

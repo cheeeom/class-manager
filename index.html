@@ -1586,9 +1586,32 @@ html.dark .duty-team:hover{box-shadow:0 4px 14px rgba(0,0,0,.35)}
   font-size:11.5px;color:var(--text-muted);
 }
 .duty-team-when b{font-weight:700;color:var(--primary-dark);font-variant-numeric:tabular-nums}
+
+/* v2.28.0 本周值日卡：两岗位格 + 「罚扫 / 延缓」按钮。
+   ⚠️ 一律走主题令牌，不写死颜色 —— html.dark 只重定义令牌、吃不到硬编码值。 */
+.duty-now-slot{flex-direction:column;align-items:stretch;gap:7px}
+.duty-now-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.duty-now-ops{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.duty-op-btn{
+  font-family:inherit;font-size:11.5px;font-weight:600;line-height:1;
+  padding:5px 9px;border-radius:7px;cursor:pointer;white-space:nowrap;
+  background:var(--bg-secondary);color:var(--text-secondary);
+  border:1px solid var(--border);transition:background .15s,color .15s,border-color .15s;
+}
+.duty-op-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+/* 🔴 触摸端守卫必须写在 :hover 之后（同特异度靠源序）—— 否则手指一按整块瞬态变深 */
+@media(hover:none){.duty-op-btn:hover{background:var(--bg-secondary);color:var(--text-secondary);border-color:var(--border)}}
+.duty-slot-flag{
+  font-size:10.5px;font-weight:700;color:#fff;background:var(--primary-dark);
+  padding:1px 7px;border-radius:999px;margin-left:4px;white-space:nowrap;
+}
+.duty-now-blank{color:var(--text-muted);font-weight:500}
+.duty-team>.duty-team-sect{margin-top:-3px}
+.duty-team-sect .duty-team-members{font-size:11.5px;color:var(--text-muted);line-height:19px}
 @media(max-width:900px){
   .duty-teams{grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:8px}
   .duty-now-grid{grid-template-columns:1fr}
+  .duty-now-ops{margin-left:0}
 }
 @media(max-width:520px){
   .duty-teams{grid-template-columns:repeat(1,minmax(0,1fr))}
@@ -2473,7 +2496,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v2.27.4</div>
+      <div class="login-version">v2.28.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2595,7 +2618,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v2.27.4 · 班主任工作台</div>
+    <div class="sidebar-footer">v2.28.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2823,7 +2846,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         </div>
       </div>
 
-      <!-- Duty Page（v2.24.0：小组划分 —— 一组 8 人 = 4 教室 + 4 公区，一组值一周） -->
+      <!-- Duty Page（v2.28.0：对齐班级轮值表 —— 一组 4 人，每周教室 1 组 + 公共卫生 1 组，按组数循环） -->
       <div class="page" id="page-duty">
         <div class="duty-toolbar">
           <div class="section-title" style="margin-bottom:0"><span class="dot"></span>值日安排</div>
@@ -2837,6 +2860,8 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <button class="btn btn-primary btn-sm" onclick="dutyRescheduleShuffle()">🎲 随机分组</button>
           <button class="btn btn-outline btn-sm" onclick="dutyRescheduleAll()">按学号分组</button>
           <button class="btn btn-outline btn-sm" onclick="dutyExportImage()">🖼️ 导出图片</button>
+          <button class="btn btn-outline btn-sm" onclick="dutyUndoInsert()" title="撤销最后一笔罚扫 / 延缓">↶ 撤销上一步</button>
+          <button class="btn btn-outline btn-sm" onclick="dutyResetInserts()" title="清空全部罚扫与延缓，回到原始循环">🧹 恢复正常轮值</button>
         </div>
         <div class="duty-now" id="dutyTodayCard" style="display:none"></div>
         <div id="dutyProgressBar" class="duty-progress" style="margin:0 0 14px"></div>
@@ -3339,19 +3364,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="settings-section" id="settingsAbout">
           <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.27.4</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v2.28.0</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.27.4）</div>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v2.28.0）</div>
             <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+              · 🔁 <b>值日按轮值表重做</b>：一组 4 人，每周教室 1 组 + 公共卫生 1 组，按组数循环（本班 15 周一轮），和班里的轮值表逐格对得上<br>
+              · 🔴 <b>一键罚扫 / 延缓</b>：本周两个岗位上各有两个按钮 ——「🔴 下周继续罚扫」让这组下周再做一次（只作记录，<b>不自动扣分</b>）；「⏸ 延缓一周」让这周该岗位轮空、这组和后面全体顺延一周（方便插入别的罚扫组）。两者都只动它那一个岗位，教室罚扫不影响公卫轮值<br>
+              · ↶ <b>改错了能退</b>：工具栏「↶ 撤销上一步」逐步回退，「🧹 恢复正常轮值」一键清空全部罚扫与延缓，回到原始循环<br>
+              · 🖼️ <b>导出图改成轮值表</b>：导出的图片现在是「周次 × 教室卫生 × 公共卫生」的整张表，周几谁扫一目了然，打印出来直接贴墙<br>
               · 🎲 <b>值日可随机分组</b>：值日排表页把「重新分组」拆成两个按钮，一键「🎲 随机分组」把全班打乱后重新切小组，想恢复整齐就用旁边的「按学号分组」<br>
-              · 🌙 <b>暗色模式修白块</b>：Top 5 排行榜的第 4、5 名以前在暗色下是一块白底、字看不清，现在会跟着暗色走（进步榜、座位表、成绩表悬停的同类问题一并修好）<br>
-              · 📐 <b>课表时段标签对齐</b>：「上午 / 下午 / 晚上」现在严格在各自那几节课（上午 1-5 节、下午 6-9 节、晚上 10-12 节）的范围内居中，字号加大、椭圆也留出了空挡<br>
-              · 🔧 <b>课表导入修正</b>：导入教务 PDF 后，课表名会正确显示班级名，不再被表头上方那行「星期」顶掉<br>
-              · 📊 <b>首页课表改成周表格</b>：周一~周日 × 12 节一张表看全，按课程类别自动分四个色系，正在上的那一节红框标出来<br>
-              · ✏️ <b>点格子就能改</b>：点任意一格填科目与任课老师；「课表设置」里可改每节时间、增删节次，也能一键手动建空表<br>
-              · 📄 <b>教务 PDF 直接导入</b>：选入教务系统导出的课表 PDF，自动识别成表格，先预览、核对无误再确认导入<br>
+              · 🌙 <b>暗色模式修白块</b>：Top 5 排行榜的第 4、5 名以前在暗色下是一块白底、字看不清，现在会跟着暗色走<br>
+              · 📐 <b>课表时段标签对齐</b>：「上午 / 下午 / 晚上」现在严格在各自那几节课（上午 1-5 节、下午 6-9 节、晚上 10-12 节）的范围内居中<br>
             </div>
           </div>
         </div>
@@ -4165,7 +4190,14 @@ function defaultDuty(){
               老数据没有这个字段 → loadData 里的 Object.assign 兜底会补上空数组（注意：这里刻意不写那个函数名加括号的字面，
                  因为 _v2188_test.js 会数它在全文（含注释）里的出现次数），
               首次渲染时按学号补齐（dutySyncTeamOrder），云同步走 msDuty 整体取新、无需改合并策略。 */
-           teamOrder:[] };
+           teamOrder:[],
+           /* v2.28.0 值日插队层：罚扫与延缓都记成「在某个岗位的某一格前后插一格」——
+              两类操作共用一个原语，插入点之后全体顺延，连锁自动处理
+              （详见 dutyInsertAdd / dutyExpandRole）。
+              每条 { role:0 教室 | 1 公共卫生, g:组号, kind:'pen' 罚扫 | 'delay' 延缓,
+                     at:锚点基线格号, week:操作时看的周, seq:流水号 }。
+              ⚠️ 它是 state.duty 的子字段 ⇒ 云同步仍走 msDuty 整体取新，不用改合并策略。 */
+           inserts:[] };
 }
 /* v2.20.11 closed = ['行-列'] 关闭标记（不是座位的格子，见「关闭座位」一节）。
    ⚠️ 注释必须单独占行：_v2188 的 oneLine() 与 _v21200 的 extractFn() 会把本行整行 eval 成
@@ -9685,7 +9717,7 @@ function confirmStudentSelect(){
     var slot = parseInt(modal.dataset.slot, 10);
     var plan = dutyTeamPlan(state.students, state.duty.teamOrder);
     var g = plan[ti];
-    var members = g ? ((role === 'area') ? g.area : g.classroom) : null;
+    var members = g ? g.members : null;
     var curId = (members && members[slot] != null) ? members[slot] : null;
     if(curId == null){
       showToast('分组已变化，请重新点击','warning');
@@ -10303,18 +10335,23 @@ function dutyRoundGroups(duty, students){
   return groups;
 }
 
-/* ==================== v2.24.0 值日小组引擎 ====================
-   老板口径（2026-09-30 两次确认）：
-     · 教室与公区**各 4 人**，合起来**一组 8 人**；**一组值一周**。
-     · 尾巴不足一组时「看情况分配到其他组」：尾巴 ≥ 5 人保留成独立一组
-       （至少凑得出「教室 4 + 公区 1」），1~4 人则依次并给最前面的组（那些组变 9~12 人）。
-     · 组号即周序：第 k 周（0 基）由第 (k mod n)+1 组值日，一轮 n 周。
+/* ==================== v2.28.0 值日轮值引擎（对齐 26幼2班教室与公共卫生轮值表） ====================
+   老板口径（2026-10-02）：按轮值表重做 —— **一组 4 人**、每周两格（教室 1 组 + 公共卫生 1 组）、
+   15 周一个完整循环（第 16 周起与第 1 周相同，无需重排）。
+   ⚠️ 原表 G1—G14 各 4 人、G15 只有 3 人（备注「（3人组）」）⇒ 末段不足 4 人也**自成一组**，不并给前面。
+
+   两条不变量（改代码前先确认它们还成立）：
+     ① 分组 = 把 teamOrder 每 4 人切一段 ⇒ 「全班恰好一个划分」永远不破，换人只交换两个位置。
+     ② 轮值 = **按期轮转的基线**：第 w 周教室 = 组下标 (2w mod n)，公共卫生 = ((2w+1) mod n)。
+        🔑 只有 **n 为奇数**（15）时这两个序列才各自恰好扫过全班一轮 —— 15 周内每组恰好
+        各做 1 次教室 + 1 次公卫。原表 A19「循环往复」正是靠 15 是奇数。
+        若 n 为偶数，2 与 n 不互素、教室序列只会落在同奇偶的下标上（半数组永远轮不到教室），
+        所以那时退化成 (w, w+1)。dutyWeekGroupIndex 里就是这个分支。
    ⚠️ 旧的按天引擎（dutyEnsureQueue / dutyGenerateWeek / dutyEnsureWeeks / dutyRoundProgress /
       dutyRoundGroups / dutyClearFromWeek / autoWaterDuty / dutyDays·dutyAreas·dutyAreaCounts 常量）
       **原样保留不动** —— _v2100_test.js 用 extractFn / extractSingleConst 真跑它们，
-      删一个符号都会让那套回归整套崩掉。新 UI 不再调用它们，但饮水机仍共用 dutyEnsureQueue/ dutyNextFrom。 */
-const DUTY_TEAM_SIZE = 8;        // 一组人数：4 教室 + 4 公区
-const DUTY_TEAM_MIN_TAIL = 5;    // 尾巴低于这个数（凑不出「教室 4 + 公区 1」）→ 并给最前面的组
+      删一个符号都会让那套回归整套崩掉。新 UI 不再调用它们，但饮水机仍共用 dutyEnsureQueue / dutyNextFrom。 */
+const DUTY_GROUP_SIZE = 4;       // 一组人数：对齐轮值表的「教室组 / 公共卫生组各 4 人」
 
 /* teamOrder 与当前学生名单对齐：退班的移除、新来的按学号插入。
    返回**新数组**，不改入参（渲染函数里调用是安全的）。 */
@@ -10330,35 +10367,190 @@ function dutySyncTeamOrder(duty, students){
   return order;
 }
 
-/* 切组：返回 [{no, members:[id…], classroom:[id…], area:[id…]}]。
-   前 4 人教室、第 5 人起公区（尾巴组人数不足 8 时优先填满教室）。 */
+/* 切组：返回 [{no, members:[id…]}]。**每 4 人一组**，末段不足 4 人也自成一组
+   （对齐原表「G15 / 3 人 / 备注（3人组）」的写法，不并给前面的组）。
+   ⚠️ 岗位不在这里分配 —— 一个组会**在某一周做教室、在另一周做公卫**，由 dutyWeekGroupIndex 按周算。 */
 function dutyTeamPlan(students, order){
   var ids = (Array.isArray(order) && order.length)
     ? order.slice()
     : students.slice().sort(function(a, b){ return String(a.sid).localeCompare(String(b.sid)); })
              .map(function(s){ return s.id; });
-  var n = ids.length;
-  if(n === 0) return [];
-  var tail = n % DUTY_TEAM_SIZE;
   var chunks = [];
-  for(var i = 0; i < n - tail; i += DUTY_TEAM_SIZE) chunks.push(ids.slice(i, i + DUTY_TEAM_SIZE));
-  if(tail === 0){
-    /* 整除，刚好切完 */
-  } else if(tail >= DUTY_TEAM_MIN_TAIL || chunks.length === 0){
-    chunks.push(ids.slice(n - tail));                      // 尾巴自成一组的门槛
-  } else {
-    for(var j = 0; j < tail; j++) chunks[j % chunks.length].push(ids[n - tail + j]);
-  }
-  return chunks.map(function(mem, k){
-    return { no: k + 1, members: mem, classroom: mem.slice(0, 4), area: mem.slice(4) };
-  });
+  for(var i = 0; i < ids.length; i += DUTY_GROUP_SIZE) chunks.push(ids.slice(i, i + DUTY_GROUP_SIZE));
+  return chunks.map(function(mem, k){ return { no: k + 1, members: mem }; });
 }
 
-/* 第 week 周（0 基）由第几组值日 —— 组号即周序。返回 0 基下标。 */
-function dutyWeekGroupIndex(teamCount, week){
+/* 第 week 周（0 基）某个岗位由第几组值日 —— 返回 **0 基组下标**。
+   role：0 / 'classroom' = 教室；1 / 'area' = 公共卫生。
+   🔑 (2w, 2w+1) 的配对正是原表的排法（第 1 周 G1/G2、第 2 周 G3/G4 … 第 8 周 G15/G1）。
+   n 为偶数时 2 与 n 不互素 ⇒ 退化成 (w, w+1)，否则半数组永远轮不到教室。 */
+function dutyWeekGroupIndex(teamCount, week, role){
   if(teamCount <= 0) return -1;
-  var w = parseInt(week, 10) || 0;
-  return ((w % teamCount) + teamCount) % teamCount;
+  var n = teamCount | 0;
+  var w = ((parseInt(week, 10) || 0) % n + n) % n;
+  var r = (role === 1 || role === 'area') ? 1 : 0;
+  return (n % 2 === 0) ? ((w + r) % n) : ((2 * w + r) % n);
+}
+
+/* ==================== 值日插队层：罚扫「接续下周」· 延缓「顺延一周」 ====================
+   🔑 两类操作在**同一个原语**上统一 —— 都在「该组那一格」附近插一个格子，插入点之后全体顺延一周：
+      · 罚扫（kind='pen'）  → 在锚点格**之后**插一个「同组、同岗位」的格 ⇒ 该组下周再做一次
+      · 延缓（kind='delay'）→ 在锚点格**之前**插一个空槽        ⇒ 该周该岗位轮空，该组及后面全体顺延一周
+   锚点用 **基线格号 at** 表达（不是最终下标）—— 这样再插几笔也不会互相把锚点挪走。
+   只作用于**一个岗位格**：教室罚扫只影响教室，公卫照常轮值（老板选定的粒度）。
+   罚扫**只作记录与提醒，不自动扣学分**（与劳动整改一致）。 */
+
+/* 岗位名 */
+function dutyRoleName(role){ return (role === 1 || role === 'area') ? '公共卫生' : '教室'; }
+
+/* 把一个岗位的「基线 + 插队层」展开成**逐周**的条目数组（下标 = 周序）。
+   每项 { g:组号|null(空槽), kind:'base'|'pen'|'delay', base:锚点基线格号, seq }。
+   长度 = n + 该岗位的插队笔数 —— 正好是含插队后的一个完整循环。 */
+function dutyExpandRole(n, role, inserts){
+  var out = [];
+  if(n <= 0) return out;
+  var r = (role === 1 || role === 'area') ? 1 : 0;
+  var list = (inserts || []).filter(function(x){ return x && ((x.role | 0) === r); })
+    .map(function(x){
+      return { kind: (x.kind === 'delay') ? 'delay' : 'pen',
+               g: (x.g | 0) || 0,
+               at: Math.max(0, x.at | 0),
+               seq: x.seq | 0 };
+    });
+  var pre = {}, post = {};
+  list.forEach(function(x){
+    var bag = (x.kind === 'delay') ? pre : post;
+    (bag[x.at] = bag[x.at] || []).push(x);
+  });
+  var bySeq = function(a, b){ return a.seq - b.seq; };
+  Object.keys(pre).forEach(function(k){ pre[k].sort(bySeq); });
+  Object.keys(post).forEach(function(k){ post[k].sort(bySeq); });
+  var total = n + list.length;
+  for(var i = 0; out.length < total; i++){
+    var here = dutyWeekGroupIndex(n, i, r) + 1;
+    (pre[i] || []).forEach(function(x){
+      out.push({ g: null, kind: 'delay', base: i, seq: x.seq });
+    });
+    out.push({ g: here, kind: 'base', base: i, seq: 0 });
+    (post[i] || []).forEach(function(x){
+      out.push({ g: x.g || here, kind: 'pen', base: i, seq: x.seq });
+    });
+  }
+  return out.slice(0, total);
+}
+
+/* 一轮含插队后的总周数（教室里插 k₁ 格、公卫里插 k₂ 格 ⇒ 整轮 = n + k₁ + k₂ 周） */
+function dutyCycleWeeks(n, inserts){
+  return (n <= 0) ? 0 : (n + ((inserts || []).length));
+}
+
+/* 整张轮值表（本周卡 / 分组一览 / 导出图片共用同一份真相）：[{week, classroom:条目, area:条目}] */
+function dutyScheduleTable(plan, inserts){
+  var out = [];
+  var n = plan.length;
+  if(n <= 0) return out;
+  var rc = dutyExpandRole(n, 0, inserts);
+  var ra = dutyExpandRole(n, 1, inserts);
+  var total = dutyCycleWeeks(n, inserts);
+  for(var w = 0; w < total; w++){
+    out.push({ week: w,
+               classroom: rc.length ? rc[w % rc.length] : null,
+               area:      ra.length ? ra[w % ra.length] : null });
+  }
+  return out;
+}
+
+/* 某组一轮里的两个值日周（0 基）；找不到 → -1。分组卡片的「教室 第X周 / 公卫 第Y周」用它 */
+function dutyGroupWeeksOf(plan, inserts, g){
+  var out = { classroom: -1, area: -1 };
+  var n = plan.length;
+  if(n <= 0) return out;
+  [[0, 'classroom'], [1, 'area']].forEach(function(p){
+    var q = dutyExpandRole(n, p[0], inserts);
+    for(var i = 0; i < q.length; i++){ if(q[i].g === g && q[i].kind === 'base'){ out[p[1]] = i; return; } }
+    for(var j = 0; j < q.length; j++){ if(q[j].g === g){ out[p[1]] = j; return; } }
+  });
+  return out;
+}
+
+/* 求「第 g 组在某岗位上、从 week 起第一次出现」对应的**基线格号**，作为插队锚点。
+   🔴 必须拿**已含插队层**的展开结果去定位 —— 老板看到的是展开后的界面；
+      直接按基线算锚点，在已有插队时会偏掉（反例：先对某组延缓、再对同一组罚扫，
+      锚点会算到本轮末尾，罚扫就跑到猴年马月去了）。 */
+function dutyAnchorBase(n, role, inserts, g, week){
+  var q = dutyExpandRole(n, role, inserts);
+  if(!q.length) return 0;
+  var w0 = Math.max(0, parseInt(week, 10) || 0);
+  var j = -1, k;
+  for(k = w0; k < q.length; k++){ if(q[k].g === g){ j = k; break; } }
+  if(j < 0){ for(k = 0; k < q.length; k++){ if(q[k].g === g){ j = k; break; } } }
+  return (j < 0) ? w0 : q[j].base;
+}
+
+/* 登记一笔插队。返回新条目；分组空 / 组号越界 → null */
+function dutyInsertAdd(role, g, kind){
+  var d = state.duty;
+  if(!d.inserts) d.inserts = [];
+  var plan = dutyTeamPlan(state.students, d.teamOrder);
+  var n = plan.length;
+  if(n <= 0) return null;
+  var gn = parseInt(g, 10) || 0;
+  if(gn < 1 || gn > n) return null;
+  var r = (role === 1 || role === 'area') ? 1 : 0;
+  var seq = 0;
+  d.inserts.forEach(function(x){ if((x.seq | 0) > seq) seq = x.seq | 0; });
+  var rec = { role: r, g: gn, kind: (kind === 'delay') ? 'delay' : 'pen',
+              at: dutyAnchorBase(n, r, d.inserts, gn, d.currentWeek),   /* ⚠️ 必须在 push 之前算 */
+              week: Math.max(0, parseInt(d.currentWeek, 10) || 0),
+              seq: seq + 1 };
+  d.inserts.push(rec);
+  return rec;
+}
+
+/* 罚扫接续：该组下周在**同一岗位**再做一次（只占这一格，另一岗位照常轮值），不自动扣学分 */
+function dutyPenalize(role, g){
+  var rec = dutyInsertAdd(role, g, 'pen');
+  if(!rec){ showToast('还没分好组，无法安排罚扫','error'); return; }
+  saveData();
+  renderDuty(); renderDutyToday(); renderDutyProgress();
+  showToast('已安排罚扫：第 ' + rec.g + ' 组下周' + dutyRoleName(rec.role) + '继续值日（只作记录，不扣学分）','success');
+}
+
+/* 延缓一周：该岗位这一格轮空，该组及后面全体顺延一周（给额外插入的罚扫组让位） */
+function dutyDelay(role, g){
+  var rec = dutyInsertAdd(role, g, 'delay');
+  if(!rec){ showToast('还没分好组，无法安排延缓','error'); return; }
+  saveData();
+  renderDuty(); renderDutyToday(); renderDutyProgress();
+  showToast('已安排延缓：第 ' + rec.g + ' 组' + dutyRoleName(rec.role) + '顺延一周（下周该岗位轮空）','info');
+}
+
+/* 单步撤销：撤掉最后一笔罚扫 / 延缓（按 seq 取最大的一笔） */
+function dutyUndoInsert(){
+  var d = state.duty;
+  var list = d.inserts || [];
+  if(!list.length){ showToast('没有可撤销的罚扫 / 延缓','info'); return; }
+  var max = -1, mi = -1;
+  list.forEach(function(x, i){ if((x.seq | 0) > max){ max = x.seq | 0; mi = i; } });
+  var rm = list.splice(mi, 1)[0];
+  saveData();
+  renderDuty(); renderDutyToday(); renderDutyProgress();
+  showToast('已撤销：第 ' + rm.g + ' 组' + dutyRoleName(rm.role)
+    + (rm.kind === 'delay' ? ' 的延缓一周' : ' 的罚扫'),'info');
+}
+
+/* 一键恢复正常轮值：清空全部插队层，回到基线 n 周循环 */
+function dutyResetInserts(){
+  var d = state.duty;
+  var list = d.inserts || [];
+  if(!list.length){ showToast('当前就是正常轮值，没有需要恢复的调整','info'); return; }
+  var n = dutyTeamPlan(state.students, d.teamOrder).length;
+  if(!confirm('确认恢复正常轮值？将清空全部罚扫与延缓（共 ' + list.length + ' 处），回到原始 ' + n + ' 周循环。')) return;
+  d.inserts = [];
+  if((parseInt(d.currentWeek, 10) || 0) >= n) d.currentWeek = 0;
+  saveData();
+  renderDuty(); renderDutyToday(); renderDutyProgress();
+  showToast('已恢复正常轮值（' + n + ' 周循环）','success');
 }
 
 /* 换人 = 在 teamOrder 里对调两个位置。这样「全班恰好一个划分」的不变量怎么改都不会破，
@@ -10404,6 +10596,8 @@ function dutyReschedule(mode){
     state.duty.teamOrder = dutyShuffleIds(state.students.map(function(s){ return s.id; }));
   }
   state.duty.currentWeek = 0;
+  /* 重新分组后「第 N 组」指的是另一批人 ⇒ 插队层的锚点（组号）全部失效，必须一起清掉 */
+  state.duty.inserts = [];
   /* 旧的按天排班数据（v2.24.0 起 UI 已不再使用）一并清掉，免得云端还留着一份对不上的旧表 */
   state.duty.schedule = [];
   state.duty.servedIds = [];
@@ -10446,91 +10640,130 @@ function dutyClearFromWeek(){
   showToast('已清空本周及后续并按规则重新生成','info');
 }
 
-/* 本周值日卡（函数名沿用 renderDutyToday —— dutyClearFromWeek 等既有调用点与 _v2100 的桩都按这个名字） */
+/* 本周值日卡（函数名沿用 renderDutyToday —— dutyClearFromWeek 等既有调用点与 _v2100 的桩都按这个名字）
+   v2.28.0：改成**本周两个岗位格** —— 教室 1 组 + 公共卫生 1 组，各自带「罚扫 / 延缓」入口。
+   岗位是「按周轮」而不是「按组内的前后半」，所以这里必须逐周查表，不能拿组卡当地址。 */
 function renderDutyToday(){
   var card = document.getElementById('dutyTodayCard');
   if(!card) return;
-  var plan = dutyTeamPlan(state.students, state.duty.teamOrder);
-  if(!plan.length){ card.style.display = 'none'; return; }
-  var ti = dutyWeekGroupIndex(plan.length, state.duty.currentWeek);
-  var g = plan[ti];
+  var d = state.duty;
+  var plan = dutyTeamPlan(state.students, d.teamOrder);
+  var n = plan.length;
+  if(!n){ card.style.display = 'none'; return; }
+  var total = dutyCycleWeeks(n, d.inserts);
+  var w = ((Math.max(0, parseInt(d.currentWeek, 10) || 0)) % total + total) % total;
+  var row = dutyScheduleTable(plan, d.inserts)[w];
   var nameOf = {};
   state.students.forEach(function(s){ nameOf[s.id] = s.name; });
   var names = function(ids){
-    var t = ids.map(function(id){ return escapeHtml(nameOf[id] || '已退班'); }).join('、');
+    var t = (ids || []).map(function(id){ return escapeHtml(nameOf[id] || '已退班'); }).join('、');
     return t || '—';
+  };
+  /* 一格 = 标题行（岗位 · 组号 · 罚扫徽章 + 两个操作按钮）+ 名单 */
+  var slot = function(e, role){
+    var rn = dutyRoleName(role);
+    var cls = 'duty-now-slot' + (role === 1 ? ' is-area' : '');
+    if(!e || e.g === null){
+      return '<div class="' + cls + '"><div class="duty-now-head">' +
+        '<span class="duty-now-tag">' + rn + ' · 轮空</span></div>' +
+        '<span class="duty-now-names duty-now-blank">本周该岗位轮空（有人延缓让位），后面全体顺延一周</span></div>';
+    }
+    var g = plan[e.g - 1];
+    var flag = (e.kind === 'pen') ? '<span class="duty-slot-flag">🔴 罚扫</span>' : '';
+    return '<div class="' + cls + '"><div class="duty-now-head">' +
+      '<span class="duty-now-tag">' + rn + ' · 第 ' + e.g + ' 组</span>' + flag +
+      '<span class="duty-now-ops">' +
+        '<button class="duty-op-btn" onclick="dutyPenalize(' + role + ',' + e.g + ')">🔴 下周继续罚扫</button>' +
+        '<button class="duty-op-btn" onclick="dutyDelay(' + role + ',' + e.g + ')">⏸ 延缓一周</button>' +
+      '</span></div>' +
+      '<span class="duty-now-names">' + names(g ? g.members : []) + '</span></div>';
   };
   card.style.display = '';
   card.innerHTML =
     '<div class="duty-now-title"><span>📌 本周值日</span>' +
-    '<span class="dn-week">第 ' + (state.duty.currentWeek + 1) + ' 周 / 共 ' + plan.length + ' 周</span>' +
-    '<span class="dn-sub">第 ' + g.no + ' 组 · ' + g.members.length + ' 人</span></div>' +
-    '<div class="duty-now-grid">' +
-    '<div class="duty-now-slot"><span class="duty-now-tag">教室 ' + g.classroom.length + ' 人</span>' +
-    '<span class="duty-now-names">' + names(g.classroom) + '</span></div>' +
-    '<div class="duty-now-slot is-area"><span class="duty-now-tag">公区 ' + g.area.length + ' 人</span>' +
-    '<span class="duty-now-names">' + names(g.area) + '</span></div>' +
-    '</div>';
+    '<span class="dn-week">第 ' + (w + 1) + ' 周 / 共 ' + total + ' 周</span>' +
+    '<span class="dn-sub">每周两岗 · 教室 1 组 + 公共卫生 1 组（各 ' + DUTY_GROUP_SIZE + ' 人）</span></div>' +
+    '<div class="duty-now-grid">' + slot(row.classroom, 0) + slot(row.area, 1) + '</div>';
 }
 
 function renderDuty(){
   /* 先把 teamOrder 与当前学生名单对齐（新人按学号补到队尾、退班移除）。
      ⚠️ 这里**不 saveData** —— 渲染函数不该有写盘副作用；对齐结果会在下一次真实操作
         （换人 / 重新分组 / 改学生）时随 saveData 一起落盘，且这个对齐是幂等的。 */
-  var synced = dutySyncTeamOrder(state.duty, state.students);
-  var prev = state.duty.teamOrder || [];
+  var d = state.duty;
+  var synced = dutySyncTeamOrder(d, state.students);
+  var prev = d.teamOrder || [];
   if(synced.length !== prev.length || synced.some(function(id, i){ return id !== prev[i]; })){
-    state.duty.teamOrder = synced;
+    d.teamOrder = synced;
   }
-  var plan = dutyTeamPlan(state.students, state.duty.teamOrder);
+  if(!d.inserts) d.inserts = [];
+  var plan = dutyTeamPlan(state.students, d.teamOrder);
   var box = document.getElementById('dutyTeams');
   var hint = document.getElementById('dutyTeamsHint');
   var empty = document.getElementById('dutyEmptyHint');
   var wn = document.getElementById('dutyWeekNo');
-  var total = plan.length;
-  var cur = dutyWeekGroupIndex(total, state.duty.currentWeek);
-  if(wn) wn.textContent = '第 ' + (state.duty.currentWeek + 1) + ' 周 / 共 ' + total + ' 周';
+  var n = plan.length;
+  var total = dutyCycleWeeks(n, d.inserts);
+  var cur = total ? (((Math.max(0, parseInt(d.currentWeek, 10) || 0)) % total + total) % total) : 0;
+  var table = dutyScheduleTable(plan, d.inserts);
+  var row = table[cur] || null;
+  if(wn) wn.textContent = '第 ' + (cur + 1) + ' 周 / 共 ' + total + ' 周';
   if(hint){
-    hint.textContent = total
-      ? ('共 ' + total + ' 组 · 一组 ' + DUTY_TEAM_SIZE + ' 人（4 教室 + 4 公区）· 一组值一周 · 一轮 ' + total + ' 周 · 点名字可换人')
+    hint.textContent = n
+      ? ('共 ' + n + ' 组 · 一组 ' + DUTY_GROUP_SIZE + ' 人 · 每周教室 1 组 + 公共卫生 1 组 · 一轮 ' + total + ' 周'
+         + (d.inserts.length ? '（含 ' + d.inserts.length + ' 处罚扫 / 延缓）' : '') + ' · 点名字可换人')
       : '';
   }
-  if(empty) empty.style.display = total ? 'none' : '';
+  if(empty) empty.style.display = n ? 'none' : '';
   if(!box) return;
   var nameOf = {};
   state.students.forEach(function(s){ nameOf[s.id] = s.name; });
-  var chips = function(ids, ti, role){
+  var chips = function(ids, ti){
     if(!ids.length) return '<span class="duty-mem" style="opacity:.55;cursor:default">待补</span>';
     return ids.map(function(id, mi){
-      return '<span class="duty-mem" title="点击换人" onclick="dutyMemClick(' + ti + ',\'' + role + '\',' + mi + ')">' +
+      return '<span class="duty-mem" title="点击换人" onclick="dutyMemClick(' + ti + ',\'members\',' + mi + ')">' +
              escapeHtml(nameOf[id] || '已退班') + '</span>';
     }).join('');
   };
+  /* 组卡的「教室 第X周 / 公卫 第Y周」：组会在不同周被派到不同岗位，所以逐岗位查表 */
+  var weekTag = function(wi, role){
+    if(wi < 0) return '—';
+    var e = table[wi] ? table[wi][role === 1 ? 'area' : 'classroom'] : null;
+    return '第 ' + (wi + 1) + ' 周' + ((e && e.kind === 'pen') ? ' · 罚扫' : '');
+  };
   box.innerHTML = plan.map(function(g, ti){
-    return '<div class="duty-team' + (ti === cur ? ' is-now' : '') + '">' +
+    var weeks = dutyGroupWeeksOf(plan, d.inserts, g.no);
+    var isNow = !!(row && ((row.classroom && row.classroom.g === g.no) ||
+                           (row.area && row.area.g === g.no)));
+    var ops = (d.inserts || []).filter(function(x){ return (x.g | 0) === g.no; }).length;
+    return '<div class="duty-team' + (isNow ? ' is-now' : '') + '">' +
       '<div class="duty-team-top"><span class="duty-team-no">第 ' + g.no + ' 组</span>' +
       '<span class="duty-team-cnt">' + g.members.length + ' 人</span>' +
-      (ti === cur ? '<span class="duty-now-flag">本周</span>' : '') + '</div>' +
+      (isNow ? '<span class="duty-now-flag">本周</span>' : '') + '</div>' +
+      '<div class="duty-team-members">' + chips(g.members, ti) + '</div>' +
       '<div class="duty-team-sect"><span class="duty-sect-label">教室</span>' +
-      '<span class="duty-team-members">' + chips(g.classroom, ti, 'classroom') + '</span></div>' +
-      '<div class="duty-team-sect is-area"><span class="duty-sect-label">公区</span>' +
-      '<span class="duty-team-members">' + chips(g.area, ti, 'area') + '</span></div>' +
-      '<div class="duty-team-when">第 <b>' + g.no + '</b> 周值日</div>' +
+      '<span class="duty-team-members">' + weekTag(weeks.classroom, 0) + '</span></div>' +
+      '<div class="duty-team-sect is-area"><span class="duty-sect-label">公卫</span>' +
+      '<span class="duty-team-members">' + weekTag(weeks.area, 1) + '</span></div>' +
+      '<div class="duty-team-when">' +
+        (ops ? ('本组有 <b>' + ops + '</b> 处罚扫 / 延缓') : '正常轮值') + '</div>' +
       '</div>';
   }).join('');
   renderDutyProgress();
 }
 
-/* 换人：点小组里的名字 → 选一个同学与他对调位置（组内换人、跨组换人都走这一条） */
+/* 换人：点小组里的名字 → 选一个同学与他对调位置（组内换人、跨组换人都走这一条）
+   v2.28.0：岗位按周轮转，小组本身不再分「教室 / 公卫」两半 ⇒ role 恒传 'members'。
+   ⚠️ 签名 (teamIdx, role, slot) 与「注入全体候选池 + 刷新选择器」两条契约保持不变 —— _v2172_test.js 钉着。 */
 function dutyMemClick(teamIdx, role, slot){
   var plan = dutyTeamPlan(state.students, state.duty.teamOrder);
   var g = plan[teamIdx];
   if(!g){ showToast('分组已变化，请重新点击','warning'); return; }
-  var list = (role === 'area') ? g.area : g.classroom;
+  var list = g.members;
   var curId = list[slot];
   var cur = state.students.find(function(x){ return x.id === curId; });
   document.getElementById("studentSelectTitle").textContent =
-    '第 ' + g.no + ' 组 · ' + (role === 'area' ? '公区' : '教室') + ' · 把「' + (cur ? cur.name : '空位') + '」换成谁？';
+    '第 ' + g.no + ' 组 · 把「' + (cur ? cur.name : '空位') + '」换成谁？';
   _studentPickerPool = state.students.slice();
   _studentPickerMark = null;
   var rm = document.getElementById("studentSelectRemove");
@@ -10556,35 +10789,48 @@ function dutyNextWeek(){ switchWeek(state.duty.currentWeek + 1); }
 function renderDutyProgress(){
   var bar = document.getElementById('dutyProgressBar');
   if(!bar) return;
-  var plan = dutyTeamPlan(state.students, state.duty.teamOrder);
-  if(!plan.length){ bar.style.display = 'none'; return; }
+  var d = state.duty;
+  var plan = dutyTeamPlan(state.students, d.teamOrder);
+  var n = plan.length;
+  if(!n){ bar.style.display = 'none'; return; }
   bar.style.display = '';
-  var total = plan.length;
-  var cur = dutyWeekGroupIndex(total, state.duty.currentWeek);
-  var pct = Math.round((cur + 1) / total * 100);
+  var total = dutyCycleWeeks(n, d.inserts);
+  var cur = ((Math.max(0, parseInt(d.currentWeek, 10) || 0)) % total + total) % total;
+  var row = dutyScheduleTable(plan, d.inserts)[cur] || {};
+  var tag = function(e){
+    if(!e || e.g === null) return '轮空';
+    var g = plan[e.g - 1];
+    return '第 ' + e.g + ' 组' + (e.kind === 'pen' ? '（罚扫）' : '')
+      + '（' + (g ? g.members.length : 0) + ' 人）';
+  };
   bar.innerHTML =
-    '<div class="dp-row"><span>第 <b>' + (state.duty.currentWeek + 1) + '</b> 周 · 第 <b>' + plan[cur].no + '</b> 组值日（' + plan[cur].members.length + ' 人）</span>' +
+    '<div class="dp-row"><span>第 <b>' + (cur + 1) + '</b> 周 · 教室 <b>' + tag(row.classroom) + '</b>　公共卫生 <b>' + tag(row.area) + '</b></span>' +
     '<a href="javascript:void(0)" onclick="dutyShowRoundList()" style="font-size:12px;color:var(--primary);text-decoration:none">查看分组一览 ›</a></div>' +
-    '<div class="dp-track"><div class="dp-fill" style="width:' + pct + '%"></div></div>' +
-    '<div class="dp-hint">一轮 ' + total + ' 周 · 每组值 1 周 · 教室 4 人 + 公区 4 人（尾巴组按实有人数）</div>';
+    '<div class="dp-track"><div class="dp-fill" style="width:' + (Math.round((cur + 1) / total * 100)) + '%"></div></div>' +
+    '<div class="dp-hint">一轮 ' + total + ' 周 · 每周教室 1 组 + 公共卫生 1 组 · 一组 ' + DUTY_GROUP_SIZE + ' 人</div>';
 }
 
 function dutyShowRoundList(){
-  var plan = dutyTeamPlan(state.students, state.duty.teamOrder);
+  var d = state.duty;
+  var plan = dutyTeamPlan(state.students, d.teamOrder);
   var nameOf = {};
   state.students.forEach(function(s){ nameOf[s.id] = s.name; });
   var names = function(ids){
-    var t = ids.map(function(id){ return escapeHtml(nameOf[id] || '已退班'); }).join('、');
+    var t = (ids || []).map(function(id){ return escapeHtml(nameOf[id] || '已退班'); }).join('、');
     return t || '—';
   };
+  var total = dutyCycleWeeks(plan.length, d.inserts);
   var title = document.getElementById('dutyRoundListTitle');
-  if(title) title.textContent = '值日分组一览（' + plan.length + ' 组）';
+  if(title) title.textContent = '值日分组一览（' + plan.length + ' 组 · 一轮 ' + total + ' 周）';
   var body = document.getElementById('dutyRoundListBody');
   if(body){
     body.innerHTML = plan.length ? plan.map(function(g){
+      var w = dutyGroupWeeksOf(plan, d.inserts, g.no);
+      var wTxt = function(i){ return i >= 0 ? ('第 ' + (i + 1) + ' 周') : '—'; };
       return '<div class="member-row"><span style="min-width:76px;font-weight:700;color:var(--primary-dark)">第' + g.no + '组</span>' +
-        '<span style="flex:1;font-size:13px"><b>教室</b>：' + names(g.classroom) +
-        '　<b>公共区</b>：' + names(g.area) + '</span></div>';
+        '<span style="flex:1;font-size:13px"><b>教室</b>：' + wTxt(w.classroom) +
+        '　<b>公共卫生</b>：' + wTxt(w.area) +
+        '<br><span style="color:var(--text-muted)">' + names(g.members) + '</span></span></div>';
     }).join('') : '<div class="dorm-empty">暂无分组</div>';
   }
   openModal('dutyRoundModal');
@@ -10999,64 +11245,81 @@ function seatExportImage(){
    与屏幕同一份分组真相（dutyTeamPlan）—— 不在导出里另算一套切组逻辑，否则两边迟早对不上。
    本周值日的那一组用琥珀底标出来，跟屏幕上的「本周」徽章对应。 */
 function dutyExportImage(){
-  var plan = dutyTeamPlan(state.students, state.duty.teamOrder);
-  if(plan.length === 0){ showToast('请先添加学生','error'); return; }
+  var d = state.duty;
+  var plan = dutyTeamPlan(state.students, d.teamOrder);
+  var n = plan.length;
+  if(n === 0){ showToast('请先添加学生','error'); return; }
   var nameOf = {};
   state.students.forEach(function(s){ nameOf[s.id] = s.name; });
-  var cur = dutyWeekGroupIndex(plan.length, state.duty.currentWeek);
+  var total = dutyCycleWeeks(n, d.inserts);
+  var table = dutyScheduleTable(plan, d.inserts);
+  var cur = ((Math.max(0, parseInt(d.currentWeek, 10) || 0)) % total + total) % total;
 
-  var W = 750, colGroup = 96, headerH = 136, theadH = 46, footH = 60;
-  /* 行高按最长那行名字算：4 个「三字名」≈ 15 个字，列宽 (750-96)/2 = 327px，
-     15 字 × 14px ≈ 210px 放得下，所以固定单行即可；这里仍按最长组留出余量。 */
+  var W = 750, colWeek = 96, headerH = 136, theadH = 46, footH = 60;
+  /* 每行两小行：组号（粗） + 成员名单（灰）。列宽 (750-96)/2 = 327px，
+     4 个三字名 ≈ 15 字 × 12px ≈ 180px，放得下，所以固定行高即可。 */
   var rowH = 62;
-  var H = headerH + theadH + plan.length * rowH + footH;
+  var H = headerH + theadH + total * rowH + footH;
   var canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   var ctx = canvas.getContext('2d');
+  var mid = function(i){ return colWeek + (W - colWeek) * (i === 0 ? 1 : 3) / 4; };
 
   ctx.fillStyle = '#FDFBF7'; ctx.fillRect(0, 0, W, H);
   ctx.fillStyle = '#2F7D5B'; ctx.fillRect(0, 0, W, headerH);
   ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center';
   ctx.font = 'bold 26px "Microsoft YaHei", sans-serif';
-  ctx.fillText((state.className || '') + ' · 值日分组表', W/2, 56);
+  ctx.fillText((state.className || '') + ' · 值日轮值表', W/2, 56);
   ctx.font = '14px "Microsoft YaHei", sans-serif';
   ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  ctx.fillText('一组 ' + DUTY_TEAM_SIZE + ' 人（4 人教室 + 4 人公区）· 一组值一周 · 一轮 ' + plan.length + ' 周', W/2, 92);
+  ctx.fillText('一组 ' + DUTY_GROUP_SIZE + ' 人 · 每周教室 1 组 + 公共卫生 1 组 · ' + total + ' 周一个循环', W/2, 92);
   ctx.font = '13px "Microsoft YaHei", sans-serif';
-  ctx.fillText('本周（第 ' + (state.duty.currentWeek + 1) + ' 周）由第 ' + plan[cur].no + ' 组值日', W/2, 116);
+  ctx.fillText('本周（第 ' + (cur + 1) + ' 周）', W/2, 116);
 
   var y = headerH;
   ctx.fillStyle = '#EFF5F1'; ctx.fillRect(0, y, W, theadH);
   ctx.fillStyle = '#2F7D5B'; ctx.font = 'bold 15px "Microsoft YaHei", sans-serif';
-  ctx.fillText('组别', colGroup/2, y + 30);
-  ctx.fillText('教室（4 人）', colGroup + (W - colGroup)/4, y + 30);
-  ctx.fillText('公共区', colGroup + (W - colGroup)*3/4, y + 30);
+  ctx.fillText('周次', colWeek/2, y + 30);
+  ctx.fillText('教室卫生（4 人一组）', mid(0), y + 30);
+  ctx.fillText('公共卫生（4 人一组）', mid(1), y + 30);
   y += theadH;
 
-  plan.forEach(function(g, gi){
-    if(gi % 2 === 1){ ctx.fillStyle = 'rgba(47,125,91,0.05)'; ctx.fillRect(0, y, W, rowH); }
-    if(gi === cur){ ctx.fillStyle = 'rgba(185,106,31,0.10)'; ctx.fillRect(0, y, W, rowH); }
+  var cell = function(e, cx, top){
+    if(!e || e.g === null){
+      ctx.fillStyle = '#999'; ctx.font = 'bold 14px "Microsoft YaHei", sans-serif';
+      ctx.fillText('轮空', cx, top + rowH/2 - 2);
+      ctx.font = '12px "Microsoft YaHei", sans-serif';
+      ctx.fillText('（有人延缓让位，整体顺延）', cx, top + rowH/2 + 16);
+      return;
+    }
+    var g = plan[e.g - 1];
+    ctx.fillStyle = '#333'; ctx.font = 'bold 14px "Microsoft YaHei", sans-serif';
+    ctx.fillText('第 ' + e.g + ' 组' + (e.kind === 'pen' ? '（罚扫）' : ''), cx, top + rowH/2 - 2);
+    ctx.fillStyle = '#8C8577'; ctx.font = '12px "Microsoft YaHei", sans-serif';
+    ctx.fillText((g && g.members.length ? g.members.map(function(id){ return nameOf[id] || '已退班'; }).join('、') : '—'),
+                 cx, top + rowH/2 + 16);
+  };
+
+  table.forEach(function(w2){
+    var top = y;
+    if(w2.week % 2 === 1){ ctx.fillStyle = 'rgba(47,125,91,0.05)'; ctx.fillRect(0, top, W, rowH); }
+    if(w2.week === cur){ ctx.fillStyle = 'rgba(185,106,31,0.10)'; ctx.fillRect(0, top, W, rowH); }
     ctx.textAlign = 'center';
     ctx.fillStyle = '#333'; ctx.font = 'bold 15px "Microsoft YaHei", sans-serif';
-    ctx.fillText('第' + g.no + '组', colGroup/2, y + rowH/2 - 4);
-    ctx.fillStyle = '#8C8577'; ctx.font = '12px "Microsoft YaHei", sans-serif';
-    ctx.fillText('第' + g.no + '周', colGroup/2, y + rowH/2 + 15);
-    ctx.fillStyle = '#333'; ctx.font = '14px "Microsoft YaHei", sans-serif';
-    var cTxt = g.classroom.map(function(id){ return nameOf[id] || '已退班'; }).join('、') || '—';
-    var aTxt = g.area.map(function(id){ return nameOf[id] || '已退班'; }).join('、') || '—';
-    ctx.fillText(cTxt, colGroup + (W - colGroup)/4, y + rowH/2 + 5);
-    ctx.fillText(aTxt, colGroup + (W - colGroup)*3/4, y + rowH/2 + 5);
+    ctx.fillText('第' + (w2.week + 1) + '周', colWeek/2, top + rowH/2 + 5);
+    cell(w2.classroom, mid(0), top);
+    cell(w2.area, mid(1), top);
     ctx.strokeStyle = 'rgba(0,0,0,0.08)'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(0, y + rowH); ctx.lineTo(W, y + rowH); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(colGroup, y); ctx.lineTo(colGroup, y + rowH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, top + rowH); ctx.lineTo(W, top + rowH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(colWeek, top); ctx.lineTo(colWeek, top + rowH); ctx.stroke();
     y += rowH;
   });
 
   ctx.fillStyle = '#999'; ctx.font = '13px "Microsoft YaHei", sans-serif';
   ctx.fillText((state.className || '') + ' · 打印张贴 · 生成于 ' + localDateStr(), W/2, H - 22);
 
-  pngExport(canvas, (state.className || '班级') + '-值日分组表.png',
-            '值日分组表已导出（' + plan.length + ' 组）');
+  pngExport(canvas, (state.className || '班级') + '-值日轮值表.png',
+            '值日轮值表已导出（' + total + ' 周）');
 }
 
 /* 名单拆行：每行最多 2 个名字，保证不越界（列宽约 300px） */

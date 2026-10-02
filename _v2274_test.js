@@ -166,8 +166,7 @@ function mkDuty(students, confirmRet, dirty) {
     'function renderDuty(){ env.renders.push("duty"); }',
     'function renderDutyToday(){ env.renders.push("today"); }',
     'function renderDutyProgress(){ env.renders.push("progress"); }',
-    constDecl('DUTY_TEAM_SIZE'),
-    constDecl('DUTY_TEAM_MIN_TAIL'),
+    constDecl('DUTY_GROUP_SIZE'),
     braceFn('dutyShuffleIds'),
     braceFn('dutyEnsureQueue'),
     braceFn('dutySyncTeamOrder'),
@@ -197,7 +196,7 @@ function mkDuty(students, confirmRet, dirty) {
   eq(m.env.renders.join(','), 'duty,today,progress', '按学号：三个渲染入口都被刷新');
   eq(m.env.toasts[0][1], 'success', '按学号：toast 是 success');
   has(m.env.toasts[0][0], '\u5df2\u6309\u5b66\u53f7\u5206\u7ec4', '按学号：toast 文案');
-  eq(m.plan().length, 7, '58 人按学号切成 7 组');
+  eq(m.plan().length, 15, '58 人按学号切成 15 组（一组 4 人，末组 2 人）');
 }
 
 {
@@ -210,12 +209,12 @@ function mkDuty(students, confirmRet, dirty) {
     '随机：teamOrder 是全班的一个排列（不多不少不重复）');
   ok(order.join(',') !== m.sidOrder().join(','), '随机：结果与按学号顺序不同（真的洗了）');
   eq(m.state.duty.currentWeek, 0, '随机：回到第 1 周');
-  eq(m.plan().length, 7, '随机：58 人仍切成 7 组');
+  eq(m.plan().length, 15, '随机：58 人仍切成 15 组');
   eq(m.env.confirms.length, 1, '随机：弹了一次二次确认');
   has(m.env.confirms[0], '\u968f\u673a', '随机的确认文案说清了是「随机」');
   eq(m.env.saves, 1, '随机：落盘 1 次');
   has(m.env.toasts[0][0], '\u5df2\u968f\u673a\u5206\u7ec4', '随机：toast 文案');
-  has(m.env.toasts[0][0], '7 \u7ec4', '随机：toast 里报了组数');
+  has(m.env.toasts[0][0], '15 \u7ec4', '随机：toast 里报了组数');
   has(m.env.toasts[0][0], '\u7b2c 1 \u5468', '随机：toast 里报了从第 1 周开始');
 
   // 🔑 全组划分不变量：并集 = 全班、无重复
@@ -312,7 +311,7 @@ console.log('\n\u2463 \u4e24\u4e2a\u8584\u58f3\u4e0e\u9875\u9762\u63a5\u7ebf');
 // ============================================================
 try {
 {
-  // dutyRescheduleShuffle：小班也要能洗（10 人 1 组 + 尾巴并给前面）
+  // dutyRescheduleShuffle：小班也要能洗（10 人 → 3 组：4+4+2）
   const m = mkDuty(mkStudents(10), true);
   m.rnd();
   eq(m.state.duty.teamOrder.length, 10, 'dutyRescheduleShuffle() 无参调用 → 走随机');
@@ -391,7 +390,7 @@ try {
   const m2 = mkDuty(students, true);
   const byEmpty = m2.plan();
   const direct = new Function([
-    constDecl('DUTY_TEAM_SIZE'), constDecl('DUTY_TEAM_MIN_TAIL'), braceFn('dutyTeamPlan'),
+    constDecl('DUTY_GROUP_SIZE'), braceFn('dutyTeamPlan'),
     'return dutyTeamPlan;'
   ].join('\n'))();
   const byFull = direct(students, students.map(s => s.id));
