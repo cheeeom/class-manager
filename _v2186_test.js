@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.18.2 回归测试：零扣分榜改按「未扣分天数」排名
    覆盖：榜行右侧展示天数（去掉学分徽章）/ 排序只认天数（并列按学号，不再以学分为次键）/
         副标题明示 / 版本三处同步 v2.18.2 / 设置页 notes 新条 / 主 script 语法。
@@ -30,12 +39,12 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2.29.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2.29.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.29.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!new RegExp('login-version">' + VR + '<').test(html)) throw new Error('登录页版本号未更新');
+  if (!new RegExp('sidebar-footer">' + VR + ' ·').test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-' + V + '')) throw new Error('SW CACHE_NAME 未更新');
 });
 t('设置页版本徽标随版 = v2.18.13', () => {
-  has(html, '🏷️ v2.29.0</span>', '设置页版本徽标未跟版');
+  has(html, '🏷️ ' + V + '</span>', '设置页版本徽标未跟版');
 });
 t('历史注释保护：v2.18.1 功能注释 4 处保留', () => {
   const n = (html.match(/v2\.18\.1(?![0-9])/g) || []).length; // (?![0-9]) 排除 v2.18.13+ 子串误命中
@@ -105,7 +114,7 @@ t('卡片副标题明示按未扣分天数排名', () => {
 
 console.log('\n=== 设置页 notes ===');
 t('notes 置顶「零扣分榜按未扣分天数排名」条', () => {
-  has(html, '（v2.29.0）', '缺新条');
+  has(html, '（' + V + '）', '缺新条');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

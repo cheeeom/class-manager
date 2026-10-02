@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.20.0 回归测试：全员 inline 事件处理函数存在性检查。
    背景：v2.19.3 曾因「导出行引用不存在的函数 → 脚本中段死亡」导致整片按钮无声失效。
    本套件扫描 index.html 全部 onclick/oninput/onchange/onblur 处理器，
@@ -20,8 +29,8 @@ const BUILTIN = new Set(['if', 'for', 'while', 'switch', 'catch', 'return', 'fun
   'navigator', 'location', 'localStorage', 'sessionStorage', 'console', 'crypto']);
 
 console.log('=== 静态检查 ===');
-t('index.html 版本号已升至 v2.29.0', () => { if (!/v2\.20\.5/.test(html)) throw new Error('未找到 v2.29.0'); });
-t('sw.js CACHE_NAME 已跟版 v2.20.3', () => { if (!/class-manager-v2.29.0/.test(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'))) throw new Error('CACHE_NAME 未跟版'); });
+t('index.html 版本号已升至 ' + V + '', () => { if (!/v2\.20\.5/.test(html)) throw new Error('未找到 ' + V + ''); });
+t('sw.js CACHE_NAME 已跟版 v2.20.3', () => { if (!new RegExp('class-manager-' + VR + '').test(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'))) throw new Error('CACHE_NAME 未跟版'); });
 t('学分周报功能已挂载', () => {
   if (html.indexOf('function exportWeeklyReport') < 0) throw new Error('缺少 exportWeeklyReport');
   if (html.indexOf('function drawWeeklyPoster') < 0) throw new Error('缺少 drawWeeklyPoster');

@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.18.12 回归测试：① 荣誉墙删除复活修复（honorDeleted 删除墓碑随云同步传播）
  *   根因：smartMergeData 对 honors 按 id 盲并集——本地删除是硬删，云端旧副本每次拉取都把已删荣誉并回来，
  *         推送前合并还会把它带回云端（与 v2.18.8 原因目录问题同类）。
@@ -209,16 +218,16 @@ t('★ 行为级：寝室号格式校验（非法不落盘不建寝室）', () =
 
 console.log('\n=== ⑤ 版本与历史注释 ===');
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.29.0</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.29.0 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.29.0</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.29.0'", 'SW');
+  has(html, '<div class="login-version">' + V + '</div>', '登录页');
+  has(html, '<div class="sidebar-footer">' + V + ' · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ ' + V + '</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-" + V + "'", 'SW');
 });
 t('设置页「近版更新速览」新增本版两条（旧条不删）', () => {
-  has(html, '（v2.29.0）', '缺荣誉 notes');
-  has(html, '（v2.29.0）', '缺寝室 notes');
-  has(html, '（v2.29.0）', 'v2.18.11 旧条目被删');
-  has(html, '（v2.29.0）', 'v2.18.9 旧条目被删');
+  has(html, '（' + V + '）', '缺荣誉 notes');
+  has(html, '（' + V + '）', '缺寝室 notes');
+  has(html, '（' + V + '）', 'v2.18.11 旧条目被删');
+  has(html, '（' + V + '）', 'v2.18.9 旧条目被删');
 });
 t('历史注释不被波及（v2.18.9 / v2.18.11 引入版注释保持原样）', () => {
   has(html, "catDelUndo('dirs', dir);   // v2.18.9 同步 revive 所在方向", '历史注释被改动');

@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.18.3 回归测试：四个 P0 缺陷修复 + 新增「重置云端加密口令」
    覆盖：
      P0-1 处分记录补入云同步三处链路（state 默认值 / CLOUD_SYNC_FIELDS / smartMergeData）
@@ -36,12 +45,12 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2.29.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2.29.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.29.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!new RegExp('login-version">' + VR + '<').test(html)) throw new Error('登录页版本号未更新');
+  if (!new RegExp('sidebar-footer">' + VR + ' ·').test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-' + V + '')) throw new Error('SW CACHE_NAME 未更新');
 });
 t('设置页版本徽标随版 = v2.18.13', () => {
-  has(html, '🏷️ v2.29.0</span>', '设置页版本徽标未跟版');
+  has(html, '🏷️ ' + V + '</span>', '设置页版本徽标未跟版');
 });
 t('历史注释保护：v2.18.2 功能注释 2 处保留（不随升版盲替）', () => {
   const n = (html.match(/v2\.18\.2/g) || []).length;
@@ -166,10 +175,10 @@ t('前置校验：需要 Token 与 Web Crypto', () => {
 
 console.log('\n=== 设置页近版更新速览 ===');
 t('notes 含 v2.18.3 四条新条', () => {
-  has(html, '（v2.29.0）', '缺处分记录同步说明');
+  has(html, '（' + V + '）', '缺处分记录同步说明');
   has(html, '重置云端加密口令', '缺重置口令说明');
-  has(html, '（v2.29.0）', '缺搜索框说明');
-  has(html, '（v2.29.0）', '缺保存失败说明');
+  has(html, '（' + V + '）', '缺搜索框说明');
+  has(html, '（' + V + '）', '缺保存失败说明');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

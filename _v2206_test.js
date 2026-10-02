@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.20.6 回归测试：学分原因菜单「细则框边框加深闪现一次」根治
    老板原话：
      「平板浏览器里查看学分记录模块，加减分选择原因中只有宿舍扣分下面的原因按钮是正常显示，
@@ -165,16 +174,16 @@ t('交互定稿注释留档 v2.20.6 的结论（防止后人把 hover 加回来�
   has(html, '凡「跟随指尖的中间态」在触屏上都不做', '缺最终结论一句话');
 });
 
-t('四处活动标记均为 v2.29.0（登录页 / 侧栏 / 设置徽标 / 速览标题）', () => {
-  has(html, '<div class="login-version">v2.29.0</div>', '登录页未跟版');
-  has(html, '<div class="sidebar-footer">v2.29.0 · 班主任工作台</div>', '侧栏未跟版');
-  has(html, '🏷️ v2.29.0</span>', '设置徽标未跟版');
-  has(html, '📝 近版更新速览（v2.29.0）', '速览标题未跟版');
+t('四处活动标记均为 ' + V + '（登录页 / 侧栏 / 设置徽标 / 速览标题）', () => {
+  has(html, '<div class="login-version">' + V + '</div>', '登录页未跟版');
+  has(html, '<div class="sidebar-footer">' + V + ' · 班主任工作台</div>', '侧栏未跟版');
+  has(html, '🏷️ ' + V + '</span>', '设置徽标未跟版');
+  has(html, '📝 近版更新速览（' + V + '）', '速览标题未跟版');
 });
 
 t('sw.js CACHE_NAME 与版本标记同步', () => {
   const ver = (sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/) || [])[1] || '';
-  eq(ver, 'v2.29.0', 'SW CACHE_NAME 未跟版');
+  eq(ver, '' + V + '', 'SW CACHE_NAME 未跟版');
   has(html, '<div class="login-version">' + ver + '</div>', '登录页与 SW 版本不一致');
 });
 

@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.20.5 回归测试：学分币明细改名 + 「🔍 查找」 + 历史加分回溯打折 + 余额下限 0
    老板三连诉求：
      ① 「币流水」窗口改名「学分币明细」           → 页签/卡片文案 + 旧文案零残留
@@ -124,14 +133,14 @@ console.log('=== 语法与版本 ===');
 t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
-t('四处跟版均为 v2.29.0（登录页 / 侧栏 / 设置徽标 / SW CACHE_NAME）', () => {
-  has(html, '<div class="login-version">v2.29.0</div>', '登录页未跟版');
-  has(html, '<div class="sidebar-footer">v2.29.0 · 班主任工作台</div>', '侧栏未跟版');
-  has(html, '🏷️ v2.29.0</span>', '设置徽标未跟版');
-  has(sw, "const CACHE_NAME = 'class-manager-v2.29.0';", 'SW 未跟版');
+t('四处跟版均为 ' + V + '（登录页 / 侧栏 / 设置徽标 / SW CACHE_NAME）', () => {
+  has(html, '<div class="login-version">' + V + '</div>', '登录页未跟版');
+  has(html, '<div class="sidebar-footer">' + V + ' · 班主任工作台</div>', '侧栏未跟版');
+  has(html, '🏷️ ' + V + '</span>', '设置徽标未跟版');
+  has(sw, "const CACHE_NAME = 'class-manager-" + V + "';", 'SW 未跟版');
 });
-t('近版更新速览标题为 v2.29.0', () => {
-  has(html, '近版更新速览（v2.29.0）', '速览标题未跟版');
+t('近版更新速览标题为 ' + V + '', () => {
+  has(html, '近版更新速览（' + V + '）', '速览标题未跟版');
 });
 t('旧活动标记 v2.20.4 已无残留', () => {
   notHas(html, '<div class="login-version">v2.20.4</div>', '登录页仍有旧版号');

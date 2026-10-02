@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.17.19/20 回归测试：档案详情新版式 + 拼音排序 + 寝室→性别补写 + 德育记录本学期/折叠
    + 荣誉墙类型筛选 + 证书导出；v2.17.30 证书去红章/去班主任署名/日期右对齐空两格/班级全称落款。
    运行：node _v2177_test.js */
@@ -51,9 +60,9 @@ t('index.html 主 <script> 块可被完整编译', () => {
 
 console.log('\n=== v2.18.13 版本三处同步 ===');
 t('登录页 / 侧栏 / SW CACHE_NAME = v2.18.13', () => {
-  if (!/login-version">v2.29.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2.29.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n').includes('class-manager-v2.29.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!new RegExp('login-version">' + VR + '<').test(html)) throw new Error('登录页版本号未更新');
+  if (!new RegExp('sidebar-footer">' + VR + ' ·').test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n').includes('class-manager-' + V + '')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 拼音排序（左侧学生名单） ===');

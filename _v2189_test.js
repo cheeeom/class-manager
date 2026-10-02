@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.18.13 回归测试：座次表拖拽换座 + 三个排座按钮改「只填空座」
    覆盖：
      1) autoSeat 只填空座：已排座位一律保留、未入座学生按策略（学分降序/姓名/随机）
@@ -71,25 +80,25 @@ t('index.html 主 <script> 块可被完整编译（改动后无语法错）', ()
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2.29.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2.29.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.29.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!new RegExp('login-version">' + VR + '<').test(html)) throw new Error('登录页版本号未更新');
+  if (!new RegExp('sidebar-footer">' + VR + ' ·').test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-' + V + '')) throw new Error('SW CACHE_NAME 未更新');
   if (sw.includes('class-manager-v2.18.4')) throw new Error('SW 旧 CACHE_NAME 残留');
 });
 t('设置页版本徽标随版 = v2.18.13', () => {
-  has(html, '🏷️ v2.29.0</span>', '设置页版本徽标未跟版');
+  has(html, '🏷️ ' + V + '</span>', '设置页版本徽标未跟版');
 });
 t('历史注释保护：v2.18.3 仍 8 处 / v2.18.0 仍 24 处（不随升版盲替）', () => {
   eq(count('v2.18.3'), 8, 'v2.18.3 注释数变了');
   eq((html.match(/v2\.18\.0/g) || []).length, 24, 'v2.18.0 注释数变了');
 });
 t('设置页 notes 新增本版两条，且旧条全部保留', () => {
-  has(html, '（v2.29.0）', '缺拖拽换座说明');
-  has(html, '（v2.29.0）', '缺只填空座说明');
-  ['（v2.29.0）', '重置云端加密口令', '（v2.29.0）',
-   '（v2.29.0）', '（v2.29.0）',
-   '（v2.29.0）', '（v2.29.0）',
-   '（v2.29.0）', '（v2.29.0）'
+  has(html, '（' + V + '）', '缺拖拽换座说明');
+  has(html, '（' + V + '）', '缺只填空座说明');
+  ['（' + V + '）', '重置云端加密口令', '（' + V + '）',
+   '（' + V + '）', '（' + V + '）',
+   '（' + V + '）', '（' + V + '）',
+   '（' + V + '）', '（' + V + '）'
   ].forEach(s => has(html, s, '旧 note 丢失'));
 });
 

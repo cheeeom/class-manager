@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.20.0 回归测试：预警中心——办结复活修复 + 删除记录墓碑 + 渲染过滤。
    运行：node _v21202_test.js */
 const fs = require('fs');
@@ -11,8 +20,8 @@ function t(name, fn) {
 function eq(a, b, msg) { if (a !== b) throw new Error((msg || '') + `期望 ${JSON.stringify(b)}，实际 ${JSON.stringify(a)}`); }
 
 console.log('=== 静态检查 ===');
-t('index.html 版本号已升至 v2.29.0', () => { if (!/v2\.20\.5/.test(html)) throw new Error('未找到 v2.29.0'); });
-t('sw.js CACHE_NAME 已跟版 v2.20.3', () => { if (!/class-manager-v2.29.0/.test(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'))) throw new Error('CACHE_NAME 未跟版'); });
+t('index.html 版本号已升至 ' + V + '', () => { if (!/v2\.20\.5/.test(html)) throw new Error('未找到 ' + V + ''); });
+t('sw.js CACHE_NAME 已跟版 v2.20.3', () => { if (!new RegExp('class-manager-' + VR + '').test(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'))) throw new Error('CACHE_NAME 未跟版'); });
 t('cbScanAlerts 含「办结后复活」修复（monthAll 历史仲裁）', () => { if (html.indexOf('v2.20.0 修复「办结后复活」') < 0) throw new Error('缺少修复标记'); });
 t('cbAlertDelete 已定义并挂载删除按钮', () => {
   if (html.indexOf('function cbAlertDelete') < 0) throw new Error('缺少 cbAlertDelete');

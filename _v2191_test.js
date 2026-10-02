@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.18.13 回归测试：云同步推送失败「报错人话化 + 退避重试」。
    运行：node _v2191_test.js */
 const fs = require('fs');
@@ -76,10 +85,10 @@ t('旧「裸报错」已移除', () => {
 
 console.log('\n=== 版本 ===');
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.29.0</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.29.0 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.29.0</span>', '设置徽标');
-  has(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'), "CACHE_NAME = 'class-manager-v2.29.0'", 'SW');
+  has(html, '<div class="login-version">' + V + '</div>', '登录页');
+  has(html, '<div class="sidebar-footer">' + V + ' · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ ' + V + '</span>', '设置徽标');
+  has(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'), "CACHE_NAME = 'class-manager-" + V + "'", 'SW');
 });
 t('近版更新速览含新条', () => {
   // v2.20.0 维护约定（index.html「settingsAbout」上方注释）：更新速览【只保留最新一版、整体替换、不做追加】，

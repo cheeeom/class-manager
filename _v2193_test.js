@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.18.13 回归测试：往隐式重建的大类里添加原因 → 大类/方向同步 revive，
    云端旧大类墓碑不再在推送前合并/拉取时把整组连同新原因一起抹掉。
    运行：node _v2193_test.js */
@@ -208,13 +217,13 @@ t('openReasonGroupModal 新增大类含 dirs revive', () => {
   has(src, 'catRefresh();', '保存链完整（catRefresh 未丢）');
 });
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.29.0</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.29.0 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.29.0</span>', '设置徽标');
-  has(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'), "CACHE_NAME = 'class-manager-v2.29.0'", 'SW');
+  has(html, '<div class="login-version">' + V + '</div>', '登录页');
+  has(html, '<div class="sidebar-footer">' + V + ' · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ ' + V + '</span>', '设置徽标');
+  has(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'), "CACHE_NAME = 'class-manager-" + V + "'", 'SW');
 });
 t('近版更新速览含新条', () => {
-  has(html, '（v2.29.0）', 'notes');
+  has(html, '（' + V + '）', 'notes');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

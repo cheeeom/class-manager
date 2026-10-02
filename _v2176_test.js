@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.17.30 回归测试：弹窗头部统一（.modal-header/.modal-close 补基础样式，× 圆键居右）——
    档案编辑/成长记录/工作留痕/荣誉四个弹窗的关闭键从此告别「标题下方左缘」，与全站 .panel-close 设计语言一致。
    运行：node _v2176_test.js */
@@ -18,9 +27,9 @@ t('index.html 主 <script> 块可被完整编译（无语法错误）', () => {
 
 console.log('\n=== v2.18.13 版本三处同步 ===');
 t('登录页 / 侧栏 / SW CACHE_NAME = v2.18.13', () => {
-  if (!/login-version">v2.29.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2.29.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n').includes('class-manager-v2.29.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!new RegExp('login-version">' + VR + '<').test(html)) throw new Error('登录页版本号未更新');
+  if (!new RegExp('sidebar-footer">' + VR + ' ·').test(html)) throw new Error('侧栏版本号未更新');
+  if (!fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n').includes('class-manager-' + V + '')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 弹窗头部 CSS 基础样式（v2.17.30 修复点） ===');

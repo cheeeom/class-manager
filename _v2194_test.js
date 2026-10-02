@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.18.13 回归测试：平板/矮窗口侧栏导航「设置」显示不全且无法滑动 ——
  * 根因：.nav 是 column flex（.sidebar）的子项，只有 flex:1 没有 min-height:0，
  *       flex 子项默认 min-height:auto 不允许收缩到比内容矮 → overflow-y:auto 永不生效，
@@ -51,16 +60,16 @@ t('「设置」是导航最后一项（data-page="settings" 在 </nav> 前）', 
 });
 
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.29.0</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.29.0 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.29.0</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.29.0'", 'SW');
+  has(html, '<div class="login-version">' + V + '</div>', '登录页');
+  has(html, '<div class="sidebar-footer">' + V + ' · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ ' + V + '</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-" + V + "'", 'SW');
 });
 
 t('设置页「近版更新速览」新增本版条目（旧条不删）', () => {
-  has(html, '（v2.29.0）', '缺 v2.18.13 notes 条目');
-  has(html, '（v2.29.0）', 'v2.18.9 旧条目被删');
-  has(html, '（v2.29.0）', 'v2.18.5 旧条目被删');
+  has(html, '（' + V + '）', '缺 v2.18.13 notes 条目');
+  has(html, '（' + V + '）', 'v2.18.9 旧条目被删');
+  has(html, '（' + V + '）', 'v2.18.5 旧条目被删');
 });
 
 t('历史注释不被升版波及（v2.18.9 引入版注释保持原样）', () => {

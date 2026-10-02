@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.16.1 回归测试：学分公示模块（周期统计/榜单/隐私/导航白名单/导出入口）
    v2.16.1：概览卡最高/最低分；零扣分榜改为「未扣分续航」（距上次扣分天数，全程流水）
    运行：node _v2160_test.js */
@@ -324,10 +333,10 @@ global.document = __orig.doc; global.requestAnimationFrame = __orig.raf; global.
 
 console.log('\n=== 版本号 ===');
 t('v2.18.13 三处同步：登录页 / 侧栏 / SW CACHE_NAME', () => {
-  if (!/login-version">v2.29.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2.29.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
+  if (!new RegExp('login-version">' + VR + '<').test(html)) throw new Error('登录页版本号未更新');
+  if (!new RegExp('sidebar-footer">' + VR + ' ·').test(html)) throw new Error('侧栏版本号未更新');
   const sw = fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n');
-  if (!sw.includes('class-manager-v2.29.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!sw.includes('class-manager-' + V + '')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n结果：' + pass + ' 通过，' + fail + ' 失败');

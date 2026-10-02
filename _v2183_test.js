@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.17.30 回归测试：设置页底部新增「关于本系统」（开发作者 chee + 版本徽标 + 近版更新速览）
    运行：node _v2183_test.js */
 const fs = require('fs');
@@ -13,9 +22,9 @@ t('index.html 主 <script> 块可被完整编译', () => {
   [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
 });
 t('版本三处同步 = v2.18.13（登录页/侧栏/SW CACHE_NAME）', () => {
-  if (!/login-version">v2.29.0</.test(html)) throw new Error('登录页版本号未更新');
-  if (!/sidebar-footer">v2.29.0 ·/.test(html)) throw new Error('侧栏版本号未更新');
-  if (!sw.includes('class-manager-v2.29.0')) throw new Error('SW CACHE_NAME 未更新');
+  if (!new RegExp('login-version">' + VR + '<').test(html)) throw new Error('登录页版本号未更新');
+  if (!new RegExp('sidebar-footer">' + VR + ' ·').test(html)) throw new Error('侧栏版本号未更新');
+  if (!sw.includes('class-manager-' + V + '')) throw new Error('SW CACHE_NAME 未更新');
 });
 
 console.log('\n=== 设置页「关于本系统」区块 ===');
@@ -30,16 +39,16 @@ t('开发作者 = chee', () => {
   has(html, '开发作者：<b style="color:var(--primary)">chee</b>', '缺作者署名');
 });
 t('版本徽标与全局版本一致（v2.18.3，随升版自动跟版）', () => {
-  has(html, '🏷️ v2.29.0</span>', '设置页版本徽标未跟版');
+  has(html, '🏷️ ' + V + '</span>', '设置页版本徽标未跟版');
 });
 t('近版更新速览内容齐（v2.18.3 本期六条：处分记录云同步 / 重置加密口令 / 工作记录搜索 / 本地保存失败提示 / 零扣分榜天数排名 / 预警迁移）', () => {
   has(html, 'id="settingsReleaseNotes"', '缺 notes 容器');
   has(html, '近版更新速览', '缺标题');
-  has(html, '（v2.29.0）', '缺处分记录同步修复说明');
+  has(html, '（' + V + '）', '缺处分记录同步修复说明');
   has(html, '重置云端加密口令', '缺重置口令说明');
-  has(html, '（v2.29.0）', '缺搜索框说明');
-  has(html, '（v2.29.0）', '缺保存失败提示说明');
-  has(html, '（v2.29.0）', '缺零扣分榜说明');
+  has(html, '（' + V + '）', '缺搜索框说明');
+  has(html, '（' + V + '）', '缺保存失败提示说明');
+  has(html, '（' + V + '）', '缺零扣分榜说明');
 });
 t('区块风格沿用 settings-section / 主色徽标（样式一致性冒烟）', () => {
   const seg = html.slice(html.indexOf('id="settingsAbout"') - 200, html.indexOf('id="settingsReleaseNotes"') + 400);

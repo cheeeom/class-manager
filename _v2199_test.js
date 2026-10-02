@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.18.15 回归测试：学生删除墓碑（修复删除学生后过会儿复活）——
  * 根因：smartMergeData 对 students 是「按 id 并集、保留较新」，但学生从来没有删除墓碑——
  *       云端/其他设备的旧副本每次拉取合并都把已删学生并回来（与 v2.18.12 荣誉、v2.17.30 原因目录同类）。
@@ -193,15 +202,15 @@ t('两条删除路径都记墓碑', () => {
 
 console.log('\n=== ⑤ 版本与历史注释 ===');
 t('版本标记统一 v2.19.0', () => {
-  has(html, '<div class="login-version">v2.29.0</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.29.0 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.29.0</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.29.0'", 'SW');
+  has(html, '<div class="login-version">' + V + '</div>', '登录页');
+  has(html, '<div class="sidebar-footer">' + V + ' · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ ' + V + '</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-" + V + "'", 'SW');
 });
 t('设置页「近版更新速览」新增本版条目（旧条不删）', () => {
-  has(html, '（v2.29.0）', '缺 v2.18.15 notes 条目');
-  has(html, '（v2.29.0）', 'v2.18.14 旧条被删');
-  has(html, '（v2.29.0）', 'v2.18.13 旧条被删');
+  has(html, '（' + V + '）', '缺 v2.18.15 notes 条目');
+  has(html, '（' + V + '）', 'v2.18.14 旧条被删');
+  has(html, '（' + V + '）', 'v2.18.13 旧条被删');
 });
 t('历史注释不被波及（v2.18.14/v2.18.13 引入版注释保持原样）', () => {
   has(html, 'var TOMB = {};   // v2.19.0 墓碑集合由 STATE_SCHEMA.tomb 派生（新增墓碑字段只改 schema；不走覆盖，走下方取大/并集）', 'mergeImportData TOMB 更新');

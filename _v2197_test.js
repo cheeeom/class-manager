@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.18.13 回归测试：批量导入学生表格（.xlsx / .csv，按表头自动识别） ——
  * ① CSV 解析（RFC4180）② 内置 ZIP + DEFLATE 解压 ③ xlsx 网格读取（sharedStrings）
  * ④ 表头自动识别（姓名/性别/家长电话/家长/学号/寝室同义词）⑤ planStudentImport 纯函数
@@ -153,15 +162,15 @@ t('设置页入口：accept 扩展、按钮、路由、预览模态', () => {
   has(html, 'onclick="confirmStudentImport()"', '确认按钮');
 });
 t('版本标记统一 v2.18.13', () => {
-  has(html, '<div class="login-version">v2.29.0</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.29.0 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.29.0</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.29.0'", 'SW');
+  has(html, '<div class="login-version">' + V + '</div>', '登录页');
+  has(html, '<div class="sidebar-footer">' + V + ' · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ ' + V + '</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-" + V + "'", 'SW');
 });
 t('设置页「近版更新速览」新增本版条目（旧条不删）', () => {
-  has(html, '（v2.29.0）', '缺 v2.18.13 notes 条目');
-  has(html, '（v2.29.0）', 'v2.18.12 旧条被删');
-  has(html, '（v2.29.0）', 'v2.18.11 旧条被删');
+  has(html, '（' + V + '）', '缺 v2.18.13 notes 条目');
+  has(html, '（' + V + '）', 'v2.18.12 旧条被删');
+  has(html, '（' + V + '）', 'v2.18.11 旧条被删');
 });
 t('历史注释不被波及', () => {
   has(html, "catDelUndo('dirs', dir);   // v2.18.9 同步 revive 所在方向", '历史注释被改动');

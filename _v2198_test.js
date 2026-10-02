@@ -1,3 +1,12 @@
+// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+const V = (function () {
+  try {
+    var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+})();
+if (!V) throw new Error('[版本无关化] 未能从 sw.js 反推版本号（CACHE_NAME 缺失或路径不对）');
+const VR = V.replace(/\./g, '\\.');
 /* v2.18.14 回归测试：JSON 导入改「覆盖式合并」修复荣誉复活 ——
  * ① mergeImportData 纯函数：本机为底 + 备份同步字段覆盖
  * ② 删除墓碑（honorDeleted 取大 / catDeleted 并集 / catDeletedAt·catRevived 取大）不被旧备份擦除
@@ -124,15 +133,15 @@ t('handleImportFile 使用 mergeImportData + prevData', () => {
 
 console.log('\n=== ⑤ 版本与历史注释 ===');
 t('版本标记统一 v2.18.14', () => {
-  has(html, '<div class="login-version">v2.29.0</div>', '登录页');
-  has(html, '<div class="sidebar-footer">v2.29.0 · 班主任工作台</div>', '侧栏');
-  has(html, '🏷️ v2.29.0</span>', '设置徽标');
-  has(sw, "CACHE_NAME = 'class-manager-v2.29.0'", 'SW');
+  has(html, '<div class="login-version">' + V + '</div>', '登录页');
+  has(html, '<div class="sidebar-footer">' + V + ' · 班主任工作台</div>', '侧栏');
+  has(html, '🏷️ ' + V + '</span>', '设置徽标');
+  has(sw, "CACHE_NAME = 'class-manager-" + V + "'", 'SW');
 });
 t('设置页「近版更新速览」新增本版条目（旧条不删）', () => {
-  has(html, '（v2.29.0）', '缺 v2.18.14 notes 条目');
-  has(html, '（v2.29.0）', 'v2.18.13 旧条被删');
-  has(html, '（v2.29.0）', 'v2.18.12 旧条被删');
+  has(html, '（' + V + '）', '缺 v2.18.14 notes 条目');
+  has(html, '（' + V + '）', 'v2.18.13 旧条被删');
+  has(html, '（' + V + '）', 'v2.18.12 旧条被删');
 });
 t('历史注释不被波及（v2.18.13 引入版注释保持原样）', () => {
   has(html, '// v2.18.13 表格分流：.xlsx/.csv 走学生表格导入，.json 走原备份导入', '历史注释被改动');
