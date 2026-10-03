@@ -2504,7 +2504,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.0.2</div>
+      <div class="login-version">v3.0.3</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2625,7 +2625,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.0.2 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.0.3 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3272,14 +3272,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">跟随系统：自动根据设备系统外观切换</div>
         </div>
 <div class="settings-section">
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleSettingsSec('secPub', this)">
-            <div style="display:flex;align-items:center;gap:8px;min-width:0">
-              <span style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-          <h3 style="margin:0">🏆 公示设置</h3>
-            </div>
-            <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
-          </div>
-          <div id="secPub" style="display:none">
+                    <h3>🏆 公示设置</h3>
           <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
             <div class="form-group" style="margin-bottom:0">
               <label>公示姓名显示</label>
@@ -3297,14 +3290,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">公示页与导出图中的姓名按此显示；开学日期用于「本学期」周期统计（默认按学年 9/1 或 3/1 自动推断）</div>
         </div>
         <div class="settings-section">
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleSettingsSec('secCm', this)">
-            <div style="display:flex;align-items:center;gap:8px;min-width:0">
-              <span style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-          <h3 style="margin:0">👩‍💼 班委协作设置</h3>
-            </div>
-            <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
-          </div>
-          <div id="secCm" style="display:none">
+                    <h3>👩‍💼 班委协作设置</h3>
           <label style="display:flex;gap:8px;align-items:center;font-size:14px;cursor:pointer">
             <input type="checkbox" id="cmCanMinusChk" onchange="onCmCanMinusChange()" style="width:16px;height:16px"> 允许班委扣分（减分）
           </label>
@@ -3369,14 +3355,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         </div>
 
         <div class="settings-section">
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleSettingsSec('secGuide', this)">
-            <div style="display:flex;align-items:center;gap:8px;min-width:0">
-              <span style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-          <h3 style="margin:0">📋 跨电脑使用指南</h3>
-            </div>
-            <span style="font-size:12px;color:var(--text-muted)">新设备接入三步 · 点击展开</span>
-          </div>
-          <div id="secGuide" style="display:none">
+                    <h3>📋 跨电脑使用指南</h3>
           <div style="font-size:13px;color:var(--text-secondary);line-height:1.8">
             <p><b>推荐：云端同步（免搬运）</b>——新设备打开同一网址并登录后：①「☁️ Git 云同步」→「配置 GitHub Token」（对该私有数据仓有读写权限）；②「配置同步口令」（须与其他设备完全相同）；③ 点「⬇️ 从云端拉取数据」，数据自动解密合并到本机。</p>
             <p><b>注意：</b>若开启了「登录密码仅限本机」，新设备首次登录需输入管理员密码授权一次。</p>
@@ -3401,27 +3380,22 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         </div>
         
 <div class="settings-section" id="settingsAbout">
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleSettingsSec('secAbout', this)">
-            <div style="display:flex;align-items:center;gap:8px;min-width:0">
-              <span style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-          <h3 style="margin:0">ℹ️ 关于本系统</h3>
-            </div>
-            <span style="font-size:12px;color:var(--text-muted)">版本与更新记录 · 点击展开</span>
-          </div>
-          <div id="secAbout" style="display:none">
+                    <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.0.2</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.0.3</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.0.2）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.0.3）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+          · 🧹 <b>修复设置页卡片嵌套（P0）</b>：上一版「分组收纳」的折叠容器有缺陷，公示设置之后的设置卡被错误包进隐藏层（班委协作/数据管理/云同步/密码等全部不可见、看似重叠）——已整体还原为独立卡片，每张设置卡各自独立、全部可见；速览折叠保留
+          
           · 🛏 <b>寝室性别改「以住定性」</b>：男寝/女寝由实际入住成员的档案性别推导（同寝一致才推断、混住不推断），删除「7栋214=男寝、6栋801~806=女寝」硬编码——换班级/换寝室不再改代码；安排入住时若与现住成员性别不一致会提示确认
           
           · 🔑 <b>Token / 同步口令配置改站内模态</b>：告别浏览器原生弹窗——口令走密码框不明文回显、Token 粘贴友好并附生成步骤指引；全站仅剩设备授权 1 处原生输入（登录路径一次性流程）
@@ -3444,10 +3418,6 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           </div>
           </div>
         </div>
-          </div>
-          </div>
-          </div>
-      </div>
     </div>
   </div>
 </div>
@@ -13913,15 +13883,6 @@ function toggleReleaseNotes(){
   if(!b) return;
   var open = b.style.display !== 'none';
   b.style.display = open ? 'none' : '';
-  if(a) a.textContent = open ? '▶' : '▼';
-}
-
-function toggleSettingsSec(bodyId, headEl){
-  var b = document.getElementById(bodyId);
-  if(!b) return;
-  var open = b.style.display !== 'none';
-  b.style.display = open ? 'none' : '';
-  var a = headEl ? headEl.querySelector('span') : null;
   if(a) a.textContent = open ? '▶' : '▼';
 }
 
