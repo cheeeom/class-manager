@@ -131,12 +131,12 @@ t('抽出执行体便于测试：extendLeaveApply / resetCloudPwdApply 均已定
   has(html, 'function resetCloudPwdApply(p){');
   has(fnBody('extendLeave'), 'extendLeaveApply(leave, newEnd)');
 });
-t('全站仅剩 4 处原生 prompt（同步口令 / 确认口令 / GitHub Token / v3.0.0 设备授权），无业务输入', () => {
-  eq(count('= prompt('), 4);
-  has(html, "var token = prompt('GitHub Token ");
-  has(html, "var again = prompt('请再次输入口令以确认：')");
+t('全站仅剩 1 处原生 prompt（v3.0.0 设备授权；Token/同步口令已改 cmPrompt，v3.0.3），无业务输入', () => {
+  eq(count('= prompt('), 1);
+
+
 });
-t('cmPrompt 调用点 7 处（6 业务 + 重置口令）', () => eq(count('cmPrompt({'), 7));
+t('cmPrompt 调用点 9 处（6 业务 + 重置口令 + Token + 同步口令）', () => eq(count('cmPrompt({'), 9));
 
 /* ==================== P1-a 目录改名跨设备传播 ==================== */
 console.log('\n=== P1-a 目录改名跨设备传播（删除墓碑） ===');

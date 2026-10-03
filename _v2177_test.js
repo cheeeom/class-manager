@@ -1,4 +1,4 @@
-// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
+﻿// [版本无关化 v1] 当版版本号从 sw.js 的 CACHE_NAME 反推；跟版时本文件无需改动。
 const V = (function () {
   try {
     var m = /CACHE_NAME\s*=\s*'class-manager-(v[\d.]+)'/.exec(require('fs').readFileSync(require('path').join(__dirname, 'sw.js'), 'utf8'));
@@ -38,15 +38,14 @@ function extractFn(name) {
 var _pyCollator = (typeof Intl !== 'undefined' && Intl.Collator)
   ? new Intl.Collator('zh-Hans-CN', { sensitivity: 'variant', numeric: true })
   : null;
-const _m = html.match(/var DORM_GENDER_RULES = (\[[\s\S]*?\n\]);/);
-var DORM_GENDER_RULES = _m ? eval('(' + _m[1] + ')') : [];
 var dormNoOf = extractFn('dormNoOf');
 var normalizeDormTag = extractFn('normalizeDormTag');
 var isDormTag = extractFn('isDormTag');
 // v2.17.30 注入 const 常量依赖（DORM_RE 是 const，eval 抽函数没法闭包到）
 const _dormReMatch = html.match(/const DORM_RE = (\/[\s\S]*?\/);/);
 var DORM_RE = _dormReMatch ? eval(_dormReMatch[1]) : null;
-const dormGenderOf = extractFn('dormGenderOf');
+  var studentGender = extractFn('studentGender');
+  const dormGenderConsensusOf = extractFn('dormGenderConsensusOf');
 const fillStudentGenderFromDorm = extractFn('fillStudentGenderFromDorm');
 const pinyinNameCmp = extractFn('pinyinNameCmp');
 const sortStudentsByPinyin = extractFn('sortStudentsByPinyin');
@@ -78,33 +77,45 @@ t('拼音排序：陈晨<李雷<孙悦<王小明<张伟<赵敏（按 zh 字典�
   eq(JSON.stringify(sorted), JSON.stringify(['陈晨','李雷','孙悦','王小明','张伟','赵敏']));
 });
 
-t('DORM_GENDER_RULES 两条规则就位', () => {
-  has(html, '7栋-?214室', '缺男寝规则');
-  has(html, '6栋-?80[1-6]室', '缺女寝规则');
-});
-t('dormGenderOf：男寝 7栋214 → 男；女寝 6栋801/802/806 → 女；其他 → 空', () => {
-  eq(dormGenderOf('7栋214室'), '男');
-  eq(dormGenderOf('7栋-214室'), '男');
-  eq(dormGenderOf('6栋-801室'), '女');
-  eq(dormGenderOf('6栋802室'), '女');
-  eq(dormGenderOf('6栋-806室'), '女');
-  eq(dormGenderOf('6栋-807室'), '');
-  eq(dormGenderOf('7栋-215室'), '');
-  eq(dormGenderOf('走读'), '');
-});
-t('fillStudentGenderFromDorm：仅在档案性别为空时补写，已设置不覆盖', () => {
-  var s1 = { id: 1, tags: ['6栋-802室'] };   // 无 profile → 创建并补写
-  eq(fillStudentGenderFromDorm(s1), true);
-  eq(s1.profile.gender, '女');
-  var s2 = { id: 2, tags: ['6栋-802室'], profile: { gender: '男', timeline: [] } };   // 已填「男」不覆盖
-  eq(fillStudentGenderFromDorm(s2), false);
-  eq(s2.profile.gender, '男');
-  var s3 = { id: 3, tags: ['7栋-215室'], profile: { gender: '' } };   // 规则不命中
-  eq(fillStudentGenderFromDorm(s3), false);
-  eq(s3.profile.gender, '');
-  var s4 = { id: 4, tags: [] };   // 无寝室号
-  eq(fillStudentGenderFromDorm(s4), false);
-});
+  t('dormGenderConsensusOf：以住定性——成员性别推导男寝/女寝，混住不推断', () => {
+    var students = [
+      { id: 1, tags: ['7栋-214室'], profile: { gender: '男' } },
+      { id: 2, tags: ['6栋-801室'], profile: { gender: '女' } },
+      { id: 3, tags: ['6栋-801室'] },
+      { id: 4, tags: ['6栋-809室'] },
+      { id: 5, tags: ['6栋-810室'], profile: { gender: '男' } },
+      { id: 6, tags: ['6栋-810室'], profile: { gender: '女' } }
+    ];
+    eq(dormGenderConsensusOf('7栋-214室', students), '男');
+    eq(dormGenderConsensusOf('6栋-801室', students), '女');   // 有空性别成员不挡共识
+    eq(dormGenderConsensusOf('6栋-809室', students), '');      // 无可依成员
+    eq(dormGenderConsensusOf('6栋-810室', students), '');      // 男女混住 → 不推断
+    eq(dormGenderConsensusOf('7栋-215室', students), '');      // 无人住
+    eq(dormGenderConsensusOf('', students), '');
+  });
+  t('dormGenderConsensusOf：excludeId 排除本人', () => {
+    var students = [{ id: 1, tags: ['7栋-300室'], profile: { gender: '女' } }];
+    eq(dormGenderConsensusOf('7栋-300室', students), '女');
+    eq(dormGenderConsensusOf('7栋-300室', students, 1), '');   // 排除自己后无依据
+  });
+  t('fillStudentGenderFromDorm：性别为空 → 按同寝共识补写；已填不覆盖；无依据不填', () => {
+    state.students = [   // 复用模块级 state（extractFn 出的函数闭包引用它）
+      { id: 1, tags: ['6栋-802室'] },
+      { id: 2, tags: ['6栋-802室'], profile: { gender: '女', timeline: [] } }
+    ];
+    var s1 = state.students[0];
+    eq(fillStudentGenderFromDorm(s1), true);
+    eq(s1.profile.gender, '女');
+    var s2 = { id: 2, tags: ['6栋-802室'], profile: { gender: '男', timeline: [] } };
+    eq(fillStudentGenderFromDorm(s2), false);
+    eq(s2.profile.gender, '男');
+    var s3 = { id: 3, tags: ['6栋-999室'], profile: { gender: '' } };
+    eq(fillStudentGenderFromDorm(s3), false);
+    eq(s3.profile.gender, '');
+    var s4 = { id: 4, tags: [] };
+    eq(fillStudentGenderFromDorm(s4), false);
+  });
+
 t('renderProfiles 启动时调 fillAllDormGenders 全校兜底', () => {
   if (!/function renderProfiles\(\)\{[\s\S]*?fillAllDormGenders\(\)/.test(html)) throw new Error('未挂载全校补写');
 });

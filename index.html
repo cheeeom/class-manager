@@ -2504,7 +2504,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.0.1</div>
+      <div class="login-version">v3.0.2</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2625,7 +2625,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.0.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.0.2 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3197,7 +3197,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div class="page" id="page-settings">
 
         <div class="settings-section">
-          <h3>班级名称</h3>
+          <h3>🏷️ 班级信息</h3>
           <div style="display:flex;gap:8px">
             <input type="text" id="classNameInput" placeholder="班级名称" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px">
             <button class="btn btn-primary btn-sm" onclick="saveClassName()">保存</button>
@@ -3210,6 +3210,12 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             </div>
             <div id="classNameFullStatus" style="margin-top:8px;font-size:12px;color:var(--text-muted)">留空时荣誉证书将使用上方「班级名称」（简称）</div>
           </div>
+          <div style="height:14px"></div>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="mottoInput" placeholder="输入班级口号..." style="flex:1;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px">
+            <button class="btn btn-primary btn-sm" onclick="saveMottoFromSettings()">保存</button>
+          </div>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">显示在工作台首页顶部，点击横幅也可快速修改</div>
         </div>
         <div class="settings-section">
           <h3>班级头像</h3>
@@ -3218,14 +3224,6 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <button class="btn btn-outline btn-sm" onclick="openAvatarModal()">📷 上传头像</button>
             <button class="btn btn-danger btn-sm" id="removeAvatarBtn" onclick="removeClassAvatar()" style="display:none">🗑 移除头像</button>
           </div>
-        </div>
-        <div class="settings-section">
-          <h3>班级口号</h3>
-          <div style="display:flex;gap:8px">
-            <input type="text" id="mottoInput" placeholder="输入班级口号..." style="flex:1;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px">
-            <button class="btn btn-primary btn-sm" onclick="saveMottoFromSettings()">保存</button>
-          </div>
-          <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">显示在工作台首页顶部，点击横幅也可快速修改</div>
         </div>
 
         <div class="settings-section">
@@ -3274,7 +3272,14 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">跟随系统：自动根据设备系统外观切换</div>
         </div>
 <div class="settings-section">
-          <h3>🏆 公示设置</h3>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleSettingsSec('secPub', this)">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0">
+              <span style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
+          <h3 style="margin:0">🏆 公示设置</h3>
+            </div>
+            <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
+          </div>
+          <div id="secPub" style="display:none">
           <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
             <div class="form-group" style="margin-bottom:0">
               <label>公示姓名显示</label>
@@ -3292,7 +3297,14 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">公示页与导出图中的姓名按此显示；开学日期用于「本学期」周期统计（默认按学年 9/1 或 3/1 自动推断）</div>
         </div>
         <div class="settings-section">
-          <h3>👩‍💼 班委协作设置</h3>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleSettingsSec('secCm', this)">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0">
+              <span style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
+          <h3 style="margin:0">👩‍💼 班委协作设置</h3>
+            </div>
+            <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
+          </div>
+          <div id="secCm" style="display:none">
           <label style="display:flex;gap:8px;align-items:center;font-size:14px;cursor:pointer">
             <input type="checkbox" id="cmCanMinusChk" onchange="onCmCanMinusChange()" style="width:16px;height:16px"> 允许班委扣分（减分）
           </label>
@@ -3307,7 +3319,6 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <button class="btn btn-outline" onclick="importData()">📂 导入数据</button>
             <button class="btn btn-outline" onclick="pickStudentTableFile()" title="从 Excel(.xlsx) 或 CSV 表格批量导入学生：按表头自动识别 姓名/性别/家长电话/家长/学号/寝室">📊 批量导入学生表格</button>
             <button class="btn btn-outline" onclick="openCreditAudit()">🔍 学分体检</button>
-            <button class="btn btn-danger" onclick="clearData()">🗑 清空数据</button>
           </div>
           <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">「学分体检」可查看每人 当前分 / 入班基准 / 流水合计 是否对得上，基准异常（≠100）可一键纠正</div>
           <div id="syncStatus" style="margin-top:12px;padding:10px 14px;background:rgba(166,58,43,0.04);border-radius:10px;font-size:13px;color:var(--text-secondary);display:none">
@@ -3320,9 +3331,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px">
             <button class="btn btn-primary" onclick="pushToCloud()">⬆️ 推送数据到云端</button>
             <button class="btn btn-outline" onclick="pullFromCloud()">⬇️ 从云端拉取数据</button>
-            <button class="btn" onclick="restoreFromCloud()" style="background:var(--danger);color:#fff;margin-left:8px">🔄 从云端恢复（覆盖本地）</button>
           </div>
-          <p style="font-size:12px;color:var(--text-muted);margin-top:4px">⚠️「恢复」会用云端数据完全替换本地，本地未推送的数据将丢失</p>
           <div id="cloudSyncInfo" style="margin-top:8px"></div>
           <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
             <button class="btn btn-outline" style="font-size:12px;padding:4px 12px" id="localModeBtn" onclick="toggleLocalMode()">📴 纯本地模式：关（点击开启）</button>
@@ -3334,7 +3343,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <span id="ghTokenStatus"></span>
             <button class="btn btn-outline" style="font-size:12px;padding:4px 12px" onclick="configSyncPwd()">🔒 配置同步口令</button>
             <span id="syncPwdStatus"></span>
-            <button class="btn btn-outline" style="font-size:12px;padding:4px 12px" onclick="resetCloudPwd()">🔁 重置云端加密口令</button>
+            <button class="btn btn-outline" style="font-size:12px;padding:4px 12px;color:var(--danger);border-color:rgba(180,35,24,0.4)" onclick="resetCloudPwd()">🔁 重置云端加密口令</button>
           </div>
           <p style="font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.6">
             数据存于<b>私有仓库</b>（外部访客访问一律返回 404），每台设备须配置对该仓库有读写权限的 GitHub Token 才能同步。<br>
@@ -3360,28 +3369,69 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         </div>
 
         <div class="settings-section">
-          <h3>📋 跨电脑使用指南</h3>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleSettingsSec('secGuide', this)">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0">
+              <span style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
+          <h3 style="margin:0">📋 跨电脑使用指南</h3>
+            </div>
+            <span style="font-size:12px;color:var(--text-muted)">新设备接入三步 · 点击展开</span>
+          </div>
+          <div id="secGuide" style="display:none">
           <div style="font-size:13px;color:var(--text-secondary);line-height:1.8">
-            <p><b>步骤 1：</b>在当前电脑点击「💾 导出数据」，会下载一个 <code style="background:rgba(166,58,43,0.08);padding:2px 6px;border-radius:4px;font-size:12px">班级名_YYYY-MM-DD.json</code> 文件</p>
-            <p><b>步骤 2：</b>将此文件通过 U盘 / 微信文件传输 / 网盘 等方式传到另一台电脑</p>
-            <p><b>步骤 3：</b>在另一台电脑打开本系统，点击「📂 导入数据」选择该文件即可恢复全部数据</p>
-            <p style="margin-top:8px;color:var(--text-muted)">💡 提示：也可以直接把 index.html 和 json 数据文件一起放进U盘的网页文件夹，到任何电脑双击打开即可使用。</p>
+            <p><b>推荐：云端同步（免搬运）</b>——新设备打开同一网址并登录后：①「☁️ Git 云同步」→「配置 GitHub Token」（对该私有数据仓有读写权限）；②「配置同步口令」（须与其他设备完全相同）；③ 点「⬇️ 从云端拉取数据」，数据自动解密合并到本机。</p>
+            <p><b>注意：</b>若开启了「登录密码仅限本机」，新设备首次登录需输入管理员密码授权一次。</p>
+            <p style="margin-top:8px;color:var(--text-muted)">💡 备用方案：完全离线的环境才用「💾 导出数据」导出 JSON 文件、拷到新设备后「📂 导入数据」恢复（导入前旧数据会自动备份）。日常换电脑请优先走云同步，避免数据版本落后。</p>
           </div>
         </div>
 
         <!-- v2.17.30 设置页底部：版本信息说明（作者 / 版本徽标 / 本版更新速览）。
              维护约定（v2.20.0 起）：发版时①版本徽标三处（登录页 / 侧栏页脚 / 此处）与 sw.js CACHE_NAME 同步跟版；
-             ②「本版更新速览」用最新版本的内容【整体替换】，只保留最新一版，不做追加。 -->
-        <div class="settings-section" id="settingsAbout">
-          <h3>ℹ️ 关于本系统</h3>
+             ②「本版更新速览」用最新版本的内容【整体替换】，只保留最新一版，不做追加；③速览默认收起（点标题展开，v3.0.2）。 -->
+                <div class="settings-section">
+          <h3>⚠️ 危险操作</h3>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-danger" onclick="restoreFromCloud()">🔄 从云端恢复（覆盖本地）</button>
+            <button class="btn btn-danger" onclick="clearData()">🗑 清空数据</button>
+          </div>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-muted);line-height:1.7">
+            「从云端恢复」会用云端数据完全替换本地，本地未推送的数据将丢失；「清空数据」清空本机全部数据，并同步清空云端（其他设备打开时会自动对齐清空，旧数据不会复活）。<br>
+            两项均有二次确认；执行前建议先「💾 导出数据」留一份备份。
+          </div>
+          </div>
+        </div>
+        
+<div class="settings-section" id="settingsAbout">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleSettingsSec('secAbout', this)">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0">
+              <span style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
+          <h3 style="margin:0">ℹ️ 关于本系统</h3>
+            </div>
+            <span style="font-size:12px;color:var(--text-muted)">版本与更新记录 · 点击展开</span>
+          </div>
+          <div id="secAbout" style="display:none">
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.0.1</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.0.2</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
-            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px">📝 近版更新速览（v3.0.1）</div>
-            <div id="settingsReleaseNotes" style="font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-              · 📱 <b>手机端两个修复</b>：① <b>请假条不用再左右滑</b> —— 有「续假」历史的记录会把卡片撑得比屏幕还宽、整页跟着横向滚动，现在超长历史自动省略号收尾，卡片始终贴合屏幕宽度；② <b>切模块回主页能看见课程表了</b> —— 从往下翻过的长页面（请假 / 德育 / 座位）点回「首页」时不再停在上一页的滚动位置，回首页即从头开始，最上面的课程表直接可见<br>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0">
+              <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.0.2）</div>
+            </div>
+            <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
+          </div>
+            <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+          · 🛏 <b>寝室性别改「以住定性」</b>：男寝/女寝由实际入住成员的档案性别推导（同寝一致才推断、混住不推断），删除「7栋214=男寝、6栋801~806=女寝」硬编码——换班级/换寝室不再改代码；安排入住时若与现住成员性别不一致会提示确认
+          
+          · 🔑 <b>Token / 同步口令配置改站内模态</b>：告别浏览器原生弹窗——口令走密码框不明文回显、Token 粘贴友好并附生成步骤指引；全站仅剩设备授权 1 处原生输入（登录路径一次性流程）
+          · 🗂 <b>设置页分组收纳</b>：公示设置 / 班委协作 / 跨电脑指南 / 关于本系统默认收起，点标题展开，常用项一屏直达
+          · 🏷️ <b>班级信息三合一</b>：班级名称 / 证书落款全称 / 班级口号合并为一张卡片集中管理
+          
+· 🧭 <b>跨电脑指南重写</b>：旧指南还在教「U盘拷 JSON」的手动搬运，已改为「新设备接入三步」（配 Token → 设同步口令 → 云端拉取），U盘导入导出仅作无网络时的备用<br>
+          · 📝 <b>更新速览默认收起</b>：本节改为折叠式，点标题展开，不再占据半屏<br>
+          · ⚠️ <b>危险操作聚合</b>：「清空数据」「从云端恢复（覆盖本地）」集中到独立的「危险操作」区并统一警示样式，「重置云端加密口令」同步改为警示配色；三项均有二次确认
+          · 📱 <b>手机端两个修复</b>：① <b>请假条不用再左右滑</b> —— 有「续假」历史的记录会把卡片撑得比屏幕还宽、整页跟着横向滚动，现在超长历史自动省略号收尾，卡片始终贴合屏幕宽度；② <b>切模块回主页能看见课程表了</b> —— 从往下翻过的长页面（请假 / 德育 / 座位）点回「首页」时不再停在上一页的滚动位置，回首页即从头开始，最上面的课程表直接可见<br>
               · 🚀 <b>v3.0.0 大版本</b>：班委协作只允许 <b>班长、副班长、纪律委员</b> 三人进入，班委可看<b>课表</b>、看<b>请假人数与姓名</b>（不可登记，课表/请假页均为只读）；新增「<b>登录密码仅限本机</b>」—— 开启后其它设备密码对了也进不了，输入管理员密码授权一次即可；手机底栏「待办」换成「<b>请假</b>」，待办挪进「更多」；学生档案右上角新增<b>关闭按钮</b>；<b>德育记录</b>默认折叠只显 20 条、可展开看全学期流水，筛选新增「<b>本月</b>」；<b>工作留痕</b>支持添加图片（自动压缩，每条最多 4 张）；修复「<b>删除请假记录后刷新又复活</b>」的同步 bug；删除学生时自动清掉 TA 的请假记录<br>
               · 🚫 <b>关闭座位防误触</b>：退出「关闭座位模式」后，座次表顶端的提示条不再一直挂着；已关闭的格子也不会再「点一下就打开」—— 不管关还是开，都要先进「🚫 关闭座位」模式再点格子<br>
               · 👥 <b>值日不再有 2 人小组</b>：一组改成 <b>3—4 人</b> —— 先按 4 人切满，末尾不足 3 人时与前面几组重新均分（一组仍是「一周教室 + 一周公卫」的同一批人）。本班 58 人 → 13 组 4 人 + 2 组 3 人，仍是 15 组一轮<br>
@@ -3391,9 +3441,12 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
               · 🖼️ <b>导出图改成轮值表</b>：导出的图片现在是「周次 × 教室卫生 × 公共卫生」的整张表，周几谁扫一目了然，打印出来直接贴墙<br>
               · 🎲 <b>值日可随机分组</b>：值日排表页把「重新分组」拆成两个按钮，一键「🎲 随机分组」把全班打乱后重新切小组，想恢复整齐就用旁边的「按学号分组」<br>
               · 🌙 <b>暗色模式修白块</b>：Top 5 排行榜的第 4、5 名以前在暗色下是一块白底、字看不清，现在会跟着暗色走<br>
-            </div>
+          </div>
           </div>
         </div>
+          </div>
+          </div>
+          </div>
       </div>
     </div>
   </div>
@@ -4568,18 +4621,17 @@ function decryptFromCloud(env){
 }
 function configSyncPwd(){
   var cur = hasSyncPwd() ? '（已配置）' : '（未配置 —— 数据以明文存放在云端仓库，未加密保护）';
-  var p = prompt(
-    '云同步加密口令 ' + cur + '\n\n' +
-    '作用：数据会用这个口令加密后再上传到 GitHub，云端仓库里只剩密文，\n' +
-    '别人拿到也无法查看学生姓名和家长电话。\n\n' +
-    '要求：\n' +
-    '· 建议 12 位以上，混合字母与数字\n' +
-    '· 不要用 6 位登录密码（纯数字仅百万种组合，可被暴力破解）\n' +
-    '· 每台设备必须设成完全相同的口令，否则无法互通\n' +
-    '· 口令不上传、无法找回，忘记只能清空重来\n\n' +
-    '输入新口令（留空则关闭加密）：');
-  if(p === null) return;
-  p = p.trim();
+  cmPrompt({
+    title: '🔒 配置云同步加密口令 ' + cur,
+    label: '新口令（留空并保存＝关闭加密）',
+    type: 'password',
+    confirmLabel: '请再次输入口令以确认',
+    hint: '· 数据用此口令加密后再上传，云端仓库里只剩密文，别人拿到也无法查看学生姓名和家长电话<br>· 建议 12 位以上，混合字母与数字；<strong>不要用 6 位登录密码</strong>（纯数字可被暴力破解）<br>· 每台设备必须设成<strong>完全相同</strong>的口令，否则无法互通<br>· 口令不上传、无法找回，忘记只能清空重来',
+    onOk: configSyncPwdApply
+  });
+}
+function configSyncPwdApply(p){
+  p = String(p || '').trim();
   if(p === ''){
     if(!confirm('关闭加密后，数据将以明文存放在云端仓库；一旦 Token 泄露或仓库被误设为公开，任何人都能看到学生姓名和家长电话。\n\n确认关闭？')) return;
     localStorage.removeItem(SYNC_PWD_KEY);
@@ -4589,9 +4641,6 @@ function configSyncPwd(){
   }
   if(p.length < 8){ showToast('口令太短：至少 8 位，建议 12 位以上','error'); return; }
   if(!cryptoOK()){ showToast('无法启用云同步加密：' + cryptoFailReason(),'error'); return; }
-  var again = prompt('请再次输入口令以确认：');
-  if(again === null) return;
-  if(again.trim() !== p){ showToast('两次输入不一致，未保存','error'); return; }
   setSyncPwd(p);
   showToast('加密口令已保存。请在其他设备设置完全相同的口令，否则无法互通。','success');
   updateCloudSyncUI();
@@ -7443,10 +7492,17 @@ function autoPushToCloud(){
   }, 2000);
 }
 function configGHToken(){
-  var current = hasGHToken() ? '(已配置)' : '(未配置)';
-  var token = prompt('GitHub Token ' + current + '\n\n生成方法：GitHub → Settings → Developer settings → Fine-grained tokens\n仅授权本仓库 ' + GH_OWNER + '/' + GH_REPO + '（私有数据仓），权限 Contents: Read and write。\n\n输入新 token 替换，留空清除：');
-  if(token === null) return;
-  token = token.trim();
+  var current = hasGHToken() ? '（已配置）' : '（未配置）';
+  cmPrompt({
+    title: '🔑 配置 GitHub Token ' + current,
+    label: 'Token（留空并保存＝清除，云同步关闭）',
+    placeholder: '粘贴 fine-grained token（github_pat_… / ghp_…）',
+    hint: '生成方法：GitHub → Settings → Developer settings → Fine-grained tokens<br>· 仅授权本仓库 ' + GH_OWNER + '/' + GH_REPO + '（私有数据仓）<br>· Permissions → Contents → <strong>Read and write</strong><br>· Token 只保存在本机浏览器，不会上传到任何地方',
+    onOk: configGHTokenApply
+  });
+}
+function configGHTokenApply(token){
+  token = String(token || '').trim();
   if(token === ''){
     localStorage.removeItem('gh_sync_token');
     showToast('Token 已清除，云同步已关闭','info');
@@ -11463,25 +11519,29 @@ function dormNoOf(s){
   return '';
 }
 
-/* v2.17.30 宿舍→性别一致性：本班男生寝室 = 7栋214室，女生寝室 = 6栋801~806室。
-   学生挂上对应寝室号标签、而档案「性别」为空时，自动按楼栋房号补写性别——寝室与档案不再可能打架
-   （杜绝「住女寝的男生」）。已填写的性别不覆盖（班主任可在档案编辑里手动改）。规则随班级可调。 */
-var DORM_GENDER_RULES = [
-  { re: /^7栋-?214室$/, gender: '男' },
-  { re: /^6栋-?80[1-6]室$/, gender: '女' }
-];
-function dormGenderOf(no){
-  if(typeof no !== 'string') return '';
-  for(var i=0;i<DORM_GENDER_RULES.length;i++){
-    if(DORM_GENDER_RULES[i].re.test(no)) return DORM_GENDER_RULES[i].gender;
-  }
-  return '';
+/* v3.0.2 寝室性别改「以住定性」：男寝/女寝由实际入住成员的档案性别推导，
+不再硬编码楼栋规则（v2.17.30 的「7栋214=男寝、6栋801~806=女寝」正则表删除——
+换班级/换寝室不必改代码）。共识规则：同寝成员的非空档案性别一致 → 该寝即此性别；
+男女混住（数据打架）或无可依成员 → 不推断，交班主任处理。已填写的性别不覆盖。 */
+function dormGenderConsensusOf(no, students, excludeId){
+  if(typeof no !== 'string' || !no) return '';
+  var hasM = false, hasF = false;
+  (students||[]).forEach(function(x){
+    if(excludeId != null && x.id === excludeId) return;
+    if(dormNoOf(x) !== no) return;
+    var sg = studentGender(x);
+    if(sg === '男') hasM = true;
+    else if(sg === '女') hasF = true;
+  });
+  if(hasM && hasF) return '';   // 男女混住：不推断
+  return hasM ? '男' : (hasF ? '女' : '');
 }
+function dormGenderOf(no){ return dormGenderConsensusOf(no, state.students); }
 function fillStudentGenderFromDorm(s){
   if(!s) return false;
   var no = dormNoOf(s);
   if(!no) return false;
-  var g = dormGenderOf(no);
+  var g = dormGenderConsensusOf(no, state.students, s.id);   // 排除自己：自己性别为空不参与，也不挡共识
   if(!g) return false;
   if(!s.profile){ s.profile = { gender:'', birth:'', guardian:'', phone:'', address:'', notes:'', timeline:[] }; }
   if(s.profile.gender) return false;   // 已有性别不覆盖
@@ -11489,8 +11549,9 @@ function fillStudentGenderFromDorm(s){
   s.updatedAt = Date.now();
   return true;
 }
+
 /* v2.17.30 全校寝室→性别一致性维护通道：进档案页/寝室页时扫一遍，
-   凡寝室号命中规则且性别为空的自动补写（无变化的学校不落盘） */
+凡同寝成员性别共识成立且该生性别为空的自动补写（无变化的学校不落盘）。v3.0.2 起以住定性 */
 function fillAllDormGenders(){
   var changed = false;
   state.students.forEach(function(s){ if(fillStudentGenderFromDorm(s)) changed = true; });
@@ -11648,7 +11709,7 @@ function openDorm(no){
   document.getElementById('dormMemberList').innerHTML = _memberRows;
 
   // 候选：同性别、无寝室号、非走读
-  var g = (d.members.filter(function(m){ return m.gender; })[0] || {}).gender || '';
+  var g = dormGenderConsensusOf(no, state.students);   // v3.0.2 以住定性：混住寝室（共识为空）不过滤候选
   var cands = state.students.filter(function(s){
     if(dormNoOf(s) || isDayBoarding(s)) return false;
     return !g || !studentGender(s) || studentGender(s) === g;
@@ -11697,6 +11758,11 @@ function removeDormMember(id, no){
 function addDormMember(id, no){
   var s = state.students.filter(function(x){ return x.id === id; })[0];
   if(!s) return;
+  var sg = studentGender(s);
+  var dg = dormGenderConsensusOf(no, state.students, s.id);   // 该寝现住成员的性别共识（排除本人）
+  if(sg && dg && sg !== dg){
+    if(!confirm('「' + s.name + '」档案性别为「' + sg + '」，与 ' + no + ' 现住成员性别（' + dg + '寝）不一致。\n确认仍要安排入住？（已填写的档案性别不会被改写）')) return;
+  }
   var old = dormNoOf(s);
   s.tags = (s.tags||[]).filter(function(t){ return !isDormTag(t) && t !== DAY_TAG; });
   s.tags.push(no);
@@ -13839,6 +13905,24 @@ function exportHonorCert(id, personName){
     console.error(err);
     showToast('导出失败：' + err.message, 'error');
   }
+}
+
+function toggleReleaseNotes(){
+  var b = document.getElementById('settingsReleaseNotes');
+  var a = document.getElementById('releaseNotesArrow');
+  if(!b) return;
+  var open = b.style.display !== 'none';
+  b.style.display = open ? 'none' : '';
+  if(a) a.textContent = open ? '▶' : '▼';
+}
+
+function toggleSettingsSec(bodyId, headEl){
+  var b = document.getElementById(bodyId);
+  if(!b) return;
+  var open = b.style.display !== 'none';
+  b.style.display = open ? 'none' : '';
+  var a = headEl ? headEl.querySelector('span') : null;
+  if(a) a.textContent = open ? '▶' : '▼';
 }
 
 function renderSettings(){
