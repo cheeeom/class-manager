@@ -796,7 +796,7 @@ tbody tr.highlight{
    为什么要有这一层：iOS 没有「把图片存进相册」的 API，download 属性在 data:/blob: 上也不保证生效，
    唯一可靠的路是把图摆出来让用户长按 → 存储到照片。故导出后把图弹出来。 */
 #imgSaveHint{font-size:13px;line-height:1.7;color:var(--text-secondary);text-align:center;margin:0 0 10px}
-#imgSavePreview{width:100%;max-height:60vh;object-fit:contain;display:block;border:1px solid var(--border);border-radius:10px;background:#fff}
+#imgSavePreview{width:100%;max-height:60vh;object-fit:contain;display:block;border:1px solid var(--border);border-radius:10px;background:#fff/* 白底衬图：两种主题下照片均衬白，刻意保留 */}
 
 /* ==================== Modal ==================== */
 .modal-overlay{
@@ -851,7 +851,7 @@ tbody tr.highlight{
 .modal-close:hover{border-color:var(--danger);color:var(--danger);
   background:rgba(180,35,24,0.06);transform:rotate(90deg)}
 .modal-close:active{transform:rotate(90deg) scale(0.92)}
-/* v2.17.1 体检弹窗内容按浅色表格式设计：强制白底防暗色主题下文字隐形 */
+/* v2.17.1 体检弹窗内容按浅色表格式设计：强制白底防暗色主题下文字隐形（v3.0.5 复核：刻意白底，豁免） */
 #creditAuditModal .modal{background:#fff}
 #creditAuditModal .modal h3{color:#1f2329}
 /* v2.17.2 学生快速选择：输入筛选行（随主题） */
@@ -875,7 +875,7 @@ tbody tr.highlight{
 .side-panel{
   position:fixed;top:0;right:0;
   width:400px;max-width:90vw;height:100vh;
-  background:#fff;
+  background:var(--card-bg);
   box-shadow:-8px 0 32px rgba(0,0,0,0.1);
   z-index:999;
   transform:translateX(100%);
@@ -1065,7 +1065,7 @@ tbody tr.highlight{
   border:1px solid var(--border);
   border-radius:10px;
   font-size:14px;
-  background:#fff;
+  background:var(--card-bg);
   min-width:200px;
 }
 .grade-stat-grid{
@@ -2063,24 +2063,24 @@ html.dark .tl-body{background:var(--bg)}
    （.leave-hist 的历史流水），轨道就会被撑到比容器还宽，横向滚动条就出来了。 */
 
 /* ==================== Grades ==================== */
-.exam-card{background:#fff;border-radius:14px;padding:18px 22px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.exam-card{background:var(--card-bg);border-radius:14px;padding:18px 22px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
 .exam-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .exam-name{font-size:17px;font-weight:600}
 .exam-date{font-size:13px;color:var(--text-muted)}
 .exam-stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-.exam-stat{background:#F7F4EC;border-radius:8px;padding:8px 14px;text-align:center}
+.exam-stat{background:var(--row-bg);border-radius:8px;padding:8px 14px;text-align:center}
 .exam-stat-label{font-size:12px;color:var(--text-muted)}
 .exam-stat-value{font-size:18px;font-weight:600;color:var(--primary-dark)}
 .grade-table{width:100%;border-collapse:collapse;font-size:13px}
-.grade-table th{background:#F5F0E6;padding:8px 10px;text-align:left;font-weight:600;border-radius:6px}
-.grade-table td{padding:8px 10px;border-bottom:1px solid #EAE4D6}
+.grade-table th{background:var(--row-bg);padding:8px 10px;text-align:left;font-weight:600;border-radius:6px}
+.grade-table td{padding:8px 10px;border-bottom:1px solid var(--border)}
 .grade-table tr:hover{background:var(--row-bg)}
 .grade-rank-1{color:#B42318;font-weight:700}
 .grade-rank-2{color:#B96A1F;font-weight:700}
 .grade-rank-3{color:#3B6E8F;font-weight:700}
 
 /* ==================== Todo ==================== */
-.todo-item{display:flex;align-items:flex-start;gap:12px;background:#fff;border-radius:12px;padding:14px 18px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);transition:all .2s}
+.todo-item{display:flex;align-items:flex-start;gap:12px;background:var(--card-bg);border-radius:12px;padding:14px 18px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);transition:all .2s}
 .todo-item:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08)}
 .todo-item.done{opacity:.55}
 .todo-item.done .todo-text{text-decoration:line-through;color:var(--text-muted)}
@@ -2098,10 +2098,10 @@ html.dark .tl-body{background:var(--bg)}
 .todo-actions{display:flex;gap:4px;opacity:0;transition:opacity .2s}
 .todo-item:hover .todo-actions{opacity:1}
 .todo-btn{width:28px;height:28px;border:none;background:transparent;cursor:pointer;border-radius:6px;font-size:14px;color:var(--text-muted)}
-.todo-btn:hover{background:#EFEAE0}
+.todo-btn:hover{background:var(--bg-secondary)}
 
 
-.dash-todo-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #EFEAE0;font-size:13px}
+.dash-todo-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
 .dash-todo-item:last-child{border-bottom:none}
 .dash-todo-dot{width:6px;height:6px;border-radius:50%;background:var(--primary);flex-shrink:0}
 .dash-todo-item.overdue .dash-todo-dot{background:#B42318}
@@ -2112,7 +2112,7 @@ html.dark .tl-body{background:var(--bg)}
 
 .search-select-wrapper{position:relative;z-index:10}
 .search-select-wrapper:focus-within{z-index:1000}
-.search-select-dropdown{position:absolute;top:100%;left:0;right:0;max-height:200px;overflow-y:auto;background:#fff !important;opacity:1 !important;border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.15);z-index:9999;margin-top:4px}
+.search-select-dropdown{position:absolute;top:100%;left:0;right:0;max-height:200px;overflow-y:auto;background:var(--card-bg) !important;opacity:1 !important;border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.15);z-index:9999;margin-top:4px}
 /* v2.17.8 学分操作：已选学生右侧常驻面板（下拉打开也不遮挡已选名单） */
 .credit-op-grid{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
 .credit-op-main{flex:1 1 420px;min-width:300px}
@@ -2485,9 +2485,9 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
 <symbol id="i-roll" viewBox="0 0 24 24"><path d="M6.8 10 8.8 20.2h6.4L17.2 10z"/><path d="M5.8 10h12.4"/><path d="M12 9.7 12.6 3.4"/><path d="M9.4 9.7 10 5.6"/><path d="M14.6 9.7 15.2 6.2"/></symbol>
 <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3 7h3.5l11 10H21"/><path d="M3 17h3.5l11-10H21"/><path d="M18.5 4 21 7l-2.5 3"/><path d="M18.5 14 21 17l-2.5 3"/></symbol>
-<symbol id="i-dorm" viewBox="0 0 24 24">
+<symbol id="i-dorm" viewBox="0 0 24 24"><path d="M3.5 12 7 6h10l3.5 6"/><path d="M5 12v7.5h14V12"/><path d="M8.5 19.5v-4h7v4"/><path d="M12 16V9.5"/></symbol>
 <symbol id="i-credit-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
-<symbol id="i-credit-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol><path d="M3.5 12 7 6h10l3.5 6"/><path d="M5 12v7.5h14V12"/><path d="M8.5 19.5v-4h7v4"/><path d="M12 16V9.5"/></symbol>
+<symbol id="i-credit-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
 </svg>
 
 <!-- ==================== Login Page ==================== -->
@@ -2504,7 +2504,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.0.4</div>
+      <div class="login-version">v3.0.5</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2625,7 +2625,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.0.4 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.0.5 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3105,7 +3105,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         </div>
         <div style="display:flex;gap:8px;margin-bottom:12px">
           <input type="text" id="todoQuickInput" placeholder="输入待办内容，回车快速添加..." style="flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px" onkeypress="if(event.key==='Enter')quickAddTodo()">
-          <select id="todoQuickPriority" style="padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:#fff">
+          <select id="todoQuickPriority" style="padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--card-bg)">
             <option value="normal">普通</option>
             <option value="important">重要</option>
             <option value="urgent">紧急</option>
@@ -3210,7 +3210,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <div style="margin-top:14px;padding:10px 12px;background:rgba(166,58,43,0.06);border:1px dashed rgba(166,58,43,0.35);border-radius:10px">
             <div style="font-size:13px;font-weight:600;color:var(--primary);margin-bottom:6px">🏅 班级全称 <span style="font-weight:400;color:var(--text-muted);font-size:12px">（导出荣誉证书时按此落款，建议填写正式全称）</span></div>
             <div style="display:flex;gap:8px">
-              <input type="text" id="classNameFullInput" placeholder="如：2026级幼儿保育2班" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:#fff" oninput="this.dataset.edited='1'">
+              <input type="text" id="classNameFullInput" placeholder="如：2026级幼儿保育2班" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--card-bg)" oninput="this.dataset.edited='1'">
               <button class="btn btn-primary btn-sm" onclick="saveClassNameFull()">保存</button>
             </div>
             <div id="classNameFullStatus" style="margin-top:8px;font-size:12px;color:var(--text-muted)">留空时荣誉证书将使用上方「班级名称」（简称）</div>
@@ -3379,18 +3379,18 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.0.4</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.0.5</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.0.4）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.0.5）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
-            <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+            <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">function EOL() { return '\r\n'; }          · 🌙 <b>暗色模式白底清扫收尾</b>：学生详情侧栏 / 成绩考试下拉 / 成绩卡 / 待办卡 / 两个下拉框等 9 处硬编码白底改主题令牌（深色下不再刺眼）；刻意白底（图片衬图 / 体检弹窗）已注释豁免function EOL() { return '\r\n'; }          · 🛠 <b>宿舍图标 SVG 畸形修复</b>：i-dorm 开标签曾被插入的新图标割裂（symbol 嵌套），重构为三条独立闭合的 symbolfunction EOL() { return '\r\n'; }          · 🗑 <b>deploy.sh 移除</b>：Pages 随 main 自动部署，脚本工作流已废弃且内含失效代理地址function EOL() { return '\r\n'; }          
           · 🏷️ <b>班级头像并入「班级信息」卡</b>：头像、名称、证书落款全称、口号集中在同一张卡，班级身份一站管理（设置页不再单独设头像卡）
           
           · 🧹 <b>修复设置页卡片嵌套（P0）</b>：上一版「分组收纳」的折叠容器有缺陷，公示设置之后的设置卡被错误包进隐藏层（班委协作/数据管理/云同步/密码等全部不可见、看似重叠）——已整体还原为独立卡片，每张设置卡各自独立、全部可见；速览折叠保留
@@ -3850,7 +3850,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div style="flex:1;min-width:260px;position:relative">
           <label>内容（支持变量）</label>
           <textarea id="noticeTplContent" rows="14" placeholder="尊敬的老师：您好！我是{班级}班学生{姓名}，因{请假事由}…" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px;line-height:1.8;resize:vertical;font-family:inherit"></textarea>
-          <div id="noticeVarSuggest" style="position:absolute;display:none;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:999;max-height:220px;overflow-y:auto;min-width:180px"></div>
+          <div id="noticeVarSuggest" style="position:absolute;display:none;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:999;max-height:220px;overflow-y:auto;min-width:180px"></div>
         </div>
         <div style="flex:1;min-width:260px">
           <label>实时预览</label>

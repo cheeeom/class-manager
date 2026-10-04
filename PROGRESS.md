@@ -3311,3 +3311,11 @@ const lockStart = html.indexOf('/* v2.24.1 推送互斥');
 - [x] **验证**：自验 + 全量 **71 套全绿**；发版跟版四处 + CACHE → v3.0.4；速览累积置顶。
 - [x] **推送**：待老板审阅。
 
+### 2026-10-04（v3.0.5：历史遗留清理——暗色白底收尾 / i-dorm 畸形修复 / deploy.sh 移除）
+
+- [x] **暗色硬编码白底清偿**（遗留 #12 处）：全文件 background:#fff 逐一审查分类——**9 处真修复**（学生详情侧栏 .side-panel / 成绩分析考试下拉 / .exam-card / .todo-item / .search-select-dropdown / todoQuickPriority 与 classNameFullInput 与 noticeVarSuggest 三处内联 → var(--card-bg)）+ **exam/todo 集群连带**（.exam-stat #F7F4EC、.grade-table th #F5F0E6、td #EAE4D6、.todo-btn:hover 与 .dash-todo-item #EFEAE0 → 令牌，防止卡面转暗后出现新对比度问题）；**4 处刻意白底注释豁免**（.modal 与 .toast 基础样式有 html.dark 覆盖 / 体检弹窗注释声明浅色表格式设计 / 图片白底衬图）；2 处为历史注释非代码。
+- [x] **i-dorm symbol 畸形修复**：v2.19.3 插入 i-credit-plus/minus 时锚点只锚开标签，把 i-dorm 的路径挤到 i-credit-minus 闭合之后（symbol 嵌套畸形）——重构为三条独立闭合 symbol。教训：**往单行 symbol 后插入新 symbol，锚点必须含闭合标签**。
+- [x] **deploy.sh 删除**：Pages 随 main 自动部署，脚本工作流已废弃且内含失效代理地址 http://192.168.1.13:9890。
+- [x] **_v2273 断言按其自述更新**：var(--row-bg) 使用处 4→6（exam-stat/grade-table-th 并入），该测试自述「新增第 5 处时回来更新本测试」。
+- [x] **验证**：全量 **71 套全绿**；暗色计算样式抽查（exam-card/todo-item = rgb(35,32,26)、exam-stat = rgb(38,34,27)，均为令牌暗值）。
+- [x] **推送**：待老板审阅。

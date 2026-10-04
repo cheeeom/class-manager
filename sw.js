@@ -1,5 +1,5 @@
 /* Service Worker - 班主任工作台 PWA */
-const CACHE_NAME = 'class-manager-v3.0.4';
+const CACHE_NAME = 'class-manager-v3.0.5';
 // v2.20.7 移除 './data.json'：数据已搬到私有仓，站仓这份稍后会删除。
 // 注意 addAll 是全成全败 —— 清单里只要有一个请求 404，整套预缓存就整体 reject，
 // SW 安装直接失败（PWA 离线与后续缓存更新全废）。所以必须在删文件之前先摘掉它。

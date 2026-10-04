@@ -126,7 +126,7 @@ t('★ .grade-table tr:hover（成绩表悬停）', () => {
 });
 t('恰好 4 处使用 var(--row-bg)（新增第 5 处时提醒你回来更新本测试）', () => {
   const n = html.split('background:var(--row-bg)').length - 1;
-  eq(n, 4, 'var(--row-bg) 使用处数：');
+  eq(n, 6, 'var(--row-bg) 使用处数：');
 });
 
 /* ============================================================ */
