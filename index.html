@@ -2504,7 +2504,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.0.3</div>
+      <div class="login-version">v3.0.4</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2625,7 +2625,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.0.3 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.0.4 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3198,6 +3198,11 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 
         <div class="settings-section">
           <h3>🏷️ 班级信息</h3>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+            <div id="settingsAvatarPreview" style="width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700;overflow:hidden;box-shadow:0 4px 12px rgba(166,58,43,0.3)">班</div>
+            <button class="btn btn-outline btn-sm" onclick="openAvatarModal()">📷 上传头像</button>
+            <button class="btn btn-danger btn-sm" id="removeAvatarBtn" onclick="removeClassAvatar()" style="display:none">🗑 移除头像</button>
+          </div>
           <div style="display:flex;gap:8px">
             <input type="text" id="classNameInput" placeholder="班级名称" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px">
             <button class="btn btn-primary btn-sm" onclick="saveClassName()">保存</button>
@@ -3216,14 +3221,6 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <button class="btn btn-primary btn-sm" onclick="saveMottoFromSettings()">保存</button>
           </div>
           <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">显示在工作台首页顶部，点击横幅也可快速修改</div>
-        </div>
-        <div class="settings-section">
-          <h3>班级头像</h3>
-          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-            <div id="settingsAvatarPreview" style="width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700;overflow:hidden;box-shadow:0 4px 12px rgba(166,58,43,0.3)">班</div>
-            <button class="btn btn-outline btn-sm" onclick="openAvatarModal()">📷 上传头像</button>
-            <button class="btn btn-danger btn-sm" id="removeAvatarBtn" onclick="removeClassAvatar()" style="display:none">🗑 移除头像</button>
-          </div>
         </div>
 
         <div class="settings-section">
@@ -3382,18 +3379,20 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.0.3</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.0.4</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.0.3）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.0.4）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+          · 🏷️ <b>班级头像并入「班级信息」卡</b>：头像、名称、证书落款全称、口号集中在同一张卡，班级身份一站管理（设置页不再单独设头像卡）
+          
           · 🧹 <b>修复设置页卡片嵌套（P0）</b>：上一版「分组收纳」的折叠容器有缺陷，公示设置之后的设置卡被错误包进隐藏层（班委协作/数据管理/云同步/密码等全部不可见、看似重叠）——已整体还原为独立卡片，每张设置卡各自独立、全部可见；速览折叠保留
           
           · 🛏 <b>寝室性别改「以住定性」</b>：男寝/女寝由实际入住成员的档案性别推导（同寝一致才推断、混住不推断），删除「7栋214=男寝、6栋801~806=女寝」硬编码——换班级/换寝室不再改代码；安排入住时若与现住成员性别不一致会提示确认
