@@ -16,9 +16,9 @@ t('index.html 主 <script> 块可被完整编译（无语法错误）', () => {
 });
 
 console.log('\n=== 班委白名单与边界 ===');
-t('白名单：8 个协作页（本版 起含 attendance 只读）', () => {
+t('白名单：7 个协作页（v3.0.0 起含 attendance 只读；v3.2.0 起移除 todo——班委模式取消待办模块）', () => {
   const m = html.match(/const COMMITTEE_PAGES = (\[[^\]]*\])/);
-  eq(JSON.stringify(eval(m[1])), JSON.stringify(['dashboard','attendance','credits','publicity','duty','seating','todo','honors']));
+  eq(JSON.stringify(eval(m[1])), JSON.stringify(['dashboard','attendance','credits','publicity','duty','seating','honors']));
 });
 t('敏感页面全部不在白名单（档案/成绩/通知/设置/寝室/班委/工作留痕/数据分析；attendance 本版 起以只读入白名单）', () => {
   const m = html.match(/const COMMITTEE_PAGES = (\[[^\]]*\])/);

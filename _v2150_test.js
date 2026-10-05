@@ -246,6 +246,9 @@ console.log('\n=== v2.15.1 热修：图表口径 / 最值 / 操作时间线 ==='
 global.escapeHtml = s => String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const __p2 = html.indexOf('function pad2(v)');
 global.pad2 = eval('(' + html.slice(__p2, html.indexOf('\n', __p2)) + ')');   // v2.18.4：补零助手收敛为全局 pad2（单行定义，grab 抓不到）
+// v3.2.0 renderOpItem 新增宿主依赖（班委撤销按钮裁剪）：window 读取 + cmOwnSessionOp 判定 —— 沙箱补宿主，非班委语境恒 false
+global.window = global.window || { __cmRole: undefined };
+global.cmOwnSessionOp = () => false;
 const formatOpTime = eval('(' + grab('function formatOpTime(op)') + ')');
 const renderOpItem = eval('(' + grab('function renderOpItem(op)') + ')');
 

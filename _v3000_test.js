@@ -97,11 +97,12 @@ t('删学生/名单同步两条路径都清请假（记墓碑）', () => {
 });
 
 console.log('\n=== ② 班委协作收紧 ===');
-t('白名单 8 页含 attendance；CM_COLLAB_KEYS 恰为三岗', () => {
+t('白名单 7 页含 attendance（v3.2.0 起移除 todo）；CM_COLLAB_KEYS 恰为三岗', () => {
   const m = html.match(/const COMMITTEE_PAGES = (\[[^\]]*\])/);
   const pages = eval(m[1]);
-  eq(pages.length, 8, '白名单页数');
+  eq(pages.length, 7, '白名单页数');
   eq(pages.includes('attendance'), true, 'attendance 应在白名单（只读）');
+  eq(pages.includes('todo'), false, 'todo 应移出白名单（v3.2.0 班委取消待办）');
   const m2 = html.match(/const CM_COLLAB_KEYS = (\[[^\]]*\])/);
   eq(JSON.stringify(eval(m2[1])), JSON.stringify(['banzhang', 'fubanzhang', 'jilv']), '三岗 key');
 });

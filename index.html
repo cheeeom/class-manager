@@ -2180,6 +2180,9 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .rp-chip.rp-reason.rp-on b{color:#fff}
 /* 班委模式（v2.13.0）：白名单裁剪与标识 */
 .cm-hide{display:none!important}
+/* v3.2.0 班委模式内容裁剪：教师专属区块（首页口号/分数统计/待办/考试/分布/Top5/最近操作，学分页寝室/月度按钮，荣誉墙添加按钮）
+   —— body.role-committee 由 applyCommitteeRestrictions() 添加，CSS 隐藏与渲染时机无关，动态重渲也不会闪现 */
+.role-committee .teacher-only{display:none!important}
 
 /* v2.14.0 统一面板关闭键：圆形描边、hover 变红轻旋，与整体圆角语言一致 */
 .panel-close{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);
@@ -2506,7 +2509,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.1.3</div>
+      <div class="login-version">v3.2.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2627,7 +2630,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.1.3 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.2.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2647,8 +2650,8 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
     <div class="content" id="content">
       <!-- Dashboard Page -->
       <div class="page active" id="page-dashboard">
-        <!-- 班级口号横幅 -->
-        <div class="motto-banner stagger" style="animation-delay:0s" onclick="editMotto()" title="点击修改班级口号">
+        <!-- 班级口号横幅（v3.2.0 班委模式隐藏：首页只留课表/人数/实到） -->
+        <div class="motto-banner stagger teacher-only" style="animation-delay:0s" onclick="editMotto()" title="点击修改班级口号">
           <span class="motto-text" id="mottoText">不积跬步，无以至千里；不积小流，无以成江海。</span>
           <span class="motto-edit">✏️ 点击编辑</span>
         </div>
@@ -2672,19 +2675,26 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <div class="stat-value" id="statTotal">0</div>
             <div class="stat-trend">班级在册学生</div>
           </div>
-          <div class="stat-card stagger" style="animation-delay:.15s">
+          <!-- v3.2.0 今日实到（除去请假）：班主任 + 班委首页共用；renderDashPresence() 填数 -->
+          <div class="stat-card stagger" style="animation-delay:.1s">
+            <div class="stat-icon" style="background:rgba(47,125,91,0.1)">✅</div>
+            <div class="stat-label">今日实到</div>
+            <div class="stat-value" id="statPresent">0</div>
+            <div class="stat-trend" id="statPresentSub">除去请假</div>
+          </div>
+          <div class="stat-card stagger teacher-only" style="animation-delay:.15s">
             <div class="stat-icon" style="background:rgba(47,125,91,0.1)">📈</div>
             <div class="stat-label">平均学分</div>
             <div class="stat-value" id="statAvg">0</div>
             <div class="stat-trend up">班级平均</div>
           </div>
-          <div class="stat-card stagger" style="animation-delay:.25s">
+          <div class="stat-card stagger teacher-only" style="animation-delay:.25s">
             <div class="stat-icon" style="background:rgba(201,162,39,0.12)">🏆</div>
             <div class="stat-label">最高学分</div>
             <div class="stat-value" id="statMax">0</div>
             <div class="stat-trend up" id="statMaxName">—</div>
           </div>
-          <div class="stat-card stagger" style="animation-delay:.35s">
+          <div class="stat-card stagger teacher-only" style="animation-delay:.35s">
             <div class="stat-icon" style="background:rgba(180,35,24,0.08)">📉</div>
             <div class="stat-label">最低学分</div>
             <div class="stat-value" id="statMin">0</div>
@@ -2692,8 +2702,8 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           </div>
         </div>
 
-        <div class="dash-grid">
-          <!-- 待办提醒 + 最近考试 并排卡片 -->
+        <div class="dash-grid teacher-only">
+          <!-- 待办提醒 + 最近考试 并排卡片（v3.2.0 班委模式隐藏：待办模块整体退出班委视图） -->
           <div class="card stagger" style="animation-delay:.4s">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
               <div class="section-title" style="margin-bottom:0"><span class="dot"></span>待办提醒</div>
@@ -2710,7 +2720,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           </div>
         </div>
 
-        <div class="dash-grid">
+        <div class="dash-grid teacher-only">
           <div class="card stagger" style="animation-delay:.45s">
             <div class="section-title"><span class="dot"></span>学分分布</div>
             <div class="chart-container"><canvas id="distChart"></canvas></div>
@@ -2721,7 +2731,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           </div>
         </div>
 
-        <div class="card stagger" style="animation-delay:.65s">
+        <div class="card stagger teacher-only" style="animation-delay:.65s">
           <div class="section-title"><span class="dot"></span>最近操作</div>
           <div class="timeline" id="recentTimeline"></div>
         </div>
@@ -2927,8 +2937,8 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           </div>
           <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-outline btn-sm" onclick="undoLastOp()" id="undoBtn" disabled>↶ 撤销上一次</button>
-            <button class="btn btn-outline btn-sm" onclick="openDormCredit()">🏠 按寝室加减分</button>
-            <button class="btn btn-primary btn-sm" onclick="openMonthlySettle()">🗓️ 月度自动加分（制度对齐）</button>
+            <button class="btn btn-outline btn-sm teacher-only" onclick="openDormCredit()">🏠 按寝室加减分</button>
+            <button class="btn btn-primary btn-sm teacher-only" onclick="openMonthlySettle()">🗓️ 月度自动加分（制度对齐）</button>
           </div>
         </div>
 
@@ -3167,7 +3177,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
           <h2 style="margin:0;font-size:20px">🏆 荣誉墙</h2>
           <div id="honorLevels" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-          <button class="btn btn-primary" onclick="openHonorAdd()">＋ 添加荣誉</button>
+          <button class="btn btn-primary teacher-only" onclick="openHonorAdd()">＋ 添加荣誉</button>
         </div>
         <div class="card" style="padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap" id="honorStats"></div>
         <div id="honorList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px"></div>
@@ -3294,7 +3304,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             <input type="checkbox" id="cmCanMinusChk" onchange="onCmCanMinusChange()" style="width:16px;height:16px"> 允许班委扣分（减分）
           </label>
           <div style="margin-top:8px;font-size:12px;color:var(--text-muted);line-height:1.7">
-            仅<b>班长、副班长、纪律委员</b>三人可进入班委协作（v3.0.0）；可看课表、看请假人数与姓名（不可登记），学分页可协助加减分（留痕署名：谁操作的、什么身份一目了然）。关闭扣分后班委只能加分，减分统一由你操作。
+            仅<b>班长、副班长、纪律委员</b>三人可进入班委协作（v3.0.0）。<b>首页</b>只看课表、班级人数与今日实到（v3.2.0）；请假页只读（看人数与姓名，不可登记）；<b>学分页</b>只能加分扣分（留痕署名），只能看见并撤销<b>本次自己的操作记录</b>，月度加分/按寝室加减分不可用；<b>荣誉墙</b>只可查看；<b>公示页</b>不显示最低分；无待办模块。关闭扣分后班委只能加分，减分统一由你操作。
           </div>
         </div>
 <div class="settings-section">
@@ -3377,19 +3387,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.1.3</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.2.0</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.1.3）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.2.0）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-          · 🛠 <b>修复档案详情按钮重叠</b>：详情卡右上角的 ✕ 关闭按钮压在「✏️ 编辑资料」按钮上（关闭按钮是角标定位、编辑按钮贴着卡片右缘）——编辑按钮向左让位，两者并排不再叠压<br>
+          · 👩‍💼 <b>班委模式权限细化（v3.2.0）</b>：首页只保留<b>课表 / 班级人数 / 今日实到</b>（新增「今日实到 = 除去请假」，班主任首页同步显示）；学分页只能<b>加分扣分</b>，<b>月度加分、按寝室加减分</b>不可用，全班操作流水不再可见——只看<b>本次自己的操作记录</b>、且仅可撤销这些；<b>荣誉墙</b>只可查看；<b>公示页</b>不再显示最低分；<b>待办模块</b>退出班委视图<br>
           </div>
           </div>
         </div>
@@ -8656,20 +8666,24 @@ function tsBuildGrid(items){
 /* ==================== Dashboard ==================== */
 function renderDashboard(){
   renderScheduleImage();
+  renderDashPresence();   // v3.2.0 今日实到卡（班主任 + 班委首页共用；元素缺失自动跳过）
+  const isCm = window.__cmRole === 'committee';   // v3.2.0 班委首页：只看课表 / 总人数 / 今日实到
   const students = state.students;
   if(students.length === 0){
-    document.getElementById('onboardingBanner').style.display = '';
+    document.getElementById('onboardingBanner').style.display = isCm ? 'none' : '';   // 班委不见引导添加入口
     document.getElementById('statGrid').querySelectorAll('.stat-card').forEach(c => c.style.display = 'none');
-    
+
     document.getElementById('statTotal').textContent = '0';
     document.getElementById('statAvg').textContent = '0';
     document.getElementById('statMax').textContent = '0';
     document.getElementById('statMin').textContent = '0';
-    document.getElementById('top5List').innerHTML = '<div class="empty-state"><div class="icon">📊</div><div class="text">暂无数据，请先添加学生</div><div style="display:flex;gap:8px;justify-content:center;margin-top:4px"><button class="btn btn-primary btn-sm" onclick="openAddStudentModal()">+ 添加学生</button><button class="btn btn-outline btn-sm" onclick="loadSampleData()">加载示例数据</button></div></div>';
-    document.getElementById('recentTimeline').innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:12px 0">暂无操作记录</div>';
+    if(!isCm){
+      document.getElementById('top5List').innerHTML = '<div class="empty-state"><div class="icon">📊</div><div class="text">暂无数据，请先添加学生</div><div style="display:flex;gap:8px;justify-content:center;margin-top:4px"><button class="btn btn-primary btn-sm" onclick="openAddStudentModal()">+ 添加学生</button><button class="btn btn-outline btn-sm" onclick="loadSampleData()">加载示例数据</button></div></div>';
+      document.getElementById('recentTimeline').innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:12px 0">暂无操作记录</div>';
+      renderDashTodo();
+      renderDashExam();
+    }
     drawDistChart([]);
-    renderDashTodo();
-    renderDashExam();
     return;
   }
   document.getElementById('onboardingBanner').style.display = 'none';
@@ -8713,6 +8727,29 @@ function renderDashboard(){
   drawDistChart(credits);
   renderDashTodo();
   renderDashExam();
+}
+
+/* v3.2.0 今日实到（除去请假）：首页统计卡（班主任 + 班委共用）。
+   口径：请假记录未销假（pending/extended）且日期区间覆盖今天 → 该生今日不在班。
+   日期均为 yyyy-mm-dd 字符串（localDateStr 同格式），直接字典序比较；
+   半天（上午/下午）粒度暂不细分。返回去重后的 studentId 列表。 */
+function studentsOnLeaveToday(){
+  var today = localDateStr();
+  var set = {};
+  (state.leaves || []).forEach(function(l){
+    if(!l || l.status === 'returned') return;
+    if(String(l.startDate || '') <= today && String(l.endDate || '') >= today) set[l.studentId] = true;
+  });
+  return Object.keys(set);
+}
+/* 只更新实到卡（请假登记/续假/销假/删除后由 renderAttendance 尾部调用，无需整页重渲） */
+function renderDashPresence(){
+  var el = document.getElementById('statPresent');
+  if(!el) return;
+  var onLeave = studentsOnLeaveToday();
+  el.textContent = (state.students || []).length - onLeave.length;
+  var sub = document.getElementById('statPresentSub');
+  if(sub) sub.textContent = onLeave.length > 0 ? ('今日请假 ' + onLeave.length + ' 人') : '今日无请假 · 除去请假';
 }
 
 function drawDistChart(credits){
@@ -12153,6 +12190,7 @@ function monthlySettlePlan(nowTs){
 }
 
 function openMonthlySettle(){
+  if(window.__cmRole === 'committee'){ showToast('班委模式不可用月度加分','warning'); return; }   // v3.2.0（按钮已隐藏，此处防绕过）
   var plan = monthlySettlePlan();
   if(plan.attend.length === 0 && plan.bonus.length === 0){
     showToast('本月暂无符合自动加分条件的学生（或已结算）', 'info');
@@ -12421,6 +12459,11 @@ function revokeCreditOp(opId){
     showToast('该记录已撤销或不存在', 'info');
     return;
   }
+  // v3.2.0 班委只能撤销「本次会话内自己产生的操作」（含 UI 上的按钮裁剪，这里是根本闸）
+  if(window.__cmRole === 'committee' && !cmOwnSessionOp(op)){
+    showToast('班委模式只能撤销本次自己的操作记录', 'warning');
+    return;
+  }
   op.state = 'revoked';
   op.stateTime = Date.now();
   afterOpStateChange();
@@ -12428,6 +12471,7 @@ function revokeCreditOp(opId){
   showToast(`已撤销 ${st ? st.name : (op.studentName || '')} ${op.amount>0?'+':''}${op.amount} 学分的记录`, 'info');
 }
 function restoreCreditOp(opId){
+  if(window.__cmRole === 'committee'){ showToast('班委模式无权恢复记录','warning'); return; }   // v3.2.0 恢复是管理动作
   const op = (state.operations || []).find(function(o){ return o.id === opId && o.state === 'revoked'; });
   if(!op){
     showToast('该记录未处于撤销状态', 'info');
@@ -12449,12 +12493,14 @@ function afterOpStateChange(){
 function undoLastOp(){
   // 撤销"最近一笔仍有效的操作"（已撤销的跳过）。此前物理 shift 删除 + 手动 credit-=，
   // 云端校准会把它复活 → 学分被拉回原值（老板 v2.17.7 同款现象再现）。
-  const live = liveOps(state.operations);
+  let live = liveOps(state.operations);
+  // v3.2.0 班委：只在「本次自己产生的操作」里找最新一笔（revokeCreditOp 内还有根本闸兜底）
+  if(window.__cmRole === 'committee') live = live.filter(cmOwnSessionOp);
   if(live.length === 0){
     showToast('没有可撤销的操作', 'info');
     return;
   }
-  revokeCreditOp(live[0].id);   // liveOps 后仍是最新在前，[0] 即全局最新未撤
+  revokeCreditOp(live[0].id);   // liveOps 后仍是最新在前，[0] 即最新未撤
 }
 
 function updateUndoBtn(){
@@ -12481,7 +12527,10 @@ function renderOpItem(op){
     ? ' <span class="tl-cm">👩‍💼 ' + escapeHtml(op.byName || '通用班委') + (op.byPost ? ' · ' + escapeHtml(op.byPost) : '') + '</span>'
     : '';
   // v2.17.9 每条流水可单独撤销（不再只有全局「撤销上一次」）。op.id 为数字，onclick 传值安全。
-  const undoBtn = `<button type="button" class="tl-undo" onclick="revokeCreditOp(${Number(op.id)})" title="撤销这条记录（学分自动回补）">↩ 撤销</button>`;
+  // v3.2.0 班委只见撤销按钮于「本次自己的操作」（revokeCreditOp 内另有根本闸）
+  const undoBtn = (window.__cmRole !== 'committee' || cmOwnSessionOp(op))
+    ? `<button type="button" class="tl-undo" onclick="revokeCreditOp(${Number(op.id)})" title="撤销这条记录（学分自动回补）">↩ 撤销</button>`
+    : '';
   return `<div class="timeline-item">
     <div class="tl-time">${formatOpTime(op)}</div>
     <div class="tl-text"><strong>${who}</strong>${cmTag} <span style="color:${color};font-weight:600">${amount > 0 ? '+' : ''}${amount}</span> 学分 <span style="color:var(--text-muted)">— ${why}</span>${undoBtn}</div>
@@ -12490,6 +12539,12 @@ function renderOpItem(op){
 /* v2.17.9 已撤销抽屉：撤销只是打标记、记录仍留在流水里。这里集中展示已撤销的流水，
    老师能随时核对"撤了什么"并一键恢复（防误撤）。 */
 function renderRevokedDrawer(){
+  // v3.2.0 班委：恢复是管理动作，已撤销抽屉整体不渲染
+  if(window.__cmRole === 'committee'){
+    const wrapCm = document.getElementById('creditRevokedWrap');
+    if(wrapCm) wrapCm.style.display = 'none';
+    return;
+  }
   const box = document.getElementById('creditRevokedList');
   if(!box) return;
   const revoked = (state.operations || []).filter(function(o){ return o.state === 'revoked'; }).slice(0, 20);
@@ -12514,9 +12569,12 @@ function renderRevokedDrawer(){
 function renderCreditsTimeline(){
   const tl = document.getElementById('creditsTimeline');
   if(!tl) return;
-  const ops = liveOps(state.operations);   // v2.17.9：已撤销流水不再显示在时间线
+  let ops = liveOps(state.operations);   // v2.17.9：已撤销流水不再显示在时间线
+  // v3.2.0 班委：全班流水不可见，只看「本次会话内班委产生的操作」
+  const isCm = window.__cmRole === 'committee';
+  if(isCm) ops = ops.filter(cmOwnSessionOp);
   if(ops.length === 0){
-    tl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:12px 0">暂无操作记录</div>';
+    tl.innerHTML = `<div style="color:var(--text-muted);font-size:13px;padding:12px 0">${isCm ? '暂无你的本次操作记录' : '暂无操作记录'}</div>`;
   } else {
     const LIMIT = 50;
     const shown = ops.slice(0, LIMIT);
@@ -12580,6 +12638,7 @@ function dormRoomSort(a, b){
   return String(a).localeCompare(String(b));
 }
 function openDormCredit(){
+  if(window.__cmRole === 'committee'){ showToast('班委模式不可用按寝室加减分','warning'); return; }   // v3.2.0（按钮已隐藏，此处防绕过）
   _dormCreditRoom = '';
   var list = document.getElementById('dormCreditList');
   if(!list) return;
@@ -13658,8 +13717,9 @@ function renderHonors(){
       <div style="display:flex;align-items:center;gap:8px"><span style="font-size:24px">👑</span><div><div style="font-size:20px;font-weight:700">${maxLv}</div><div style="font-size:12px;color:var(--text-muted)">最高等级</div></div></div>`;
   }
   const el = document.getElementById('honorList');
+  const isCm = window.__cmRole === 'committee';   // v3.2.0 荣誉墙班委只读
   if(list.length === 0){
-    el.innerHTML = '<div class="card" style="grid-column:1/-1;padding:50px;text-align:center;color:var(--text-muted)"><div style="font-size:40px;margin-bottom:10px">🏆</div><div>还没有荣誉记录，快来添加第一份荣誉吧！<br><br><button class="btn btn-primary" onclick="openHonorAdd()">＋ 添加荣誉</button></div></div>';
+    el.innerHTML = '<div class="card" style="grid-column:1/-1;padding:50px;text-align:center;color:var(--text-muted)"><div style="font-size:40px;margin-bottom:10px">🏆</div><div>还没有荣誉记录' + (isCm ? '' : '，快来添加第一份荣誉吧！<br><br><button class="btn btn-primary" onclick="openHonorAdd()">＋ 添加荣誉</button>') + '</div></div>';
     return;
   }
   el.innerHTML = list.map(h=>{
@@ -13677,14 +13737,15 @@ function renderHonors(){
       ${h.desc ? `<div style="margin-top:8px;font-size:13px;color:var(--text-secondary);line-height:1.5">${escapeHtml(h.desc)}</div>` : ''}
       <div style="display:flex;gap:6px;margin-top:12px;justify-content:flex-end">
         <button class="btn btn-sm" onclick="exportHonorCert(${h.id})" title="导出证书图片，可直接发班级群/家长群">📄 证书</button>
-        <button class="btn btn-sm" onclick="openHonorEdit(${h.id})"><svg class="ic ic-sm"><use href="#i-pen"/></svg></button>
-        <button class="btn btn-sm" style="color:var(--danger)" onclick="deleteHonor(${h.id})"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button>
+        ${isCm ? '' : `<button class="btn btn-sm" onclick="openHonorEdit(${h.id})"><svg class="ic ic-sm"><use href="#i-pen"/></svg></button>
+        <button class="btn btn-sm" style="color:var(--danger)" onclick="deleteHonor(${h.id})"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button>`}
       </div>
     </div>`;
   }).join('');
 }
 function setHonorLevel(l){ _honorLevel = l; renderHonors(); }
 function openHonorAdd(){
+  if(window.__cmRole === 'committee'){ showToast('荣誉墙仅可查看','warning'); return; }   // v3.2.0（按钮已隐藏，此处防绕过）
   openModal('honorModal');
   document.getElementById('honorModalTitle').textContent = '添加荣誉';
   document.getElementById('honorId').value = '';
@@ -13697,6 +13758,7 @@ function openHonorAdd(){
   document.getElementById('honorPersonsWrap').style.display = 'none';
 }
 function openHonorEdit(id){
+  if(window.__cmRole === 'committee'){ showToast('荣誉墙仅可查看','warning'); return; }   // v3.2.0（按钮已隐藏，此处防绕过）
   const h = state.honors.find(x=>x.id===id);
   if(!h) return;
   openModal('honorModal');
@@ -13735,6 +13797,7 @@ function saveHonor(){
   showToast('已保存','success');
 }
 function deleteHonor(id){
+  if(window.__cmRole === 'committee'){ showToast('荣誉墙仅可查看','warning'); return; }   // v3.2.0（按钮已隐藏，此处防绕过）
   if(!confirm('确定删除这份荣誉？')) return;
   state.honors = state.honors.filter(h=>h.id!==id);
   if(!state.honorDeleted) state.honorDeleted = {};
@@ -15151,9 +15214,14 @@ function loginClear(){
    无学生档案/成绩/请假/通知/设置，无导入导出/添加学生。数据同步照常（班委的操作入云不丢）。 */
 const CM_ROLE_KEY = 'cm_role';
 const CM_UID_KEY = 'cm_uid';   // v2.17.0 班委身份：已任命班委的 studentId，用于操作署名
-const COMMITTEE_PAGES = ['dashboard','attendance','credits','publicity','duty','seating','todo','honors'];   // v3.0.0 起含 attendance（只读：班委可看请假人数/姓名，不可登记）
+const CM_SESS_KEY = 'cm_session_start';   // v3.2.0 本次班委会话开始时间：学分页只可见/可撤销「本会话内班委产生的操作」
+const COMMITTEE_PAGES = ['dashboard','attendance','credits','publicity','duty','seating','honors'];   // v3.0.0 含 attendance（只读）；v3.2.0 移除 todo（班委模式取消待办模块）
 const CM_COLLAB_KEYS = ['banzhang', 'fubanzhang', 'jilv'];   // v3.0.0 仅班长 / 副班长 / 纪律委员可参与协作
 function isCommitteeMode(){ return sessionStorage.getItem(CM_ROLE_KEY) === 'committee'; }
+/* v3.2.0 本次班委会话：可见/可撤销的操作范围 = 班委署名(by==='cm') 且 time ≥ 会话开始。
+   退出班委模式即清除标记，下次进入重新计时（「本次」= 从进入到退出的完整会话）。 */
+function cmSessionStart(){ return Number(sessionStorage.getItem(CM_SESS_KEY)) || 0; }
+function cmOwnSessionOp(op){ return !!op && op.by === 'cm' && (Number(op.time) || 0) >= cmSessionStart(); }
 // v2.17.0 班委身份解析：按 cm_uid 找学生与其岗位；学生已删除/未选身份 → 匿名（通用班委）
 function resolveCmIdentity(){
   var uid = sessionStorage.getItem(CM_UID_KEY);
@@ -15246,6 +15314,7 @@ function cmLoginAs(uid){
 function exitCommitteeMode(){
   sessionStorage.removeItem(CM_ROLE_KEY);
   sessionStorage.removeItem(CM_UID_KEY);
+  sessionStorage.removeItem(CM_SESS_KEY);   // v3.2.0 会话标记一并清除，下次进入重新计时
   location.reload();
 }
 
@@ -15253,6 +15322,8 @@ function applyCommitteeRestrictions(){
   document.body.classList.add('role-committee');
   window.__cmRole = 'committee';
   window.__cmIdentity = resolveCmIdentity();   // v2.17.0 署名身份
+  // v3.2.0 本次会话标记（重入不覆盖：刷新页面后仍是同一次会话）
+  if(!sessionStorage.getItem(CM_SESS_KEY)) sessionStorage.setItem(CM_SESS_KEY, String(Date.now()));
   // 导航三套入口（侧栏/移动 tab/更多抽屉）按白名单裁剪
   document.querySelectorAll('.nav-item, .mobile-tab, .more-item').forEach(function(n){
     if(COMMITTEE_PAGES.indexOf(n.dataset.page) < 0) n.classList.add('cm-hide');
@@ -15887,6 +15958,7 @@ function renderAttendance(){
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const monthTotal = state.leaves.filter(l=>new Date(l.createdAt) >= monthStart).length;
   const pe = document.getElementById('leavePending'); if(pe) pe.textContent = pending;
+  renderDashPresence();   // v3.2.0 请假有任何变动（登记/续假/销假/删除都会走到这）→ 首页实到数即时刷新
   const re = document.getElementById('leaveReturned'); if(re) re.textContent = returned;
   const ex = document.getElementById('leaveExtended'); if(ex) ex.textContent = extended;
   const to = document.getElementById('leaveTotal'); if(to) to.textContent = monthTotal;
@@ -17356,7 +17428,7 @@ function renderPubSummary(data){
     pubStat('人均变动', (data.avgDelta>0?'+':'') + data.avgDelta.toFixed(1)) +
     pubStat('最活跃', data.topActive ? escapeHtml(pubDisplayName(data.topActive)) : '—') +
     pubStat('🏆 最高分', data.maxRow ? '<span style="color:var(--success)">' + data.maxRow.credit + '</span><span style="font-size:15px;font-weight:600;color:var(--text-secondary)"> · ' + escapeHtml(pubDisplayName(data.maxRow)) + '</span>' : '—') +
-    pubStat('⚠️ 最低分', data.minRow ? '<span style="color:' + (data.minRow.credit < 80 ? 'var(--danger)' : 'var(--text-secondary)') + '">' + data.minRow.credit + '</span><span style="font-size:15px;font-weight:600;color:var(--text-secondary)"> · ' + escapeHtml(pubDisplayName(data.minRow)) + '</span>' : '—');
+    (window.__cmRole === 'committee' ? '' : pubStat('⚠️ 最低分', data.minRow ? '<span style="color:' + (data.minRow.credit < 80 ? 'var(--danger)' : 'var(--text-secondary)') + '">' + data.minRow.credit + '</span><span style="font-size:15px;font-weight:600;color:var(--text-secondary)"> · ' + escapeHtml(pubDisplayName(data.minRow)) + '</span>' : '—'))   // v3.2.0 班委公示页不显示最低分（保护后进学生隐私）
 }
 
 /* ---- 榜单区 ---- */
