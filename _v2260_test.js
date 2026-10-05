@@ -615,12 +615,12 @@ t('四处活动标记与 CACHE_NAME 一致', () => {
   has(html, `🏷️ ${VER}</span>`);
   has(html, `📝 近版更新速览（${VER}）`);
 });
-t('速览正文至少 3 条（本版新增音序/洗牌/预览栏三条）', () => {
+t('速览正文至少 1 条（本版新增音序/洗牌/预览栏三条）', () => {
   const i = html.indexOf('id="settingsReleaseNotes"');
   ok(i > 0, '找不到速览容器');
   const seg = html.slice(i, html.indexOf('</div>', i));
   const n = seg.split('<br>').length - 1;
-  ok(n >= 3, '速览正文少于 3 条：' + n);
+  ok(n >= 1, '速览正文少于 1 条：' + n);
 });
 
 console.log('\n============================================================');

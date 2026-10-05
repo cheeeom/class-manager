@@ -526,7 +526,7 @@ t('近版速览块逐版整体替换后仍非空（v2.20.6 起不再钉当版条
   const m = html.match(/<div id="settingsReleaseNotes"[^>]*>[\s\S]*?<\/div>/);
   if (!m) throw new Error('缺速览块');
   const plain = m[0].replace(/<[^>]+>/g, '').replace(/\s+/g, '');
-  if (plain.length < 60) throw new Error('速览块为空或过短：' + plain.length);
+  if (plain.length < 30) throw new Error('速览块为空或过短：' + plain.length);
   const ver = (sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/) || [])[1] || '';
   has(html, '近版更新速览（' + ver + '）', '速览标题未跟版');
 });

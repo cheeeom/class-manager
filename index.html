@@ -2506,7 +2506,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.1.1</div>
+      <div class="login-version">v3.1.2</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2627,7 +2627,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.1.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.1.2 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3377,50 +3377,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.1.1</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.1.2</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.1.1）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.1.2）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-          · 🧭 <b>修复「关于本系统」泄漏到所有模块（P0）</b>：设置页尾部一个多余的闭合标签把「关于」挤到了页面容器之外（工作台/学生管理等每个模块底部都能看到它）——已移除并补齐 .app 闭合，关于本系统回到设置页内部
-          
-          · ✨ <b>动效打磨（按压反馈）</b>：按钮 / 菜单项 / 底部标签 / 页签按下时有「按下去」的缩放手感（触屏无 hover，:active 是手机上的主要反馈通道）
-          · 🌊 <b>涟漪动效扩展</b>：从按钮扩展到菜单栏与底部标签（浅底用朱砂淡色变体，深底保持白色）
-          · 🃏 <b>卡片分层</b>：可点击卡片（寝室卡等）悬停上浮 + 阴影加深，班委卡上浮幅度标准化为 2px；纯展示卡片维持静态不误导
-          · ⚡ <b>性能与规范</b>：全站 33 处 transition:all 反模式清零，逐一改为具名属性（页签滑块只动 left/width），动效更精准、渲染更省
-          
-          · ☁️ <b>云同步三步按钮化</b>：推送/拉取/纯本地模式排成同一行的 1️⃣2️⃣3️⃣ 三步（推送不再用高亮实心色，与拉取同样式），本地模式开关从第二行并入
-          function EOL() { return '\r\n'; }          · 🌙 <b>暗色模式白底清扫收尾</b>：学生详情侧栏 / 成绩考试下拉 / 成绩卡 / 待办卡 / 两个下拉框等 9 处硬编码白底改主题令牌（深色下不再刺眼）；刻意白底（图片衬图 / 体检弹窗）已注释豁免function EOL() { return '\r\n'; }          · 🛠 <b>宿舍图标 SVG 畸形修复</b>：i-dorm 开标签曾被插入的新图标割裂（symbol 嵌套），重构为三条独立闭合的 symbolfunction EOL() { return '\r\n'; }          · 🗑 <b>deploy.sh 移除</b>：Pages 随 main 自动部署，脚本工作流已废弃且内含失效代理地址function EOL() { return '\r\n'; }          
-          · 🏷️ <b>班级头像并入「班级信息」卡</b>：头像、名称、证书落款全称、口号集中在同一张卡，班级身份一站管理（设置页不再单独设头像卡）
-          
-          · 🧹 <b>修复设置页卡片嵌套（P0）</b>：上一版「分组收纳」的折叠容器有缺陷，公示设置之后的设置卡被错误包进隐藏层（班委协作/数据管理/云同步/密码等全部不可见、看似重叠）——已整体还原为独立卡片，每张设置卡各自独立、全部可见；速览折叠保留
-          
-          · 🛏 <b>寝室性别改「以住定性」</b>：男寝/女寝由实际入住成员的档案性别推导（同寝一致才推断、混住不推断），删除「7栋214=男寝、6栋801~806=女寝」硬编码——换班级/换寝室不再改代码；安排入住时若与现住成员性别不一致会提示确认
-          
-          · 🔑 <b>Token / 同步口令配置改站内模态</b>：告别浏览器原生弹窗——口令走密码框不明文回显、Token 粘贴友好并附生成步骤指引；全站仅剩设备授权 1 处原生输入（登录路径一次性流程）
-          · 🗂 <b>设置页分组收纳</b>：公示设置 / 班委协作 / 跨电脑指南 / 关于本系统默认收起，点标题展开，常用项一屏直达
-          · 🏷️ <b>班级信息三合一</b>：班级名称 / 证书落款全称 / 班级口号合并为一张卡片集中管理
-          
-· 🧭 <b>跨电脑指南重写</b>：旧指南还在教「U盘拷 JSON」的手动搬运，已改为「新设备接入三步」（配 Token → 设同步口令 → 云端拉取），U盘导入导出仅作无网络时的备用<br>
-          · 📝 <b>更新速览默认收起</b>：本节改为折叠式，点标题展开，不再占据半屏<br>
-          · ⚠️ <b>危险操作聚合</b>：「清空数据」「从云端恢复（覆盖本地）」集中到独立的「危险操作」区并统一警示样式，「重置云端加密口令」同步改为警示配色；三项均有二次确认
-          · 📱 <b>手机端两个修复</b>：① <b>请假条不用再左右滑</b> —— 有「续假」历史的记录会把卡片撑得比屏幕还宽、整页跟着横向滚动，现在超长历史自动省略号收尾，卡片始终贴合屏幕宽度；② <b>切模块回主页能看见课程表了</b> —— 从往下翻过的长页面（请假 / 德育 / 座位）点回「首页」时不再停在上一页的滚动位置，回首页即从头开始，最上面的课程表直接可见<br>
-              · 🚀 <b>v3.0.0 大版本</b>：班委协作只允许 <b>班长、副班长、纪律委员</b> 三人进入，班委可看<b>课表</b>、看<b>请假人数与姓名</b>（不可登记，课表/请假页均为只读）；新增「<b>登录密码仅限本机</b>」—— 开启后其它设备密码对了也进不了，输入管理员密码授权一次即可；手机底栏「待办」换成「<b>请假</b>」，待办挪进「更多」；学生档案右上角新增<b>关闭按钮</b>；<b>德育记录</b>默认折叠只显 20 条、可展开看全学期流水，筛选新增「<b>本月</b>」；<b>工作留痕</b>支持添加图片（自动压缩，每条最多 4 张）；修复「<b>删除请假记录后刷新又复活</b>」的同步 bug；删除学生时自动清掉 TA 的请假记录<br>
-              · 🚫 <b>关闭座位防误触</b>：退出「关闭座位模式」后，座次表顶端的提示条不再一直挂着；已关闭的格子也不会再「点一下就打开」—— 不管关还是开，都要先进「🚫 关闭座位」模式再点格子<br>
-              · 👥 <b>值日不再有 2 人小组</b>：一组改成 <b>3—4 人</b> —— 先按 4 人切满，末尾不足 3 人时与前面几组重新均分（一组仍是「一周教室 + 一周公卫」的同一批人）。本班 58 人 → 13 组 4 人 + 2 组 3 人，仍是 15 组一轮<br>
-              · 🔁 <b>值日按轮值表重做</b>：每周教室 1 组 + 公共卫生 1 组，按组数循环，和班里的轮值表逐格对得上<br>
-              · 🔴 <b>一键罚扫 / 延缓</b>：本周两个岗位上各有两个按钮 ——「🔴 下周继续罚扫」让这组下周再做一次（只作记录，<b>不自动扣分</b>）；「⏸ 延缓一周」让这周该岗位轮空、这组和后面全体顺延一周（方便插入别的罚扫组）。两者都只动它那一个岗位，教室罚扫不影响公卫轮值<br>
-              · ↶ <b>改错了能退</b>：工具栏「↶ 撤销上一步」逐步回退，「🧹 恢复正常轮值」一键清空全部罚扫与延缓，回到原始循环<br>
-              · 🖼️ <b>导出图改成轮值表</b>：导出的图片现在是「周次 × 教室卫生 × 公共卫生」的整张表，周几谁扫一目了然，打印出来直接贴墙<br>
-              · 🎲 <b>值日可随机分组</b>：值日排表页把「重新分组」拆成两个按钮，一键「🎲 随机分组」把全班打乱后重新切小组，想恢复整齐就用旁边的「按学号分组」<br>
-              · 🌙 <b>暗色模式修白块</b>：Top 5 排行榜的第 4、5 名以前在暗色下是一块白底、字看不清，现在会跟着暗色走<br>
+          · 📝 <b>版本介绍精简</b>：速览只保留当前版本的简要更新，历史版本详情见仓库 PROGRESS.md；往期累积条目已移除<br>
           </div>
           </div>
         </div>

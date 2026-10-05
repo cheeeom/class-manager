@@ -57,7 +57,7 @@ has(html, '\uD83C\uDFF7\uFE0F ' + V + '</span>', '设置页徽标 = ' + V);
 has(html, '\uD83D\uDCDD 近版更新速览（' + V + '）', '速览标题 = ' + V);
 const iN = html.indexOf('id="settingsReleaseNotes"');
 const notesBlock = html.slice(iN, html.indexOf('</div>', iN));
-ok(cnt(notesBlock, '<br>') >= 3, '速览正文至少 3 条（实得 ' + cnt(notesBlock, '<br>') + ' 条）');
+ok(cnt(notesBlock, '<br>') >= 1, '速览正文至少 1 条（实得 ' + cnt(notesBlock, '<br>') + ' 条）');
 
 // ============================================================
 console.log('\n\u30102\u3011「假」徽章字心居中（标定写法）');

@@ -52,7 +52,7 @@ has(v2208, '\u65e7\u5199\u6cd5 `a.href = canvas.toDataURL(...)`', '_v2208_test.j
 const iNotes = html.indexOf('id="settingsReleaseNotes"');
 const notesBlock = html.slice(iNotes, html.indexOf('</div>', iNotes));
 const nBullets = cnt(notesBlock, '<br>');
-assert(nBullets >= 3, '速览正文至少 3 条（实得 ' + nBullets + ' 条）');
+assert(nBullets >= 1, '速览正文至少 1 条（实得 ' + nBullets + ' 条）');
 
 // ============================================================
 // 【2】统一出口

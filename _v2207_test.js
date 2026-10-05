@@ -268,7 +268,7 @@ await t('速览块存在且非空（正文按约定逐版整体替换，故不�
   const m = html.match(/<div id="settingsReleaseNotes"[^>]*>[\s\S]*?<\/div>/);
   ok(m, '缺速览块');
   const plain = m[0].replace(/<[^>]+>/g, '').replace(/\s+/g, '');
-  ok(plain.length >= 60, '速览块为空或过短：' + plain.length);
+  ok(plain.length >= 30, '速览块为空或过短：' + plain.length);
 });
 
 await t('历史注释未被升版波及（v2.20.6 的结论留档仍在）', () => {

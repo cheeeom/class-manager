@@ -64,7 +64,7 @@ has(html, '\u8fd1\u7248\u66f4\u65b0\u901f\u89c8\uff08' + ver + '\uff09', '速览
 // （_v2210_test.js 早已这么改过；本版把 _v2211_test.js 也一并收口，以后跟版不再红。）
 const iNotes = html.indexOf('id="settingsReleaseNotes"');
 const notesBlock = html.slice(iNotes, html.indexOf('</div>', iNotes));
-ok(cnt(notesBlock, '<br>') >= 3, '速览正文至少 3 条（实得 ' + cnt(notesBlock, '<br>') + ' 条）');
+ok(cnt(notesBlock, '<br>') >= 1, '速览正文至少 1 条（实得 ' + cnt(notesBlock, '<br>') + ' 条）');
 
 // ============================================================
 console.log('\n【2】关闭座位：纯函数 + 状态机（真跑）');

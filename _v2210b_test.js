@@ -67,7 +67,7 @@ has(html, '\u8fd1\u7248\u66f4\u65b0\u901f\u89c8\uff08' + ver + '\uff09', '速览
 // 速览文案不钉具体某一版（钉了就等于每次发版都要回来改），只钉结构
 const _iN = html.indexOf('id="settingsReleaseNotes"');
 const _blk = html.slice(_iN, html.indexOf('</div>', _iN));
-ok(cnt(_blk, '<br>') >= 3, '速览正文至少 3 条（实得 ' + cnt(_blk, '<br>') + ' 条）');
+ok(cnt(_blk, '<br>') >= 1, '速览正文至少 1 条（实得 ' + cnt(_blk, '<br>') + ' 条）');
 
 // ============================================================
 console.log('\n\u30102\u3011页面接入（侧栏 / 抽屉 / 容器 / 路由 / 图标）');

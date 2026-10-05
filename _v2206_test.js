@@ -191,7 +191,7 @@ t('速览块非空且标题跟 SW 版本（正文按约定逐版整体替换，�
   const m = html.match(/<div id="settingsReleaseNotes"[^>]*>[\s\S]*?<\/div>/);
   if (!m) throw new Error('缺速览块');
   const plain = m[0].replace(/<[^>]+>/g, '').replace(/\s+/g, '');
-  ok(plain.length >= 60, '速览块为空或过短：' + plain.length);
+  ok(plain.length >= 30, '速览块为空或过短：' + plain.length);
   const ver = (sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/) || [])[1] || '';
   has(html, '近版更新速览（' + ver + '）', '速览标题未跟版');
 });

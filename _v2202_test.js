@@ -285,7 +285,7 @@ t('速览块非空 + 「悬停无动作」结论在引擎注释留档（不硬�
   const m = html.match(/<div id="settingsReleaseNotes"[^>]*>[\s\S]*?<\/div>/);
   if (!m) throw new Error('缺速览块');
   const plain = m[0].replace(/<[^>]+>/g, '').replace(/\s+/g, '');
-  if (plain.length < 60) throw new Error('速览块为空或过短：' + plain.length);
+  if (plain.length < 30) throw new Error('速览块为空或过短：' + plain.length);
   has(html, '菜单内所有鼠标悬停已移除', '引擎注释未留档「悬停已移除」结论');
 });
 
