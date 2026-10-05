@@ -2506,7 +2506,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.1.0</div>
+      <div class="login-version">v3.1.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2627,7 +2627,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.1.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.1.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3373,23 +3373,24 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
             两项均有二次确认；执行前建议先「💾 导出数据」留一份备份。
           </div>
           </div>
-        </div>
         
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.1.0</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.1.1</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.1.0）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.1.1）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+          · 🧭 <b>修复「关于本系统」泄漏到所有模块（P0）</b>：设置页尾部一个多余的闭合标签把「关于」挤到了页面容器之外（工作台/学生管理等每个模块底部都能看到它）——已移除并补齐 .app 闭合，关于本系统回到设置页内部
+          
           · ✨ <b>动效打磨（按压反馈）</b>：按钮 / 菜单项 / 底部标签 / 页签按下时有「按下去」的缩放手感（触屏无 hover，:active 是手机上的主要反馈通道）
           · 🌊 <b>涟漪动效扩展</b>：从按钮扩展到菜单栏与底部标签（浅底用朱砂淡色变体，深底保持白色）
           · 🃏 <b>卡片分层</b>：可点击卡片（寝室卡等）悬停上浮 + 阴影加深，班委卡上浮幅度标准化为 2px；纯展示卡片维持静态不误导
@@ -17953,6 +17954,7 @@ function renderPublicity(){
 </nav>
 <!-- More Drawer -->
 <div class="more-drawer-mask" id="moreMask" onclick="toggleMoreDrawer()"></div>
+</div>
 <div class="more-drawer" id="moreDrawer">
   <div class="more-drawer-title">全部功能</div>
   <div class="more-grid" id="moreGrid">
