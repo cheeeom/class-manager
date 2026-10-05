@@ -2506,7 +2506,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.1.2</div>
+      <div class="login-version">v3.1.3</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2627,7 +2627,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.1.2 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.1.3 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3377,19 +3377,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.1.2</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.1.3</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.1.2）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.1.3）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-          · 📝 <b>版本介绍精简</b>：速览只保留当前版本的简要更新，历史版本详情见仓库 PROGRESS.md；往期累积条目已移除<br>
+          · 🛠 <b>修复档案详情按钮重叠</b>：详情卡右上角的 ✕ 关闭按钮压在「✏️ 编辑资料」按钮上（关闭按钮是角标定位、编辑按钮贴着卡片右缘）——编辑按钮向左让位，两者并排不再叠压<br>
           </div>
           </div>
         </div>
@@ -13330,7 +13330,7 @@ function renderProfileDetail(s){
         <div class="pf-credit">${Number(s.credit)||0}<small> 学分</small></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:4px">当前学分</div>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="openProfileEdit(${s.id})">✏️ 编辑资料</button>
+      <button class="btn btn-primary btn-sm" style="margin-right:40px" onclick="openProfileEdit(${s.id})">✏️ 编辑资料</button>
       <button class="btn btn-outline btn-sm" style="position:absolute;top:12px;right:12px;padding:4px 10px" onclick="closeProfileDetail()" title="关闭档案详情">✕</button>
     </div>
     <div class="pf-notes">${p.notes ? escapeHtml(p.notes) : '备注：无（可填写特异体质、需特别关心等事项）'}</div>
