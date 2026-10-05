@@ -67,7 +67,7 @@ t('守卫用 hover:none 媒体特性（能覆盖「有触摸又接了鼠标」�
 t('守卫取值与「非悬停基线」逐项一致 —— 否则只是换成另一种颜色，照样闪', () => {
   // 基线：.qc-cat 的 border 与 color
   has(html, '.qc-cat{padding:7px 16px;border:1px solid var(--border);', '大类基线 border 变了');
-  has(html, 'background:var(--card-bg);color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;',
+  has(html, 'background:var(--card-bg);color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;transition:background-color .15s,color .15s,border-color .15s,transform .15s;',
       '大类基线色/字重变了（守卫取值需同步）');
   // 基线：.qc-item 的 border 与 background
   has(html, 'border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text);cursor:pointer;text-align:left;font-size:14px;',
@@ -132,8 +132,8 @@ t('细则区仍是两列网格 + 高度兜底（没把网格本身改掉）', ()
 console.log('\n=== ⑤ 触摸端不再有原生点按高亮块 ===');
 
 t('.qc-cat / .qc-item 均关闭 -webkit-tap-highlight-color', () => {
-  has(html, 'transition:all .15s;-webkit-tap-highlight-color:transparent}', '大类未关点按高亮');
-  has(html, 'transition:all .12s;-webkit-tap-highlight-color:transparent}', '细则未关点按高亮');
+  has(html, 'transition:background-color .15s,color .15s,border-color .15s,transform .15s;-webkit-tap-highlight-color:transparent}', '大类未关点按高亮');
+  has(html, 'transition:background-color .12s,color .12s,border-color .12s,transform .12s;-webkit-tap-highlight-color:transparent}', '细则未关点按高亮');
   has(html, '-webkit-tap-highlight-color:transparent', '底部导航的既有做法被删除');
 });
 

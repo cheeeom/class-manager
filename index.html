@@ -198,7 +198,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   cursor:pointer;
   color:var(--text-secondary);
   font-size:14px;font-weight:500;
-  transition:all var(--transition);
+  transition:background-color var(--transition),color var(--transition),box-shadow var(--transition),transform var(--transition);
   position:relative;
   margin-bottom:2px;
 }
@@ -246,7 +246,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 }
 .topbar h1{font-size:20px;font-weight:600;color:var(--text)}
 .topbar .topbar-right{display:flex;align-items:center;gap:12px}
-.topbar .btn-icon{height:36px;border-radius:10px;border:none;background:transparent;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;gap:4px;transition:all .2s;color:var(--text-secondary);padding:0 8px}.btn-icon:hover{background:rgba(166,58,43,0.1);color:var(--primary)}.btn-icon .icon-label{font-size:12px;font-weight:500}
+.topbar .btn-icon{height:36px;border-radius:10px;border:none;background:transparent;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;gap:4px;transition:background-color .2s,color .2s,transform .2s;color:var(--text-secondary);padding:0 8px}.btn-icon:hover{background:rgba(166,58,43,0.1);color:var(--primary)}.btn-icon .icon-label{font-size:12px;font-weight:500}
 .topbar .btn-icon:hover{background:rgba(166,58,43,0.15);transform:scale(1.05)}
 .export-badge{width:10px;height:10px;border-radius:50%;background:var(--danger);position:relative;top:-18px;right:6px;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
@@ -274,7 +274,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   border-radius:var(--radius);
   box-shadow:var(--shadow-card);
   padding:20px;
-  transition:all var(--transition);
+  transition:box-shadow var(--transition),transform var(--transition),border-color var(--transition);
   border:1px solid var(--border);
 }
 .card:hover{box-shadow:var(--shadow)}
@@ -294,7 +294,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   border:1px solid var(--border);
   position:relative;
   overflow:hidden;
-  transition:all var(--transition);
+  transition:box-shadow var(--transition),transform var(--transition),border-color var(--transition),background-color var(--transition);
 }
 .stat-card::after{
   content:'';
@@ -380,7 +380,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   padding:48px 20px;
   text-align:center;
   cursor:pointer;
-  transition:all var(--transition);
+  transition:background-color var(--transition),border-color var(--transition),color var(--transition);
   color:var(--text-muted);
 }
 .schedule-empty:hover{
@@ -415,7 +415,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   border:none;cursor:pointer;
   background:rgba(255,255,255,0.9);
   box-shadow:0 2px 8px rgba(0,0,0,0.1);
-  transition:all .2s;
+  transition:background-color .2s,color .2s,box-shadow .2s,transform .2s;
 }
 .schedule-actions .btn-sm:hover{transform:scale(1.05)}
 .schedule-actions .btn-sm.danger{color:var(--danger)}
@@ -425,7 +425,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .schedule-sub{font-size:12px;color:var(--text-muted);font-weight:400;margin-left:8px}
 .schedule-tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 .ts-btn{padding:5px 11px;font-size:12.5px;border-radius:8px;border:1px solid var(--border);
-  background:var(--card-bg);color:var(--text-secondary);cursor:pointer;transition:all .18s;white-space:nowrap}
+  background:var(--card-bg);color:var(--text-secondary);cursor:pointer;transition:background-color .18s,color .18s,border-color .18s,transform .18s;white-space:nowrap}
 .ts-btn:hover{border-color:var(--primary);color:var(--primary)}
 .ts-btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
 .ts-btn.primary:hover{background:var(--primary-dark);border-color:var(--primary-dark);color:#fff}
@@ -512,7 +512,7 @@ table.ts-tb td.today{background:rgba(166,58,43,.035);border-radius:10px}
 .ts-mob{display:none}
 .ts-seg{display:flex;background:var(--bg-secondary);border-radius:8px;padding:3px;margin-bottom:10px}
 .ts-seg span{flex:1;text-align:center;font-size:12.5px;padding:6px 0;border-radius:6px;
-  color:var(--text-muted);cursor:pointer;transition:all .15s}
+  color:var(--text-muted);cursor:pointer;transition:color .15s,background-color .15s}
 .ts-seg span.on{background:var(--card-bg);color:var(--primary);font-weight:700;
   box-shadow:0 1px 4px rgba(43,38,28,.1)}
 .ts-mday{margin:12px 0 4px;font-size:12.5px;font-weight:800;color:var(--text-secondary)}
@@ -551,7 +551,7 @@ table.ts-tb td.today{background:rgba(166,58,43,.035);border-radius:10px}
 .ts-in:focus{outline:none;border-color:var(--primary)}
 .ts-hint{font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:10px}
 .ts-drop{border:2px dashed var(--primary-lighter);border-radius:12px;padding:26px 18px;text-align:center;
-  cursor:pointer;color:var(--text-muted);transition:all .18s}
+  cursor:pointer;color:var(--text-muted);transition:border-color .18s,background-color .18s,color .18s}
 .ts-drop:hover{border-color:var(--primary);background:rgba(166,58,43,.04)}
 .ts-drop .ic{font-size:38px;opacity:.35;margin-bottom:8px}
 .ts-drop .tx{font-size:13.5px;color:var(--text-secondary);margin-bottom:5px}
@@ -603,7 +603,7 @@ html.dark .ts-cell.g-gen,html.dark .ts-mline .mc.g-gen{background:rgba(206,139,6
   padding:10px 14px;
   border-radius:10px;
   background:var(--row-bg);
-  transition:all var(--transition);
+  transition:background-color var(--transition),box-shadow var(--transition),transform var(--transition);
   position:relative;
   overflow:hidden;
 }
@@ -644,7 +644,7 @@ html.dark .ts-cell.g-gen,html.dark .ts-mline .mc.g-gen{background:rgba(206,139,6
 .timeline-item .tl-text{color:var(--text-secondary);margin-top:2px}
 .timeline-item .tl-text strong{color:var(--text)}
 /* v2.17.9 逐条撤销按钮 + 已撤销抽屉 */
-.tl-undo{display:inline-block;margin-left:8px;padding:0 8px;font-size:11px;line-height:18px;color:var(--text-muted);background:transparent;border:1px dashed var(--border);border-radius:6px;cursor:pointer;vertical-align:1px;transition:all .15s}
+.tl-undo{display:inline-block;margin-left:8px;padding:0 8px;font-size:11px;line-height:18px;color:var(--text-muted);background:transparent;border:1px dashed var(--border);border-radius:6px;cursor:pointer;vertical-align:1px;transition:background-color .15s,color .15s}
 .tl-undo:hover{color:var(--danger);border-color:var(--danger);border-style:solid;background:rgba(220,80,80,.06)}
 .tl-revoked-wrap{margin-top:14px;border:1px dashed var(--border);border-radius:10px;padding:8px 12px;font-size:12px}
 .tl-revoked-head{color:var(--text-muted);cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center}
@@ -666,7 +666,7 @@ html.dark .ts-cell.g-gen,html.dark .ts-mline .mc.g-gen{background:rgba(206,139,6
   border-radius:10px;
   font-size:14px;
   background:var(--card-bg);
-  transition:all var(--transition);
+  transition:border-color var(--transition),background-color var(--transition),box-shadow var(--transition);
 }
 .search-box input:focus{outline:none;border-color:var(--primary-light);box-shadow:0 0 0 3px rgba(166,58,43,0.1)}
 .search-box .search-icon{
@@ -678,7 +678,7 @@ html.dark .ts-cell.g-gen,html.dark .ts-mline .mc.g-gen{background:rgba(206,139,6
   border:none;border-radius:10px;
   font-size:14px;font-weight:500;
   cursor:pointer;
-  transition:all var(--transition);
+  transition:background-color var(--transition),color var(--transition),box-shadow var(--transition),transform var(--transition);
   display:inline-flex;align-items:center;gap:6px;
   position:relative;overflow:hidden;
 }
@@ -776,7 +776,7 @@ tbody tr.highlight{
   border:none;cursor:pointer;
   background:rgba(166,58,43,0.08);color:var(--primary-dark);
   font-size:14px;
-  transition:all .2s;
+  transition:background-color .2s,color .2s,transform .2s;
 }
 .action-btn:hover{background:rgba(166,58,43,0.15)}
 .action-btn.del{background:rgba(180,35,24,0.08);color:var(--danger)}
@@ -831,7 +831,7 @@ tbody tr.highlight{
   border-radius:8px;
   font-size:14px;
   font-family:inherit;
-  transition:all var(--transition);
+  transition:border-color var(--transition),background-color var(--transition),box-shadow var(--transition);
 }
 .modal input:focus,.modal select:focus,.modal textarea:focus{
   outline:none;border-color:var(--primary-light);
@@ -910,7 +910,7 @@ tbody tr.highlight{
   background:transparent;
   font-size:12px;
   cursor:pointer;
-  transition:all .2s;
+  transition:background-color .2s,color .2s,border-color .2s;
   color:var(--text-secondary);
 }
 .tag-preset .preset-btn:hover{border-color:var(--primary);color:var(--primary-dark)}
@@ -945,7 +945,7 @@ tbody tr.highlight{
   position:absolute;top:4px;bottom:4px;
   background:linear-gradient(135deg,var(--primary),var(--primary-light));
   border-radius:8px;
-  transition:all .35s cubic-bezier(.4,0,.2,1);
+  transition:left .35s cubic-bezier(.4,0,.2,1),width .35s cubic-bezier(.4,0,.2,1);
   z-index:1;
   box-shadow:0 2px 8px rgba(166,58,43,0.3);
 }
@@ -957,7 +957,7 @@ tbody tr.highlight{
   border-radius:var(--radius);
   padding:24px;
   margin-bottom:16px;
-  transition:all var(--transition);
+  transition:border-color var(--transition),background-color var(--transition);
 }
 .import-area textarea{
   width:100%;min-height:150px;
@@ -1038,7 +1038,7 @@ tbody tr.highlight{
   cursor:pointer;
   border-bottom:2px solid transparent;
   margin-bottom:-2px;
-  transition:all .2s;
+  transition:background-color .2s,color .2s,border-color .2s;
   user-select:none;
 }
 .analytics-tab:hover{color:var(--primary);}
@@ -1247,12 +1247,12 @@ tbody tr.highlight{
   box-shadow:var(--shadow-card);
   border:1px solid var(--border);
   overflow:hidden;
-  transition:all var(--transition);
+  transition:box-shadow var(--transition),transform var(--transition);
   position:relative;
   display:flex;
   flex-direction:column;
 }
-.committee-card:hover{box-shadow:var(--shadow);transform:translateY(-4px)}
+.committee-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
 .committee-card .top-bar{
   height:5px;
   border-radius:5px 5px 0 0;
@@ -1323,7 +1323,9 @@ tbody tr.highlight{
 /* ==================== Dorm（寝室管理，标签派生） ==================== */
 .dorm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
 .dorm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
-.dorm-card{
+
+.dorm-card{cursor:pointer;transition:box-shadow var(--t-med),transform var(--t-med)}
+.dorm-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}.dorm-card{
   background:var(--card-bg);
   border:1px solid var(--border);
   border-radius:14px;
@@ -1418,7 +1420,7 @@ tbody tr.highlight{
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
   cursor:pointer;
-  transition:all .2s;
+  transition:background-color .2s,color .2s,border-color .2s,transform .2s,box-shadow .2s;
   background:var(--row-bg);
   font-size:12px;
   text-align:center;
@@ -1493,7 +1495,7 @@ tbody tr.highlight{
   border:none;border-radius:6px;
   cursor:pointer;font-size:13px;font-weight:500;
   background:transparent;color:var(--text-secondary);
-  transition:all .2s;
+  transition:background-color .2s,color .2s,border-color .2s;
 }
 .week-toggle button.active{
   background:linear-gradient(135deg,var(--primary),var(--primary-light));
@@ -1658,7 +1660,7 @@ html.dark .duty-team:hover{box-shadow:0 4px 14px rgba(0,0,0,.35)}
   .mobile-tabbar::-webkit-scrollbar{display:none}
   .mobile-tab{flex:1;min-width:0;height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:var(--text-muted);font-size:11px;-webkit-tap-highlight-color:transparent;position:relative;transition:color .2s}
   .mobile-tab .tab-icon{font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;width:40px;height:28px;border-radius:10px;transition:transform .2s,background .2s}
-  .mobile-tab .tab-label{font-size:11px;line-height:1;font-weight:400;transition:all .2s}
+  .mobile-tab .tab-label{font-size:11px;line-height:1;font-weight:400;transition:color .2s,transform .2s}
   .mobile-tab.active{color:var(--primary-dark);font-weight:600}
   .mobile-tab.active .tab-icon{transform:translateY(-1px) scale(1.1);background:rgba(166,58,43,0.12)}
   .mobile-tab.more-tab{flex:1;min-width:0;height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:var(--text-muted);font-size:11px;-webkit-tap-highlight-color:transparent;position:relative;transition:color .2s}
@@ -1673,7 +1675,7 @@ html.dark .duty-team:hover{box-shadow:0 4px 14px rgba(0,0,0,.35)}
   .more-drawer-mask.open{opacity:1;pointer-events:auto}
   .more-drawer-title{font-size:14px;font-weight:700;color:var(--text);text-align:center;padding:4px 0 12px}
   .more-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .more-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px 6px;border-radius:12px;background:var(--bg);border:1px solid var(--border);cursor:pointer;color:var(--text-secondary);font-size:12px;transition:all .2s;min-height:72px}
+  .more-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px 6px;border-radius:12px;background:var(--bg);border:1px solid var(--border);cursor:pointer;color:var(--text-secondary);font-size:12px;transition:background-color .2s,color .2s,border-color .2s,transform .2s;min-height:72px}
   .more-item:active{transform:scale(0.96)}
   .more-item .more-icon{font-size:24px;line-height:1}
   .more-item.active{color:var(--primary-dark);font-weight:600;border-color:var(--primary);background:rgba(166,58,43,0.08)}
@@ -1927,7 +1929,7 @@ html.dark .tl-body{background:var(--bg)}
 .login-pwd-display.error{border-color:var(--danger);animation:shake .3s}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .pwd-dots{display:flex;gap:12px;min-height:30px;align-items:center;justify-content:center}
-.pwd-dot{width:11px;height:11px;border-radius:2px;flex-shrink:0;transition:all .25s ease;transform:rotate(45deg)}
+.pwd-dot{width:11px;height:11px;border-radius:2px;flex-shrink:0;transition:background-color .25s ease,transform .25s ease;transform:rotate(45deg)}
 .pwd-dot-empty{background:rgba(166,58,43,0.18)}
 .pwd-dot-filled{background:var(--primary);animation:dotPop .3s ease}
 .login-help{font-size:12px;color:var(--text-muted);text-align:center;margin-top:2px;padding:0}
@@ -1945,7 +1947,7 @@ html.dark .tl-body{background:var(--bg)}
   font-size:20px;font-weight:600;
   color:var(--text);
   cursor:pointer;
-  transition:all .15s;
+  transition:background-color .15s,color .15s,border-color .15s,transform .15s,box-shadow .15s;
   border:1px solid var(--border);
   user-select:none;
 }
@@ -2080,11 +2082,11 @@ html.dark .tl-body{background:var(--bg)}
 .grade-rank-3{color:#3B6E8F;font-weight:700}
 
 /* ==================== Todo ==================== */
-.todo-item{display:flex;align-items:flex-start;gap:12px;background:var(--card-bg);border-radius:12px;padding:14px 18px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);transition:all .2s}
+.todo-item{display:flex;align-items:flex-start;gap:12px;background:var(--card-bg);border-radius:12px;padding:14px 18px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);transition:box-shadow .2s,transform .2s}
 .todo-item:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08)}
 .todo-item.done{opacity:.55}
 .todo-item.done .todo-text{text-decoration:line-through;color:var(--text-muted)}
-.todo-check{width:22px;height:22px;border:2px solid var(--border);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;margin-top:2px}
+.todo-check{width:22px;height:22px;border:2px solid var(--border);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background-color .2s,border-color .2s,color .2s;margin-top:2px}
 .todo-check:hover{border-color:var(--primary)}
 .todo-check.checked{background:var(--primary);border-color:var(--primary);color:#fff}
 .todo-content{flex:1}
@@ -2236,7 +2238,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .pub-fold{cursor:pointer;color:var(--text-muted);font-size:12px;margin-top:2px;display:inline-block}
 .pub-fold:hover{color:var(--primary)}
 /* v2.17.30 学分银行：类别筛选胶囊 / 搜索匹配下拉 */
-.cb-chip{padding:5px 14px;border-radius:999px;font-size:13px;cursor:pointer;color:var(--text-secondary);background:var(--bg-secondary);border:1px solid transparent;transition:all .15s;user-select:none;white-space:nowrap}
+.cb-chip{padding:5px 14px;border-radius:999px;font-size:13px;cursor:pointer;color:var(--text-secondary);background:var(--bg-secondary);border:1px solid transparent;transition:background-color .15s,color .15s,border-color .15s;user-select:none;white-space:nowrap}
 .cb-chip:hover{color:var(--primary)}
 .cb-chip.on{background:var(--primary);color:#fff;font-weight:600}
 .cb-match{padding:9px 12px;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
@@ -2247,7 +2249,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .qc-row{display:flex;gap:12px;margin:4px 0 14px}
 .qc-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:12px;
   padding:14px 16px;border:none;border-radius:12px;cursor:pointer;color:#fff;
-  box-shadow:var(--shadow-card);transition:all var(--transition);user-select:none}
+  box-shadow:var(--shadow-card);transition:box-shadow var(--transition),transform var(--transition);user-select:none}
 .qc-btn:active{transform:scale(0.97)}
 .qc-btn.qc-add{background:linear-gradient(145deg,#2F7D5B,#256648)}
 .qc-btn.qc-add:hover{box-shadow:0 6px 18px rgba(47,125,91,0.35)}
@@ -2272,7 +2274,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 
 /* v2.20.0-r2 两级原因菜单 */
 .qc-cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.qc-cat{padding:7px 16px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.qc-cat{padding:7px 16px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;transition:background-color .15s,color .15s,border-color .15s,transform .15s;-webkit-tap-highlight-color:transparent}
 .qc-cat:hover{border-color:var(--primary-light);color:var(--primary-dark)}
 /* v2.20.6 触摸端不给 hover 上色（对照 .key 的同款守卫）：
    触屏点大类会重画细则区，浏览器把手指停点下的新按钮直接判成 :hover → 边框闪一下。
@@ -2281,7 +2283,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .qc-cat.active{background:var(--primary);border-color:var(--primary);color:#fff}
 .qc-items{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:260px;min-height:132px;overflow-y:auto;padding:2px}
 .qc-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;
-  border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text);cursor:pointer;text-align:left;font-size:14px;transition:all .12s;-webkit-tap-highlight-color:transparent}
+  border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text);cursor:pointer;text-align:left;font-size:14px;transition:background-color .12s,color .12s,border-color .12s,transform .12s;-webkit-tap-highlight-color:transparent}
 .qc-item:hover{border-color:var(--primary-light);background:var(--bg-secondary)}
 @media(hover:none){.qc-item:hover{border-color:var(--border);background:var(--card-bg)}}
 .qc-item.selected{border-color:var(--primary);background:rgba(166,58,43,0.08)}
@@ -2504,7 +2506,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.0.6</div>
+      <div class="login-version">v3.1.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2625,7 +2627,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.0.6 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.1.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3376,18 +3378,23 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.0.6</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.1.0</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.0.6）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.1.0）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+          · ✨ <b>动效打磨（按压反馈）</b>：按钮 / 菜单项 / 底部标签 / 页签按下时有「按下去」的缩放手感（触屏无 hover，:active 是手机上的主要反馈通道）
+          · 🌊 <b>涟漪动效扩展</b>：从按钮扩展到菜单栏与底部标签（浅底用朱砂淡色变体，深底保持白色）
+          · 🃏 <b>卡片分层</b>：可点击卡片（寝室卡等）悬停上浮 + 阴影加深，班委卡上浮幅度标准化为 2px；纯展示卡片维持静态不误导
+          · ⚡ <b>性能与规范</b>：全站 33 处 transition:all 反模式清零，逐一改为具名属性（页签滑块只动 left/width），动效更精准、渲染更省
+          
           · ☁️ <b>云同步三步按钮化</b>：推送/拉取/纯本地模式排成同一行的 1️⃣2️⃣3️⃣ 三步（推送不再用高亮实心色，与拉取同样式），本地模式开关从第二行并入
           function EOL() { return '\r\n'; }          · 🌙 <b>暗色模式白底清扫收尾</b>：学生详情侧栏 / 成绩考试下拉 / 成绩卡 / 待办卡 / 两个下拉框等 9 处硬编码白底改主题令牌（深色下不再刺眼）；刻意白底（图片衬图 / 体检弹窗）已注释豁免function EOL() { return '\r\n'; }          · 🛠 <b>宿舍图标 SVG 畸形修复</b>：i-dorm 开标签曾被插入的新图标割裂（symbol 嵌套），重构为三条独立闭合的 symbolfunction EOL() { return '\r\n'; }          · 🗑 <b>deploy.sh 移除</b>：Pages 随 main 自动部署，脚本工作流已废弃且内含失效代理地址function EOL() { return '\r\n'; }          
           · 🏷️ <b>班级头像并入「班级信息」卡</b>：头像、名称、证书落款全称、口号集中在同一张卡，班级身份一站管理（设置页不再单独设头像卡）
@@ -15473,7 +15480,7 @@ function showPwaInstallTip(){
   tip.style.cssText = 'position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#6F251B;color:#fff;padding:10px 14px;border-radius:20px;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:9999;display:flex;align-items:center;gap:10px;font-size:13px;max-width:92vw;';
   document.body.appendChild(tip);
   var style = document.createElement('style');
-  style.textContent = '#pwaInstallBtn{background:#A63A2B;color:#fff;border:none;padding:6px 14px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;min-height:36px;transition:all .3s}#pwaInstallBtn:hover{background:#8C2F22;transform:translateY(-1px)}#pwaDismissBtn{background:transparent;color:rgba(255,255,255,.8);border:none;font-size:14px;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;min-width:32px;min-height:32px}#pwaDismissBtn:hover{background:rgba(255,255,255,.15)}';
+  style.textContent = '#pwaInstallBtn{background:#A63A2B;color:#fff;border:none;padding:6px 14px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;min-height:36px;transition:background-color .3s,transform .3s}#pwaInstallBtn:hover{background:#8C2F22;transform:translateY(-1px)}#pwaDismissBtn{background:transparent;color:rgba(255,255,255,.8);border:none;font-size:14px;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;min-width:32px;min-height:32px}#pwaDismissBtn:hover{background:rgba(255,255,255,.15)}';
   document.head.appendChild(style);
   document.getElementById('pwaInstallBtn').addEventListener('click', async () => {
     if(deferredPrompt){

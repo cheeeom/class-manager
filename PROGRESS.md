@@ -3329,3 +3329,16 @@ const lockStart = html.indexOf('/* v2.24.1 推送互斥');
 - [x] **测试同步踩坑**：_v2195 按钮回填断言的 emoji 前缀漏改（内联 node -e 搜索码位写错成 ↙，替换 0 处却报成功的静默假阳性）——改用脚本文件+字面 emoji 精确替换后绿；教训：含 emoji 的字符串替换一律脚本文件+字面字符。
 - [x] **推送**：待老板审阅。
 
+
+### 2026-10-05（v3.1.0：动效打磨——按压反馈 / 涟漪扩展 / 卡片分层 / transition:all 清零）
+
+- [x] **立项**（老板提）：优化动效、打磨细节——主页菜单栏、卡片效果、点击反馈。先调研 ui-ux-pro-max 技能库准则（微交互 150-300ms / transition:all 反模式 / 触屏不依赖 hover / prefers-reduced-motion / 教育类 Soft press 200ms）+ 全站动效盘点（18 keyframes / transition 73 处 / :hover 98 vs :active 仅 6 / transition:all 33 处）。
+- [x] **按压反馈（触屏优先，最大缺口）**：新增动效令牌（--t-fast 150ms / --t-med 200ms / --press-scale 0.97）+ 按压语言——.btn / .btn-icon / .nav-item / .mobile-tab / .tab 按下 scale(0.97)，可点击卡片（dorm/committee）按下 scale(0.99)；全局 -webkit-tap-highlight-color:transparent；prefers-reduced-motion 兼容沿用。
+- [x] **涟漪扩展**：从仅 .btn 扩展至 .nav-item / .mobile-tab（closest 选择器扩展 + 浅底朱砂淡色 .ripple.tint 变体 + .nav-item overflow:hidden 裁剪）。
+- [x] **卡片分层**：.committee-card 悬停上浮 -4px → -2px 标准化；.dorm-card（可点击）补悬停上浮 + 阴影加深 + 按压（cursor:pointer 补齐）。
+- [x] **transition:all 清零（33 处，按组件定制属性清单）**：每处按其悬停/激活实际变化的属性逐一定制（如 .nav-item = background/color/box-shadow/transform；.modal 表单 = border-color/background/box-shadow）；**.tab-indicator 特例只动 left/width**（页签滑块，改错即坏）；pwaInstallBtn（JS 字符串内）同步。
+- [x] **踩坑（三次返工记录）**：① 脚本 v1 的 MAP 模板里 'D' 占位符未替换（生成 `background-color D .15s` 非法声明）；② 脚本 v2 修占位后**又丢了 transition: 前缀**（替换吃掉整个 transition:all 却只写回属性清单）——两版均被自验/回归当场逮住、git checkout 零损失重跑；③ 最终版自验加强：查 D 残留 + 查丢前缀裸声明 + 查 transition: 前缀计数。**教训：批量 CSS 文本手术的自验必须含结构合法性断言，语法检查与文本包含型测试都拦不住这类损坏**。
+- [x] **_v2206 断言同步**：.qc-cat/.qc-item 的 transition 具名化后，三处源串断言（基线/tap-highlight×2）同步更新（17/17 全绿）。
+- [x] **验证**：全量 **71 套全绿**；JS 语法 ✓；发版跟版四处 + CACHE → v3.1.0；速览累积置顶四条。
+- [x] **推送**：待老板审阅。
+
