@@ -71,7 +71,7 @@ t('设置页 UI：开关按钮 + 状态位 + 说明文案', () => {
 
 t('updateCloudSyncUI 本地模式分支 + 按钮状态回填', () => {
   has(html, '📴 纯本地模式已开启', '缺状态行');
-  has(html, "if(lb) lb.textContent = isLocalMode() ? '📴 纯本地模式：开（点击关闭）' : '📴 纯本地模式：关（点击开启）';", '缺按钮回填');
+  has(html, "if(lb) lb.textContent = isLocalMode() ? '3️⃣ 纯本地模式：开（点击关闭）' : '3️⃣ 纯本地模式：关（点击开启）';", '缺按钮回填');
   has(html, "renderSettings", '设置页渲染函数丢失');
 });
 

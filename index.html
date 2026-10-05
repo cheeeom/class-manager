@@ -2504,7 +2504,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.0.5</div>
+      <div class="login-version">v3.0.6</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2625,7 +2625,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.0.5 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.0.6 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3311,15 +3311,12 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         </div>
         <div class="settings-section">
           <h3>☁️ Git 云同步</h3>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px">
-            <button class="btn btn-primary" onclick="pushToCloud()">⬆️ 推送数据到云端</button>
-            <button class="btn btn-outline" onclick="pullFromCloud()">⬇️ 从云端拉取数据</button>
-          </div>
-          <div id="cloudSyncInfo" style="margin-top:8px"></div>
-          <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-            <button class="btn btn-outline" style="font-size:12px;padding:4px 12px" id="localModeBtn" onclick="toggleLocalMode()">📴 纯本地模式：关（点击开启）</button>
-            <span id="localModeStatus" style="font-size:12px"></span>
-          </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+      <button class="btn btn-outline" onclick="pushToCloud()">1️⃣ 推送数据到云端</button>
+      <button class="btn btn-outline" onclick="pullFromCloud()">2️⃣ 从云端拉取数据</button>
+      <button class="btn btn-outline" id="localModeBtn" onclick="toggleLocalMode()">3️⃣ 纯本地模式：关（点击开启）</button>
+      <span id="localModeStatus" style="font-size:12px"></span>
+    </div>
           <p style="font-size:12px;color:var(--text-muted);margin-top:4px;line-height:1.6">开启后：停用自动云同步与全部同步弹窗，数据只保存在本机浏览器（关机/重启后照常使用、不丢失）；手动「推送/拉取」仍可用，想上云随时点。</p>
           <div style="margin-top:8px;font-size:12px;color:var(--text-secondary);display:flex;gap:10px;flex-wrap:wrap;align-items:center">
             <button class="btn btn-outline" style="font-size:12px;padding:4px 12px" onclick="configGHToken()">配置 GitHub Token</button>
@@ -3379,18 +3376,20 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.0.5</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.0.6</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.0.5）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.0.6）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
-            <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">function EOL() { return '\r\n'; }          · 🌙 <b>暗色模式白底清扫收尾</b>：学生详情侧栏 / 成绩考试下拉 / 成绩卡 / 待办卡 / 两个下拉框等 9 处硬编码白底改主题令牌（深色下不再刺眼）；刻意白底（图片衬图 / 体检弹窗）已注释豁免function EOL() { return '\r\n'; }          · 🛠 <b>宿舍图标 SVG 畸形修复</b>：i-dorm 开标签曾被插入的新图标割裂（symbol 嵌套），重构为三条独立闭合的 symbolfunction EOL() { return '\r\n'; }          · 🗑 <b>deploy.sh 移除</b>：Pages 随 main 自动部署，脚本工作流已废弃且内含失效代理地址function EOL() { return '\r\n'; }          
+            <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+          · ☁️ <b>云同步三步按钮化</b>：推送/拉取/纯本地模式排成同一行的 1️⃣2️⃣3️⃣ 三步（推送不再用高亮实心色，与拉取同样式），本地模式开关从第二行并入
+          function EOL() { return '\r\n'; }          · 🌙 <b>暗色模式白底清扫收尾</b>：学生详情侧栏 / 成绩考试下拉 / 成绩卡 / 待办卡 / 两个下拉框等 9 处硬编码白底改主题令牌（深色下不再刺眼）；刻意白底（图片衬图 / 体检弹窗）已注释豁免function EOL() { return '\r\n'; }          · 🛠 <b>宿舍图标 SVG 畸形修复</b>：i-dorm 开标签曾被插入的新图标割裂（symbol 嵌套），重构为三条独立闭合的 symbolfunction EOL() { return '\r\n'; }          · 🗑 <b>deploy.sh 移除</b>：Pages 随 main 自动部署，脚本工作流已废弃且内含失效代理地址function EOL() { return '\r\n'; }          
           · 🏷️ <b>班级头像并入「班级信息」卡</b>：头像、名称、证书落款全称、口号集中在同一张卡，班级身份一站管理（设置页不再单独设头像卡）
           
           · 🧹 <b>修复设置页卡片嵌套（P0）</b>：上一版「分组收纳」的折叠容器有缺陷，公示设置之后的设置卡被错误包进隐藏层（班委协作/数据管理/云同步/密码等全部不可见、看似重叠）——已整体还原为独立卡片，每张设置卡各自独立、全部可见；速览折叠保留
@@ -7613,7 +7612,7 @@ function updateCloudSyncUI(){
   var ps = document.getElementById('syncPwdStatus');
   if(ps) ps.textContent = hasSyncPwd() ? '(已加密)' : '(未加密)';
   var lb = document.getElementById('localModeBtn');
-  if(lb) lb.textContent = isLocalMode() ? '📴 纯本地模式：开（点击关闭）' : '📴 纯本地模式：关（点击开启）';
+  if(lb) lb.textContent = isLocalMode() ? '3️⃣ 纯本地模式：开（点击关闭）' : '3️⃣ 纯本地模式：关（点击开启）';
   var lst = document.getElementById('localModeStatus');
   if(lst) lst.textContent = isLocalMode() ? '（已开启）' : '（已关闭）';
 }
