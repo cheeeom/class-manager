@@ -634,9 +634,11 @@ t('当前节次高亮只放一个圆点，不用 ::after 写字（历史上写�
 t('弹窗在深色下不能白底浅字：三个新弹窗都改回主题变量', () => {
   has(CSS_SEG, '#tsEditModal .modal,#tsImportModal .modal,#tsSetModal .modal{background:var(--card-bg)');
 });
-t('深色模式：四个色系前景色全部提亮（深红字压深底读不出来）', () => {
-  ['#E9A08F', '#8FCBAE', '#B9A9DC', '#E0AE74'].forEach(c => has(CSS_SEG, c, '深色前景 ' + c));
-  has(CSS_SEG, 'html.dark .ts-cell.g-cul .cs');
+t('深色模式：四个色系前景色全部提亮（v3.4.0 起入 --grp-*-deep 暗色令牌，朱砂暗值不变、皮肤按套覆写）', () => {
+  const darkBlock = blockOf(html.slice(html.indexOf('<style')), 'html.dark{');
+  const darkVals = { '--grp-cul-deep': '#E9A08F', '--grp-maj-deep': '#8FCBAE', '--grp-art-deep': '#B9A9DC', '--grp-gen-deep': '#E0AE74' };
+  for (const k in darkVals) has(darkBlock, k + ':' + darkVals[k], '暗色前景令牌 ' + k);
+  has(CSS_SEG, '.ts-cell.g-cul .cs{color:var(--grp-cul-deep)}', '课格深字走令牌');
 });
 t('课格 46px 高 + 科目名单行省略（改高度会让 12 节表超出一屏）', () => {
   const r = blockOf(CSS_SEG, '.ts-cell{');

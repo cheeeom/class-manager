@@ -81,7 +81,7 @@ t('★ 全站守卫：非令牌定义块里的裸 hex 必须带 /*肤免*/（白
   const offenders = [];
   for (const r of flatRules(style)) {
     const ns = r.sel.replace(/\s+/g, '');
-    if (ns === ':root' || ns === 'html.dark' || ns.startsWith('[data-skin')) continue; // 颜色的合法产地
+    if (ns === ':root' || ns === 'html.dark' || ns.startsWith('[data-skin') || ns.indexOf('data-skin') >= 0) continue; // 颜色的合法产地（含 v3.4.0 皮肤块）
     for (let decl of r.body.split(';')) {
       if (!/#[0-9a-fA-F]{3,8}\b/.test(decl)) continue;
       const norm = decl.replace(/\s+/g, '').toLowerCase();
@@ -100,6 +100,8 @@ t('守卫反向校验：/*肤免*/ 只许出现在真正含 hex 的声明上（�
     if (ns === ':root' || ns === 'html.dark') continue;
     for (const decl of r.body.split(';')) {
       if (decl.indexOf('肤免') < 0) continue;
+      const ns2 = r.sel.replace(/\s+/g, '');
+      if (ns2 === ':root' || ns2 === 'html.dark' || ns2.indexOf('data-skin') >= 0) continue;
       ok(/#[0-9a-fA-F]{3,8}\b/.test(decl), '豁免声明里没有 hex：' + decl.trim().slice(0, 80));
       seen++;
     }

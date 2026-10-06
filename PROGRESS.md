@@ -3390,3 +3390,14 @@ const lockStart = html.indexOf('/* v2.24.1 推送互斥');
 - [x] **踩坑**：① dark 类挂 `<html>` 时**所有规则**（含浅色规则）都解析暗色令牌值——「零像素」证明必须明暗双模式模拟，首轮证明模型有漏，靠 IAB 实测登录页抓到 key-ok 渐变暗色退化（#8C2F22→#E08B72），补 deep 固定令牌修复；② 班委卡顶条/荣誉银条这类**固定装饰渐变**不可转主色族令牌（暗色下会塌缩成纯色），回退字面量+肤免；③ `git checkout` 按 autocrlf 把行尾改写成 CRLF，补丁脚本读取时统一归一 LF。
 - [x] **验证**：全量 **72 套全绿**（跟版前后各一轮）；IAB 实测暗色登录页渐变与基线一致（rgb(176,67,47)→rgb(140,47,34)）；跟版五处（登录/侧栏/徽标/速览标题/速览内容）+ CACHE_NAME → v3.3.0。
 - [x] **推送**：待老板验收后 Git Data API 推送。
+
+### 2026-10-06（v3.4.0：皮肤系统上线——朱砂/青花/竹青 三套 × 明暗两轴）
+
+- [x] **需求**（老板拍板）：首发三套皮肤（朱砂·纸墨默认 / 青花·月白 / 竹青·苔痕），偏好仅本机，卡片美术随主题（签名细节）。
+- [x] **架构**：`html[data-skin]` × `.dark` 两轴。朱砂=默认（无 data-skin 块，零改动承诺）；浅色皮肤块插在 `html.dark{` **之前**（同特异性 (0,1,1) 靠源顺序让暗色胜出，_v3400 钉死此不变量）；暗色组合块 `html.dark[data-skin=…]`（特异性 (0,2,1)）插在 html.dark 之后。签名细节：青花「釉口线」用**背景图 1px 渐隐**（不占伪元素、不加 position:relative，避免定位副作用）；竹青「双篾线」用**内阴影叠加**（含 :hover 变体防悬停丢线）。
+- [x] **实现**（`_patch_v340.py` + b 修正）：①CSS 两块皮肤令牌表（对 `_SKIN_DESIGN_v340.md`，含 --primary-bright/deep/deeper 与 --grp-* 各肤值；竹青 success 转青碧 #2E6E63 防撞）；②**暗色 ts 前景吸收进令牌**——html.dark 增 `--grp-*-deep` 四值（=原覆盖值，朱砂暗零像素），删除 4 条 cell/cs 覆盖规则、chip 规则只删 color 保留背景 rgba，皮肤由此获得正确的暗色课表前景（青花 #9FC3D1 系 / 竹青 #A9C896 系）；③JS 皮肤管理（CM_SKINS/CM_SKIN_META/CM_GRP_COLORS + cmSkin/applySkin/setSkin/initSkin/syncSkinUI），`initTheme();` 后接 `initSkin();`，meta theme-color 随肤；④设置页新增「🎨 皮肤」卡（三 chip 高亮 = btn-primary，文案注明仅本机）；⑤屏幕图表随肤：drawDistChart 首列主色对走 `cmChartLead()`、课格配色提示走 `tsGroupC(g)`、PWA 安装条按钮转 var(--primary)；**导出图（seatExportImage/noticeGenImage 等）恒用品牌色不动**。
+- [x] **契约同步**：_v2270 暗色前景断言升级（原断言 `html.dark .ts-cell.g-cul .cs` 规则存在 → 改断言 html.dark 块 `--grp-cul-deep:#E9A08F` 等四令牌值 + 课格走 var）；_v21201/_v21202 沙箱 fakeEl 补 `setAttribute/getAttribute`（applySkin 依赖，遵循「补沙箱不改产品」）。
+- [x] **零像素证明**（`_verify_v330_zeropix.py`，已加 data-skin 排除）：浅色 569 条完全一致；暗色 20 条差异全部为 ts 吸收的结构性搬移（基线「字面量+覆盖规则」两条 ↔ 当前「令牌解析」一条，级联生效色逐组核对一致）。
+- [x] **守卫联动**：_v3300 令牌定义块豁免扩展到含 `data-skin` 的选择器；失效肤免（chip 规则删 color 后残留）清除。
+- [x] **验证**：新增 `_v3400_test.js`（9 项：源顺序不变量/两肤令牌表/暗色组合/CM_GRP_COLORS↔CSS 同源/签名/UI 接线/对比度矩阵三套×明暗）；全量 **73 套全绿**；IAB 实测三套切换（applySkin 即时生效、setSkin 持久化 cm_skin、暗色组合令牌/釉口线/前景全对、chip 高亮正常）。
+- [x] **推送**：待老板验收后 Git Data API 推送。

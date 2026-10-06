@@ -62,6 +62,37 @@
   --grp-cul-deep:#8C2F22;--grp-maj-deep:#256349;--grp-art-deep:#54447A;--grp-gen-deep:#8F5217;
 }
 /* ==================== Dark Mode ==================== */
+/* ==================== v3.4.0 皮肤系统（data-skin × .dark 两轴） ====================
+   朱砂·纸墨为默认（无 data-skin = 现行令牌，零改动，故无 zhusha 块）。
+   浅色皮肤块必须位于 html.dark 之前：两者特异性同为 (0,1,1)，暗色下靠源顺序让 html.dark 胜出；
+   暗色组合块特异性 (0,2,1)，置于 html.dark 之后。签名细节全走 var()/背景图/内阴影，不占伪元素、不动定位。 */
+html[data-skin="qinghua"]{
+  --primary:#2F5D6E;--primary-light:#4E7D8E;--primary-lighter:#C3D6DB;--primary-dark:#234A57;--primary-darker:#193740;
+  --primary-bright:#3D7A8E;--primary-deep:#234A57;--primary-deeper:#193740;
+  --ink:#2A3237;--bg:#EFF3F1;--bg-secondary:#E3EAE7;--card-bg:#FCFDFB;--row-bg:#F5F8F6;
+  --text:#2A3237;--text-secondary:#566360;--text-muted:#7F8A85;--border:#D3DEDA;
+  --shadow:0 4px 24px rgba(35,50,55,0.08);--shadow-hover:0 8px 32px rgba(35,50,55,0.14);--shadow-card:0 2px 12px rgba(35,50,55,0.06);
+  --grp-cul:#2F5D6E;--grp-maj:#8C6239;--grp-art:#6B5B95;--grp-gen:#2F7D5B;
+  --grp-cul-deep:#234A57;--grp-maj-deep:#6E4A2E;--grp-art-deep:#4A3F63;--grp-gen-deep:#1F5C41
+}
+/* 青花签名「釉口线」：卡顶一线瓷感高光（背景图实现，1px 渐隐） */
+html[data-skin="qinghua"] .card{background-image:linear-gradient(90deg,transparent,var(--primary-lighter) 25%,var(--primary-lighter) 75%,transparent);background-size:100% 1px;background-repeat:no-repeat}
+html[data-skin="qinghua"] .stat-card{background-image:linear-gradient(90deg,transparent,var(--primary-lighter) 25%,var(--primary-lighter) 75%,transparent);background-size:100% 1px;background-repeat:no-repeat}
+html[data-skin="zhuqing"]{
+  --primary:#4E6E41;--primary-light:#6C8A5C;--primary-lighter:#C9D6BC;--primary-dark:#3B5631;--primary-darker:#2C4124;
+  --primary-bright:#5C7F4E;--primary-deep:#3B5631;--primary-deeper:#2C4124;
+  --ink:#2B322A;--bg:#F2F4EA;--bg-secondary:#E7EBDA;--card-bg:#FCFDF5;--row-bg:#F6F9EE;
+  --text:#2B322A;--text-secondary:#596152;--text-muted:#848C78;--border:#D8DEC4;
+  --success:#2E6E63;
+  --shadow:0 4px 24px rgba(42,52,36,0.08);--shadow-hover:0 8px 32px rgba(42,52,36,0.14);--shadow-card:0 2px 12px rgba(42,52,36,0.06);
+  --grp-cul:#4E6E41;--grp-maj:#A3671F;--grp-art:#6B5B95;--grp-gen:#2F5D6E;
+  --grp-cul-deep:#3B5631;--grp-maj-deep:#7E4E15;--grp-art-deep:#4A3F63;--grp-gen-deep:#234A57
+}
+/* 竹青签名「双篾线」：卡内衬一道细篾（叠加内阴影） */
+html[data-skin="zhuqing"] .card{box-shadow:var(--shadow-card),inset 0 0 0 1px var(--border)}
+html[data-skin="zhuqing"] .stat-card{box-shadow:var(--shadow-card),inset 0 0 0 1px var(--border)}
+html[data-skin="zhuqing"] .card:hover{box-shadow:var(--shadow-hover),inset 0 0 0 1px var(--border)}
+
 html.dark{
   --primary:#CE6B52;
   --primary-light:#E08B72;
@@ -86,6 +117,25 @@ html.dark{
   --purple:#9A8BC4;
   --orange:#CE8B3F;
   --red:#D9604F;
+  /* v3.4.0 学分四组暗色前景（吸收原 html.dark .ts-* 覆盖规则；皮肤暗色块按套覆写） */
+  --grp-cul-deep:#E9A08F;--grp-maj-deep:#8FCBAE;--grp-art-deep:#B9A9DC;--grp-gen-deep:#E0AE74;
+}
+/* —— 皮肤 × 暗色组合（未列项继承暗色公共值；--grp-*-deep 为各肤暗色前景设计值）—— */
+html.dark[data-skin="qinghua"]{
+  --primary:#5E93A6;--primary-light:#7FB3C4;--primary-lighter:#3E5E68;--primary-dark:#7FB3C4;--primary-darker:#A9CDD9;
+  --primary-bright:#5E93A6;--primary-deep:#234A57;--primary-deeper:#193740;
+  --ink:#E6ECEA;--bg:#141A1C;--bg-secondary:#1E2628;--card-bg:#1B2325;--row-bg:#1E2628;
+  --text:#E6ECEA;--text-secondary:#A8B2AE;--text-muted:#6E7975;--border:#313D3F;
+  --success:#5FA98F;--warning:#D0A54E;--danger:#D9604F;
+  --grp-cul-deep:#9FC3D1;--grp-maj-deep:#D2B08C;--grp-art-deep:#B9A9DC;--grp-gen-deep:#8FCBAE
+}
+html.dark[data-skin="zhuqing"]{
+  --primary:#6F9460;--primary-light:#8FB07F;--primary-lighter:#465C3C;--primary-dark:#8FB07F;--primary-darker:#A9C896;
+  --primary-bright:#6F9460;--primary-deep:#3B5631;--primary-deeper:#2C4124;
+  --ink:#E7ECE2;--bg:#161A13;--bg-secondary:#212619;--card-bg:#1E2318;--row-bg:#212619;
+  --text:#E7ECE2;--text-secondary:#ABB2A0;--text-muted:#737B6A;--border:#333B2C;
+  --success:#4FA08D;--warning:#C9A24B;--danger:#D9604F;
+  --grp-cul-deep:#A9C896;--grp-maj-deep:#E0AE74;--grp-art-deep:#B9A9DC;--grp-gen-deep:#9FC3D1
 }
 html.dark body{background:var(--bg);color:var(--text)}
 html.dark .topbar{background:rgba(28,25,20,0.85)}
@@ -580,14 +630,10 @@ table.ts-pvt td.has{color:var(--text)}
 .ts-setrow .del{flex:none;border:none;background:transparent;color:var(--text-muted);cursor:pointer;font-size:15px}
 .ts-setrow .del:hover{color:#C0392B/*肤免*/}
 /* 深色模式：色系前景色必须跟着提亮，否则「深红字压深底」读不出来 */
-html.dark .ts-cell.g-cul .cs,html.dark .ts-mline .mc.g-cul .s{color:#E9A08F/*肤免*/}
-html.dark .ts-cell.g-maj .cs,html.dark .ts-mline .mc.g-maj .s{color:#8FCBAE/*肤免*/}
-html.dark .ts-cell.g-art .cs,html.dark .ts-mline .mc.g-art .s{color:#B9A9DC/*肤免*/}
-html.dark .ts-cell.g-gen .cs,html.dark .ts-mline .mc.g-gen .s{color:#E0AE74/*肤免*/}
-html.dark .ts-chip.g-cul{background:rgba(206,107,82,.20);color:#E9A08F/*肤免*/}
-html.dark .ts-chip.g-maj{background:rgba(90,170,132,.20);color:#8FCBAE/*肤免*/}
-html.dark .ts-chip.g-art{background:rgba(154,139,196,.22);color:#B9A9DC/*肤免*/}
-html.dark .ts-chip.g-gen{background:rgba(206,139,63,.20);color:#E0AE74/*肤免*/}
+html.dark .ts-chip.g-cul{background:rgba(206,107,82,.20)}
+html.dark .ts-chip.g-maj{background:rgba(90,170,132,.20)}
+html.dark .ts-chip.g-art{background:rgba(154,139,196,.22)}
+html.dark .ts-chip.g-gen{background:rgba(206,139,63,.20)}
 html.dark .ts-cell,html.dark .ts-mline .mc{background:rgba(255,255,255,.045)}
 html.dark .ts-cell.g-cul,html.dark .ts-mline .mc.g-cul{background:rgba(206,107,82,.13)}
 html.dark .ts-cell.g-maj,html.dark .ts-mline .mc.g-maj{background:rgba(90,170,132,.13)}
@@ -2517,7 +2563,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.3.0</div>
+      <div class="login-version">v3.4.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2638,7 +2684,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.3.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.4.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3280,6 +3326,15 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         </div>
         
         <div class="settings-section">
+          <h3>🎨 皮肤</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center" id="skinPicker">
+            <button class="btn btn-sm skin-chip" data-skin-choose="zhusha" onclick="setSkin('zhusha')"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#A63A2B;margin-right:6px;vertical-align:middle"></span>朱砂·纸墨</button>
+            <button class="btn btn-sm skin-chip" data-skin-choose="qinghua" onclick="setSkin('qinghua')"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#2F5D6E;margin-right:6px;vertical-align:middle"></span>青花·月白</button>
+            <button class="btn btn-sm skin-chip" data-skin-choose="zhuqing" onclick="setSkin('zhuqing')"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#4E6E41;margin-right:6px;vertical-align:middle"></span>竹青·苔痕</button>
+          </div>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">偏好仅保存在本设备（与暗色设置相同）；导出图片恒用朱砂品牌色</div>
+        </div>
+        <div class="settings-section">
           <h3>🌙 暗夜模式</h3>
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
             <button class="btn btn-sm" id="themeSystemBtn" onclick="setTheme('system')">🖥 跟随系统</button>
@@ -3395,19 +3450,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.3.0</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.4.0</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.3.0）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.4.0）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-          · 🎨 <b>颜色令牌还债（v3.3.0）</b>：为<b>皮肤系统</b>打地基——全站硬编码颜色收编为设计令牌（新增<b>印章亮档 --primary-bright</b> 与学分四组 <b>--grp-*</b> 令牌，JS 侧建 CM_COLOR 调色对象），<b>浅色外观像素级零变化</b>（暗色下奖牌/徽章等 10 处随令牌激活深色设计值）；新增全站颜色守卫与 WCAG 对比度自动校验；皮肤选择功能 v3.4.0 上线<br>
+          · 🎨 <b>皮肤系统上线（v3.4.0）</b>：设置 → <b>🎨 皮肤</b>，三套可选——<b>朱砂·纸墨</b>（经典默认）/<b>青花·月白</b>（冷调瓷感，卡顶「釉口线」）/ <b>竹青·苔痕</b>（护眼绿，卡内「双篾线」），各配专用暗色档；课表配色、首页分布图随肤切换；偏好仅存本设备，<b>导出图恒用朱砂品牌色</b><br>
           </div>
           </div>
         </div>
@@ -8346,7 +8401,7 @@ function tsEditHint(){
   var g = tsSubjectGroup(v), gd = null;
   for(var i = 0; i < TS_GROUPS.length; i++) if(TS_GROUPS[i].k === g) gd = TS_GROUPS[i];
   el.innerHTML = gd
-    ? '会按「' + gd.name + '」配色 <b style="color:' + gd.c + '">' + gd.c + '</b>'
+    ? '会按「' + gd.name + '」配色 <b style="color:' + tsGroupC(g) + '">' + tsGroupC(g) + '</b>'
     : '这个科目名没匹配到配色分组，会显示成中性灰。换个常见科目名（如「语文」「舞蹈」「幼儿健康照护」）就能自动上色。';
 }
 function tsEditSave(){
@@ -8847,7 +8902,7 @@ function drawDistChart(credits){
       return;
     }
     const palette = [
-      ['#A63A2B','#DCA390'],
+      cmChartLead(),
       ['#3B6E8F','#A9C2CE'],
       ['#B97C24','#E3C98F'],
       ['#2F7D5B','#A5CBB7'],
@@ -13177,6 +13232,43 @@ function drawTrendChart(){
 
 /* ==================== Settings ==================== */
 
+/* ==================== v3.4.0 皮肤系统 ==================== */
+var CM_SKINS = ['zhusha','qinghua','zhuqing'];
+var CM_SKIN_META = {
+  zhusha:{name:'朱砂·纸墨', dot:'#A63A2B'},
+  qinghua:{name:'青花·月白', dot:'#2F5D6E'},
+  zhuqing:{name:'竹青·苔痕', dot:'#4E6E41'}
+};
+/* 屏幕图表/提示的学分四组主色随皮肤（与 CSS --grp-* 逐键一致，_v3400 钉住）；导出图恒用 CM_COLOR 品牌色 */
+var CM_GRP_COLORS = {
+  zhusha:{cul:'#A63A2B',maj:'#2F7D5B',art:'#6B5B95',gen:'#B96A1F'},
+  qinghua:{cul:'#2F5D6E',maj:'#8C6239',art:'#6B5B95',gen:'#2F7D5B'},
+  zhuqing:{cul:'#4E6E41',maj:'#A3671F',art:'#6B5B95',gen:'#2F5D6E'}
+};
+function cmSkin(){ var s = localStorage.getItem('cm_skin'); return (s && CM_SKINS.indexOf(s) >= 0) ? s : 'zhusha'; }
+function tsGroupC(g){ var m = CM_GRP_COLORS[cmSkin()] || CM_GRP_COLORS.zhusha; return m[g] || '#8C8577'; }
+function cmChartLead(){ var s = cmSkin(); return s === 'qinghua' ? ['#2F5D6E','#A9C2CE'] : s === 'zhuqing' ? ['#4E6E41','#C9D6BC'] : ['#A63A2B','#DCA390']; }
+function applySkin(skin){
+  if (CM_SKINS.indexOf(skin) < 0) skin = 'zhusha';
+  document.documentElement.setAttribute('data-skin', skin);
+  var mc = document.querySelector('meta[name="theme-color"]');
+  if (mc) mc.setAttribute('content', CM_SKIN_META[skin].dot);
+}
+function syncSkinUI(){
+  var chips = document.querySelectorAll('#skinPicker .skin-chip');
+  for (var i = 0; i < chips.length; i++) {
+    chips[i].classList.toggle('btn-primary', chips[i].getAttribute('data-skin-choose') === cmSkin());
+  }
+}
+function setSkin(skin){
+  if (CM_SKINS.indexOf(skin) < 0) skin = 'zhusha';
+  localStorage.setItem('cm_skin', skin);
+  applySkin(skin);
+  syncSkinUI();
+  showToast('已切换为「' + CM_SKIN_META[skin].name + '」皮肤', 'success');
+  if (typeof renderAll === 'function') { try { renderAll(); } catch (e) {} }
+}
+function initSkin(){ applySkin(cmSkin()); syncSkinUI(); }
 /* ==================== Dark Mode ==================== */
 function applyTheme(mode){
   const dark = mode === 'dark' || (mode === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -13203,6 +13295,7 @@ function initTheme(){
   }
 }
 initTheme();
+initSkin();
 
 
 /* ==================== Student Profiles ==================== */
@@ -15537,7 +15630,7 @@ function showPwaInstallTip(){
   tip.style.cssText = 'position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#6F251B;color:#fff;padding:10px 14px;border-radius:20px;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:9999;display:flex;align-items:center;gap:10px;font-size:13px;max-width:92vw;';
   document.body.appendChild(tip);
   var style = document.createElement('style');
-  style.textContent = '#pwaInstallBtn{background:#A63A2B;color:#fff;border:none;padding:6px 14px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;min-height:36px;transition:background-color .3s,transform .3s}#pwaInstallBtn:hover{background:#8C2F22;transform:translateY(-1px)}#pwaDismissBtn{background:transparent;color:rgba(255,255,255,.8);border:none;font-size:14px;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;min-width:32px;min-height:32px}#pwaDismissBtn:hover{background:rgba(255,255,255,.15)}';
+  style.textContent = '#pwaInstallBtn{background:var(--primary);color:#fff;border:none;padding:6px 14px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;min-height:36px;transition:background-color .3s,transform .3s}#pwaInstallBtn:hover{background:#8C2F22;transform:translateY(-1px)}#pwaDismissBtn{background:transparent;color:rgba(255,255,255,.8);border:none;font-size:14px;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;min-width:32px;min-height:32px}#pwaDismissBtn:hover{background:rgba(255,255,255,.15)}';
   document.head.appendChild(style);
   document.getElementById('pwaInstallBtn').addEventListener('click', async () => {
     if(deferredPrompt){
