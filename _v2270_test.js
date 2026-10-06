@@ -616,10 +616,14 @@ t('手机断点：表格隐藏 + 列表显示（成对出现）', () => {
 t('桌面默认：.ts-mob 默认隐藏（否则手机列表会跟表格一起冒出来）', () => {
   has(CSS_SEG, '.ts-mob{display:none}');
 });
-t('四个色系的左边框色与 TS_GROUPS 一致（CSS 与 JS 不许漂移）', () => {
+t('四个色系的左边框色与 TS_GROUPS 一致（v3.3.0 起 CSS 走 --grp-* 令牌，与 JS CM_COLOR 不许漂移）', () => {
+  const tokMap = { cul: '--grp-cul', maj: '--grp-maj', art: '--grp-art', gen: '--grp-gen' };
+  const rootBlock = blockOf(html.slice(html.indexOf('<style')), ':root{'); // 令牌值定义在 :root，不在课表分段里
   api.TS_GROUPS.forEach(g => {
     has(CSS_SEG, '.ts-cell.g-' + g.k + '{', '缺少 ' + g.k);
-    has(CSS_SEG, 'border-left-color:' + g.c, g.k + ' 边框色');
+    has(CSS_SEG, 'border-left-color:var(' + tokMap[g.k] + ')', g.k + ' 边框色走令牌');
+    const v = (rootBlock.match(new RegExp(tokMap[g.k] + ':\\s*(#[0-9a-fA-F]{3,8})')) || [])[1];
+    jEq(v && v.toLowerCase(), g.c.toLowerCase(), g.k + ' 令牌值与 TS_GROUPS/CM_COLOR 一致');
   });
 });
 t('当前节次高亮只放一个圆点，不用 ::after 写字（历史上写过字，压在教师名上）', () => {

@@ -52,6 +52,14 @@
   --red:#B42318;
   --font-body:'MiSans','HarmonyOS Sans SC','PingFang SC','Microsoft YaHei',-apple-system,'Segoe UI',sans-serif;
   --font-display:'Noto Serif SC','Source Han Serif SC','STZhongsong','SimSun',serif;
+  /* v3.3.0 皮肤地基：--primary-bright=主色亮档（登录印章/按钮渐变亮端）；--grp-*=学分四组色
+     （课表/图表按组取色，v3.4.0 皮肤按套覆写，不随语义令牌走）。值均 == 改前硬编码，浅色零像素。 */
+  --primary-bright:#B0432F;
+  /* deep/deeper 刻意不随 html.dark 翻转：按钮/印章渐变的深端固定用，
+     避免暗色下 --primary-dark 被重映射成浅鲑色导致白字对比跌破 3:1 */
+  --primary-deep:#8C2F22;--primary-deeper:#6F251B;
+  --grp-cul:#A63A2B;--grp-maj:#2F7D5B;--grp-art:#6B5B95;--grp-gen:#B96A1F;
+  --grp-cul-deep:#8C2F22;--grp-maj-deep:#256349;--grp-art-deep:#54447A;--grp-gen-deep:#8F5217;
 }
 /* ==================== Dark Mode ==================== */
 html.dark{
@@ -84,11 +92,11 @@ html.dark .topbar{background:rgba(28,25,20,0.85)}
 html.dark .nav-item:hover{background:rgba(255,255,255,0.06)}
 html.dark .nav-item.active{background:linear-gradient(135deg,rgba(166,58,43,0.25),rgba(194,91,74,0.15))}
 html.dark .mobile-tabbar{background:rgba(28,25,20,0.92)}
-html.dark .more-drawer{background:#26221B}
+html.dark .more-drawer{background:var(--bg-secondary)}
 html.dark .modal{background:var(--card-bg)}
 html.dark .modal-header{border-color:var(--border)}
 html.dark .modal-footer{border-color:var(--border)}
-html.dark .login-left{background:linear-gradient(165deg,#171410 0%,#1F1B15 58%,#2C2620 100%)}
+html.dark .login-left{background:linear-gradient(165deg,#171410 0%,#1F1B15 58%,#2C2620 100%)/*肤免*/}
 html.dark input[type="text"],html.dark input[type="number"],html.dark input[type="password"],html.dark select,html.dark textarea{
   background:var(--bg);color:var(--text);border-color:var(--border)
 }
@@ -98,7 +106,7 @@ html.dark .btn{background:var(--card-bg);border-color:var(--border);color:var(--
 html.dark .btn-outline{background:transparent;color:var(--text)}
 html.dark .btn-outline:hover{border-color:var(--primary-light);color:var(--primary-light)}
 html.dark .btn-primary{background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff}
-html.dark .btn-success{background:linear-gradient(135deg,#256349,var(--success));color:#fff}
+html.dark .btn-success{background:linear-gradient(135deg,#256349,var(--success))/*肤免*/;color:#fff}
 html.dark .tag{background:rgba(255,255,255,0.08)}
 html.dark .empty-state{color:var(--text-muted)}
 html.dark .toast{background:rgba(28,25,20,0.95);border:1px solid var(--border)}
@@ -441,10 +449,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .ts-today .cd{font-size:11.5px;color:var(--primary);background:rgba(166,58,43,.10);
   padding:2px 9px;border-radius:20px;font-weight:700;font-variant-numeric:tabular-nums}
 .ts-chip{font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:7px;white-space:nowrap}
-.ts-chip.g-cul{background:rgba(166,58,43,.11);color:#8C2F22}
-.ts-chip.g-maj{background:rgba(47,125,91,.12);color:#256349}
-.ts-chip.g-art{background:rgba(107,91,149,.13);color:#54447A}
-.ts-chip.g-gen{background:rgba(185,106,31,.13);color:#8F5217}
+.ts-chip.g-cul{background:rgba(166,58,43,.11);color:var(--grp-cul-deep)}
+.ts-chip.g-maj{background:rgba(47,125,91,.12);color:var(--grp-maj-deep)}
+.ts-chip.g-art{background:rgba(107,91,149,.13);color:var(--grp-art-deep)}
+.ts-chip.g-gen{background:rgba(185,106,31,.13);color:var(--grp-gen-deep)}
 /* —— 桌面周表格 —— */
 .ts-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table.ts-tb{width:100%;border-collapse:separate;border-spacing:5px 4px;table-layout:fixed;min-width:860px}
@@ -493,14 +501,14 @@ table.ts-tb td.today{background:rgba(166,58,43,.035);border-radius:10px}
   text-overflow:ellipsis}
 .ts-cell .ct{font-size:10.5px;color:var(--text-muted);line-height:1.3;margin-top:1px}
 .ts-cell .ce{font-size:13px;color:rgba(140,133,119,.30);text-align:center;display:block}
-.ts-cell.g-cul{background:rgba(166,58,43,.085);border-left-color:#A63A2B}
-.ts-cell.g-cul .cs{color:#8C2F22}
-.ts-cell.g-maj{background:rgba(47,125,91,.095);border-left-color:#2F7D5B}
-.ts-cell.g-maj .cs{color:#256349}
-.ts-cell.g-art{background:rgba(107,91,149,.105);border-left-color:#6B5B95}
-.ts-cell.g-art .cs{color:#54447A}
-.ts-cell.g-gen{background:rgba(185,106,31,.10);border-left-color:#B96A1F}
-.ts-cell.g-gen .cs{color:#8F5217}
+.ts-cell.g-cul{background:rgba(166,58,43,.085);border-left-color:var(--grp-cul)}
+.ts-cell.g-cul .cs{color:var(--grp-cul-deep)}
+.ts-cell.g-maj{background:rgba(47,125,91,.095);border-left-color:var(--grp-maj)}
+.ts-cell.g-maj .cs{color:var(--grp-maj-deep)}
+.ts-cell.g-art{background:rgba(107,91,149,.105);border-left-color:var(--grp-art)}
+.ts-cell.g-art .cs{color:var(--grp-art-deep)}
+.ts-cell.g-gen{background:rgba(185,106,31,.10);border-left-color:var(--grp-gen)}
+.ts-cell.g-gen .cs{color:var(--grp-gen-deep)}
 .ts-cell.cur{box-shadow:inset 0 0 0 1px rgba(166,58,43,.16)}
 /* 当前节次：外描边 + 右上角小圆点。
    ⚠️ 别用 ::after 写「正在上」三个字 —— .ts-cell 是 relative 还好，但历史上 .cell 是 static，
@@ -528,14 +536,14 @@ table.ts-tb td.today{background:rgba(166,58,43,.035);border-radius:10px}
 .ts-mline .mc .t{font-size:11.5px;color:var(--text-muted);margin-top:1px}
 .ts-mline .mc.empty{display:flex;align-items:center;justify-content:center;
   font-size:12.5px;color:var(--text-muted);background:transparent;border:1px dashed var(--border)}
-.ts-mline .mc.g-cul{border-left-color:#A63A2B;background:rgba(166,58,43,.085)}
-.ts-mline .mc.g-cul .s{color:#8C2F22}
-.ts-mline .mc.g-maj{border-left-color:#2F7D5B;background:rgba(47,125,91,.095)}
-.ts-mline .mc.g-maj .s{color:#256349}
-.ts-mline .mc.g-art{border-left-color:#6B5B95;background:rgba(107,91,149,.105)}
-.ts-mline .mc.g-art .s{color:#54447A}
-.ts-mline .mc.g-gen{border-left-color:#B96A1F;background:rgba(185,106,31,.10)}
-.ts-mline .mc.g-gen .s{color:#8F5217}
+.ts-mline .mc.g-cul{border-left-color:var(--grp-cul);background:rgba(166,58,43,.085)}
+.ts-mline .mc.g-cul .s{color:var(--grp-cul-deep)}
+.ts-mline .mc.g-maj{border-left-color:var(--grp-maj);background:rgba(47,125,91,.095)}
+.ts-mline .mc.g-maj .s{color:var(--grp-maj-deep)}
+.ts-mline .mc.g-art{border-left-color:var(--grp-art);background:rgba(107,91,149,.105)}
+.ts-mline .mc.g-art .s{color:var(--grp-art-deep)}
+.ts-mline .mc.g-gen{border-left-color:var(--grp-gen);background:rgba(185,106,31,.10)}
+.ts-mline .mc.g-gen .s{color:var(--grp-gen-deep)}
 .ts-empty{border:2px dashed var(--primary-lighter);border-radius:12px;padding:34px 20px;
   text-align:center;color:var(--text-muted)}
 .ts-empty .ic{font-size:42px;opacity:.3;margin-bottom:10px}
@@ -570,16 +578,16 @@ table.ts-pvt td.has{color:var(--text)}
 .ts-setrow select{flex:none;padding:6px 4px;font-size:12.5px;border:1px solid var(--border);
   border-radius:6px;background:var(--bg);color:var(--text);font-family:inherit}
 .ts-setrow .del{flex:none;border:none;background:transparent;color:var(--text-muted);cursor:pointer;font-size:15px}
-.ts-setrow .del:hover{color:#C0392B}
+.ts-setrow .del:hover{color:#C0392B/*肤免*/}
 /* 深色模式：色系前景色必须跟着提亮，否则「深红字压深底」读不出来 */
-html.dark .ts-cell.g-cul .cs,html.dark .ts-mline .mc.g-cul .s{color:#E9A08F}
-html.dark .ts-cell.g-maj .cs,html.dark .ts-mline .mc.g-maj .s{color:#8FCBAE}
-html.dark .ts-cell.g-art .cs,html.dark .ts-mline .mc.g-art .s{color:#B9A9DC}
-html.dark .ts-cell.g-gen .cs,html.dark .ts-mline .mc.g-gen .s{color:#E0AE74}
-html.dark .ts-chip.g-cul{background:rgba(206,107,82,.20);color:#E9A08F}
-html.dark .ts-chip.g-maj{background:rgba(90,170,132,.20);color:#8FCBAE}
-html.dark .ts-chip.g-art{background:rgba(154,139,196,.22);color:#B9A9DC}
-html.dark .ts-chip.g-gen{background:rgba(206,139,63,.20);color:#E0AE74}
+html.dark .ts-cell.g-cul .cs,html.dark .ts-mline .mc.g-cul .s{color:#E9A08F/*肤免*/}
+html.dark .ts-cell.g-maj .cs,html.dark .ts-mline .mc.g-maj .s{color:#8FCBAE/*肤免*/}
+html.dark .ts-cell.g-art .cs,html.dark .ts-mline .mc.g-art .s{color:#B9A9DC/*肤免*/}
+html.dark .ts-cell.g-gen .cs,html.dark .ts-mline .mc.g-gen .s{color:#E0AE74/*肤免*/}
+html.dark .ts-chip.g-cul{background:rgba(206,107,82,.20);color:#E9A08F/*肤免*/}
+html.dark .ts-chip.g-maj{background:rgba(90,170,132,.20);color:#8FCBAE/*肤免*/}
+html.dark .ts-chip.g-art{background:rgba(154,139,196,.22);color:#B9A9DC/*肤免*/}
+html.dark .ts-chip.g-gen{background:rgba(206,139,63,.20);color:#E0AE74/*肤免*/}
 html.dark .ts-cell,html.dark .ts-mline .mc{background:rgba(255,255,255,.045)}
 html.dark .ts-cell.g-cul,html.dark .ts-mline .mc.g-cul{background:rgba(206,107,82,.13)}
 html.dark .ts-cell.g-maj,html.dark .ts-mline .mc.g-maj{background:rgba(90,170,132,.13)}
@@ -614,9 +622,9 @@ html.dark .ts-cell.g-gen,html.dark .ts-mline .mc.g-gen{background:rgba(206,139,6
   font-size:13px;font-weight:700;
   flex-shrink:0;
 }
-.top5-item.rank-1 .rank{background:linear-gradient(135deg,#C9A227,#B96A1F);color:#fff;box-shadow:0 0 12px rgba(201,162,39,0.5)}
-.top5-item.rank-2 .rank{background:linear-gradient(135deg,#D8D0C0,#A0988C);color:#fff;box-shadow:0 0 8px rgba(155,160,163,0.4)}
-.top5-item.rank-3 .rank{background:linear-gradient(135deg,#A97142,#A0522D);color:#fff;box-shadow:0 0 8px rgba(169,113,66,0.4)}
+.top5-item.rank-1 .rank{background:linear-gradient(135deg,var(--gold),var(--orange));color:#fff;box-shadow:0 0 12px rgba(201,162,39,0.5)}
+.top5-item.rank-2 .rank{background:linear-gradient(135deg,#D8D0C0,#A0988C)/*肤免*/;color:#fff;box-shadow:0 0 8px rgba(155,160,163,0.4)}
+.top5-item.rank-3 .rank{background:linear-gradient(135deg,var(--bronze),#A0522D)/*肤免*/;color:#fff;box-shadow:0 0 8px rgba(169,113,66,0.4)}
 .top5-item.rank-1{background:linear-gradient(90deg,rgba(201,162,39,0.08),transparent)}
 .top5-item.rank-2{background:linear-gradient(90deg,rgba(155,160,163,0.08),transparent)}
 .top5-item.rank-3{background:linear-gradient(90deg,rgba(169,113,66,0.08),transparent)}
@@ -699,7 +707,7 @@ html.dark .ts-cell.g-gen,html.dark .ts-mline .mc.g-gen{background:rgba(206,139,6
 /* v2.23.0 绿色主按钮：形态完全照抄 .btn-primary（实心渐变 + 圆角 + 悬停上浮 + 同族阴影），
    只把色相换到石绿 --success —— 老板要求「参考开始抽取按钮的美术风格，颜色设置为绿色」。
    用 --success 而不是另调一个绿，是为了跟「已点到 / 已销假」同色，不破坏纸墨色系。 */
-.btn-success{background:linear-gradient(135deg,var(--success),#3E9E73);color:#fff;box-shadow:0 2px 8px rgba(47,125,91,0.3)}
+.btn-success{background:linear-gradient(135deg,var(--success),#3E9E73)/*肤免*/;color:#fff;box-shadow:0 2px 8px rgba(47,125,91,0.3)}
 .btn-success:hover{box-shadow:0 4px 16px rgba(47,125,91,0.42);transform:translateY(-1px)}
 .btn-sm{padding:6px 12px;font-size:12px;border-radius:8px}
 .btn:disabled{opacity:0.4;cursor:not-allowed}
@@ -769,7 +777,7 @@ tbody tr.highlight{
 .stag-green{background:rgba(47,125,91,0.12);color:var(--success)}
 .stag-orange{background:rgba(185,106,31,0.12);color:var(--orange)}
 .stag-red{background:rgba(180,35,24,0.12);color:var(--red)}
-.stag-gray{background:rgba(126,119,106,0.12);color:#7E776A}
+.stag-gray{background:rgba(126,119,106,0.12);color:#7E776A/*肤免*/}
 
 .action-btn{
   width:28px;height:28px;border-radius:6px;
@@ -853,7 +861,7 @@ tbody tr.highlight{
 .modal-close:active{transform:rotate(90deg) scale(0.92)}
 /* v2.17.1 体检弹窗内容按浅色表格式设计：强制白底防暗色主题下文字隐形（v3.0.5 复核：刻意白底，豁免） */
 #creditAuditModal .modal{background:#fff}
-#creditAuditModal .modal h3{color:#1f2329}
+#creditAuditModal .modal h3{color:#1f2329/*肤免*/}
 /* v2.17.2 学生快速选择：输入筛选行（随主题） */
 .ss-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer;text-align:left;background:transparent;transition:background .15s}
 .ss-row:last-child{border-bottom:none}
@@ -1153,9 +1161,9 @@ tbody tr.highlight{
   color:#fff;
   flex-shrink:0;
 }
-.grade-rank-num.r1{background:#C08A2D;color:#3A3630;}
-.grade-rank-num.r2{background:#9BA0A3;}
-.grade-rank-num.r3{background:#A97142;}
+.grade-rank-num.r1{background:var(--warning);color:#3A3630/*肤免*/;}
+.grade-rank-num.r2{background:var(--silver);}
+.grade-rank-num.r3{background:var(--bronze);}
 .grade-rank-num.other{background:var(--primary);opacity:.6;}
 .grade-rank-name{flex:1;font-size:13px;font-weight:500;}
 .grade-rank-score{font-size:14px;font-weight:700;color:var(--primary-darker);}
@@ -1257,11 +1265,11 @@ tbody tr.highlight{
   height:5px;
   border-radius:5px 5px 0 0;
 }
-.committee-card .top-bar.blue{background:linear-gradient(90deg,#8C2F22,#C25B4A)}
-.committee-card .top-bar.purple{background:linear-gradient(90deg,#6B5B95,#9A8BC4)}
-.committee-card .top-bar.green{background:linear-gradient(90deg,#2F7D5B,#7CB99A)}
-.committee-card .top-bar.orange{background:linear-gradient(90deg,#B96A1F,#C08A2D)}
-.committee-card .top-bar.red{background:linear-gradient(90deg,#B42318,#D98A76)}
+.committee-card .top-bar.blue{background:linear-gradient(90deg,#8C2F22,#C25B4A)/*肤免*/}
+.committee-card .top-bar.purple{background:linear-gradient(90deg,#6B5B95,#9A8BC4)/*肤免*/}
+.committee-card .top-bar.green{background:linear-gradient(90deg,#2F7D5B,#7CB99A)/*肤免*/}
+.committee-card .top-bar.orange{background:linear-gradient(90deg,#B96A1F,#C08A2D)/*肤免*/}
+.committee-card .top-bar.red{background:linear-gradient(90deg,var(--danger),#D98A76)/*肤免*/}
 .committee-card .cc-body{padding:20px;display:flex;flex-direction:column;height:100%}
 .committee-card .cc-title{font-size:16px;font-weight:700;margin-bottom:4px}
 .committee-card .cc-role{
@@ -1289,15 +1297,15 @@ tbody tr.highlight{
   color:#fff;
 }
 .committee-card .cc-avatar.empty{
-  background:linear-gradient(135deg,#E6DECD,#F6F2E9);
+  background:linear-gradient(135deg,var(--border),var(--bg));
   color:var(--text-muted);
 }
-.committee-card .top-bar.teal{background:linear-gradient(90deg,#2E6E63,#6FA89C)}
-.committee-card .top-bar.pink{background:linear-gradient(90deg,#8C3A5B,#C07A96)}
-.committee-card .top-bar.indigo{background:linear-gradient(90deg,#3D4E7E,#7B8AB8)}
-.committee-card .cc-role.teal{background:rgba(46,110,99,0.1);color:#2E6E63}
-.committee-card .cc-role.pink{background:rgba(140,58,91,0.1);color:#8C3A5B}
-.committee-card .cc-role.indigo{background:rgba(61,78,126,0.1);color:#3D4E7E}
+.committee-card .top-bar.teal{background:linear-gradient(90deg,#2E6E63,#6FA89C)/*肤免*/}
+.committee-card .top-bar.pink{background:linear-gradient(90deg,#8C3A5B,#C07A96)/*肤免*/}
+.committee-card .top-bar.indigo{background:linear-gradient(90deg,#3D4E7E,#7B8AB8)/*肤免*/}
+.committee-card .cc-role.teal{background:rgba(46,110,99,0.1);color:#2E6E63/*肤免*/}
+.committee-card .cc-role.pink{background:rgba(140,58,91,0.1);color:#8C3A5B/*肤免*/}
+.committee-card .cc-role.indigo{background:rgba(61,78,126,0.1);color:#3D4E7E/*肤免*/}
 /* v2.20.11 班委自定义职位：列表末尾追加一张虚线「＋ 自定义职位」卡片 */
 .committee-card.committee-add{
   border:2px dashed var(--border);background:transparent;box-shadow:none;
@@ -1356,13 +1364,13 @@ tbody tr.highlight{
 .dorm-filter div{padding:8px 18px;font-size:13px;cursor:pointer;color:var(--text-secondary);background:var(--card-bg)}
 .dorm-filter div.active{background:var(--primary);color:#fff;font-weight:600}
 .credit-badge{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;margin-left:6px;vertical-align:1px}
-.credit-badge.lv-top{background:linear-gradient(135deg,#fbe3d0,#f7e08b);color:#a3301e}
-.credit-badge.lv-elite{background:rgba(240,195,50,0.22);color:#7d6410}
-.credit-badge.lv-strive{background:rgba(240,147,43,0.18);color:#8a5310}
-.credit-badge.lv-yellow{background:rgba(183,121,31,0.16);color:#8a5a10}
-.credit-badge.lv-orange{background:rgba(192,86,33,0.16);color:#a0441a}
-.credit-badge.lv-red{background:rgba(197,48,48,0.14);color:#a52a2a}
-.credit-badge.lv-dark{background:rgba(123,17,19,0.16);color:#6d0f11}
+.credit-badge.lv-top{background:linear-gradient(135deg,#fbe3d0,#f7e08b)/*肤免*/;color:#a3301e/*肤免*/}
+.credit-badge.lv-elite{background:rgba(240,195,50,0.22);color:#7d6410/*肤免*/}
+.credit-badge.lv-strive{background:rgba(240,147,43,0.18);color:#8a5310/*肤免*/}
+.credit-badge.lv-yellow{background:rgba(183,121,31,0.16);color:#8a5a10/*肤免*/}
+.credit-badge.lv-orange{background:rgba(192,86,33,0.16);color:#a0441a/*肤免*/}
+.credit-badge.lv-red{background:rgba(197,48,48,0.14);color:#a52a2a/*肤免*/}
+.credit-badge.lv-dark{background:rgba(123,17,19,0.16);color:#6d0f11/*肤免*/}
 .member-row{display:flex;align-items:center;justify-content:space-between;padding:9px 4px;border-bottom:1px solid var(--border);font-size:14px}
 .member-row:last-child{border-bottom:none}
 .member-row .mr-name{font-weight:600}
@@ -1457,7 +1465,7 @@ tbody tr.highlight{
 /* v2.20.11 关闭座位：教室角落缺位 / 靠墙少一列 —— 这种格子「不是座位」，不排人。
    斜纹底 + 虚线边，与「空位（细虚线 + 加号）」一眼可分；hover 不跟着变红（它本来就不是可点目标）。 */
 .seat.closed{
-  background:#EFEBE3;
+  background:#EFEBE3/*肤免*/;
   background-image:repeating-linear-gradient(135deg,rgba(43,43,51,0.07) 0 6px,rgba(43,43,51,0) 6px 12px);
   border-style:dashed;
   border-color:var(--border);
@@ -1722,24 +1730,24 @@ html.dark .duty-team:hover{box-shadow:0 4px 14px rgba(0,0,0,.35)}
 /* ==================== Honors Module ==================== */
 .honor-card{position:relative;overflow:hidden;transition:transform .2s, box-shadow .2s}
 .honor-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
-.honor-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),#FFE08A)}
-.honor-card.hl-2::before{background:linear-gradient(90deg,#8C8577,#D8D0C0)}
-.honor-card.hl-3::before{background:linear-gradient(90deg,#A3671F,#B97C24)}
-.honor-card.hl-4::before{background:linear-gradient(90deg,#A693C9,#E4DCEF)}
-.honor-card.hl-5::before{background:linear-gradient(90deg,#B97C24,#C08A2D)}
-.honor-level{font-size:12px;font-weight:700;padding:2px 10px;border-radius:6px;background:rgba(201,162,39,0.15);color:#8A5315}
-.honor-level.hl-2{background:rgba(140,133,119,0.15);color:#5C574F}
-.honor-level.hl-3{background:rgba(163,103,31,0.15);color:#8A5315}
-.honor-level.hl-4{background:rgba(166,147,201,0.15);color:#6B5B95}
-.honor-level.hl-5{background:rgba(185,124,36,0.18);color:#A3671F}
+.honor-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),#FFE08A)/*肤免*/}
+.honor-card.hl-2::before{background:linear-gradient(90deg,#8C8577,#D8D0C0)/*肤免*/}
+.honor-card.hl-3::before{background:linear-gradient(90deg,#A3671F,#B97C24)/*肤免*/}
+.honor-card.hl-4::before{background:linear-gradient(90deg,#A693C9,#E4DCEF)/*肤免*/}
+.honor-card.hl-5::before{background:linear-gradient(90deg,#B97C24,var(--warning))/*肤免*/}
+.honor-level{font-size:12px;font-weight:700;padding:2px 10px;border-radius:6px;background:rgba(201,162,39,0.15);color:#8A5315/*肤免*/}
+.honor-level.hl-2{background:rgba(140,133,119,0.15);color:var(--text-secondary)}
+.honor-level.hl-3{background:rgba(163,103,31,0.15);color:#8A5315/*肤免*/}
+.honor-level.hl-4{background:rgba(166,147,201,0.15);color:var(--purple)}
+.honor-level.hl-5{background:rgba(185,124,36,0.18);color:#A3671F/*肤免*/}
 .honor-scope{font-size:12px;font-weight:600;padding:2px 10px;border-radius:6px}
 .honor-scope.team{background:rgba(166,58,43,0.12);color:var(--primary-dark)}
 .honor-scope.person{background:rgba(47,125,91,0.12);color:var(--success)}
-html.dark .honor-level{color:#D9A441}
-html.dark .honor-level.hl-2{color:#8C8577}
-html.dark .honor-level.hl-3{color:#B97C24}
-html.dark .honor-level.hl-4{color:#A693C9}
-html.dark .honor-level.hl-5{color:#D9A441}
+html.dark .honor-level{color:var(--gold)}
+html.dark .honor-level.hl-2{color:#8C8577/*肤免*/}
+html.dark .honor-level.hl-3{color:#B97C24/*肤免*/}
+html.dark .honor-level.hl-4{color:#A693C9/*肤免*/}
+html.dark .honor-level.hl-5{color:var(--gold)}
 
 /* ==================== Work Logs Module ==================== */
 .wl-card{transition:transform .2s}
@@ -1777,8 +1785,8 @@ html.dark .honor-level.hl-5{color:#D9A441}
 .pf-credit{font-size:38px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--text)}
 .pf-credit small{font-size:12px;font-weight:600;color:var(--text-muted)}
 .pf-chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600}
-.pf-chip.male{background:rgba(83,132,220,.14);color:#3b6fd4}
-.pf-chip.female{background:rgba(226,94,141,.14);color:#cf3f74}
+.pf-chip.male{background:rgba(83,132,220,.14);color:#3b6fd4/*肤免*/}
+.pf-chip.female{background:rgba(226,94,141,.14);color:#cf3f74/*肤免*/}
 .pf-chip.neutral{background:rgba(126,119,106,.14);color:var(--text-muted)}
 .pf-dorm{display:inline-block;font-size:12px;color:var(--text-muted);background:var(--bg-secondary);padding:1px 8px;border-radius:6px}
 .pf-notes{border:1px dashed rgba(201,162,39,.55);border-radius:10px;padding:8px 12px;font-size:13.5px;
@@ -1798,7 +1806,7 @@ html.dark .honor-level.hl-5{color:#D9A441}
 .deyu-row:last-child{border-bottom:none}
 .deyu-amt{font-weight:800;font-variant-numeric:tabular-nums;min-width:56px;text-align:right;flex:none}
 .deyu-why{flex:1;min-width:0;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.deyu-cm{font-size:11px;font-weight:600;color:#8a63d2;background:rgba(138,99,210,.1);border-radius:6px;padding:0 6px;flex:none}
+.deyu-cm{font-size:11px;font-weight:600;color:#8a63d2/*肤免*/;background:rgba(138,99,210,.1);border-radius:6px;padding:0 6px;flex:none}
 .deyu-time{font-size:12px;color:var(--text-muted);flex:none}
 .pf-empty{color:var(--text-muted);font-size:13px;padding:16px 4px;text-align:center}
 .pf-honor-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed rgba(128,128,128,.16)}
@@ -1839,8 +1847,8 @@ html.dark .tl-body{background:var(--bg)}
 .login-left{
   flex:1.15;
   padding:44px 36px;
-  background:linear-gradient(165deg,#221E19 0%,#2B2620 58%,#3A332A 100%);
-  color:#F2EBDC;
+  background:linear-gradient(165deg,#221E19 0%,#2B2620 58%,#3A332A 100%)/*肤免*/;
+  color:#F2EBDC/*肤免*/;
   position:relative;
   display:flex;flex-direction:column;justify-content:center;
   overflow:hidden;
@@ -1866,19 +1874,19 @@ html.dark .tl-body{background:var(--bg)}
 }
 .login-logo{
   width:58px;height:58px;
-  background:linear-gradient(145deg,#B0432F,#8C2F22);
+  background:linear-gradient(145deg,var(--primary-bright),var(--primary-deep));
   border-radius:10px;
   display:flex;align-items:center;justify-content:center;
   font-family:var(--font-display);
   font-size:28px;font-weight:700;
-  color:#FFF6E8;
+  color:#FFF6E8/*肤免*/;
   margin-bottom:20px;
   box-shadow:0 6px 18px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(255,246,232,0.22);
   position:relative;z-index:1;
 }
 .login-title{font-family:var(--font-display);font-size:27px;font-weight:700;letter-spacing:3px;margin-bottom:8px;position:relative;z-index:1}
 .login-sub{font-size:13px;opacity:0.72;letter-spacing:2px;position:relative;z-index:1}
-.login-divider{width:44px;height:2px;background:#B0432F;margin:22px 0;position:relative;z-index:1}
+.login-divider{width:44px;height:2px;background:var(--primary-bright);margin:22px 0;position:relative;z-index:1}
 .login-tip{
   display:flex;align-items:center;gap:10px;
   font-size:13px;opacity:0.88;
@@ -1955,9 +1963,9 @@ html.dark .tl-body{background:var(--bg)}
 @media(hover:none){.key:hover{background:var(--card-bg);color:var(--text);transform:none;box-shadow:none;border-color:var(--border)}}
 .key:active{transform:scale(0.95)}
 .key-fn{font-size:14px;color:var(--text-secondary)}
-.key-ok{background:linear-gradient(145deg,#B0432F,#8C2F22);color:#FFF6E8;border:none;font-size:16px}
-.key-ok:hover{background:linear-gradient(145deg,#8C2F22,#6F251B);color:#FFF6E8;box-shadow:0 4px 14px rgba(166,58,43,0.35)}
-@media(hover:none){.key-ok:hover{background:linear-gradient(145deg,#B0432F,#8C2F22);color:#FFF6E8}}
+.key-ok{background:linear-gradient(145deg,var(--primary-bright),var(--primary-deep));color:#FFF6E8/*肤免*/;border:none;font-size:16px}
+.key-ok:hover{background:linear-gradient(145deg,var(--primary-deep),var(--primary-deeper));color:#FFF6E8/*肤免*/;box-shadow:0 4px 14px rgba(166,58,43,0.35)}
+@media(hover:none){.key-ok:hover{background:linear-gradient(145deg,var(--primary-bright),var(--primary-deep));color:#FFF6E8/*肤免*/}}
 
 
 /* ==================== 登录页移动端（纸墨·需位于基础样式之后） ==================== */
@@ -2039,13 +2047,13 @@ html.dark .tl-body{background:var(--bg)}
 .leave-card-header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px;min-width:0}
 .leave-student{font-size:17px;font-weight:700;color:var(--text);letter-spacing:.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .leave-type{display:inline-block;padding:2px 9px;border-radius:20px;font-size:12px;font-weight:500;margin-left:7px;flex-shrink:0;vertical-align:middle}
-.leave-type.sick{background:rgba(180,35,24,0.1);color:#A34A3C}
-.leave-type.personal{background:rgba(166,58,43,0.1);color:#8C2F22}
-.leave-type.official{background:rgba(47,125,91,0.1);color:#276B4E}
+.leave-type.sick{background:rgba(180,35,24,0.1);color:#A34A3C/*肤免*/}
+.leave-type.personal{background:rgba(166,58,43,0.1);color:var(--primary-dark)}
+.leave-type.official{background:rgba(47,125,91,0.1);color:#276B4E/*肤免*/}
 .leave-badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:12px;font-weight:600;flex-shrink:0;white-space:nowrap}
-.leave-badge.pending{background:#F5EBD8;color:#9A5A14}
-.leave-badge.returned{background:#EAF0E6;color:#2F7D5B}
-.leave-badge.extended{background:#EFEAF5;color:#584A82}
+.leave-badge.pending{background:#F5EBD8/*肤免*/;color:#9A5A14/*肤免*/}
+.leave-badge.returned{background:#EAF0E6/*肤免*/;color:var(--success)}
+.leave-badge.extended{background:#EFEAF5/*肤免*/;color:#584A82/*肤免*/}
 .leave-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:14px;font-weight:500;color:var(--text);background:var(--bg-secondary);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:9px;font-variant-numeric:tabular-nums}
 .leave-meta .lv-arrow{color:var(--text-muted);flex-shrink:0}
 .leave-meta .lv-dur{margin-left:auto;display:inline-flex;align-items:baseline;gap:2px;color:var(--primary);white-space:nowrap;flex-shrink:0}
@@ -2077,9 +2085,9 @@ html.dark .tl-body{background:var(--bg)}
 .grade-table th{background:var(--row-bg);padding:8px 10px;text-align:left;font-weight:600;border-radius:6px}
 .grade-table td{padding:8px 10px;border-bottom:1px solid var(--border)}
 .grade-table tr:hover{background:var(--row-bg)}
-.grade-rank-1{color:#B42318;font-weight:700}
-.grade-rank-2{color:#B96A1F;font-weight:700}
-.grade-rank-3{color:#3B6E8F;font-weight:700}
+.grade-rank-1{color:var(--danger);font-weight:700}
+.grade-rank-2{color:var(--orange);font-weight:700}
+.grade-rank-3{color:#3B6E8F/*肤免*/;font-weight:700}
 
 /* ==================== Todo ==================== */
 .todo-item{display:flex;align-items:flex-start;gap:12px;background:var(--card-bg);border-radius:12px;padding:14px 18px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);transition:box-shadow .2s,transform .2s}
@@ -2093,10 +2101,10 @@ html.dark .tl-body{background:var(--bg)}
 .todo-text{font-size:14px;line-height:1.5}
 .todo-meta{display:flex;gap:10px;margin-top:4px;font-size:12px;color:var(--text-muted)}
 .todo-priority{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:600}
-.todo-priority.normal{background:#E7EDF2;color:#3B6E8F}
-.todo-priority.important{background:#F5EBD8;color:#9A5A14}
-.todo-priority.urgent{background:#F7E8E3;color:#9E2B20}
-.todo-due-overdue{color:#B42318;font-weight:600}
+.todo-priority.normal{background:#E7EDF2/*肤免*/;color:#3B6E8F/*肤免*/}
+.todo-priority.important{background:#F5EBD8/*肤免*/;color:#9A5A14/*肤免*/}
+.todo-priority.urgent{background:#F7E8E3/*肤免*/;color:#9E2B20/*肤免*/}
+.todo-due-overdue{color:var(--danger);font-weight:600}
 .todo-actions{display:flex;gap:4px;opacity:0;transition:opacity .2s}
 .todo-item:hover .todo-actions{opacity:1}
 .todo-btn{width:28px;height:28px;border:none;background:transparent;cursor:pointer;border-radius:6px;font-size:14px;color:var(--text-muted)}
@@ -2106,8 +2114,8 @@ html.dark .tl-body{background:var(--bg)}
 .dash-todo-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
 .dash-todo-item:last-child{border-bottom:none}
 .dash-todo-dot{width:6px;height:6px;border-radius:50%;background:var(--primary);flex-shrink:0}
-.dash-todo-item.overdue .dash-todo-dot{background:#B42318}
-.dash-todo-item.today .dash-todo-dot{background:#B96A1F}
+.dash-todo-item.overdue .dash-todo-dot{background:var(--danger)}
+.dash-todo-item.today .dash-todo-dot{background:var(--orange)}
 .dash-todo-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dash-todo-meta{font-size:12px;color:var(--text-muted);white-space:nowrap}
 
@@ -2168,7 +2176,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .rp-head button:hover{color:var(--danger);background:var(--bg-secondary)}
 .rp-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 .rp-empty{font-size:12px;color:var(--text-muted);padding:6px 2px}
-.tl-cm{display:inline-block;font-size:11px;font-weight:600;color:#8a63d2;background:rgba(138,99,210,0.12);border-radius:6px;padding:1px 6px;margin-left:4px;vertical-align:1px}
+.tl-cm{display:inline-block;font-size:11px;font-weight:600;color:#8a63d2/*肤免*/;background:rgba(138,99,210,0.12);border-radius:6px;padding:1px 6px;margin-left:4px;vertical-align:1px}
 .rp-row:last-child{margin-bottom:0}
 .rp-chip{border:1px solid var(--border);background:var(--card-bg);border-radius:999px;
   padding:5px 12px;font-size:13px;cursor:pointer;color:var(--text);white-space:nowrap}
@@ -2230,9 +2238,9 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .pub-rank{display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:1px dashed var(--border)}
 .pub-rank:last-child{border-bottom:none}
 .pub-no{width:22px;height:22px;border-radius:50%;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-muted);flex:none}
-.pub-no.top1{background:linear-gradient(135deg,#F5C518,#E8A20C);color:#fff}
-.pub-no.top2{background:linear-gradient(135deg,#BDBDBD,#9B9B9B);color:#fff}
-.pub-no.top3{background:linear-gradient(135deg,#CD7F32,#B06A28);color:#fff}
+.pub-no.top1{background:linear-gradient(135deg,#F5C518,#E8A20C)/*肤免*/;color:#fff}
+.pub-no.top2{background:linear-gradient(135deg,#BDBDBD,#9B9B9B)/*肤免*/;color:#fff}
+.pub-no.top3{background:linear-gradient(135deg,#CD7F32,#B06A28)/*肤免*/;color:#fff}
 .pub-name{flex:1;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pub-delta{font-size:12px;font-weight:700}
 .pub-score{font-size:13px;color:var(--text-muted);font-weight:600;flex:none}
@@ -2254,9 +2262,9 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
   padding:14px 16px;border:none;border-radius:12px;cursor:pointer;color:#fff;
   box-shadow:var(--shadow-card);transition:box-shadow var(--transition),transform var(--transition);user-select:none}
 .qc-btn:active{transform:scale(0.97)}
-.qc-btn.qc-add{background:linear-gradient(145deg,#2F7D5B,#256648)}
+.qc-btn.qc-add{background:linear-gradient(145deg,var(--success),#256648)/*肤免*/}
 .qc-btn.qc-add:hover{box-shadow:0 6px 18px rgba(47,125,91,0.35)}
-.qc-btn.qc-sub{background:linear-gradient(145deg,#B42318,#8C1B10)}
+.qc-btn.qc-sub{background:linear-gradient(145deg,var(--danger),#8C1B10)/*肤免*/}
 .qc-btn.qc-sub:hover{box-shadow:0 6px 18px rgba(180,35,24,0.35)}
 .qc-ic{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.16);
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
@@ -2302,7 +2310,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 
 /* v2.20.0 数据体检卡 */
 .dorm-check{background:rgba(185,124,36,0.08);border:1px solid rgba(185,124,36,0.35);border-radius:12px;padding:10px 14px;margin-bottom:10px;font-size:13px;color:var(--text-secondary);line-height:2}
-.dorm-check b{color:#8A5315}
+.dorm-check b{color:#8A5315/*肤免*/}
 
 /* ==================== v2.21.0 课堂点名（随机抽人） ==================== */
 /* v2.23.0 点名页布局重构（老板反馈）：
@@ -2509,7 +2517,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.2.0</div>
+      <div class="login-version">v3.3.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2630,7 +2638,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.2.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.3.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3387,19 +3395,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.2.0</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.3.0</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.2.0）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.3.0）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-          · 👩‍💼 <b>班委模式权限细化（v3.2.0）</b>：首页只保留<b>课表 / 班级人数 / 今日实到</b>（新增「今日实到 = 除去请假」，班主任首页同步显示）；学分页只能<b>加分扣分</b>，<b>月度加分、按寝室加减分</b>不可用，全班操作流水不再可见——只看<b>本次自己的操作记录</b>、且仅可撤销这些；<b>荣誉墙</b>只可查看；<b>公示页</b>不再显示最低分；<b>待办模块</b>退出班委视图<br>
+          · 🎨 <b>颜色令牌还债（v3.3.0）</b>：为<b>皮肤系统</b>打地基——全站硬编码颜色收编为设计令牌（新增<b>印章亮档 --primary-bright</b> 与学分四组 <b>--grp-*</b> 令牌，JS 侧建 CM_COLOR 调色对象），<b>浅色外观像素级零变化</b>（暗色下奖牌/徽章等 10 处随令牌激活深色设计值）；新增全站颜色守卫与 WCAG 对比度自动校验；皮肤选择功能 v3.4.0 上线<br>
           </div>
           </div>
         </div>
@@ -4322,11 +4330,19 @@ var TS_DEFAULT_TIMES = ['07:20-08:00','08:10-08:55','09:05-09:50','10:20-11:05',
                         '14:40-15:25','15:35-16:20','16:30-17:15','17:25-18:05',
                         '19:00-19:45','19:55-20:40','20:50-21:35'];
 var TS_DEFAULT_PARTS = ['上午','上午','上午','上午','上午','下午','下午','下午','下午','晚上','晚上','晚上'];
+/* v3.3.0 品牌调色对象：屏幕侧取色的登记处。导出图（海报/证书/成绩单/课表长图）刻意固定品牌色、
+   不随皮肤（设计见 _SKIN_DESIGN_v340.md / AGENTS.md 9.5）。值 == 各处原硬编码，本轮零行为变化。 */
+var CM_COLOR = {
+  primary:'#A63A2B', primaryLight:'#C25B4A', primaryDark:'#8C2F22',
+  success:'#2F7D5B', warning:'#C08A2D', danger:'#B42318',
+  purple:'#6B5B95', orange:'#B96A1F', gold:'#C9A227', bronze:'#A97142',
+  grpCul:'#A63A2B', grpMaj:'#2F7D5B', grpArt:'#6B5B95', grpGen:'#B96A1F'
+};
 var TS_GROUPS = [
-  { k:'cul', name:'文化基础', c:'#A63A2B' },
-  { k:'maj', name:'专业核心', c:'#2F7D5B' },
-  { k:'art', name:'艺体',     c:'#6B5B95' },
-  { k:'gen', name:'思政综合', c:'#B96A1F' }
+  { k:'cul', name:'文化基础', c:CM_COLOR.grpCul },
+  { k:'maj', name:'专业核心', c:CM_COLOR.grpMaj },
+  { k:'art', name:'艺体',     c:CM_COLOR.grpArt },
+  { k:'gen', name:'思政综合', c:CM_COLOR.grpGen }
 ];
 var TS_MAX_PERIODS = 20;
 function defaultSchedule(){
@@ -8925,7 +8941,7 @@ function cbRenderStudentAlerts(){
   var monthKey0 = cbMonthKey();
   var volList = cbVolatileStudents(state.students, state.operations, monthKey0);
   var warnSum = board.yellow + board.orange + board.red + board.dark;
-  var tierColorOf = function(lv){ return CB_LEVEL_COLORS[lv] || '#2F7D5B'; };
+  var tierColorOf = function(lv){ return CB_LEVEL_COLORS[lv] || CM_COLOR.success; };
   var tierLabelOf = function(lv){
     var hit = CB_ALERT_TIERS.filter(function(x){ return x.level === lv; })[0];
     return hit ? hit.label : '正常';
