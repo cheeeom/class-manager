@@ -3401,3 +3401,11 @@ const lockStart = html.indexOf('/* v2.24.1 推送互斥');
 - [x] **守卫联动**：_v3300 令牌定义块豁免扩展到含 `data-skin` 的选择器；失效肤免（chip 规则删 color 后残留）清除。
 - [x] **验证**：新增 `_v3400_test.js`（9 项：源顺序不变量/两肤令牌表/暗色组合/CM_GRP_COLORS↔CSS 同源/签名/UI 接线/对比度矩阵三套×明暗）；全量 **73 套全绿**；IAB 实测三套切换（applySkin 即时生效、setSkin 持久化 cm_skin、暗色组合令牌/釉口线/前景全对、chip 高亮正常）。
 - [x] **推送**：待老板验收后 Git Data API 推送。
+
+### 2026-10-11（v3.4.1：网页版停更公告——顶部常驻横幅引导下载桌面版）
+
+- [x] **需求**（老板定）：网页版自本版起停止功能更新，网页顶部加常驻横幅引导用户下载桌面版。
+- [x] **实现**（`_patch_v341.py`）：①`#eolBanner` fixed 顶栏（z 900，背景 var(--primary) 白字、下载直链 `releases/latest/download/ClassManager-Setup.exe`，手机端媒体查询收短文案）；②`.app`/`.login-overlay`/`.side-panel` 三处让位 44px（追加在 </style> 前靠源顺序压过基线）；③横幅内联移除脚本带 `data-eol` 属性 + `window.__CM_DESKTOP` 判断——桌面版构建读取网页版 index.html 时自动摘除横幅，浏览器端不匹配；④速览整体替换只留当版 + 跟版五处（登录/侧栏/徽标/速览标题/速览内容）+ sw.js CACHE_NAME → v3.4.1。
+- [x] **踩坑**：横幅移除脚本原用裸 `<script>`，成为全文第一个 `<script>`，撞了 _v21201/_v21202/_v21203 的 `html.indexOf('<script>')` 提取锚点（3 套崩、报「函数未声明」实为抽取层抽到一行小脚本）——新脚本加 `data-eol` 属性避开精确匹配，遵循契约保全（新代码不破坏既有锚点），未改任何测试。
+- [x] **验证**：全量 73 套全绿。
+- [x] **推送**：Git Data API（纯 urllib 增量推送）。
