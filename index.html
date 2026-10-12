@@ -2572,7 +2572,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.4.1</div>
+      <div class="login-version">v3.5.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2693,7 +2693,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.4.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.5.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -2985,6 +2985,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 
       <!-- Credits Page -->
       <div class="page" id="page-credits">
+        <div id="semesterStripHost"></div>
         <div class="card" style="margin-bottom:16px">
           <div class="section-title"><span class="dot"></span>学分操作</div>
           <!-- v2.20.0 快速加减分：方向优先双印章按钮（详情见 openQuickCredit） -->
@@ -3456,22 +3457,27 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           </div>
           </div>
         
+<div class="settings-section" id="settingsSemester">
+          <h3>📚 学期存档</h3>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">「学期结算」时自动生成的往期快照（每人学分 / 币余额）。可导出 JSON 留底；删除仅移除本条存档，不影响学生当前数据。</div>
+          <div id="semesterArchiveList" style="font-size:13px;line-height:1.9"></div>
+</div>
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.4.1</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.5.0</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.4.1）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.5.0）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-          · 📢 <b>网页版停更·转桌面版（v3.4.1）</b>：网页版自本版起<b>停止功能更新</b>，顶部新增常驻横幅引导下载桌面版（<b>ClassManager-Setup.exe</b>，免费，GitHub Releases 直链）；桌面版与网页版<b>数据完全兼容</b>，云同步/导入导出无缝衔接<br>
+          · 📚 <b>学期结算 · 重置学分（v3.5.0）</b>：学分页新增学期状态条，学期初一键把全班重置为 100 分——当前数据自动存档（设置 → <b>📚 学期存档</b>，可导出 JSON）；划界流水<b>不可撤销</b>、不进公示统计；可选同时清空学分币；班委不可见<br>
           </div>
           </div>
         </div>
@@ -4125,6 +4131,30 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
   </div>
 </div>
 
+<!-- Modal: 学期结算重置（v3.5.0，班主任专属） -->
+<div class="modal-overlay" id="semesterResetModal">
+  <div class="modal" style="max-width:560px;width:94vw">
+    <h3>学期结算 · 重置学分</h3>
+    <div class="modal-body">
+      <div id="semesterResetSummary" style="font-size:14px;line-height:1.9"></div>
+      <div class="form-group" style="margin-top:12px">
+        <label>新学期名称</label>
+        <input type="text" id="semesterNewName" placeholder="如：2027 春季学期" maxlength="30" autocomplete="off" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit">
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13.5px;cursor:pointer">
+        <input type="checkbox" id="semesterClearCoins"> 同时清空学分币（未兑换余额归零，银行账本留痕）
+      </label>
+      <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
+        结算动作：当前学分自动存档为往期学期（设置 → 📚 学期存档，可导出 JSON）→ 每人写一条「学期结算」划界流水并重置为 100 分。划界流水不可撤销、不出现在时间线统计口径之外；不进公示统计（进步榜/净变动不受污染）。
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('semesterResetModal')">取消</button>
+      <button class="btn btn-primary" id="semesterResetConfirmBtn" onclick="confirmSemesterReset()">确认结算并重置</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Student Select (for committee, seating, duty) -->
 <div class="modal-overlay" id="studentSelectModal">
   <div class="modal">
@@ -4548,6 +4578,8 @@ const STATE_SCHEMA = [
   { key:'customDorms', def:function(){ return []; }, cfs:1, ms:'customDorms', sv:function(v){ return v || []; } },      // v2.18.12 手动新增的寝室号（空寝室也显示；成员仍由学生标签派生）
   { key:'notices', def:function(){ return { templates: builtinNotices(), history: [], draft: '', updatedAt: 0 }; }, cfs:1, ms:'notices' },
   { key:'creditBank', def:function(){ return cbDefaultBank(); }, cfs:1, ms:'creditBank' },   // v2.17.30 学分银行（双轨账本）
+  { key:'semester', def:function(){ return { name:'', startAt:0 }; }, cfs:1, ms:'semester', sv:function(v){ return (v && typeof v === 'object') ? v : { name:'', startAt:0 }; } },   // v3.5.0 当前学期（学期结算重置）
+  { key:'semesterHistory', def:function(){ return []; }, cfs:1, ms:'semesterHist', sv:function(v){ return v || []; } },   // v3.5.0 往期学期存档（每人学分/币快照，可导出）
   { key:'punishments', def:function(){ return []; }, cfs:1, ms:'punishments' },   // v2.18.3 处分记录：此前缺 state 默认值，仅靠 loadData 时序兜底（任何早于 loadData 的访问都会 undefined 崩）
   // v2.18.3 处分记录补入同步链路：此前漏加 → buildCloudPayload 按本表过滤时从不带它上传，换设备/清缓存后从云端恢复会全丢（v2.19.0 随表驱动迁移，历史注释保留）
   { key:'nextPunishId', def:1, cfs:1, ms:'max1' },   // v2.18.3 处分记录自增 id
@@ -5299,6 +5331,7 @@ function cbRecomputeOpCoins(student, ops){
   for(i = 0; i < mine.length; i++){
     o = mine[i];
     run += Number(o.amount) || 0;                  // 加上本笔之后的「当时总分」
+    if(o.settle) continue;                         // v3.5.0 学期结算划界流水：不发币、不参与重算（coin 恒 0，防凭空生币）
     if((Number(o.amount) || 0) <= 0) continue;     // 扣分不发币：不写 coin，也不计入回迁笔数
     var want = cbCoinOfAmount(o.amount, run);
     if(Number(o.coin) !== want){ o.coin = want; changed++; }
@@ -7387,6 +7420,18 @@ function msTsMap(merged,localData,remoteData,key){ merged[key]=mergeTsMap(merged
 function msMax1(merged,localData,remoteData,key){ merged[key]=Math.max(localData[key]||1,remoteData[key]||1); }   // nextId 系列: max
 function msMax0(merged,localData,remoteData,key){ merged[key]=Math.max(localData[key]||0,remoteData[key]||0); }
 function msTsNewer(merged,localData,remoteData,key){ if(remoteData[key]&&(!localData[key]||remoteData[key]>localData[key]))merged[key]=remoteData[key]; }   // timestamps: 较新者胜
+// v3.5.0 学期结算：当前学期按 startAt 新者胜（重置只在单设备发生，合并取较新学期）
+function msSemester(merged,localData,remoteData,key){
+  var l=localData[key]||null,r=remoteData[key]||null;
+  if(!r||!r.startAt) return;
+  if(!l||!l.startAt||(r.startAt>l.startAt)) merged[key]=r;
+}
+// v3.5.0 学期存档：按 id 并集（存档只增；单机删除不传播，避免多设备合并互相复活）
+function msSemesterHist(merged,localData,remoteData,key){
+  var ids={}; (merged[key]||[]).forEach(function(h){ ids[h.id]=true; });
+  merged[key]=merged[key]||[];
+  (remoteData[key]||[]).forEach(function(h){ if(h&&h.id!=null&&!ids[h.id]) merged[key].push(h); });
+}
 // v3.0.0 设备锁：整体按 at 新者胜（本机没有则取云端；两边都有则较新者胜，平局留本机）
 function msPwdLock(merged,localData,remoteData,key){
   var l=localData[key]||null,r=remoteData[key]||null;
@@ -7402,7 +7447,8 @@ var MERGE_ST = {
   committeePos:msCommitteePos,
   schedule:msSchedule,
   scheduleImage:msScheduleImage, classAvatar:msClassAvatar,
-  scalarFill:msScalarFill, tsmap:msTsMap, max1:msMax1, max0:msMax0, tsNewer:msTsNewer
+  scalarFill:msScalarFill, tsmap:msTsMap, max1:msMax1, max0:msMax0, tsNewer:msTsNewer,
+  semester:msSemester, semesterHist:msSemesterHist
 };
 /* MERGE_ENGINE_END */
 
@@ -12105,6 +12151,7 @@ function renderReasonSelects(){
 }
 
 function renderCreditsPage(){
+  updateSemesterStrip();   // v3.5.0 学期状态条
   renderReasonSelects();
   // Reset credit student search
   var cInput = document.getElementById('creditStudentInput');
@@ -12544,6 +12591,10 @@ function revokeCreditOp(opId){
     showToast('班委模式只能撤销本次自己的操作记录', 'warning');
     return;
   }
+  if(op.settle){
+    showToast('学期结算划界流水不可撤销（往期数据见设置 → 学期存档）', 'warning');
+    return;
+  }
   op.state = 'revoked';
   op.stateTime = Date.now();
   afterOpStateChange();
@@ -12570,6 +12621,134 @@ function afterOpStateChange(){
   refreshCreditViews();
 }
 
+/* ==================== 学期结算重置（v3.5.0） ====================
+   学期初把全班学分重置为 100 分：
+   ① 当前数据自动存档 semesterHistory（每人学分/币余额快照，可导出 JSON）；
+   ② 每人写一条「学期结算」划界流水（settle=true、coin=0、不可撤销）并重置为 100 分
+      —— credit = creditBase + Σ流水 不变式保持；撤销与币重算迁移均已豁免 settle；
+   ③ 币是派生值（Σ有效加分 op.coin + 银行流水），清币走银行账本负向 adjust 流水（下限 0 兜底）；
+   ④ 划界流水不进公示周期统计（computePublicityData 过滤），进步榜/净变动不被污染。 */
+function semDate(t){
+  var d = new Date(t);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function updateSemesterStrip(){
+  var host = document.getElementById('semesterStripHost');
+  if(!host) return;
+  var sem = state.semester || { name: '', startAt: 0 };
+  var days = sem.startAt ? Math.max(1, Math.ceil((Date.now() - sem.startAt) / 86400000)) : 0;
+  var label = sem.name
+    ? '<b>' + escapeHtml(sem.name) + '</b> · 自 ' + semDate(sem.startAt) + '（第 ' + days + ' 天）'
+    : '尚未设置 —— 点击右侧「学期结算」开始第一个学期';
+  host.innerHTML = '<div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">'
+    + '<div style="font-size:13.5px;min-width:0">📚 当前学期　<span style="color:var(--text-secondary)">' + label + '</span></div>'
+    + '<button class="btn btn-outline btn-sm teacher-only" onclick="openSemesterReset()">学期结算 · 重置学分</button>'
+    + '</div>';
+}
+/* 依据当前学期名推测下一学期名：春→秋同年、秋→春次年；不匹配则留空手填 */
+function suggestNextSemester(name){
+  var m = /(\d{4})\s*(春|秋)/.exec(name || '');
+  if(!m) return '';
+  return (m[2] === '春') ? (m[1] + ' 秋季学期') : ((Number(m[1]) + 1) + ' 春季学期');
+}
+var _semesterResetPre = null;
+function openSemesterReset(){
+  if(window.__cmRole === 'committee'){ showToast('学期结算仅班主任可用', 'warning'); return; }   // 按钮已裁剪，此处防绕过
+  var list = (state.students || []).map(function(s){
+    return { s: s, credit: Number(s.credit) || 0, coin: cbCoinsOf(s.id, state.operations, cbBankSafe().ledger) };
+  });
+  if(list.length === 0){ showToast('暂无学生，无需结算', 'info'); return; }
+  var sum = list.reduce(function(a, x){ return a + x.credit; }, 0);
+  var coinSum = list.reduce(function(a, x){ return a + x.coin; }, 0);
+  _semesterResetPre = { list: list, count: list.length, coinsTotal: coinSum };
+  var sem = state.semester || { name: '', startAt: 0 };
+  document.getElementById('semesterResetSummary').innerHTML =
+    '<div>当前学期：<b>' + (sem.name ? escapeHtml(sem.name) : '未设置') + '</b>' + (sem.startAt ? '（自 ' + semDate(sem.startAt) + '）' : '') + '</div>'
+    + '<div>将存档并重置：<b>' + list.length + '</b> 名学生 → 每人 <b>100</b> 分（当前平均 ' + (Math.round(sum / list.length * 10) / 10) + ' 分）</div>'
+    + '<div>学分币合计 <b>' + coinSum + '</b> 币' + (coinSum > 0 ? '，如需清零请勾选下方选项' : '') + '</div>';
+  document.getElementById('semesterNewName').value = sem.name ? suggestNextSemester(sem.name) : '';
+  document.getElementById('semesterClearCoins').checked = false;
+  openModal('semesterResetModal');
+}
+function confirmSemesterReset(){
+  if(window.__cmRole === 'committee'){ showToast('学期结算仅班主任可用', 'warning'); return; }
+  if(!_semesterResetPre){ closeModal('semesterResetModal'); return; }
+  var newName = (document.getElementById('semesterNewName').value || '').trim();
+  if(!newName){ showToast('请填写新学期名称', 'warning'); return; }
+  var clearCoins = document.getElementById('semesterClearCoins').checked;
+  var pre = _semesterResetPre;
+  var ts = Date.now();
+  var oldSem = state.semester || { name: '', startAt: 0 };
+  // ① 存档快照（币为清零前余额）
+  state.semesterHistory = state.semesterHistory || [];
+  state.semesterHistory.push({
+    id: ts,
+    name: oldSem.name || '首次结算前',
+    startAt: oldSem.startAt || 0,
+    endAt: ts,
+    coinsCleared: !!clearCoins,
+    opCount: (state.operations || []).length,
+    students: pre.list.map(function(x){ return { id: x.s.id, sid: x.s.sid, name: x.s.name, credit: x.credit, coin: x.coin }; })
+  });
+  // ② 划界流水（settle / coin=0）+ 重置 100 + 可选清币（银行账本负向流水）
+  var cleared = 0;
+  pre.list.forEach(function(x){
+    var op = applyCreditDelta(x.s, 100 - x.credit, '学期结算「' + newName + '」', { time: ts });
+    if(op){ op.settle = true; op.coin = 0; }
+    if(clearCoins && x.coin > 0){ cbPushLedger('adjust', x.s.id, -x.coin, '', '学期结算「' + newName + '」清零', ts); cleared++; }
+  });
+  // ③ 开新学期
+  state.semester = { name: newName, startAt: ts };
+  saveData();
+  closeModal('semesterResetModal');
+  refreshCreditViews();
+  renderCreditsPage();
+  renderSemesterArchive();
+  showToast('学期「' + newName + '」已开始：' + pre.count + ' 人重置为 100 分' + (cleared ? '，' + cleared + ' 人币已清零' : '') + '，往期数据已存档', 'success');
+}
+function renderSemesterArchive(){
+  var host = document.getElementById('semesterArchiveList');
+  if(!host) return;
+  var list = state.semesterHistory || [];
+  if(list.length === 0){ host.innerHTML = '<span style="color:var(--text-muted)">暂无往期学期。首次「学期结算」后自动生成存档。</span>'; return; }
+  host.innerHTML = list.slice().sort(function(a, b){ return b.id - a.id; }).map(function(h){
+    var n = (h.students || []).length;
+    var sum = (h.students || []).reduce(function(a, x){ return a + (Number(x.credit) || 0); }, 0);
+    return '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 0;border-bottom:1px dashed var(--border)">'
+      + '<span style="min-width:0"><b>' + escapeHtml(h.name || '未命名学期') + '</b>'
+      + '<span style="color:var(--text-muted)">' + (h.startAt ? semDate(h.startAt) + ' ~ ' : '') + semDate(h.endAt) + '</span>'
+      + ' · ' + n + ' 人 · 平均 ' + (n ? Math.round(sum / n * 10) / 10 : 0) + ' 分'
+      + (h.coinsCleared ? ' · 币已清零' : '') + '</span>'
+      + '<span style="flex:1"></span>'
+      + '<button class="btn btn-outline btn-sm" onclick="exportSemesterArchive(' + h.id + ')">导出 JSON</button>'
+      + '<button class="btn btn-outline btn-sm" style="color:#c53030;border-color:rgba(197,48,48,.4)" onclick="deleteSemesterArchive(' + h.id + ')">删除</button>'
+      + '</div>';
+  }).join('');
+}
+function exportSemesterArchive(id){
+  if(window.__cmRole === 'committee'){ showToast('仅班主任可导出学期存档', 'warning'); return; }
+  var h = (state.semesterHistory || []).find(function(x){ return x.id === id; });
+  if(!h){ showToast('存档不存在', 'error'); return; }
+  var blob = new Blob([JSON.stringify(h, null, 2)], { type: 'application/json;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '学期存档_' + (h.name || '未命名') + '_' + semDate(h.endAt) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+  showToast('已导出「' + (h.name || '未命名学期') + '」存档', 'success');
+}
+function deleteSemesterArchive(id){
+  if(window.__cmRole === 'committee'){ showToast('仅班主任可删除学期存档', 'warning'); return; }
+  var h = (state.semesterHistory || []).find(function(x){ return x.id === id; });
+  if(!h) return;
+  if(!confirm('确定删除往期存档「' + (h.name || '未命名学期') + '」？此操作不影响学生当前数据，但删掉的快照不可恢复。')) return;
+  state.semesterHistory = (state.semesterHistory || []).filter(function(x){ return x.id !== id; });
+  saveData();
+  renderSemesterArchive();
+  showToast('存档已删除', 'info');
+}
 function undoLastOp(){
   // 撤销"最近一笔仍有效的操作"（已撤销的跳过）。此前物理 shift 删除 + 手动 credit-=，
   // 云端校准会把它复活 → 学分被拉回原值（老板 v2.17.7 同款现象再现）。
@@ -14043,6 +14222,7 @@ function toggleReleaseNotes(){
 }
 
 function renderSettings(){
+  renderSemesterArchive();   // v3.5.0 学期存档卡
   document.getElementById('classNameInput').value = state.className;
   const fullInput = document.getElementById('classNameFullInput');
   if(fullInput){
@@ -17463,7 +17643,7 @@ function pubCreditLevel(c){
 /* ---- 核心统计（纯函数，可测）：周期内全部指标一次算清 ---- */
 function computePublicityData(students, operations, rangeKind, nowDate){
   var t0 = rangeStartOf(rangeKind, nowDate);
-  var ops = (operations || []).filter(function(o){ return o && !(o.state === 'revoked') && typeof o.time === 'number' && o.time >= t0; });   // v2.17.9 已撤销不进公示
+  var ops = (operations || []).filter(function(o){ return o && !o.settle && !(o.state === 'revoked') && typeof o.time === 'number' && o.time >= t0; });   // v2.17.9 已撤销不进公示；v3.5.0 学期结算划界流水不进周期统计（防污染进步榜/净变动）
   var n = students ? students.length : 0;
   var byId = {};
   (students||[]).forEach(function(s){ byId[s.id] = s; });

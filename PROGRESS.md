@@ -3409,3 +3409,12 @@ const lockStart = html.indexOf('/* v2.24.1 推送互斥');
 - [x] **踩坑**：横幅移除脚本原用裸 `<script>`，成为全文第一个 `<script>`，撞了 _v21201/_v21202/_v21203 的 `html.indexOf('<script>')` 提取锚点（3 套崩、报「函数未声明」实为抽取层抽到一行小脚本）——新脚本加 `data-eol` 属性避开精确匹配，遵循契约保全（新代码不破坏既有锚点），未改任何测试。
 - [x] **验证**：全量 73 套全绿。
 - [x] **推送**：Git Data API（纯 urllib 增量推送）。
+
+### 2026-10-12（v3.5.0：学期结算 · 重置学分）
+
+- [x] **需求**（老板提）：网页版和桌面版都要学期重置功能——按学期结算，学期初一键重置每人 100 分。
+- [x] **决策**（老板拍板）：币处理=结算时勾选清空；往期数据=存档+可导出 JSON（页内不做学期切换查看）。
+- [x] **实现**（`_patch_v350.py`）：①数据层 `state.semester {name,startAt}` + `state.semesterHistory` 快照数组，进 STATE_SCHEMA 同步白名单（cfs:1），新合并策略 `msSemester`（startAt 新者胜）/ `msSemesterHist`（id 并集）；②重置=每人一条 `applyCreditDelta` 划界流水（`settle:true`、`coin=0`、不可撤销）+ credit 直落 100——`credit = creditBase + Σ流水` 不变式保持；③清币走银行账本负向 `adjust` 流水（余额下限 0 兜底）；④UI：学分页学期状态条（teacher-only 按钮）+ 结算弹窗（新学期名/清币勾选/汇总预览/春秋学期名自动接续）+ 设置页「📚 学期存档」卡（导出/删除）；⑤全链豁免：`cbRecomputeOpCoins` 跳过 settle（**命门**：否则 coin=0 会被幂等迁移重算=全班凭空生币）、`computePublicityData` 剔除 settle（进步榜/净变动/零扣分榜不被污染）、`revokeCreditOp` 拦截（undoLastOp 经由 revoke 同闸）。
+- [x] **契约同步**：_v21200 schema 护栏 47→49 键 / 45→47 CFS / 28→30 策略 / 44→46 落盘（+顺序锚点 creditBank<semester<punishments）；新增 `_v3500_test.js`（版本无关：静态契约 + msSemester/msSemesterHist 真跑 + cbRecomputeOpCoins settle 豁免真跑 + cbCoinOfOp 零币口径）。
+- [x] **验证**：全量 **74 套全绿**；主脚本语法验证过（抽取第一个 <script> new Function）。
+- [x] **推送**：Git Data API（纯 urllib 增量推送）。
