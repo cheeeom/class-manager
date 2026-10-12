@@ -2572,7 +2572,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.5.1</div>
+      <div class="login-version">v3.5.2</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2693,7 +2693,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.5.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.5.2 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3465,19 +3465,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.5.1</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.5.2</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.5.1）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.5.2）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-          · ✉️ <b>联系邮箱（v3.5.1）</b>：「关于本系统」新增作者联系邮箱 <b>chee777@agent.qq.com</b>——密码重置、数据搬家、合作建议，直接来信即可<br>
+          · 🐞 <b>弹窗排版修复（v3.5.2）</b>：「学期结算」弹窗的清币勾选框被全局弹窗输入样式拉伸成整行（悬在中间、说明文字顶到最右）——恢复 16px 常规勾选框并靠左，文字紧随其后<br>
           </div>
           </div>
         </div>
@@ -4142,7 +4142,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <input type="text" id="semesterNewName" placeholder="如：2027 春季学期" maxlength="30" autocomplete="off" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit">
       </div>
       <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13.5px;cursor:pointer">
-        <input type="checkbox" id="semesterClearCoins"> 同时清空学分币（未兑换余额归零，银行账本留痕）
+        <input type="checkbox" id="semesterClearCoins" style="width:16px;height:16px;padding:0;border:none;border-radius:0;flex:0 0 auto;accent-color:var(--primary);cursor:pointer"> 同时清空学分币（未兑换余额归零，银行账本留痕）
       </label>
       <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
         结算动作：当前学分自动存档为往期学期（设置 → 📚 学期存档，可导出 JSON）→ 每人写一条「学期结算」划界流水并重置为 100 分。划界流水不可撤销、不出现在时间线统计口径之外；不进公示统计（进步榜/净变动不受污染）。
