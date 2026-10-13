@@ -2163,7 +2163,21 @@ html.dark .tl-body{background:var(--bg)}
 .dash-todo-item.overdue .dash-todo-dot{background:var(--danger)}
 .dash-todo-item.today .dash-todo-dot{background:var(--orange)}
 .dash-todo-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dash-todo-meta{font-size:12px;color:var(--text-muted);white-space:nowrap}
+dash-todo-meta{font-size:12px;color:var(--text-muted);white-space:nowrap}
+/* v3.4.2 首页待办：三列网格 + 左侧圆圈点击完成（丝滑绿勾）+ 字体放大 */
+#dashTodoList{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 18px}
+.dash-todo-item{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);font-size:14.5px;min-width:0}
+.dash-todo-item .dash-todo-text{font-size:14.5px;font-weight:500}
+.dash-todo-item .dash-todo-meta{font-size:13px}
+.dash-todo-circle{width:17px;height:17px;border-radius:50%;border:2px solid var(--text-muted);flex-shrink:0;cursor:pointer;position:relative;background:transparent;transition:border-color .25s,background .25s;-webkit-tap-highlight-color:transparent;padding:0}
+.dash-todo-circle:hover{border-color:var(--primary)}
+.dash-todo-circle svg{position:absolute;inset:2px;width:9px;height:9px;opacity:0;transform:scale(.3);transition:opacity .25s ease,transform .3s cubic-bezier(.34,1.56,.64,1)}
+.dash-todo-item.done .dash-todo-circle{background:#2F9E5B /*肤免*/;border-color:#2F9E5B /*肤免*/}
+.dash-todo-item.done .dash-todo-circle svg{opacity:1;transform:scale(1)}
+.dash-todo-item.done .dash-todo-text{color:var(--text-muted);text-decoration:line-through}
+.dash-todo-item.overdue .dash-todo-circle{border-color:var(--danger)}
+.dash-todo-item.today .dash-todo-circle{border-color:var(--orange)}
+@media(max-width:900px){#dashTodoList{grid-template-columns:minmax(0,1fr)}}
 
 
 .search-select-wrapper{position:relative;z-index:10}
@@ -2572,7 +2586,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.5.2</div>
+      <div class="login-version">v3.5.3</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2693,7 +2707,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.5.2 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.5.3 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3465,19 +3479,21 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.5.2</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.5.3</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.5.2）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.5.3）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-          · 🐞 <b>弹窗排版修复（v3.5.2）</b>：「学期结算」弹窗的清币勾选框被全局弹窗输入样式拉伸成整行（悬在中间、说明文字顶到最右）——恢复 16px 常规勾选框并靠左，文字紧随其后<br>
+          · 📋 <b>首页待办卡片重排（v3.5.3）</b>：一行三列对齐、事项与时间字体放大、去掉分组标题行；每条待办左侧新增圆圈，单击丝滑变绿勾即完成（逾期红圈/今日橙圈）<br>
+          · 🐞 <b>修复</b>：待办页新增/勾选/删除后，首页卡片与「今日待办」计数即时同步（原来停在 0）<br>
+          · 📝 <b>请假事由改为选填</b>：新增请假不再强制填写事由，留空显示「—」<br>
           </div>
           </div>
         </div>
@@ -3746,7 +3762,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <div id="leaveDuration" style="padding:10px 14px;background:#F5F0E6;border-radius:10px;font-size:14px;color:var(--text-secondary)">请选择起止时间</div>
       </div>
       <div class="form-group">
-        <label>请假事由</label>
+        <label>请假事由（选填）</label>
         <textarea id="leaveReason" placeholder="请简要说明请假原因..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px;resize:vertical;min-height:60px"></textarea>
       </div>
     </div>
@@ -15923,35 +15939,32 @@ function renderDashTodo(){
   if(!container) return;
   const today = localDateStr();   // v2.20.0 本地日期（原 UTC：凌晨时段待办会被误判为逾期/漏今日）
   const pending = state.todos.filter(t => !t.done);
-  const overdue = pending.filter(t => t.dueDate && t.dueDate < today);
-  const todayDue = pending.filter(t => t.dueDate === today);
-  const upcoming = pending.filter(t => !t.dueDate || t.dueDate > today).sort((a,b) => {
-    const pa = {urgent:3,important:2,normal:1};
-    return (pa[b.priority]||1) - (pa[a.priority]||1);
-  });
-
+  // v3.4.2 今日待办计数随首页链路同步（修：待办页新增后首页仍为 0）
+  const tt = document.getElementById('todoToday'); if(tt) tt.textContent = pending.filter(t => !t.dueDate || t.dueDate <= today).length;
+  // v3.4.2 重排：一行三列、去分组标题行、左侧圆圈点击完成；逾期红圈 > 今日橙圈 > 优先级
+  const rank = t => { if(t.dueDate && t.dueDate < today) return 0; if(t.dueDate === today) return 1; const pa = {urgent:3,important:2,normal:1}; return 10 - (pa[t.priority]||1); };
+  const items = pending.slice().sort((a,b) => rank(a) - rank(b)).slice(0, 9);
   let html = '';
-  if(overdue.length > 0){
-    html += '<div style="font-size:12px;color:#B42318;font-weight:600;margin-bottom:4px">⚠️ 逾期 ('+overdue.length+')</div>';
-    html += overdue.slice(0,3).map(t => '<div class="dash-todo-item overdue"><span class="dash-todo-dot"></span><span class="dash-todo-text">'+escapeHtml(t.text)+'</span><span class="dash-todo-meta">'+t.dueDate+'</span></div>').join('');
-  }
-  if(todayDue.length > 0){
-    html += '<div style="font-size:12px;color:#B96A1F;font-weight:600;margin:8px 0 4px">📌 今日到期 ('+todayDue.length+')</div>';
-    html += todayDue.slice(0,3).map(t => '<div class="dash-todo-item today"><span class="dash-todo-dot"></span><span class="dash-todo-text">'+escapeHtml(t.text)+'</span><span class="dash-todo-meta">今天</span></div>').join('');
-  }
-  if(upcoming.length > 0){
-    html += '<div style="font-size:12px;color:var(--text-muted);font-weight:600;margin:8px 0 4px">📋 待办 ('+upcoming.length+')</div>';
-    html += upcoming.slice(0,5).map(t => {
-      const pMark = t.priority==='urgent'?'🔴':t.priority==='important'?'🟡':'';
-      return '<div class="dash-todo-item"><span class="dash-todo-dot"></span><span class="dash-todo-text">'+escapeHtml(t.text)+'</span>'+(t.dueDate?'<span class="dash-todo-meta">'+t.dueDate+'</span>':'')+'</div>';
+  if(state.todos.length === 0){
+    html = '<div style="grid-column:1/-1;text-align:center;padding:16px 0;color:var(--text-muted);font-size:13px">暂无待办事项</div>';
+  } else if(pending.length === 0){
+    html = '<div style="grid-column:1/-1;text-align:center;padding:16px 0;color:#2F7D5B;font-size:13px">✅ 全部完成，干得漂亮！</div>';
+  } else {
+    html = items.map(t => {
+      const cls = (t.dueDate && t.dueDate < today) ? ' overdue' : (t.dueDate === today ? ' today' : '');
+      const due = !t.dueDate ? '' : (t.dueDate === today ? '今天' : t.dueDate.slice(5));
+      return '<div class="dash-todo-item'+cls+'"><span class="dash-todo-circle" title="点击完成" onclick="dashTodoToggle('+t.id+',this)"><svg viewBox="0 0 14 14" fill="none"><path d="M3 7.2 L6 10 L11 4.4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="dash-todo-text">'+escapeHtml(t.text)+'</span>'+(due?'<span class="dash-todo-meta">'+due+'</span>':'')+'</div>';
     }).join('');
   }
-  if(state.todos.length === 0){
-    html = '<div style="text-align:center;padding:16px 0;color:var(--text-muted);font-size:13px">暂无待办事项</div>';
-  } else if(pending.length === 0){
-    html = '<div style="text-align:center;padding:16px 0;color:#2F7D5B;font-size:13px">✅ 全部完成，干得漂亮！</div>';
-  }
   container.innerHTML = html;
+}
+/* 首页圆圈点击：先丝滑绿勾，再走统一 toggle（saveData+renderTodo→renderDashTodo 全链刷新） */
+function dashTodoToggle(id, el){
+  const item = el && el.closest ? el.closest('.dash-todo-item') : null;
+  if(item && !item.classList.contains('done')){
+    item.classList.add('done');
+    setTimeout(function(){ toggleTodo(id); }, 320);
+  } else toggleTodo(id);
 }
 
 /* 转义 HTML 特殊字符。
@@ -16118,7 +16131,7 @@ function confirmAddLeave(){
   if(new Date(end) < new Date(start)){ showToast('结束时间不能早于开始时间','error'); return; }
   var dur = calcLeaveDuration(start, sp, end, ep);
   if(dur === null){ showToast('时间设置有误','error'); return; }
-  if(!reason){ showToast('请填写请假事由','error'); return; }
+  // v3.4.2 请假事由改为选填（原必填校验移除）
 
   var leave = {
     id: state.nextLeaveId++,
@@ -16239,7 +16252,7 @@ function renderAttendance(){
                 '<span>'+lvShortDate(l.endDate)+' '+epText+'</span>'+
                 (lvDurNum(l.duration)?'<span class="lv-dur"><b>'+lvDurNum(l.duration)+'</b><i>天</i></span>':'')+
               '</div>'+
-              '<div class="leave-reason" title="'+escapeHtml(l.reason)+'">'+escapeHtml(l.reason)+'</div>'+
+              '<div class="leave-reason" title="'+escapeHtml(l.reason||'—')+'">'+(escapeHtml(l.reason)||'—')+'</div>'+
               history+
               '<div class="leave-foot">'+
                 '<span class="leave-created">'+createdTxt+' 登记</span>'+
@@ -16965,6 +16978,7 @@ function renderTodo(){
   const td = document.getElementById('todoDone'); if(td) td.textContent = doneTodos.length;
   const to = document.getElementById('todoOverdue'); if(to) to.textContent = overdue.length;
   const tr = document.getElementById('todoRate'); if(tr) tr.textContent = rate + '%';
+  renderDashTodo();   // v3.4.2 待办页增删改勾 → 首页卡片与「今日待办」计数即时同步（修 bug）
 }
 
 
