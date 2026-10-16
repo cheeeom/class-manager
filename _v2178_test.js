@@ -283,7 +283,7 @@ t('档位命中：≥60 无 / 59-50 黄 / 49-40 橙 / 39-30 红 / <30 深红', (
   eq(cbTierOf(39).level, 'red'); eq(cbTierOf(30).level, 'red');
   eq(cbTierOf(29).level, 'dark'); eq(cbTierOf(0).level, 'dark');
 });
-t('建档幂等：同档只一条；恶化才升级叠加；同月不降级补录', () => {
+t('建档幂等：一人一单；恶化在原单升档；未出预警区不降档不改写（v3.5.4 语义更新）', () => {
   state = freshState([{ id: 1, name: '甲', credit: 55 }]);
   eq(cbScanAlerts(), 1, '首次建档');
   eq(cbScanAlerts(), 0, '再扫不重复');
@@ -291,16 +291,17 @@ t('建档幂等：同档只一条；恶化才升级叠加；同月不降级补�
   eq(state.creditBank.alerts[0].level, 'yellow');
   eq(cbPendingAlertCount(), 1);
   state.students[0].credit = 45;
-  eq(cbScanAlerts(), 1, '恶化→橙色升级叠加');
-  eq(state.creditBank.alerts.length, 2);
+  eq(cbScanAlerts(), 1, '恶化→橙色在原单升级改写');
+  eq(state.creditBank.alerts.length, 1, 'v3.5.4 一人一单：不另开新条');
+  eq(state.creditBank.alerts[0].level, 'orange', '档位跟随恶化');
   state.students[0].credit = 58;   // 回升但未回正常区
-  eq(cbScanAlerts(), 0, '同月不降级补录');
-  eq(state.creditBank.alerts.length, 2);
+  eq(cbScanAlerts(), 0, '未出预警区：不降档不改写');
+  eq(state.creditBank.alerts.length, 1);
 });
-t('回升 ≥60 自动办结全部未决预警（留痕 resolvedAt）', () => {
+t('回升 ≥60 自动办结唯一有效单（v3.5.4 一人一单，留痕 resolvedAt）', () => {
   state.students[0].credit = 75;
   const chg = cbScanAlerts();
-  eq(chg, 2, '两笔未决一起办结');
+  eq(chg, 1, '一人一单：只有 1 笔未决可办结');
   eq(state.creditBank.alerts.every(a => a.status === 'resolved' && a.resolvedAt > 0), true);
   eq(cbPendingAlertCount(), 0);
   eq(cbScanAlerts(), 0);

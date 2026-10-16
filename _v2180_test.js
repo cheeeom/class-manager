@@ -236,10 +236,10 @@ t('流水筛选逻辑：按学生 + 按类型双条件过滤', () => {
   has(html, "if(cbLedgerSid && String(e.sid) !== cbLedgerSid) return false;", '缺学生过滤');
   has(html, "if(cbLedgerType && e.type !== cbLedgerType) return false;", '缺类型过滤');
 });
-t('预警页状态筛选 chips（全部/待处理/已通知/已办结 + 计数）', () => {
+t('预警页状态筛选 chips（全部有效/待处理/已通知 + 计数；已办结移入流水归档区 v3.5.4）', () => {
   has(html, 'cbAlertStatusTo(', '缺状态切换');
-  has(html, "{ v: '', l: '全部', n: allAlerts.length }", '缺全部');
-  has(html, "v: 'resolved', l: '○ 已办结'", '缺已办结');
+  has(html, "{ v: '', l: '全部有效', n: activeAlerts.length }", '缺全部有效');
+  has(html, "📚 预警流水（' + doneAlerts.length + ' 条）", '缺流水归档区');
   has(html, '!cbAlertStatus || a.status === cbAlertStatus', '缺状态过滤');
 });
 
