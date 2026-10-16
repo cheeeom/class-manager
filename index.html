@@ -2586,7 +2586,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.5.3</div>
+      <div class="login-version">v3.5.4</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2707,7 +2707,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.5.3 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.5.4 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3479,19 +3479,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.5.3</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.5.4</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.5.3）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.5.4）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-          · 📋 <b>首页待办卡片重排（v3.5.3）</b>：一行三列对齐、事项与时间字体放大、去掉分组标题行；每条待办左侧新增圆圈，单击丝滑变绿勾即完成（逾期红圈/今日橙圈）<br>
+          · 🚨 <b>学分预警重做（v3.5.4）</b>：改为<b>一人一条</b>——恶化在原单升档不再叠加；老师办结/删除后冷却静默（回升出预警区前不复活，跨月也不弹），恶化至红色及以上重新提醒；新增「预警流水」归档区（默认折叠、最近 10 条、可导出 JSON）<br>
           · 🐞 <b>修复</b>：待办页新增/勾选/删除后，首页卡片与「今日待办」计数即时同步（原来停在 0）<br>
           · 📝 <b>请假事由改为选填</b>：新增请假不再强制填写事由，留空显示「—」<br>
           </div>
@@ -6003,66 +6003,82 @@ function cbExpireCoupons(){
   });
   return n;
 }
-/* 预警扫描（幂等，可重复调用）：同档同月仅一条、恶化升级才叠加；回升≥60 自动办结。
-   返回变更数（新建 + 自动办结），供调用方决定是否落盘。 */
-/* 预警扫描（幂等，可重复调用）：同档同月仅一条、恶化升级才叠加；回升≥60 自动办结。
-   v2.20.3 修复「回升后又回落不报警」（真实漏报）：
-     原实现把「学生自己加分回升导致的自动办结」与「老师手动办结」当成同一件事，
-     于是学生回升后再掉回预警区，同月同档历史仲裁直接把它挡掉 —— 全程没有任何新预警。
-     本版给自动办结打 autoResolved 标记，历史仲裁只统计「仍代表人工决定」的记录
-     （手动办结 / 已删除）；自动办结不计入，故再次回落必重新建档，并在 note 标注第几次回落。
-   返回变更数（新建 + 自动办结），供调用方决定是否落盘。 */
+/* 预警扫描 v3.5.4（一人一单状态机，幂等，可重复调用）：
+   ① 每生最多一条有效预警（pending/notified）——恶化升级在原单上改写档位，不另开新单；
+   ② 老师办结/删除后进入冷却：学分未回升出预警区前完全静默（跨月也不复活）；
+      恶化至红色及以上仍会重新点亮（严重预警不因办结哑火）；
+   ③ 回升 ≥60 自动办结并解除冷却；之后再次跌入 = 新单（进流水，标注第 N 次）；
+   ④ 首次扫描自动收敛历史叠加的多张有效单：保留最重一张，其余关闭留痕。
+   冷却判定纯推导（不加同步字段）：该生最后一条记录为人工办结/删除且未经回升解除。 */
 function cbScanAlerts(){
   var b = cbBankSafe();
-  var month = cbMonthKey();
   var changed = 0;
   if(!b.settings.alertEnabled) return 0;
   (state.students || []).forEach(function(s){
     var credit = Number(s.credit) || 0;
     var tier = cbTierOf(credit);
     var sids = cbWalletKey(s.id);
-    var opens = b.alerts.filter(function(a){
-      return String(a.sid) === sids && (a.status === 'pending' || a.status === 'notified');
-    });
+    var mine = b.alerts.filter(function(a){ return String(a.sid) === sids; });
+    var last = null;
+    mine.forEach(function(a){ if(!last || (a.time || 0) > (last.time || 0)) last = a; });
+    var manualHandled = !!(last && !last.relapseReset &&
+      (last.status === 'deleted' || (last.status === 'resolved' && !last.autoResolved)));
+    var opens = mine.filter(function(a){ return a.status === 'pending' || a.status === 'notified'; });
+    if(opens.length > 1){
+      opens.sort(function(x, y){
+        return cbTierSeverity(y.level) - cbTierSeverity(x.level) || (y.time || 0) - (x.time || 0);
+      });
+      opens.slice(1).forEach(function(a){
+        a.status = 'resolved';
+        a.resolvedAt = Date.now();
+        a.merged = true;
+        a.note = (a.note ? a.note + '；' : '') + 'v3.5.3 合并为单人单预警';
+        changed++;
+      });
+      opens = [opens[0]];
+    }
     if(!tier){
       opens.forEach(function(a){
         a.status = 'resolved';
         a.resolvedAt = Date.now();
-        a.autoResolved = true;                       // v2.20.3：学生自己回升 → 非人工处理，不构成「已处理」
+        a.autoResolved = true;
         a.note = (a.note ? a.note + '；' : '') + '回升至 ' + credit + ' 分自动办结';
         changed++;
       });
-      return;
-    }
-    if(opens.length === 0){
-      // v2.20.0 修复「办结后复活」：同月已有该生预警记录时，仅当当前档位比本月历史最重档更严重才新建。
-      // v2.20.3 修订：历史最重档只统计「仍代表人工决定」的记录；自动办结（回升）不参与抑制。
-      var monthAll = b.alerts.filter(function(a){
-        return String(a.sid) === sids && a.month === month;
-      });
-      var worstHist = -1, autoCnt = 0;
-      monthAll.forEach(function(a){
-        if(a.status === 'resolved' && a.autoResolved){ autoCnt++; return; }
-        worstHist = Math.max(worstHist, cbTierSeverity(a.level));
-      });
-      if(cbTierSeverity(tier.level) <= worstHist) return;
-      b.alerts.push({ id: b.nextAlertId++, sid: sids, sname: s.name || '', level: tier.level,
-                      label: tier.label, act: tier.act, credit: credit, month: month,
-                      status: 'pending', time: Date.now(), resolvedAt: 0,
-                      relapse: autoCnt,
-                      note: autoCnt ? ('回升后再次回落，本月第 ' + (autoCnt + 1) + ' 次') : '' });
-      changed++;
+      if(opens.length === 0 && last && manualHandled){
+        last.relapseReset = true;
+        last.note = (last.note ? last.note + '；' : '') + '回升至 ' + credit + ' 分，预警周期结束';
+        changed++;
+      }
       return;
     }
     var sevNow = cbTierSeverity(tier.level);
-    var worst = -1;
-    opens.forEach(function(a){ worst = Math.max(worst, cbTierSeverity(a.level)); });
-    if(sevNow > worst){
+    var relapseN = mine.filter(function(a){ return a.autoResolved; }).length;
+    if(opens.length === 0){
+      if(manualHandled && sevNow < cbTierSeverity('red')) return;
       b.alerts.push({ id: b.nextAlertId++, sid: sids, sname: s.name || '', level: tier.level,
-                      label: tier.label, act: tier.act, credit: credit, month: month,
-                      status: 'pending', time: Date.now(), resolvedAt: 0, note: '' });
+                      label: tier.label, act: tier.act, credit: credit, month: cbMonthKey(),
+                      status: 'pending', time: Date.now(), resolvedAt: 0,
+                      relapse: relapseN,
+                      note: manualHandled ? ('较办结时恶化升级（' + (last.label || '预警') + '）')
+                                          : (relapseN ? ('回升后再次回落，第 ' + (relapseN + 1) + ' 次') : '') });
+      changed++;
+      return;
+    }
+    var worst = -1, tgt = null;
+    opens.forEach(function(a){
+      var sv = cbTierSeverity(a.level);
+      if(sv > worst || (sv === worst && tgt && (a.time || 0) > (tgt.time || 0))){ worst = sv; tgt = a; }
+    });
+    if(sevNow > worst){
+      tgt.level = tier.level;
+      tgt.label = tier.label;
+      tgt.act = tier.act;
+      tgt.credit = credit;
+      tgt.note = (tgt.note ? tgt.note + '；' : '') + '恶化升级至 ' + tier.label + '（当时 ' + credit + ' 分）';
       changed++;
     }
+    /* 降档不改写：单据保留达到过的最重档位留痕，当前学分由渲染层实时显示 */
   });
   return changed;
 }
@@ -6143,7 +6159,7 @@ function cbAlertMark(sid, aid, to){
 function cbAlertDelete(sid, aid){
   var a = (cbBankSafe().alerts || []).find(function(x){ return x.id === aid && String(x.sid) === cbWalletKey(sid); });
   if(!a) return;
-  if(!confirm('确认删除这条预警记录？\n删除后本月同档位不再重复生成；如该生情况恶化升级会另行提醒。')) return;
+  if(!confirm('确认删除这条预警记录？\n该生在回升出预警区之前不再重新预警（跨月也不复活）；情况恶化至红色及以上会重新提醒。')) return;
   a.status = 'deleted';
   a.deletedAt = Date.now();
   a.resolvedAt = Date.now();   // 取最新 resolvedAt → 跨设备合并时删除态胜出
@@ -6369,6 +6385,28 @@ function cbLedgerFind(){
 }
 /* ============ v2.17.30 预警中心：按状态筛选 ============ */
 function cbAlertStatusTo(s){ cbAlertStatus = s || ''; cbRenderStudentAlerts(); }   // v2.18.0 迁学生管理页
+
+/* v3.5.3 预警流水归档：折叠切换 + JSON 导出（默认收起，展开只显示最近 10 条，其余留档可导出） */
+function cbAlertArchToggle(){
+  cbAlertArchOpen = !cbAlertArchOpen;
+  cbRenderStudentAlerts();
+}
+function cbAlertArchExport(){
+  var b = cbBankSafe();
+  var list = (b.alerts || []).filter(function(a){ return a.status === 'resolved' || a.status === 'deleted'; })
+    .slice().sort(function(a, c){ return (c.resolvedAt || c.time || 0) - (a.resolvedAt || a.time || 0); });
+  var payload = { exportedAt: new Date().toISOString(), version: 'v3.5.4', count: list.length, alerts: list };
+  var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var el = document.createElement('a');
+  el.href = url;
+  el.download = '学分预警流水_' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(el);
+  el.click();
+  document.body.removeChild(el);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+  showToast('已导出 ' + list.length + ' 条预警流水', 'success');
+}
 /* v2.20.3 实时看板档位筛选：再次点击同一档 = 收起（全程只认点击，不做任何悬停响应） */
 function cbTierFilterTo(k){ var v = k || ''; cbTierFilter = (cbTierFilter === v ? '' : v); cbRenderStudentAlerts(); }
 // v2.20.0 收敛到 copyToClipboard/legacyCopy（原 cbCopy* 是第二套剪贴板实现）
@@ -6385,7 +6423,8 @@ var cbBankCat = '';            // 商店当前类别筛选（'' = 全部）
 var cbProfileSid = '';         // 学生档案弹窗当前学生（操作后自动刷新）
 var cbLedgerSid = '';          // 币流水：学生筛选（'' = 全部）
 var cbLedgerType = '';         // 币流水：类型筛选（'' = 全部；redeem/refund/settle/adjust）
-var cbAlertStatus = '';        // 预警中心：状态筛选（'' = 全部；pending/notified/resolved）
+var cbAlertStatus = '';        // 预警中心：有效预警状态筛选（'' = 全部；pending/notified）
+var cbAlertArchOpen = false;   // v3.5.3 预警流水归档区展开态（内存态，不持久化）
 var cbTierFilter = '';         // v2.20.3 实时看板：档位筛选（'' = 全部预警；yellow/orange/red/dark/volatile）
 function cbBankTabTo(t){
   cbBankTab = t;
@@ -9048,18 +9087,19 @@ function cbRenderStudentAlerts(){
   var host = document.getElementById('tab-alerts');
   if(!host) return;
   var bank = cbBankSafe();
-  var allAlerts = (bank.alerts || []).filter(function(a){ return a.status !== 'deleted'; }).slice().sort(function(a, b){ return (b.time || 0) - (a.time || 0); });
-  var ac = { pending: 0, notified: 0, resolved: 0 };
-  allAlerts.forEach(function(a){ if(ac[a.status] != null) ac[a.status]++; });
+  /* v3.5.3 两段式：有效预警（一人一单）+ 预警流水归档（默认折叠，最近 10 条） */
+  var activeAlerts = (bank.alerts || []).filter(function(a){ return a.status === 'pending' || a.status === 'notified'; }).slice().sort(function(a, b){ return (b.time || 0) - (a.time || 0); });
+  var doneAlerts = (bank.alerts || []).filter(function(a){ return a.status === 'resolved' || a.status === 'deleted'; }).slice().sort(function(a, b){ return (b.resolvedAt || b.time || 0) - (a.resolvedAt || a.time || 0); });
+  var ac = { pending: 0, notified: 0 };
+  activeAlerts.forEach(function(a){ if(ac[a.status] != null) ac[a.status]++; });
   var chips = [
-    { v: '', l: '全部', n: allAlerts.length },
+    { v: '', l: '全部有效', n: activeAlerts.length },
     { v: 'pending', l: '● 待处理', n: ac.pending },
-    { v: 'notified', l: '● 已通知家长', n: ac.notified },
-    { v: 'resolved', l: '○ 已办结', n: ac.resolved }
+    { v: 'notified', l: '● 已通知家长', n: ac.notified }
   ].map(function(c){
     return '<div class="cb-chip' + (cbAlertStatus === c.v ? ' on' : '') + '" onclick="cbAlertStatusTo(\'' + c.v + '\')">' + c.l + ' <b>' + c.n + '</b></div>';
   }).join('');
-  var alerts = allAlerts.filter(function(a){ return !cbAlertStatus || a.status === cbAlertStatus; });
+  var alerts = activeAlerts.filter(function(a){ return !cbAlertStatus || a.status === cbAlertStatus; });
   /* v2.20.3 实时档位看板：按当前学分实时统计（与下面的预警工单解耦），
      并按档展开在档名单 + 本期「扣了又加回」波动 —— 补上「净额好看所以预警全无痕迹」的盲区。
      交互铁律：只认点击，不做任何鼠标悬停响应。 */
@@ -9130,6 +9170,9 @@ function cbRenderStudentAlerts(){
     '</div>';
   var aRows = '';
   alerts.forEach(function(a){
+    var aOwner = null;
+    (state.students || []).forEach(function(x){ if(cbWalletKey(x.id) === a.sid) aOwner = x; });
+    var aCur = aOwner ? (Number(aOwner.credit) || 0) : a.credit;
     var stMap = { pending: '<span style="color:#c05621">● 待处理</span>', notified: '<span style="color:#b7791f">● 已通知家长</span>', resolved: '<span style="color:var(--text-muted)">○ 已办结</span>' };
     var st = stMap[a.status] || a.status;
     var acts = '';
@@ -9138,7 +9181,7 @@ function cbRenderStudentAlerts(){
     acts += '<button class="btn btn-outline btn-sm" style="padding:1px 8px;font-size:12px" onclick="cbAlertDelete(\'' + a.sid + '\',' + a.id + ')" title="删除记录">🗑</button>'; acts += '<button class="btn btn-outline btn-sm" style="padding:2px 10px;font-size:12px" onclick="cbAlertCopy(\'' + a.sid + '\',' + a.id + ')" title="生成致家长通知草稿并复制">📋 通知草稿</button>';
     aRows += '<div class="card" style="padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-left:4px solid ' + (CB_LEVEL_COLORS[a.level] || '#ccc') + '">' +
              '<div style="min-width:220px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' + cbEsc(a.sname || '') + ' ' + cbLevelBadge(a.level, a.label) + ' <span style="font-size:12px;color:var(--text-muted)">' + a.month + ' · ' + a.act + '</span></div>' +
-             '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">当时学分 ' + a.credit + ' 分 · ' + st + (a.note ? ' · ' + cbEsc(a.note) : '') + '</div>' +
+             '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">当前学分 <b>' + aCur + '</b> 分 · ' + st + (a.note ? ' · ' + cbEsc(a.note) : '') + '</div>' +
              /* v2.20.3 预警卡挂本期毛额：扣了又加回的学生，账面可能已经回来，但毛额仍在 */
              '<div style="font-size:12px;margin-top:3px;color:var(--text-secondary)">' + flowTxt(cbMonthFlow(a.sid, a.month, state.operations)) + '</div></div>' +
              '<div style="display:flex;gap:6px;flex-wrap:wrap">' + acts + '</div></div>';
@@ -9147,14 +9190,37 @@ function cbRenderStudentAlerts(){
   CB_ALERT_TIERS.forEach(function(t){
     legend += '<span style="margin-right:10px">' + cbLevelBadge(t.level, t.label) + ' <span style="font-size:12px;color:var(--text-muted)">' + t.min + '-' + (t.level === 'dark' ? '30' : (CB_ALERT_TIERS[cbTierSeverity(t.level) - 1] ? CB_ALERT_TIERS[cbTierSeverity(t.level) - 1].min : CB_ALERT_MIN)) + ' 分 · ' + t.act + '</span></span>';
   });
+  var archRows = doneAlerts.slice(0, 10).map(function(a){
+    var doneTag = a.status === 'deleted' ? '✕ 已删除' : (a.autoResolved ? '○ 自动办结（回升）' : (a.merged ? '○ 合并收敛' : '○ 班主任办结'));
+    return '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:7px 2px;border-bottom:1px dashed var(--border);font-size:12.5px">' +
+      '<span style="min-width:64px;font-weight:600">' + cbEsc(a.sname || '') + '</span>' +
+      cbLevelBadge(a.level, a.label) +
+      '<span style="color:var(--text-muted)">' + a.month + ' · 当时 ' + a.credit + ' 分</span>' +
+      '<span style="margin-left:auto;color:var(--text-muted)">' + doneTag + ' · ' + cbFmtTime(a.resolvedAt || a.time) + '</span>' +
+      '</div>';
+  }).join('');
+  var archHtml =
+    '<div class="card" style="padding:12px 16px;margin-bottom:12px">' +
+      '<div style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="cbAlertArchToggle()">' +
+        '<span style="font-size:12px;color:var(--text-muted);width:14px;text-align:center">' + (cbAlertArchOpen ? '▼' : '▶') + '</span>' +
+        '<b style="font-size:13px">📚 预警流水（' + doneAlerts.length + ' 条）</b>' +
+        '<span style="font-size:12px;color:var(--text-muted)">默认收起 · 展开显示最近 10 条</span>' +
+      '</div>' +
+      (cbAlertArchOpen
+        ? '<div style="margin-top:8px">' + (archRows || '<div style="font-size:13px;color:var(--text-muted);padding:6px 2px">暂无流水</div>') +
+          (doneAlerts.length > 10 ? '<div style="font-size:12px;color:var(--text-muted);padding:6px 2px">更早 ' + (doneAlerts.length - 10) + ' 条已归档，可导出留存</div>' : '') +
+          '<div style="padding:8px 2px 2px"><button class="btn btn-outline btn-sm" onclick="cbAlertArchExport()">⬇ 导出流水 JSON</button></div></div>'
+        : '') +
+    '</div>';
   host.innerHTML =
     dashHtml +
     '<div class="card" style="padding:12px 16px;margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">' + chips + '</div>' +
     '<div class="card" style="padding:14px 18px;margin-bottom:12px;font-size:12px;color:var(--text-muted);line-height:1.9">' +
-    '阶梯预警（按当前表现分实时扫描，同档同月一条、恶化升级才叠加）：<br>' + legend +
-    '<br>回升至 ≥' + CB_ALERT_MIN + ' 分自动办结留痕 —— <b>自动办结不算「已处理」</b>：学生再次回落会重新建档并标注第几次；只有<strong>老师手动办结/删除</strong>同月同档才不再重建。' +
-    '<br>「通知草稿」一键生成致家长文案。</div>' +
-    (aRows ? aRows : cbEmpty(allAlerts.length === 0 ? '暂无预警 🎉 全员表现分均 ≥ ' + CB_ALERT_MIN + ' 分' : '该状态下暂无预警'));
+    '阶梯预警 v3.5.3（按当前表现分实时扫描，<b>一人一条</b>、恶化在原单上升档）：<br>' + legend +
+    '<br>回升至 ≥' + CB_ALERT_MIN + ' 分自动办结并解除冷却；<b>老师办结/删除后进入冷却</b>——学分回升出预警区之前不再重复弹单（跨月也不复活），恶化至<b>红色及以上</b>会重新提醒；回升后再次跌入按新一轮预警计（流水标注第 N 次）。' +
+    '<br>「通知草稿」一键生成致家长文案；历史办结/删除记录收进下方「预警流水」。</div>' +
+    archHtml +
+    (aRows ? aRows : cbEmpty(activeAlerts.length === 0 ? '暂无有效预警 🎉 全员表现分均 ≥ ' + CB_ALERT_MIN + ' 分' : '该状态下暂无有效预警'));
 }
 /* v2.18.0 顶部 🚨 预警角标 → 直接跳学生管理页「预警中心」页签 */
 function goStudentAlerts(){

@@ -508,11 +508,11 @@ t('看板按当前学分实时统计，预警卡挂本期毛额', () => {
   notHas(src, 'mouseenter', '看板不应引入悬停监听');
   notHas(src, 'mouseover', '看板不应引入悬停监听');
 });
-t('自动办结打 autoResolved 标记，历史仲裁排除之（漏报修复的源码落点）', () => {
+t('自动办结打 autoResolved 标记，回落计数以其为口径（v3.5.4 状态机下行为等价落点）', () => {
   const src = html.match(/function cbScanAlerts\(\)\{[\s\S]*?\n\}/)[0];
   has(src, 'a.autoResolved = true;', '缺 autoResolved 标记');
-  has(src, "if(a.status === 'resolved' && a.autoResolved){ autoCnt++; return; }", '历史仲裁未排除自动办结');
-  has(src, 'relapse: autoCnt', '未记录回落次数');
+  has(src, 'mine.filter(function(a){ return a.autoResolved; }).length', '回落计数未以自动办结为口径');
+  has(src, 'relapse: relapseN', '未记录回落次数');
 });
 t('预警状态筛选与既有契约保持不变（原用例仍有效）', () => {
   has(html, "function cbAlertStatusTo(s){ cbAlertStatus = s || ''; cbRenderStudentAlerts(); }");
