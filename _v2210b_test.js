@@ -72,7 +72,7 @@ ok(cnt(_blk, '<br>') >= 1, '速览正文至少 1 条（实得 ' + cnt(_blk, '<br
 // ============================================================
 console.log('\n\u30102\u3011页面接入（侧栏 / 抽屉 / 容器 / 路由 / 图标）');
 // ============================================================
-has(html, '<span class="nav-icon"><svg class="ic"><use href="#i-roll"/></svg></span><span>\u8bfe\u5802\u70b9\u540d</span>', '侧栏新增「课堂点名」');
+has(html, '<span class="nav-icon"><svg class="ic"><use href="#i-roll"/></svg></span><span class="nav-text">课堂点名</span>', '侧栏新增「课堂点名」（v3.5.6 文本包 nav-text）');
 eq(cnt(html, 'data-page="rollcall"'), 2, '侧栏 + 移动端抽屉各一处入口');
 has(html, 'class="page" id="page-rollcall"', '有 page-rollcall 容器');
 has(html, "rollcall:'\u8bfe\u5802\u70b9\u540d'", 'pageTitles 有 rollcall 条目');
