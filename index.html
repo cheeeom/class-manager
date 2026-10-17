@@ -2535,6 +2535,29 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .app{margin-top:44px;height:calc(100vh - 44px);height:calc(100dvh - 44px)}
 .login-overlay{top:44px}
 .side-panel{top:44px;height:calc(100vh - 44px)}
+
+/* ==================== v3.5.6 侧栏折叠 rail（三态：展开固定 / 折叠 rail / 临时浮层展开） ==================== */
+.sidebar{transition:width .3s cubic-bezier(.22,1,.36,1),margin-right .3s cubic-bezier(.22,1,.36,1),box-shadow .3s ease}
+.sidebar .nav-text,.sidebar .logo-texts{transition:opacity .15s ease .12s,transform .18s ease .12s}
+.sidebar{position:relative}
+.rail-toggle{position:absolute;right:12px;bottom:10px;width:26px;height:26px;border:none;border-radius:8px;background:transparent;color:var(--text-muted);font-size:15px;line-height:1;cursor:pointer;transition:background-color var(--transition),color var(--transition),transform .3s cubic-bezier(.22,1,.36,1)}
+.rail-toggle:hover{background:rgba(166,58,43,.1);color:var(--primary)}
+.sidebar.rail{width:68px}
+.sidebar.rail .sidebar-logo{padding:24px 0 16px;justify-content:center}
+.sidebar.rail .nav{padding:8px 10px}
+.sidebar.rail .nav-item{justify-content:center;gap:0;padding:10px 0}
+.sidebar.rail .nav-text,.sidebar.rail .logo-texts{opacity:0;transform:translateX(-6px);pointer-events:none;transition-delay:0s;transition-duration:.12s}
+.sidebar.rail .sidebar-footer{color:transparent}
+.sidebar.rail .rail-toggle{right:50%;transform:translateX(50%) rotate(180deg)}
+.sidebar.rail-open{width:var(--sidebar-w);margin-right:calc(68px - var(--sidebar-w));z-index:60;border-radius:0 14px 14px 0;box-shadow:8px 0 28px rgba(43,38,28,.16)}
+.sidebar.rail-open .sidebar-logo{padding:24px 20px 16px;justify-content:flex-start}
+.sidebar.rail-open .nav{padding:8px 12px}
+.sidebar.rail-open .nav-item{justify-content:flex-start;gap:12px;padding:10px 14px}
+.sidebar.rail-open .nav-text,.sidebar.rail-open .logo-texts{opacity:1;transform:translateX(0);transition-delay:.12s}
+.sidebar.rail-open .sidebar-footer{color:inherit}
+.sidebar.rail-open .rail-toggle{right:12px;transform:none}
+.sidebar.rail-init,.sidebar.rail-init *{transition:none!important}
+@media (prefers-reduced-motion:reduce){.sidebar,.sidebar .nav-text,.sidebar .logo-texts,.rail-toggle{transition:none!important}}
 </style>
 </head>
 <body>
@@ -2586,7 +2609,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.5.5</div>
+      <div class="login-version">v3.5.6</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2640,74 +2663,75 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <div class="logo-icon" id="classAvatarIcon">班</div>
-      <div>
+      <div class="logo-texts">
         <div class="logo-text" id="sidebarClassName">高一班级</div>
         <div class="logo-sub">班主任工作台</div>
       </div>
     </div>
     <nav class="nav" id="nav">
       <div class="nav-item active" data-page="dashboard">
-        <span class="nav-icon"><svg class="ic"><use href="#i-dash"/></svg></span><span>工作台首页</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-dash"/></svg></span><span class="nav-text">工作台首页</span>
       </div>
       <div class="nav-item" data-page="students">
-        <span class="nav-icon"><svg class="ic"><use href="#i-students"/></svg></span><span>学生管理</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-students"/></svg></span><span class="nav-text">学生管理</span>
       </div>
       <div class="nav-item" data-page="profiles">
-        <span class="nav-icon"><svg class="ic"><use href="#i-profile"/></svg></span><span>学生档案</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-profile"/></svg></span><span class="nav-text">学生档案</span>
       </div>
             <div class="nav-item" data-page="committee">
-        <span class="nav-icon"><svg class="ic"><use href="#i-badge"/></svg></span><span>班委管理</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-badge"/></svg></span><span class="nav-text">班委管理</span>
       </div>
       <div class="nav-item" data-page="dorm">
-        <span class="nav-icon"><svg class="ic"><use href="#i-dorm"/></svg></span><span>寝室管理</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-dorm"/></svg></span><span class="nav-text">寝室管理</span>
       </div>
       <div class="nav-item" data-page="seating">
-        <span class="nav-icon"><svg class="ic"><use href="#i-seat"/></svg></span><span>座次表</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-seat"/></svg></span><span class="nav-text">座次表</span>
       </div>
       <div class="nav-item" data-page="duty">
-        <span class="nav-icon"><svg class="ic"><use href="#i-duty"/></svg></span><span>值日排表</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-duty"/></svg></span><span class="nav-text">值日排表</span>
       </div>
       <div class="nav-divider"></div>
       <div class="nav-item" data-page="attendance">
-        <span class="nav-icon"><svg class="ic"><use href="#i-leave"/></svg></span><span>请假管理</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-leave"/></svg></span><span class="nav-text">请假管理</span>
       </div>
       <div class="nav-item" data-page="rollcall">
-        <span class="nav-icon"><svg class="ic"><use href="#i-roll"/></svg></span><span>课堂点名</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-roll"/></svg></span><span class="nav-text">课堂点名</span>
       </div>
       <div class="nav-item" data-page="grades">
-        <span class="nav-icon"><svg class="ic"><use href="#i-grades"/></svg></span><span>成绩管理</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-grades"/></svg></span><span class="nav-text">成绩管理</span>
       </div>
       <div class="nav-item" data-page="todo">
-        <span class="nav-icon"><svg class="ic"><use href="#i-todo"/></svg></span><span>待办提醒</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-todo"/></svg></span><span class="nav-text">待办提醒</span>
       </div>
       <div class="nav-item" data-page="worklogs">
-        <span class="nav-icon"><svg class="ic"><use href="#i-note"/></svg></span><span>工作留痕</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-note"/></svg></span><span class="nav-text">工作留痕</span>
       </div>
       <div class="nav-item" data-page="notices">
-        <span class="nav-icon"><svg class="ic"><use href="#i-horn"/></svg></span><span>通知</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-horn"/></svg></span><span class="nav-text">通知</span>
       </div>
       <div class="nav-divider"></div>
       <div class="nav-item" data-page="credits">
-        <span class="nav-icon"><svg class="ic"><use href="#i-pen"/></svg></span><span>学分记录</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-pen"/></svg></span><span class="nav-text">学分记录</span>
       </div>
       <div class="nav-item" data-page="bank" title="学分银行（仅班主任）">
-        <span class="nav-icon"><svg class="ic"><use href="#i-bank"/></svg></span><span>学分银行</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-bank"/></svg></span><span class="nav-text">学分银行</span>
       </div>
       <div class="nav-item" data-page="publicity">
-        <span class="nav-icon"><svg class="ic"><use href="#i-honor"/></svg></span><span>学分公示</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-honor"/></svg></span><span class="nav-text">学分公示</span>
       </div>
       <div class="nav-item" data-page="honors">
-        <span class="nav-icon"><svg class="ic"><use href="#i-honor"/></svg></span><span>荣誉墙</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-honor"/></svg></span><span class="nav-text">荣誉墙</span>
       </div>
       <div class="nav-item" data-page="analytics">
-        <span class="nav-icon"><svg class="ic"><use href="#i-trend"/></svg></span><span>数据分析</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-trend"/></svg></span><span class="nav-text">数据分析</span>
       </div>
       <div class="nav-divider"></div>
       <div class="nav-item" data-page="settings">
-        <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
+        <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span class="nav-text">设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.5.5 · 班主任工作台</div>
+    <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
+    <div class="sidebar-footer">v3.5.6 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3479,19 +3503,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.5.5</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.5.6</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.5.5）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.5.6）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-          · 💰 <b>月度奖励调低（v3.5.5）</b>：结算发币改为 进取 5 / 勤学 10 / 优秀 15 / 卓越 20 / 巅峰 30 币（原 20/30/45/60/80），特权券档位与定档线不变<br>
+          · 🧭 <b>侧栏可折叠（v3.5.6）</b>：底部新增收折按钮，折叠后仅剩图标列（记忆偏好）；悬停 1 秒或单击即以<b>浮层卡片</b>临时展开（主内容不跳动），移出自动收回；动画丝滑、支持「减少动态效果」偏好<br>
           · 🐞 <b>修复</b>：待办页新增/勾选/删除后，首页卡片与「今日待办」计数即时同步（原来停在 0）<br>
           · 📝 <b>请假事由改为选填</b>：新增请假不再强制填写事由，留空显示「—」<br>
           </div>
@@ -7842,6 +7866,57 @@ const pageTitles = {
 document.querySelectorAll('.nav-item').forEach(item=>{
   item.addEventListener('click',()=>navigateTo(item.dataset.page));
 });
+
+/* ==================== v3.5.6 侧栏折叠 rail ====================
+   三态：展开固定（默认）/ 折叠 rail（footer 按钮切换，localStorage 记忆）/
+   临时展开浮层（rail 态下悬停 ≥1s 或单击立即展开，移出 400ms 收回）。
+   浮层 = width var(--sidebar-w) + margin-right 负值，flex 占位恒 68px，
+   主内容零 reflow；宽度与负边距同曲线同步动画。 */
+var cmRailSidebar = document.getElementById('sidebar');
+var cmRailHoverTimer = null, cmRailLeaveTimer = null;
+function cmRailApply(collapsed){
+  if(!cmRailSidebar) return;
+  cmRailSidebar.classList.toggle('rail', collapsed);
+  try { localStorage.setItem('cm_sidebar_rail', collapsed ? '1' : '0'); } catch(e){}
+}
+function cmRailToggle(){
+  if(!cmRailSidebar) return;
+  var toRail = !cmRailSidebar.classList.contains('rail');
+  cmRailSidebar.classList.remove('rail-open');
+  cmRailApply(toRail);
+}
+function cmRailEnter(){
+  if(!cmRailSidebar.classList.contains('rail') || cmRailSidebar.classList.contains('rail-open')) return;
+  clearTimeout(cmRailLeaveTimer);
+  cmRailHoverTimer = setTimeout(function(){
+    cmRailSidebar.classList.add('rail-open');
+  }, 1000);
+}
+function cmRailLeave(){
+  clearTimeout(cmRailHoverTimer);
+  if(cmRailSidebar.classList.contains('rail') && cmRailSidebar.classList.contains('rail-open')){
+    cmRailLeaveTimer = setTimeout(function(){
+      cmRailSidebar.classList.remove('rail-open');
+    }, 400);
+  }
+}
+if(cmRailSidebar){
+  cmRailSidebar.addEventListener('mouseenter', cmRailEnter);
+  cmRailSidebar.addEventListener('mouseleave', cmRailLeave);
+  document.getElementById('nav').addEventListener('click', function(){
+    if(cmRailSidebar.classList.contains('rail') && !cmRailSidebar.classList.contains('rail-open')){
+      cmRailSidebar.classList.add('rail-open');
+    }
+  }, true);
+  try {
+    if(localStorage.getItem('cm_sidebar_rail') === '1'){
+      cmRailSidebar.classList.add('rail-init', 'rail');
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){ cmRailSidebar.classList.remove('rail-init'); });
+      });
+    }
+  } catch(e){}
+}
 
 function navigateTo(page){
   // v2.13.0 班委模式白名单拦截（含 dashboard 动态卡片等间接跳转）
