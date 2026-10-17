@@ -2543,17 +2543,17 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .rail-toggle{position:absolute;right:12px;bottom:10px;width:26px;height:26px;border:none;border-radius:8px;background:transparent;color:var(--text-muted);font-size:15px;line-height:1;cursor:pointer;transition:background-color var(--transition),color var(--transition),transform .3s cubic-bezier(.22,1,.36,1)}
 .rail-toggle:hover{background:rgba(166,58,43,.1);color:var(--primary)}
 .sidebar.rail{width:68px}
-.sidebar.rail .sidebar-logo{padding:24px 0 16px;justify-content:center}
+.sidebar.rail .sidebar-logo{position:relative;padding:24px 0 16px;justify-content:center;overflow:hidden;white-space:nowrap}
 .sidebar.rail .nav{padding:8px 10px}
-.sidebar.rail .nav-item{justify-content:center;gap:0;padding:10px 0}
-.sidebar.rail .nav-text,.sidebar.rail .logo-texts{opacity:0;transform:translateX(-6px);pointer-events:none;transition-delay:0s;transition-duration:.12s}
+.sidebar.rail .nav-item{justify-content:center;gap:0;padding:10px 0;overflow:hidden;white-space:nowrap}
+.sidebar.rail .nav-text,.sidebar.rail .logo-texts{position:absolute;opacity:0;transform:translateX(-6px);pointer-events:none;transition-delay:0s;transition-duration:.12s}
 .sidebar.rail .sidebar-footer{color:transparent}
 .sidebar.rail .rail-toggle{right:50%;transform:translateX(50%) rotate(180deg)}
 .sidebar.rail-open{width:var(--sidebar-w);margin-right:calc(68px - var(--sidebar-w));z-index:60;border-radius:0 14px 14px 0;box-shadow:8px 0 28px rgba(43,38,28,.16)}
 .sidebar.rail-open .sidebar-logo{padding:24px 20px 16px;justify-content:flex-start}
 .sidebar.rail-open .nav{padding:8px 12px}
 .sidebar.rail-open .nav-item{justify-content:flex-start;gap:12px;padding:10px 14px}
-.sidebar.rail-open .nav-text,.sidebar.rail-open .logo-texts{opacity:1;transform:translateX(0);transition-delay:.12s}
+.sidebar.rail-open .nav-text,.sidebar.rail-open .logo-texts{position:static;opacity:1;transform:translateX(0);transition-delay:.12s}
 .sidebar.rail-open .sidebar-footer{color:inherit}
 .sidebar.rail-open .rail-toggle{right:12px;transform:none}
 .sidebar.rail-init,.sidebar.rail-init *{transition:none!important}
@@ -2609,7 +2609,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.5.6</div>
+      <div class="login-version">v3.5.7</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2731,7 +2731,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.5.6 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.5.7 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3503,19 +3503,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.5.6</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.5.7</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.5.6）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.5.7）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-          · 🧭 <b>侧栏可折叠（v3.5.6）</b>：底部新增收折按钮，折叠后仅剩图标列（记忆偏好）；悬停 1 秒或单击即以<b>浮层卡片</b>临时展开（主内容不跳动），移出自动收回；动画丝滑、支持「减少动态效果」偏好<br>
+          · 🐞 <b>侧栏折叠修复（v3.5.7）</b>：折叠态文字改为脱流淡出——修复班徽被裁半、图标偏移与行距异常（v3.5.6 文字淡出未释放占位所致）；折叠列更紧凑对齐<br>
           · 🐞 <b>修复</b>：待办页新增/勾选/删除后，首页卡片与「今日待办」计数即时同步（原来停在 0）<br>
           · 📝 <b>请假事由改为选填</b>：新增请假不再强制填写事由，留空显示「—」<br>
           </div>

@@ -94,8 +94,10 @@ t('rail 68px / rail-open 浮层（width + 负 margin 占位恒 68）', () => {
   has(html, 'cubic-bezier(.22,1,.36,1)', '丝滑缓动缺失');
 });
 t('分段文字动画 + 首帧防动画 + reduced-motion', () => {
-  has(html, '.sidebar.rail .nav-text,.sidebar.rail .logo-texts{opacity:0;transform:translateX(-6px);pointer-events:none;transition-delay:0s;transition-duration:.12s}', '折叠淡出编排缺失');
-  has(html, '.sidebar.rail-open .nav-text,.sidebar.rail-open .logo-texts{opacity:1;transform:translateX(0);transition-delay:.12s}', '展开淡入编排缺失');
+  has(html, '.sidebar.rail .nav-text,.sidebar.rail .logo-texts{position:absolute;opacity:0;transform:translateX(-6px);pointer-events:none;transition-delay:0s;transition-duration:.12s}', '折叠淡出编排缺失');
+  has(html, '.sidebar.rail-open .nav-text,.sidebar.rail-open .logo-texts{position:static;opacity:1;transform:translateX(0);transition-delay:.12s}', '展开淡入编排缺失');
+  has(html, '.sidebar.rail .nav-item{justify-content:center;gap:0;padding:10px 0;overflow:hidden;white-space:nowrap}', 'nav-item 裁切保险缺失');
+  has(html, '.sidebar.rail .sidebar-logo{position:relative;padding:24px 0 16px;justify-content:center;overflow:hidden;white-space:nowrap}', 'logo 裁切保险缺失');
   has(html, '.sidebar.rail-init,.sidebar.rail-init *{transition:none!important}', 'rail-init 缺失');
   has(html, '@media (prefers-reduced-motion:reduce){.sidebar,.sidebar .nav-text,.sidebar .logo-texts,.rail-toggle{transition:none!important}}', 'reduced-motion 缺失');
 });
