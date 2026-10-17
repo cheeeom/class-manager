@@ -252,19 +252,19 @@ t('★ 总分 <100：净增达标也不发（币与券都不发）', () => {
   eq(state.creditBank.ledger.length, 0, '不应产生发币流水');
   eq(cbVouchers('a').length, 0, '不应发券');
 });
-t('★ 总分 ≥100：按净增档位正常发放（+15 → 进取 20 币 + 免迟到券）', () => {
+t('★ 总分 ≥100：按净增档位正常发放（+15 → 进取 5 币 + 免迟到券，v3.5.5 调低）', () => {
   freshState([mkStudent('b', '高分乙', 105)], [mkOp('b', 15)]);
   const n = cbDoSettle();
   ok(n > 0, '应有奖励发放');
   eq(cbVouchers('b').length, 1, '进取档应发 1 张券');
   const coin = state.creditBank.ledger.reduce((a, e) => a + e.delta, 0);
-  eq(coin, 20, '进取档应发 20 币');
+  eq(coin, 5, '进取档应发 5 币');
 });
 t('刚过线（100 分整）就享受正常待遇', () => {
   freshState([mkStudent('c', '压线丙', 100)], [mkOp('c', 30)]);
   cbDoSettle();
   const coin = state.creditBank.ledger.reduce((a, e) => a + e.delta, 0);
-  eq(coin, 45, '优秀档 45 币');
+  eq(coin, 15, '优秀档 15 币');
 });
 t('同一批里高分发放、低分被挡：互不干扰', () => {
   freshState([mkStudent('hi', '高分', 130), mkStudent('lo', '低分', 95)],
