@@ -2586,7 +2586,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.5.4</div>
+      <div class="login-version">v3.5.5</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2707,7 +2707,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         <span class="nav-icon"><svg class="ic"><use href="#i-gear"/></svg></span><span>设置</span>
       </div>
     </nav>
-    <div class="sidebar-footer">v3.5.4 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.5.5 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3479,19 +3479,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.5.4</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.5.5</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.5.4）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.5.5）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-          · 🚨 <b>学分预警重做（v3.5.4）</b>：改为<b>一人一条</b>——恶化在原单升档不再叠加；老师办结/删除后冷却静默（回升出预警区前不复活，跨月也不弹），恶化至红色及以上重新提醒；新增「预警流水」归档区（默认折叠、最近 10 条、可导出 JSON）<br>
+          · 💰 <b>月度奖励调低（v3.5.5）</b>：结算发币改为 进取 5 / 勤学 10 / 优秀 15 / 卓越 20 / 巅峰 30 币（原 20/30/45/60/80），特权券档位与定档线不变<br>
           · 🐞 <b>修复</b>：待办页新增/勾选/删除后，首页卡片与「今日待办」计数即时同步（原来停在 0）<br>
           · 📝 <b>请假事由改为选填</b>：新增请假不再强制填写事由，留空显示「—」<br>
           </div>
@@ -5518,11 +5518,11 @@ const CB_CATS = ['特权', '餐饮', '娱乐', '学习', '实物', '其他'];
    净增 <10（含 0 与负）无奖励；总分 <60 的阶梯预警仍按总分走，与此无关。
    v2.20.4 起再加一道奖励资格线：总分 <CB_REWARD_MIN(100) 的学生不参与定档（见 cbDoSettle）。 */
 const CB_NET_TIERS = [
-  { key:'t1', label:'进取', min:10, coin:20, coupons:['lateFree'] },
-  { key:'t2', label:'勤学', min:20, coin:30, coupons:['lateFree', 'dayMonitor', 'laborWaive'] },
-  { key:'t3', label:'优秀', min:30, coin:45, coupons:['lateFree', 'dayMonitor', 'laborWaive', 'seatMate'] },
-  { key:'t4', label:'卓越', min:50, coin:60, coupons:['lateFree', 'dayMonitor', 'laborWaive', 'seatMate', 'lunch'] },
-  { key:'t5', label:'巅峰', min:70, coin:80, coupons:null }        // 全目录动态取（cbSettleLv3Coupons）
+  { key:'t1', label:'进取', min:10, coin:5, coupons:['lateFree'] },
+  { key:'t2', label:'勤学', min:20, coin:10, coupons:['lateFree', 'dayMonitor', 'laborWaive'] },
+  { key:'t3', label:'优秀', min:30, coin:15, coupons:['lateFree', 'dayMonitor', 'laborWaive', 'seatMate'] },
+  { key:'t4', label:'卓越', min:50, coin:20, coupons:['lateFree', 'dayMonitor', 'laborWaive', 'seatMate', 'lunch'] },
+  { key:'t5', label:'巅峰', min:70, coin:30, coupons:null }        // 全目录动态取（cbSettleLv3Coupons）
 ];
 // 预警档位（阈值按降序命中；min 为该档下限）
 const CB_ALERT_TIERS = [
