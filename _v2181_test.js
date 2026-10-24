@@ -60,10 +60,14 @@ t('未选学生时显示引导提示、不显示默认姓名', () => {
 });
 t('点搜索框（focus）→ 全体候选；输入实时筛选；回车选第一个', () => {
   has(html, 'onfocus="cbStoreFocus(this)"', '缺 focus 展开处理');
-  has(html, 'onblur="setTimeout', '缺 blur 收起');
+  has(html, 'onblur="cbStoreBlur()"', '缺 blur 收起（v3.6.6 起走 cbStoreBlur，含空框补回姓名安全网）');
   has(html, ': cands.slice(0, 60);', '空关键词应列全体候选');
   has(html, 'function cbStoreFocus(el)', '缺 cbStoreFocus');
-  has(html, "if(s && el.value === s.name) el.value = '';", 'focus 时应先清掉已选名字再列全体');
+  // v3.6.6 改契约：聚焦不再清空已选姓名（select() 全选待替换），有选中必显名
+  const i = html.indexOf('function cbStoreFocus(el)');
+  const fn = html.slice(i, html.indexOf('\nfunction ', i + 10));
+  has(fn, 'el.select()', 'focus 应全选待替换');
+  ok(!/el\.value = ''/.test(fn), 'focus 不得清空已选姓名（v3.6.6 前旧设计，已废）');
   has(html, 'cbStoreSearchKey(event)', '回车逻辑保留');
 });
 t('选中后可清除回未选态（✕ 清除按钮 + cbStoreClearSid）', () => {

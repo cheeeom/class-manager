@@ -2603,7 +2603,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.6.5</div>
+      <div class="login-version">v3.6.6</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2725,7 +2725,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.6.5 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.6.6 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3497,18 +3497,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.6.5</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.6.6</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.6.5）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.6.6）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+ · 🔍 <b>选中学生姓名常显（v3.6.6）</b>：兑换商店选中学生后姓名始终可见——再点搜索框不再清空名字（全选待替换），误清空后失焦自动补回，选中状态一目了然<br>
  · 🛒 <b>商品卡片按价格升序（v3.6.5）</b>：兑换商店商品卡片自动按价格从低到高排列，改价保存后顺序即时更新（同价保持原目录序）<br>
  · 📥 <b>补齐默认商品（v3.6.4）</b>：兑换商店工具条新增「补齐默认商品」按钮——一键把默认表里本店还没有的商品补入（保留默认定价与月限，已有的商品一律不动），老班级也能用上新默认表<br>
  · 🛠 <b>阶梯送券兜底（v3.6.3）</b>：月度阶梯的券名与发放改为「实时目录 → 种子表」双查——目录里还没有新种子商品的老班级，阶梯文案不再露英文 key，勤学/优秀/卓越档结算送券不再漏发<br>
@@ -6548,14 +6549,25 @@ function cbStoreSearchInput(q){
   }).join('');
   box.style.display = '';
 }
-// v2.17.30 聚焦搜索框：框内若是「已选学生名字」先清空 → 展开全体候选；部分输入则保留实时筛选
+// v3.6.6 聚焦搜索框：名字保留并全选（输入即替换，选中状态始终可见）；展开全体候选
 function cbStoreFocus(el){
   if(!el) return;
-  if(cbStoreSid){
-    var s = (state.students || []).find(function(x){ return String(x.id) === cbStoreSid; });
-    if(s && el.value === s.name) el.value = '';
-  }
-  cbStoreSearchInput(el.value);
+  try { el.select(); } catch (e) {}
+  cbStoreSearchInput('');
+}
+// v3.6.6 失焦安全网：有选中而框被清空时，自动补回姓名（有选中必显名）
+function cbStoreRestoreName(inp){
+  if(!cbStoreSid || !inp) return;
+  var s = (state.students || []).find(function(x){ return String(x.id) === cbStoreSid; });
+  if(s) inp.value = s.name;
+}
+function cbStoreBlur(){
+  setTimeout(function(){
+    var b = document.getElementById('cbStoreMatch');
+    if(b) b.style.display = 'none';
+    var i = document.getElementById('cbStoreSearch');
+    if(i && !String(i.value || '').trim()) cbStoreRestoreName(i);
+  }, 160);
 }
 // v2.17.30 取消选择（回到未选态，输入框留空）
 function cbStoreClearSid(){
@@ -6974,8 +6986,7 @@ function renderBankPage(){
         '<div style="font-weight:600">🛒 兑换商店</div>' +
         '<div style="position:relative;flex:1;min-width:200px;max-width:320px">' +
         '<input id="cbStoreSearch" autocomplete="off" placeholder="点我选学生：姓名 / 学号 实时筛选…" value="' + (selS ? cbEsc(selS.name) : '') + '" ' +
-        'oninput="cbStoreSearchInput(this.value)" onkeydown="cbStoreSearchKey(event)" onfocus="cbStoreFocus(this)" ' +
-        'onblur="setTimeout(function(){var b=document.getElementById(\'cbStoreMatch\');if(b)b.style.display=\'none\';},160)" ' +
+        'oninput="cbStoreSearchInput(this.value)" onkeydown="cbStoreSearchKey(event)" onfocus="cbStoreFocus(this)" onblur="cbStoreBlur()" ' +
         'style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:10px;font-size:14px">' +
         '<div id="cbStoreMatch" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;margin-top:4px;max-height:250px;overflow-y:auto;z-index:30;box-shadow:0 6px 20px rgba(0,0,0,.12)"></div>' +
         '</div>' +
