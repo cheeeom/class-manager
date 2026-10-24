@@ -2528,14 +2528,6 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
   .rc-card.rc-pick{animation:none}
 }
 
-/* ==================== v3.4.1 网页版停更横幅 ==================== */
-#eolBanner{position:fixed;top:0;left:0;right:0;z-index:900;min-height:44px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px 10px;padding:6px 16px;background:var(--primary);color:#fff;font-size:13px;letter-spacing:0.5px;text-align:center;box-sizing:border-box}
-#eolBanner a{color:#fff;font-weight:700;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
-@media (max-width:768px){#eolBanner{font-size:12px;padding:6px 10px}.eol-long{display:none}}
-.app{margin-top:44px;height:calc(100vh - 44px);height:calc(100dvh - 44px)}
-.login-overlay{top:44px}
-.side-panel{top:44px;height:calc(100vh - 44px)}
-
 /* ==================== v3.5.6 侧栏折叠 rail（三态：展开固定 / 折叠 rail / 临时浮层展开） ==================== */
 .sidebar{transition:width .3s cubic-bezier(.22,1,.36,1),margin-right .3s cubic-bezier(.22,1,.36,1),box-shadow .3s ease}
 .sidebar .nav-text,.sidebar .logo-texts{transition:opacity .15s ease .12s,transform .18s ease .12s}
@@ -2561,8 +2553,8 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 </style>
 </head>
 <body>
-<div id="eolBanner" role="note" aria-label="网页版停止更新公告"><span>📢 网页版已停止更新</span><span class="eol-long">，新功能与维护请改用桌面版（数据完全兼容）</span><a href="https://github.com/cheeeom/class-manager-desktop/releases/latest/download/ClassManager-Setup.exe" target="_blank" rel="noopener">⬇️ 免费下载桌面版</a></div>
-<script data-eol>if(window.__CM_DESKTOP){var __eolB=document.getElementById('eolBanner');if(__eolB&&__eolB.parentNode)__eolB.parentNode.removeChild(__eolB);}</script>
+
+
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
 <symbol id="i-dash" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></symbol>
 <symbol id="i-students" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><path d="M15.5 6.2a3.2 3.2 0 1 1 .8 6.3"/><path d="M16.8 14.2c2.2.5 3.5 2.1 3.9 4.8"/></symbol>
@@ -2610,7 +2602,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.5.8</div>
+      <div class="login-version">v3.6.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2732,7 +2724,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.5.8 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.6.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3504,21 +3496,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.5.8</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.6.0</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.5.8）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.6.0）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
-          · 🎖 <b>导航图标去重（v3.5.8）</b>：荣誉墙入口改用奖章绶带图标（新增 #i-award，与桌面版同源），学分公示保持奖杯——侧栏/移动抽屉两处入口不再撞图标<br>
-          · 🐞 <b>修复</b>：待办页新增/勾选/删除后，首页卡片与「今日待办」计数即时同步（原来停在 0）<br>
-          · 📝 <b>请假事由改为选填</b>：新增请假不再强制填写事由，留空显示「—」<br>
+ · 📊 <b>数据分析图表引擎 + 学期报告引擎上线（v3.6.0）</b>：成绩分析（KPI 环比/直方图/雷达/趋势/名次流动/学业预警）、学分分析（KPI 六卡/五档分布/近 7 天净变动/进退步榜）全部 ECharts 重绘，自动适配皮肤与暗色；首页学分分布与公示页四图统一纸墨主题；侧栏新增 <b>🎓 学期报告</b>（个人/班级报告，长图导出 + 打印 PDF）<br>
           </div>
           </div>
         </div>
@@ -18587,5 +18577,6 @@ function renderPublicity(){
     </div>
   </div>
 </div>
+<script src="./cmgx.js"></script>
 </body>
 </html>

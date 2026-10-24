@@ -3418,3 +3418,15 @@ const lockStart = html.indexOf('/* v2.24.1 推送互斥');
 - [x] **契约同步**：_v21200 schema 护栏 47→49 键 / 45→47 CFS / 28→30 策略 / 44→46 落盘（+顺序锚点 creditBank<semester<punishments）；新增 `_v3500_test.js`（版本无关：静态契约 + msSemester/msSemesterHist 真跑 + cbRecomputeOpCoins settle 豁免真跑 + cbCoinOfOp 零币口径）。
 - [x] **验证**：全量 **74 套全绿**；主脚本语法验证过（抽取第一个 <script> new Function）。
 - [x] **推送**：Git Data API（纯 urllib 增量推送）。
+
+### 2026-10-24（v3.6.0：桌面版双引擎移植上线网页版——数据分析图表引擎 + 学期报告，免费开放；停更横幅摘除）
+
+- [x] **需求**（老板）：把桌面版的学期报告功能和数据分析那些图表**全部**更新进网页版。
+- [x] **移植器**（`class-manager-desktop/app/_port_to_web.py`，断言式幂等）：从桌面注入层 app.patch.js 按段头标记切四段——M3 学期报告（24KB）/ P0 成绩图表（30KB）/ P1 学分图表（13KB）/ P2 首页+公示（12KB）+ KPI 计数器子集（gxMotionOn/gxCountAnnotate/gxWriteCounters/gxPlayCounters，含 v1.5.2 隐藏窗三重保险）+ wizard.css 61 条规则 → 组装 **`cmgx.js`**（91KB 新文件，body 尾注入）；`echarts.min.js`（1.12MB）原样复制（**溯源锁**：_v3600 断言与桌面源 sha256 一致）。
+- [x] **桌面→网页适配仅四处**：剥 Pro 闸一行 + PRO 徽标 span；printToPDF IPC → 隐藏 iframe + contentWindow.print()（打印对话框另存 PDF）；段头注释去桌面化；**`if (window.__CM_DESKTOP) return;` 早退守卫**（桌面壳自带同源引擎，将来 baseWeb 同步本文件不会双重挂载）。其余逐字保留——接管 `window.renderGradeAnalyticsDetail/renderAnalytics`、echarts 懒加载失败静默回退原实现、颜色运行时读 CSS 变量（自动适配亮/暗/皮肤），全部天然适配。
+- [x] **网页版集成**：学期报告入口=侧栏设置项前注入 🎓 导航项（MutationObserver 随侧栏重渲染自愈）+ navigateTo 钩子补播 KPI 滚动；**v3.4.1 停更横幅摘除**（本版起网页版恢复功能更新，横幅公告已不实）；跟版五处 + 速览当版一条 → **v3.6.0**；sw.js CORE_ASSETS + cmgx.js/echarts.min.js（PWA 离线可用）+ CACHE_NAME。
+- [x] **新守卫 `_v3600_test.js`**（6 项）：三件套与溯源锁 / cmgx 纯净性（零桌面符号，__CM_DESKTOP 仅守卫一处）/ 四大接管+五接线契约 / 注入位置与横幅摘除 / sw 资产与版本一致 / 全文档 div 深度平衡（横幅摘除是结构手术）。
+- [x] **验证**：全量 **77 套全绿**（76+1）；浏览器实测：页面零报错加载、双接管生效、🎓 导航注入、报告弹窗开合正常、数据分析页种 3 学生后 **echarts 懒加载成功 + KPI 六卡真实渲染**（96/85/110 → 均值 97.0/标准差 10.23/及格率 100%，聚合数学正确）、无流水图表正确显示空态；div 平衡 709/709。
+- [x] **注意**：`M _v21202_test.js` 是另一条线工作现场，本次未触碰。**双端同步提示**：下次桌面 baseWeb 同步将带入 cmgx.js（早退守卫防冲突），桌面层自身的 P0/P1/P2 接管仍优先——后续可做桌面侧瘦身（删桌面冗余段改用网页版引擎+Pro 闸包装），本次未动。
+- [x] **推送**：待老板审阅（本地预览 http://127.0.0.1:8642）后明示。
+
