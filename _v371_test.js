@@ -48,7 +48,8 @@ t('② 老师端核销中心：验签/执行/三入口/懒加载', () => {
   has(html, "addEventListener('drop'", '拖图入口');
   has(html, "accept=\"image/*\"", '选图入口');
   has(html, 'portalMarkRedeemNonce', '一次性 nonce 防重放');
-  has(html, "openPortalRedeemModal()\">📷 兑换核销", '面板入口按钮');
+  ok((html.match(/onclick=.?"openPortalRedeemModal\(\)?/g) || []).length === 1, '核销入口应恰 1 处（学分银行商店工具条，兼容 JS 串内转义引号）');
+  has(html, "onclick=\"openPortalRedeemModal()\" title=\"学生端自助兑换的二维码在这里扫码/粘贴核销\">📷 兑换核销</button>' +", '银行工具条入口（紧邻新增商品）');
   // 验签失败路径全中文且零副作用（resolve 不 reject）
   has(html, "resolve({ok:false, msg:'这个兑换码已经核销过了（一次性凭据）'})", '重放拦截');
 });
@@ -104,9 +105,11 @@ t('⑤ 库文件与 sw 资产齐备 + 版本 v3.7.1', () => {
   // v3.7.2：设置页入口卡 + 状态简报
   has(html, 'id="settingsPortal"', '设置页查询端卡片');
   has(html, 'portalSettingsBrief', '设置卡状态简报容器');
-  has(html, 'openPortalRedeemModal()">📷 兑换核销</button>\n          </div>\n          <div id="portalSettingsBrief"', '设置卡双按钮+简报接线');
+  has(html, '🔑 打开学生查询端面板</button>\n          </div>\n          <div id="portalSettingsBrief"', '设置卡单按钮+简报接线（v3.7.4 核销已归位学分银行）');
   has(html, "if(typeof renderPortalPanel === 'function') renderPortalPanel();", '设置页渲染时刷新简报');
   ok((html.match(/openPortalPanel\(\)">🔑/g) || []).length >= 2, '公示页+设置页双入口（实际 ' + (html.match(/openPortalPanel\(\)">🔑/g) || []).length + ' 处）');
+  // v3.7.4：公示页「学生查询端」与相邻按钮统一主色
+  has(html, '<button class="btn btn-primary btn-sm" onclick="openPortalPanel()">🔑 学生查询端</button>', '公示页按钮主色');
   // v3.7.3：cmPrompt 层级高于注入面板（2147483100 > 2147483000）
   ok(/id="cmPromptModal"[^>]*z-index:2147483100/.test(html), 'cmPrompt 应带内联 z-index 2147483100');
 });

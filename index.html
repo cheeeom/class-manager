@@ -2603,7 +2603,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.7.3</div>
+      <div class="login-version">v3.7.4</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2725,7 +2725,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.7.3 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.7.4 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3063,7 +3063,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-primary btn-sm" onclick="exportPublicityPoster('portrait')">📤 导出竖版公示图</button>
             <button class="btn btn-primary btn-sm" onclick="exportWeeklyReport()">📰 学分周报（发家长群）</button>
-            <button class="btn btn-sm" onclick="openPortalPanel()">🔑 学生查询端</button>
+            <button class="btn btn-primary btn-sm" onclick="openPortalPanel()">🔑 学生查询端</button>
           </div>
         </div>
         <div class="analytics-grid" id="pubSummary"></div>
@@ -3495,7 +3495,6 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">学生用「学号 + 专属查询码」在手机上查看自己的学分/流水/排名，并可自助兑换（二维码给你核销）。数据由你手动发布，公开可下载但全部加密——每人只能解开自己那一份。</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-primary btn-sm" onclick="openPortalPanel()">🔑 打开学生查询端面板</button>
-            <button class="btn btn-sm btn-primary" onclick="openPortalRedeemModal()">📷 兑换核销</button>
           </div>
           <div id="portalSettingsBrief" style="margin-top:10px;font-size:12px;color:var(--text-secondary)"></div>
         </div>
@@ -3507,19 +3506,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.7.3</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.7.4</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.7.3）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.7.4）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
- · 🔧 <b>Token 配置弹窗层级修复（v3.7.3）</b>：查询端面板内点「配置 Token」弹窗不再被面板压住<br> · ⚙️ <b>学生查询端入口进设置页（v3.7.2）</b>：设置页新增「🔑 学生查询端」卡（打开面板/兑换核销+状态简报），公示页原入口保留<br> · 🛒 <b>学生自助兑换（v3.7.1）</b>：学生端可加购物车批量结算，生成 10 分钟时效二维码（查询码签名防伪）；老师端「📷 兑换核销」三入口收码（摄像头扫码 / 粘贴码原文 / 粘贴·拖入截图识别）→ 验签 → 实时校验余额月余 → 一键入账；查询端新增学分排名与商品分类筛选<br> · 🔑 <b>学生查询端（v3.7.0）</b>：学生可用「学号 + 8 位专属码」查看<b>自己的</b>学分与流水——公示页「🔑 学生查询端」一键导出码表并发布；每生一块独立密文，只解自己那份；<b>不含</b>家长电话、住址、生日、备注、标签、寝室<br>
+ · 🎨 <b>兑换核销归位学分银行（v3.7.4）</b>：核销入口移到「兑换商店」工具条（与新增商品并列），查询端面板与设置卡不再重复放置；公示页「学生查询端」按钮与相邻按钮统一主色<br> · 🔧 <b>Token 配置弹窗层级修复（v3.7.3）</b>：查询端面板内点「配置 Token」弹窗不再被面板压住<br> · ⚙️ <b>学生查询端入口进设置页（v3.7.2）</b>：设置页新增「🔑 学生查询端」卡（打开面板/兑换核销+状态简报），公示页原入口保留<br> · 🛒 <b>学生自助兑换（v3.7.1）</b>：学生端可加购物车批量结算，生成 10 分钟时效二维码（查询码签名防伪）；老师端「📷 兑换核销」三入口收码（摄像头扫码 / 粘贴码原文 / 粘贴·拖入截图识别）→ 验签 → 实时校验余额月余 → 一键入账；查询端新增学分排名与商品分类筛选<br> · 🔑 <b>学生查询端（v3.7.0）</b>：学生可用「学号 + 8 位专属码」查看<b>自己的</b>学分与流水——公示页「🔑 学生查询端」一键导出码表并发布；每生一块独立密文，只解自己那份；<b>不含</b>家长电话、住址、生日、备注、标签、寝室<br>
  · 📱 <b>手机端学期报告入口（v3.6.10）</b>：「更多」抽屉新增学期报告（原先只在桌面侧栏，手机进不去）；快速加减分弹窗内的「按寝室」捷径撤下——请用学分页「🏠 按寝室加减分」专用入口<br>
  · 📊 <b>首页学分分布空白修复（v3.6.9）</b>：修复冷启动时首页「学分分布」卡片空白——echarts 懒加载完成后的补画函数在移植时缺失（异常被静默吞掉），现已补齐；加载失败时自动回退原图表<br>
  · 🏠 <b>学分批量按寝室选择（v3.6.8）</b>：学分加减分模块「全班全选」左侧新增「按寝室」——下拉列出全部寝室与人数，点选即整寝选入/移出，快速给目标寝室加减分<br>
@@ -7018,7 +7017,8 @@ function renderBankPage(){
             '<button class="btn btn-outline btn-sm" style="padding:2px 10px" onclick="cbStoreClearSid()" title="取消选择">✕ 清除</button>'
           : '<span style="font-size:12px;color:var(--text-muted);background:rgba(166,58,43,0.07);padding:6px 12px;border-radius:999px">👆 点搜索框选择要兑换的学生</span>') +
         (cbStoreSeedMissing().length ? '<button class="btn btn-outline btn-sm" style="padding:2px 10px" onclick="cbStoreSeedFill()" title="把默认商品表里本店还没有的一键补入（已有的不动）">📥 补齐默认商品</button>' : '') +
-        '<button class="btn btn-primary btn-sm" onclick="cbOpenItemEditor(\'\')">＋ 新增商品</button>' +
+        '<button class="btn btn-outline btn-sm" onclick="openPortalRedeemModal()" title="学生端自助兑换的二维码在这里扫码/粘贴核销">📷 兑换核销</button>' +
+      '<button class="btn btn-primary btn-sm" onclick="cbOpenItemEditor(\'\')">＋ 新增商品</button>' +
         '</div>' +
         '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">' + catHtml + '</div>' +
         '<div style="margin-top:10px;font-size:12px;color:var(--text-muted)">' +
@@ -18787,7 +18787,6 @@ function renderPortalPanel(){
   /* 按钮区 */
   h += '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
        '<button class="btn btn-primary btn-sm" onclick="publishPortal()">' + (pub && !pub.revoked ? '🔄 重新发布' : '🚀 发布') + '</button>' +
-       '<button class="btn btn-primary btn-sm" onclick="openPortalRedeemModal()">📷 兑换核销</button>' +
        '<button class="btn btn-sm" onclick="exportPortalCodes()">📋 导出码表</button>' +
        '<button class="btn btn-sm" onclick="configPortalToken()">🔑 配置 Token</button>' +
        '<button class="btn btn-sm" onclick="regenerateAllPortalCodes()">🎲 全部重发码</button>';
