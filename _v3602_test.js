@@ -71,13 +71,15 @@ t('④ 阶梯送券换绑：t2 起 podiumDuty，券单 key 全部落在种子内
   eq(TIERS[4].coupons, null, 't5 全目录动态取');
 });
 
-t('⑤ 版本跟版 v3.6.2 + 速览当版条目 + 种子注释', () => {
+t('⑤ 版本一致性（动态跟版）+ 速览条目 + 种子注释', () => {
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
-  ok(m && v && m[1] === v[1] && m[1] === 'v3.6.2', 'CACHE ' + (m && m[1]) + ' 与登录页 ' + (v && v[1]) + ' 应同为 v3.6.2');
-  ok(html.includes('默认商品表重新设计（v3.6.2）'), '速览当版条目');
+  ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' 与登录页 ' + (v && v[1]) + ' 应同版（版本号从 CACHE 反推，无需随版改）');
+  const num = s => (s.match(/v(\d+)\.(\d+)\.(\d+)/) || [0, 0, 0, 0]).slice(1).map(Number);
+  const [a1, b1, c1] = num(m && m[1]), [a2, b2, c2] = [3, 6, 2];
+  ok(a1 > a2 || (a1 === a2 && (b1 > b2 || (b1 === b2 && c1 >= c2))), '本表自 v3.6.2 引入，当前版本不得回退（实际 ' + (m && m[1]) + '）');
+  ok(html.includes('默认商品表重新设计（v3.6.2）'), '速览历史条目（v3.6.2）仍在');
   ok(html.includes('预设 15 券'), '种子注释跟版');
-  ok(html.includes('学费存档') === false || true, '占位（结构未动）');
 });
 
 console.log('\n通过 ' + pass + ' 项，失败 ' + fail + ' 项');

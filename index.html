@@ -2603,7 +2603,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.6.2</div>
+      <div class="login-version">v3.6.3</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2725,7 +2725,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.6.2 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.6.3 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3497,18 +3497,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.6.2</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.6.3</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.6.2）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.6.3）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+ · 🛠 <b>阶梯送券兜底（v3.6.3）</b>：月度阶梯的券名与发放改为「实时目录 → 种子表」双查——目录里还没有新种子商品的老班级，阶梯文案不再露英文 key，勤学/优秀/卓越档结算送券不再漏发<br>
  · 🛒 <b>默认商品表重新设计（v3.6.2）</b>：新班级首次开通学分银行自动种入 15 件预设——旗舰「📱 报喜短信」，免值日分讲台（15 币）/教室·公区（30 币）两档，一周点歌权 14 币、随机小文具等，四栏分类（特权/餐饮/娱乐/实物）；月度奖励阶梯送券同步换绑。已有班级的商品目录不受影响<br>
  · 🎨 <b>学期报告导航图标线条化（v3.6.1）</b>：学士帽线条图标并入侧栏精灵图（#i-report），弃用 emoji，与其他导航图标同风格同尺寸<br>
  · 📊 <b>数据分析图表引擎 + 学期报告引擎上线（v3.6.0）</b>：成绩分析（KPI 环比/直方图/雷达/趋势/名次流动/学业预警）、学分分析（KPI 六卡/五档分布/近 7 天净变动/进退步榜）全部 ECharts 重绘，自动适配皮肤与暗色；首页学分分布与公示页四图统一纸墨主题；侧栏新增 <b>🎓 学期报告</b>（个人/班级报告，长图导出 + 打印 PDF）<br>
@@ -5594,6 +5595,16 @@ function cbStoreAll(){
 function cbStoreItemByKey(key){
   return cbStoreAll().find(function(x){ return x && x.key === key; }) || null;
 }
+/* v3.6.3 阶梯券名/发放兜底：先查老师实时目录（改名跟得上），查不到回落种子表——
+   目录里没有新种子商品的老班级，阶梯文案不再露英文 key、结算送券不再落空 */
+function cbStoreSeedOf(key){
+  for(var i = 0; i < CB_STORE.length; i++){ if(CB_STORE[i].key === key) return CB_STORE[i]; }
+  return null;
+}
+function cbStoreNameOf(key){
+  var it = cbStoreItemByKey(key) || cbStoreSeedOf(key);
+  return it ? it.name : key;
+}
 // 目录里出现过的类别（用于筛选 chips，动态）
 function cbStoreCats(){
   var set = {};
@@ -5883,7 +5894,7 @@ function cbPushLedger(type, sid, delta, item, note, t){
 // 发券（settle 白送 / redeem 商店购）。同人·同券·同源·同月去重防重发
 function cbGiveVoucher(sid, key, source, month, cost, note){
   var b = cbBankSafe();
-  var it = cbStoreItemByKey(key);   // v2.17.30 走实时目录（老师改过名/价也能对上）
+  var it = cbStoreItemByKey(key) || cbStoreSeedOf(key);   // v2.17.30 走实时目录（老师改过名/价也能对上）；v3.6.3 老店缺新种子商品回落种子表，阶梯送券不落空
   if(!it) return null;
   var dup = cbVouchers(sid).some(function(v){
     return v.key === key && v.source === source && v.month === month && v.status !== 'refunded';
@@ -6673,7 +6684,7 @@ function cbDoSettleUI(){
     + '⚠ 奖励资格线：总分 ≥' + CB_REWARD_MIN + ' 分才参与定档；低于该线当月净增不作数，不发币也不发券。\n\n'
     + '按「当月净增分值」定档（当月加减净变化，撤销的不算）：\n'
     + CB_NET_TIERS.slice().reverse().map(function(t){
-        return '· ' + t.label + '（净增 ≥' + t.min + '）：' + t.coin + ' 币' + (t.key === 't5' ? ' + 全目录券各 1 张' : (t.coupons && t.coupons.length ? ' + ' + t.coupons.map(function(k){ return (cbStoreItemByKey(k) || {}).name || k; }).join(' / ') : ''));
+        return '· ' + t.label + '（净增 ≥' + t.min + '）：' + t.coin + ' 币' + (t.key === 't5' ? ' + 全目录券各 1 张' : (t.coupons && t.coupons.length ? ' + ' + t.coupons.map(cbStoreNameOf).join(' / ') : ''));
       }).join('\n')
     + '\n· 净增 <10（含 0 / 负）：无奖励\n\n'
     + (preview ? '本次预计获奖（净增 ≥10 且总分 ≥' + CB_REWARD_MIN + '，前 8 名）：\n' + preview + '\n\n' : '')
@@ -6830,7 +6841,7 @@ function renderBankPage(){
       : '<span style="color:#c05621;font-weight:600">本月未结算</span>';
     var rewards = CB_NET_TIERS.slice().reverse().map(function(t){
         return (t.key === 't5' ? '巅峰（净增 ≥' + t.min + '，封顶）：' : (t.label + '（净增 ≥' + t.min + '）：')) + '<b>' + t.coin + ' 币</b>' +
-               (t.key === 't5' ? ' + 全目录券各 1 张' : ' + ' + (t.coupons || []).map(function(k){ return (cbStoreItemByKey(k) || {}).name || k; }).join(' / '));
+               (t.key === 't5' ? ' + 全目录券各 1 张' : ' + ' + (t.coupons || []).map(cbStoreNameOf).join(' / '));
       }).concat([
         '净增 &lt;10（含 0 / 负）：无奖励',
         '<span style="color:#c05621">奖励资格线：总分 ≥' + CB_REWARD_MIN + ' 分才参与定档；总分 &lt;' + CB_REWARD_MIN + ' 分的学生当月净增不作数，不发币也不发券</span>',
