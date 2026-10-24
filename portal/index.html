@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#A63A2B">
+<title>我的学分 · 班主任工作台</title>
+<!--
+  学生查询端（v3.7.0）· 独立只读页
+  规格见 ../SPEC_学生查询端.md。三条铁律：
+  ① 零依赖、零 CDN —— 班级现场网络不可控，且本页要能在弱网下打开；
+  ② 只解密自己那一片，页面里不存在任何「解全部」的代码路径；
+  ③ 加密参数必须与 ../index.html 完全一致（PBKDF2 250000 / SHA-256 / AES-GCM 256 / 12 字节 IV /
+     密钥材料 = 去掉横线的大写码），不同步 = 全班当场解不开。守卫 _v370_test.js 会逐项比对两端常量。
+-->
+<style>
+  :root{
+    --bg:#F6F2E9; --card:#FFFDF7; --ink:#2B2B33; --ink2:#5F5E5A; --ink3:#8C8577;
+    --border:#E6DECD; --primary:#A63A2B; --up:#2F7D5B; --down:#B42318;
+    --radius:16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#191714; --card:#232019; --ink:#EDE8DD; --ink2:#B8B2A5; --ink3:#8C8577;
+      --border:#3A352C; --primary:#D9705E; --up:#5FBF8E; --down:#E57373;
+    }
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink); min-height:100vh;
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:15px; line-height:1.6; padding:0 16px 48px;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .wrap{width:100%; max-width:460px; padding-top:28px}
+  .brand{text-align:center; margin-bottom:22px}
+  .brand h1{font-size:17px; font-weight:600; margin:0 0 4px; letter-spacing:.5px}
+  .brand p{font-size:12px; color:var(--ink3); margin:0}
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px 18px 20px; margin-bottom:14px;
+  }
+  label{display:block; font-size:12.5px; color:var(--ink2); margin-bottom:6px}
+  input{
+    width:100%; padding:12px 14px; font-size:16px; border-radius:12px;
+    border:1px solid var(--border); background:var(--bg); color:var(--ink);
+    outline:none; font-family:inherit;
+  }
+  input:focus{border-color:var(--primary)}
+  input::placeholder{color:var(--ink3)}
+  .field{margin-bottom:14px}
+  #codeInput{letter-spacing:2px; text-transform:uppercase; font-variant-numeric:tabular-nums}
+  button.go{
+    width:100%; padding:13px; font-size:15.5px; font-weight:600; border:0; border-radius:12px;
+    background:var(--primary); color:#fff; cursor:pointer; font-family:inherit;
+    transition:opacity .15s;
+  }
+  button.go:disabled{opacity:.55; cursor:default}
+  button.go:active{opacity:.8}
+  .msg{margin-top:12px; font-size:13px; line-height:1.7; border-radius:10px; padding:10px 12px; display:none}
+  .msg.show{display:block}
+  .msg.err{background:rgba(180,35,24,.08); color:var(--down); border:1px solid rgba(180,35,24,.2)}
+  .msg.warn{background:rgba(192,138,45,.1); color:#8a6410; border:1px solid rgba(192,138,45,.25)}
+  /* 结果区 */
+  .hero{text-align:center; padding:22px 16px}
+  .hero .nm{font-size:15px; color:var(--ink2); margin-bottom:10px}
+  .hero .nm b{color:var(--ink); font-weight:600}
+  .hero .score{font-size:56px; font-weight:700; line-height:1.05; font-variant-numeric:tabular-nums; letter-spacing:-1px}
+  .hero .unit{font-size:14px; color:var(--ink3); margin-left:4px; font-weight:400}
+  .hero .lv{display:inline-block; margin-top:10px; font-size:12px; padding:3px 12px; border-radius:999px;
+    background:rgba(166,58,43,.09); color:var(--primary); border:1px solid rgba(166,58,43,.22)}
+  .trend{display:flex; gap:10px; margin-top:16px}
+  .trend div{flex:1; background:var(--bg); border-radius:12px; padding:10px 8px; text-align:center}
+  .trend .k{font-size:11.5px; color:var(--ink3); display:block; margin-bottom:3px}
+  .trend .v{font-size:17px; font-weight:600; font-variant-numeric:tabular-nums}
+  .up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--ink3)}
+  .coin-line{text-align:center; font-size:12.5px; color:var(--ink3); margin-top:14px}
+  .coin-line b{color:var(--primary); font-size:15px; font-weight:600}
+  /* 流水 */
+  .sec-title{font-size:13px; font-weight:600; color:var(--ink2); margin:20px 2px 10px; display:flex; justify-content:space-between; align-items:baseline}
+  .sec-title span{font-size:11.5px; font-weight:400; color:var(--ink3)}
+  .day{font-size:11.5px; color:var(--ink3); margin:14px 2px 6px}
+  .row{display:flex; align-items:center; gap:10px; padding:11px 12px; background:var(--card);
+    border:1px solid var(--border); border-radius:12px; margin-bottom:7px}
+  .row .amt{font-size:15px; font-weight:600; font-variant-numeric:tabular-nums; min-width:44px; text-align:right; flex:none}
+  .row .rs{flex:1; min-width:0; font-size:13.5px; color:var(--ink); word-break:break-word}
+  .row .tm{font-size:11.5px; color:var(--ink3); flex:none}
+  .empty{text-align:center; padding:26px 10px; color:var(--ink3); font-size:13px}
+  .foot{text-align:center; font-size:11.5px; color:var(--ink3); margin-top:26px; line-height:1.9}
+  .foot a{color:var(--ink3)}
+  .hidden{display:none !important}
+  .spinner{display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.35);
+    border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; vertical-align:-2px; margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion: reduce){ .spinner{animation:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <h1 id="clsName">学分查询</h1>
+    <p>输入学号和查询码，查看自己的学分与流水</p>
+  </div>
+
+  <div class="card" id="formCard">
+    <div class="field">
+      <label for="sidInput">学号</label>
+      <input id="sidInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters"
+             spellcheck="false" placeholder="例如 S0001">
+    </div>
+    <div class="field">
+      <label for="codeInput">查询码（8 位，可含横线）</label>
+      <input id="codeInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters"
+             spellcheck="false" maxlength="9" placeholder="ABCD-EFGH">
+    </div>
+    <button class="go" id="goBtn">查询</button>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div id="result"></div>
+
+  <div class="foot" id="foot"></div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ==================== 与 ../index.html 必须一致的常量 ====================
+     ⚠️ 改这里必须同步改老师端，否则全班解不开。守卫 _v370_test.js 会比对两端字面量。 */
+  var PBKDF2_ROUNDS = 250000;
+  var CODE_LEN = 8;
+  var ALG_LABEL = 'PBKDF2-SHA256(250000)/AES-GCM-256';
+
+  var FAIL_KEY = 'cm_portal_fail';
+  var FAIL_MAX = 5;
+  var FAIL_LOCK_MS = 60000;
+  var CACHE_KEY = 'cm_portal_cache';
+  var CACHE_TTL_MS = 10 * 60 * 1000;   // 发布包 10 分钟内复用，避免反复拉取
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  function qsp(k){
+    var m = new RegExp('[?&]' + k + '=([^&]*)').exec(location.search);
+    return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : '';
+  }
+  var OWNER = qsp('o');
+  var GIST = qsp('g');
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+  function normCode(s){
+    return String(s == null ? '' : s).toUpperCase().replace(/[^0-9A-Z]/g, '');
+  }
+  function b64dec(str){
+    var bin = atob(String(str || '')), b = new Uint8Array(bin.length);
+    for(var i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
+    return b;
+  }
+  function hasCrypto(){
+    return !!(window.crypto && window.crypto.subtle && window.crypto.subtle.deriveKey);
+  }
+  function msg(text, kind){
+    var el = $('msg');
+    el.className = 'msg show ' + (kind || 'err');
+    el.innerHTML = text;
+    el.style.display = 'block';
+  }
+  function hideMsg(){ $('msg').className = 'msg'; $('msg').style.display = 'none'; }
+
+  /* ---------- 软限速：只抬成本，不承诺防御（前端限速清缓存即可绕过） ---------- */
+  function failState(){
+    try{
+      var raw = localStorage.getItem(FAIL_KEY);
+      if(!raw) return { n:0, at:0 };
+      var o = JSON.parse(raw);
+      if(!o || typeof o.n !== 'number') return { n:0, at:0 };
+      if(Date.now() - (o.at || 0) > FAIL_LOCK_MS) return { n:0, at:0 };   // 过窗口自动清零
+      return o;
+    }catch(e){ return { n:0, at:0 }; }
+  }
+  function bumpFail(){
+    var s = failState();
+    s.n = (s.n || 0) + 1;
+    s.at = Date.now();
+    try{ localStorage.setItem(FAIL_KEY, JSON.stringify(s)); }catch(e){}
+    return s;
+  }
+  function clearFail(){
+    try{ localStorage.removeItem(FAIL_KEY); }catch(e){}
+  }
+
+  /* ---------- 拉发布包：CDN 优先，失败退 API ---------- */
+  function fetchPayload(){
+    var now = Date.now();
+    try{
+      var c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+      if(c && c.owner === OWNER && c.gist === GIST && (now - (c.at || 0)) < CACHE_TTL_MS && c.payload){
+        return Promise.resolve(c.payload);
+      }
+    }catch(e){}
+
+    var tryFetch = function(url){
+      return fetch(url, { cache:'no-store' }).then(function(r){
+        if(!r.ok) throw new Error('HTTP ' + r.status);
+        return r.text();
+      }).then(function(t){
+        var p = JSON.parse(t);
+        if(!p || !p.students) throw new Error('bad payload');
+        try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ owner:OWNER, gist:GIST, at:now, payload:p })); }catch(e){}
+        return p;
+      });
+    };
+
+    var cdn = 'https://gist.githubusercontent.com/' + encodeURIComponent(OWNER) + '/' +
+              encodeURIComponent(GIST) + '/raw/' + 'portal.json';
+    return tryFetch(cdn).catch(function(){
+      /* 备用：Gist API（匿名 60 次/小时，仅作兜底） */
+      return fetch('https://api.github.com/gists/' + encodeURIComponent(GIST), {
+        headers:{ 'Accept':'application/vnd.github.v3+json' }
+      }).then(function(r){
+        if(!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function(j){
+        var f = j.files && j.files['portal.json'];
+        if(!f) throw new Error('no file');
+        if(f.truncated){ throw new Error('truncated'); }
+        return f.content ? JSON.parse(f.content)
+          : fetch(f.raw_url, { cache:'no-store' }).then(function(r){ return r.text(); }).then(JSON.parse);
+      });
+    });
+  }
+
+  /* ---------- 解密自己那一片 ---------- */
+  function deriveKey(code, salt){
+    return crypto.subtle.importKey('raw', new TextEncoder().encode(code), 'PBKDF2', false, ['deriveKey'])
+      .then(function(base){
+        return crypto.subtle.deriveKey(
+          { name:'PBKDF2', salt:salt, iterations:PBKDF2_ROUNDS, hash:'SHA-256' },
+          base, { name:'AES-GCM', length:256 }, false, ['decrypt']
+        );
+      });
+  }
+  function openBlock(blk, code){
+    return deriveKey(code, b64dec(blk.salt))
+      .then(function(key){
+        return crypto.subtle.decrypt({ name:'AES-GCM', iv:b64dec(blk.iv) }, key, b64dec(blk.data));
+      })
+      .then(function(pt){ return JSON.parse(new TextDecoder().decode(pt)); });
+  }
+
+  /* ---------- 渲染 ---------- */
+  function fmtTime(ts){
+    var d = new Date(ts), n = new Date();
+    var hm = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+    var sameDay = d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate();
+    var y = new Date(n.getTime() - 86400000);
+    var isYd = d.getFullYear() === y.getFullYear() && d.getMonth() === y.getMonth() && d.getDate() === y.getDate();
+    if(sameDay) return '今天 ' + hm;
+    if(isYd) return '昨天 ' + hm;
+    return (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + hm;
+  }
+  function dayKey(ts){
+    var d = new Date(ts), n = new Date();
+    var sameDay = d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate();
+    if(sameDay) return '今天';
+    var y = new Date(n.getTime() - 86400000);
+    if(d.getFullYear() === y.getFullYear() && d.getMonth() === y.getMonth() && d.getDate() === y.getDate()) return '昨天';
+    return (d.getMonth() + 1) + '月' + d.getDate() + '日';
+  }
+  function signed(n){
+    var v = Number(n) || 0;
+    return (v > 0 ? '+' : (v < 0 ? '−' : '')) + Math.abs(v);
+  }
+  function trendCls(n){ var v = Number(n) || 0; return v > 0 ? 'up' : (v < 0 ? 'down' : 'flat'); }
+
+  function render(data, meta){
+    $('formCard').classList.add('hidden');
+    var h = '';
+    h += '<div class="card hero">';
+    h += '<div class="nm">' + esc(data.name || '') + '　<span style="color:var(--ink3);font-size:12.5px">' + esc(data.sid || '') + '</span></div>';
+    h += '<div><span class="score">' + (Number(data.credit) || 0) + '</span><span class="unit">分</span></div>';
+    if(data.level) h += '<div class="lv">' + esc(data.level) + '</div>';
+    h += '<div class="trend">';
+    h += '<div><span class="k">本周</span><span class="v ' + trendCls(data.weekNet) + '">' + signed(data.weekNet) + '</span></div>';
+    h += '<div><span class="k">本月</span><span class="v ' + trendCls(data.monthNet) + '">' + signed(data.monthNet) + '</span></div>';
+    h += '</div>';
+    if(typeof data.coins === 'number' && data.coins > 0){
+      h += '<div class="coin-line">学分币 <b>' + data.coins + '</b> 币 · 可在兑换商店使用</div>';
+    }
+    h += '</div>';
+
+    var ops = data.ops || [];
+    h += '<div class="sec-title">学分流水<span>' + (ops.length ? '共 ' + ops.length + ' 条' : '') + '</span></div>';
+    if(!ops.length){
+      h += '<div class="empty">本学期暂无加减分记录</div>';
+    } else {
+      var lastDay = '';
+      ops.forEach(function(o){
+        var dk = dayKey(o.time);
+        if(dk !== lastDay){ h += '<div class="day">' + esc(dk) + '</div>'; lastDay = dk; }
+        var amt = Number(o.amount) || 0;
+        h += '<div class="row">' +
+             '<span class="amt ' + (amt >= 0 ? 'up' : 'down') + '">' + signed(amt) + '</span>' +
+             '<span class="rs">' + esc(o.reason || '（未填写原因）') + '</span>' +
+             '<span class="tm">' + esc(fmtTime(o.time).replace(/^(今天|昨天) /, '')) + '</span>' +
+             '</div>';
+      });
+    }
+
+    var footAt = meta && meta.publishedAt ? new Date(meta.publishedAt) : null;
+    h += '<div class="foot">';
+    if(footAt) h += '数据截至 ' + footAt.getFullYear() + '年' + (footAt.getMonth() + 1) + '月' + footAt.getDate() +
+                    '日 ' + ('0' + footAt.getHours()).slice(-2) + ':' + ('0' + footAt.getMinutes()).slice(-2) + '<br>';
+    h += '如与班主任记录不一致，请以班主任处为准<br>由班主任工作台生成';
+    h += '</div>';
+
+    $('result').innerHTML = h;
+    $('foot').innerHTML = '<a href="javascript:location.reload()">切换学号重新查询</a>';
+    try{ window.scrollTo(0, 0); }catch(e){}
+  }
+
+  function setBusy(busy){
+    var b = $('goBtn');
+    b.disabled = !!busy;
+    b.innerHTML = busy ? '<span class="spinner"></span>查询中…' : '查询';
+  }
+
+  /* ---------- 主流程 ---------- */
+  var payloadCache = null;
+  function submit(){
+    hideMsg();
+    if(!hasCrypto()){
+      msg('当前浏览器或打开方式不支持加密查询。<br>请用手机自带浏览器（Safari / Chrome）重新打开本链接，<b>不要</b>从微信内置浏览器或已过期的收藏页打开。');
+      return;
+    }
+    if(!OWNER || !GIST){
+      msg('链接不完整。<br>请使用班主任发的那条查询链接打开，不要手动输入网址。');
+      return;
+    }
+    var sid = String($('sidInput').value || '').trim();
+    var code = normCode($('codeInput').value);
+    if(!sid){ msg('请填写学号。'); return; }
+    if(code.length !== CODE_LEN){ msg('查询码应为 8 位（可含横线）。'); return; }
+
+    var fs = failState();
+    if(fs.n >= FAIL_MAX){
+      var left = Math.ceil((FAIL_LOCK_MS - (Date.now() - fs.at)) / 1000);
+      if(left > 0){ msg('输错次数过多，请 <b>' + left + '</b> 秒后再试。'); return; }
+      clearFail();
+    }
+
+    setBusy(true);
+    var getP = payloadCache ? Promise.resolve(payloadCache) : fetchPayload();
+    getP.then(function(p){
+      payloadCache = p;
+      if(p.className){ $('clsName').textContent = p.className + ' · 学分查询'; }
+      var blk = p.students && p.students[sid];
+      if(!blk){
+        setBusy(false);
+        var s2 = bumpFail();
+        msg('学号未找到，请核对后重试。' + (s2.n >= FAIL_MAX ? '<br>已连续出错 ' + s2.n + ' 次，将暂时锁定。' : ''));
+        return;
+      }
+      return openBlock(blk, code).then(function(data){
+        clearFail();
+        setBusy(false);
+        payloadCache = null;          // 明文只在内存里活一次，渲染完即丢弃
+        render(data, p);
+      });
+    }).catch(function(e){
+      setBusy(false);
+      var m = String(e && e.message || e);
+      if(m.indexOf('decrypt') >= 0 || m.indexOf('operation') >= 0 || m.indexOf('DataError') >= 0){
+        var s3 = bumpFail();
+        var rest = FAIL_MAX - s3.n;
+        msg('查询码不正确。' + (rest > 0 ? '还可以试 ' + rest + ' 次。' : '已锁定 60 秒。'));
+      } else if(m.indexOf('HTTP 404') >= 0 || m.indexOf('bad payload') >= 0){
+        msg('查询服务未开放。<br>可能班主任尚未发布，或已撤销。请联系班主任。');
+      } else if(m.indexOf('HTTP') >= 0){
+        msg('网络异常（' + esc(m) + '）。请检查网络后重试。');
+      } else {
+        msg('查询失败：' + esc(m));
+      }
+    });
+  }
+
+  /* ---------- 初始化 ---------- */
+  function init(){
+    $('goBtn').addEventListener('click', submit);
+    $('sidInput').addEventListener('keydown', function(e){ if(e.key === 'Enter') $('codeInput').focus(); });
+    $('codeInput').addEventListener('keydown', function(e){ if(e.key === 'Enter') submit(); });
+    /* 码输入框自动插横线并把小写转大写（纯显示层，提交前仍会归一化） */
+    $('codeInput').addEventListener('input', function(){
+      var el = this, raw = normCode(el.value).slice(0, CODE_LEN);
+      el.value = raw.length > 4 ? raw.slice(0, 4) + '-' + raw.slice(4) : raw;
+    });
+
+    if(!OWNER || !GIST){
+      msg('这个页面需要通过<b>班主任发来的链接</b>打开。<br>直接访问会缺少查询参数，无法定位你班级的数据。');
+      return;
+    }
+    if(!hasCrypto()){
+      msg('当前打开方式不支持加密查询，请用系统浏览器（Safari / Chrome）打开本链接。', 'warn');
+    }
+    /* 预取发布包：让学生输完码点查询时不用等网络 */
+    fetchPayload().then(function(p){
+      payloadCache = p;
+      if(p.className) $('clsName').textContent = p.className + ' · 学分查询';
+    }).catch(function(e){
+      var m = String(e && e.message || e);
+      if(m.indexOf('404') >= 0){
+        msg('查询服务当前未开放（班主任未发布或已撤销）。');
+      }
+    });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+</body>
+</html>

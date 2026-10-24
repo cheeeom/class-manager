@@ -22,13 +22,13 @@ function eq(a, b, msg) { if (a !== b) throw new Error((msg || '') + `期望 ${JS
 console.log('=== 静态检查 ===');
 t('index.html 版本号已升至 ' + V + '', () => { if (!/v2\.20\.5/.test(html)) throw new Error('未找到 ' + V + ''); });
 t('sw.js CACHE_NAME 已跟版 v2.20.3', () => { if (!new RegExp('class-manager-' + VR + '').test(fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n'))) throw new Error('CACHE_NAME 未跟版'); });
-t('cbScanAlerts 含「办结后复活」修复（monthAll 历史仲裁）', () => { if (html.indexOf('v2.20.0 修复「办结后复活」') < 0) throw new Error('缺少修复标记'); });
+t('cbScanAlerts v3.5.4 一人一单状态机（冷却推导/红色点亮/收敛）', () => { if (html.indexOf('一人一单状态机') < 0) throw new Error('缺少状态机标记'); });
 t('cbAlertDelete 已定义并挂载删除按钮', () => {
   if (html.indexOf('function cbAlertDelete') < 0) throw new Error('缺少 cbAlertDelete');
   if ((html.match(/cbAlertDelete\(/g) || []).length < 3) throw new Error('删除按钮未挂载');
 });
-t('两处渲染过滤已删除记录', () => {
-  if ((html.match(/a\.status !== 'deleted'/g) || []).length < 2) throw new Error('渲染过滤缺失');
+t('档案弹窗渲染过滤已删除记录（v3.5.4 流水归档区有意展示删除墓碑，不再计入过滤处数）', () => {
+  if ((html.match(/a\.status !== 'deleted'/g) || []).length < 1) throw new Error('渲染过滤缺失');
 });
 
 console.log('=== 行为验证（无头执行主脚本后驱动扫描引擎） ===');

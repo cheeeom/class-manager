@@ -1,5 +1,5 @@
 /* Service Worker - 班主任工作台 PWA */
-const CACHE_NAME = 'class-manager-v3.6.10';
+const CACHE_NAME = 'class-manager-v3.7.0';
 // v2.20.7 移除 './data.json'：数据已搬到私有仓，站仓这份稍后会删除。
 // 注意 addAll 是全成全败 —— 清单里只要有一个请求 404，整套预缓存就整体 reject，
 // SW 安装直接失败（PWA 离线与后续缓存更新全废）。所以必须在删文件之前先摘掉它。
@@ -46,9 +46,17 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   // 云同步 API（GitHub）不缓存，走网络
-  if (url.hostname === 'api.github.com' || url.hostname === 'raw.githubusercontent.com') {
+  // v3.7.0 加 gist.githubusercontent.com：学生查询端的发布包放在公开 Gist，
+  //   下面「静态资源：缓存优先」那段对**跨域** GET 同样生效 —— 不放行就会把发布包永久缓存，
+  //   老师重新发布后学生永远看到旧数据（而且不报错，最难查的那种）。
+  if (url.hostname === 'api.github.com' || url.hostname === 'raw.githubusercontent.com' ||
+      url.hostname === 'gist.githubusercontent.com') {
     return;
   }
+
+  // v3.7.0 学生查询端整目录放行：它是独立只读页，自带 10 分钟本地缓存与错误态，
+  // 不需要（也不应该）被主应用的 SW 接管——否则重新发布后要等 CACHE_NAME 变更才生效。
+  if (url.pathname.indexOf('/portal/') >= 0) return;
 
   // 导航请求（index.html）：网络优先 + 绕过 HTTP 缓存（GitHub Pages max-age=600 会截胡默认 fetch）
   // → 每次刷新都真正联网，新版本立即生效；仍写 SW 缓存供离线回退

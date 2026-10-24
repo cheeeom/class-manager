@@ -2603,7 +2603,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.6.10</div>
+      <div class="login-version">v3.7.0</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2725,7 +2725,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.6.10 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.7.0 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3063,6 +3063,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-primary btn-sm" onclick="exportPublicityPoster('portrait')">📤 导出竖版公示图</button>
             <button class="btn btn-primary btn-sm" onclick="exportWeeklyReport()">📰 学分周报（发家长群）</button>
+            <button class="btn btn-sm" onclick="openPortalPanel()">🔑 学生查询端</button>
           </div>
         </div>
         <div class="analytics-grid" id="pubSummary"></div>
@@ -3497,18 +3498,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.6.10</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.7.0</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.6.10）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.7.0）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+ · 🔑 <b>学生查询端（v3.7.0）</b>：学生可用「学号 + 8 位专属码」查看<b>自己的</b>学分与流水——公示页「🔑 学生查询端」一键导出码表并发布；每生一块独立密文，只解自己那份；<b>不含</b>家长电话、住址、生日、备注、标签、寝室<br>
  · 📱 <b>手机端学期报告入口（v3.6.10）</b>：「更多」抽屉新增学期报告（原先只在桌面侧栏，手机进不去）；快速加减分弹窗内的「按寝室」捷径撤下——请用学分页「🏠 按寝室加减分」专用入口<br>
  · 📊 <b>首页学分分布空白修复（v3.6.9）</b>：修复冷启动时首页「学分分布」卡片空白——echarts 懒加载完成后的补画函数在移植时缺失（异常被静默吞掉），现已补齐；加载失败时自动回退原图表<br>
  · 🏠 <b>学分批量按寝室选择（v3.6.8）</b>：学分加减分模块「全班全选」左侧新增「按寝室」——下拉列出全部寝室与人数，点选即整寝选入/移出，快速给目标寝室加减分<br>
@@ -4627,7 +4629,11 @@ const STATE_SCHEMA = [
   // v2.18.3 处分记录补入同步链路：此前漏加 → buildCloudPayload 按本表过滤时从不带它上传，换设备/清缓存后从云端恢复会全丢（v2.19.0 随表驱动迁移，历史注释保留）
   { key:'nextPunishId', def:1, cfs:1, ms:'max1' },   // v2.18.3 处分记录自增 id
   { key:'wipeAt', def:0, cfs:1, nosv:1 },   // v2.11.3 数据重置时间戳：随云端传播对齐清空；历史行为 = 不进本地 saveData 快照（保持原状）
-  { key:'schemaVer', def:2, cfs:1, ms:'max0', sv:function(v){ return v || 0; } }   // 原因目录/分值表 schema 版本：<1 补预设原因、<2 去「违禁品」重名项（v2.17.8），之后尊重班主任增删
+  { key:'schemaVer', def:2, cfs:1, ms:'max0', sv:function(v){ return v || 0; } },   // 原因目录/分值表 schema 版本：<1 补预设原因、<2 去「违禁品」重名项（v2.17.8），之后尊重班主任增删
+  // v3.7.0 学生查询端（见 SPEC_学生查询端.md）。两个字段都必须 cfs:1 上云：
+  //   漏了 portalCodes ⇒ 换设备码表丢失、全班要重发码；漏了 portalPublish ⇒ 换设备不知道已发布，会重复建 Gist。
+  { key:'portalCodes', def:function(){ return {}; }, cfs:1, ms:'portalCodes', sv:function(v){ return v || {}; } },   // { sid: 'ABCD-EFGH' } 每人 8 位专属查询码
+  { key:'portalPublish', def:null, cfs:1, ms:'portalPub', sv:function(v){ return v || null; } }   // { at, gistId, owner, url, count, opsCap, revoked } 发布状态（撤销 = revoked:true，不是 null——null 会被旧设备顶回来）
 ];
 // 云端 data.json 同步字段白名单（auto/manual push 共用）——v2.19.0 起由 STATE_SCHEMA 派生（唯一事实源）
 const CLOUD_SYNC_FIELDS = STATE_SCHEMA.filter(function(f){ return f.cfs; }).map(function(f){ return f.key; });
@@ -7578,6 +7584,25 @@ function msPwdLock(merged,localData,remoteData,key){
   if(!l){ merged[key]=r; return; }
   if((r.at||0)>(l.at||0)) merged[key]=r;
 }
+/* v3.7.0 学生查询端·码表：按 sid 并集，冲突取**本机优先**。
+   为什么不用时间戳：码本身不带时间，硬塞一个时间戳会让「重发」在多设备间互相打架
+   （A 机重发 → B 机旧码带更晚时间戳 → 顶回去，学生手上的新码就废了）。
+   本机优先的代价：另一台设备看不到「本机刚重发」的码——但重发本来就只在单机做，可接受。 */
+function msPortalCodes(merged,localData,remoteData,key){
+  var out={}, r=remoteData[key]||{}, l=localData[key]||{};
+  Object.keys(r).forEach(function(k){ if(r[k]) out[k]=r[k]; });   // 先铺云端
+  Object.keys(l).forEach(function(k){ if(l[k]) out[k]=l[k]; });   // 本机覆盖（含新增）
+  merged[key]=out;
+}
+/* v3.7.0 学生查询端·发布状态：整体按 at 新者胜。
+   撤销刻意写成 { revoked:true, at:新时间 } 而不是 null —— 若写 null，另一台设备上
+   还留着「已发布」的旧记录，合并后会把撤销顶回去，老师以为撤了其实没撤。 */
+function msPortalPub(merged,localData,remoteData,key){
+  var l=localData[key]||null,r=remoteData[key]||null;
+  if(!r) return;
+  if(!l){ merged[key]=r; return; }
+  if((r.at||0)>(l.at||0)) merged[key]=r;
+}
 var MERGE_ST = {
   students:msStudents, ops:msOps, leaves:msLeaves, todos:msTodos, exams:msExams,
   punishments:msPunishments, honors:msHonors, customDorms:msCustomDorms, workLogs:msWorkLogs,
@@ -7587,7 +7612,8 @@ var MERGE_ST = {
   schedule:msSchedule,
   scheduleImage:msScheduleImage, classAvatar:msClassAvatar,
   scalarFill:msScalarFill, tsmap:msTsMap, max1:msMax1, max0:msMax0, tsNewer:msTsNewer,
-  semester:msSemester, semesterHist:msSemesterHist
+  semester:msSemester, semesterHist:msSemesterHist,
+  portalCodes:msPortalCodes, portalPub:msPortalPub
 };
 /* MERGE_ENGINE_END */
 
@@ -18245,6 +18271,513 @@ function finishPubPoster(cv, data){
     }, 'image/png');
   }catch(e){ console.warn(e); showToast('导出失败：' + e.message, 'error'); }
 }
+/* ==================== 学生查询端（v3.7.0） ====================
+   需求与决策记录：SPEC_学生查询端.md。四条不可让步的约束：
+   ① **绝不复用同步口令**（getSyncPwd）。那个口令是老师的总钥匙，学生拿到 = 拿到全班家长手机号/住址/生日；
+   ② 每生独立 8 位码 + 独立盐 + 独立密文块 —— 拿到整份发布包也只能解开自己那一条；
+   ③ 发到**公开 Gist**，不发站仓：站仓 Contents 写权限可以改 index.html，等于能往全站注入恶意 JS；
+   ④ 字段白名单，phone/guardian/address/birth/notes/timeline/tags/creditBase/dorm 一律不出。
+   ⚠️ 两端参数必须一致（守卫 _v370_test.js 逐项断言）：PBKDF2-SHA256 250000 次 / AES-GCM 256 /
+      16 字节盐 / 12 字节 IV / 密钥材料 = 去掉横线的大写码。
+      portal/index.html 里有同一组常量，改这里必须同步改那边，否则全班当场解不开（本模块头号事故）。 */
+const PORTAL_ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';   // 32 字符，刻意剔除 0/1/I/O（手抄不歧义）
+const PORTAL_CODE_LEN = 8;                                    // 8 位是底线：6 位纯数字配 PBKDF2-250k，单卡 GPU 约 6 分钟爆破一个人
+const PORTAL_FILE = 'portal.json';
+const PORTAL_TOKEN_KEY = 'cm_portal_token';
+const PORTAL_MAX_BYTES = 1572864;                             // 1.5MB 硬上限：超了学生弱网拉不动
+const PORTAL_OPS_CAP = 200;
+/* 白名单之外一律不出。守卫测试拿这张表逐项断言——加字段前先想清楚会不会泄露。 */
+const PORTAL_BLACKLIST = ['phone','guardian','address','birth','notes','timeline','tags','creditBase','dorm'];
+
+function hasPortalToken(){ return !!getPortalToken(); }
+function getPortalToken(){ try{ return localStorage.getItem(PORTAL_TOKEN_KEY) || ''; }catch(e){ return ''; } }
+function setPortalToken(t){
+  try{ if(t) localStorage.setItem(PORTAL_TOKEN_KEY, t); else localStorage.removeItem(PORTAL_TOKEN_KEY); }catch(e){}
+}
+
+/* ---------- 码：生成 / 格式化 / 归一 ---------- */
+function genPortalCode(){
+  var buf = new Uint8Array(PORTAL_CODE_LEN), out = '', i;
+  if(window.crypto && crypto.getRandomValues) crypto.getRandomValues(buf);
+  else for(i = 0; i < PORTAL_CODE_LEN; i++) buf[i] = Math.floor(Math.random() * 256);   // 兜底（无 Web Crypto 环境）
+  /* 256 % 32 === 0 ⇒ 取模无偏，不会出现某些字符概率偏高 */
+  for(i = 0; i < PORTAL_CODE_LEN; i++) out += PORTAL_ALPHABET[buf[i] % PORTAL_ALPHABET.length];
+  return formatPortalCode(out);
+}
+function normalizePortalCode(s){
+  return String(s == null ? '' : s).toUpperCase().replace(/[^0-9A-Z]/g, '');
+}
+function formatPortalCode(s){
+  var n = normalizePortalCode(s);
+  return (n.length === PORTAL_CODE_LEN) ? n.slice(0, 4) + '-' + n.slice(4) : n;
+}
+/* 姓名脱敏：姓 + *。刻意**不按字数补星号**——否则「张*」和「张**」自己就把名字长度卖了。 */
+function portalMaskName(name){
+  var n = String(name || '').trim();
+  return n ? (n.charAt(0) + '*') : '同学';
+}
+/* 等级文案：<60 一律折叠成「需努力」。
+   理由（SPEC Q4）：深红预警对应「停课回家教育」，让学生在自己手机屏幕上看见这几个字是二次伤害。 */
+function portalLevelText(credit){
+  var c = Number(credit) || 0;
+  if(c < CB_ALERT_MIN) return '需努力';
+  var lv = (typeof creditLevel === 'function') ? creditLevel(c) : null;
+  return (lv && lv.label) ? lv.label : '正常';
+}
+/* 本周起点（周一 00:00，中国习惯；周日算本周最后一天） */
+function portalWeekStartTs(){
+  var d = new Date();
+  var dow = d.getDay();                     // 0=周日
+  var back = (dow === 0) ? 6 : (dow - 1);
+  var s = new Date(d.getFullYear(), d.getMonth(), d.getDate() - back);
+  return s.getTime();
+}
+
+/* ---------- 核心：派生发布数据（纯函数，可测） ----------
+   opts: { fromTime, maxOps, mask }
+   返回 { [sid]: { sid, name, credit, level, coins, weekNet, monthNet, ops[] } }
+   ⚠️ 只输出白名单字段；改这里必须同时跑守卫测试的「黑名单遍历」项。 */
+function buildPortalPayload(st, opts){
+  opts = opts || {};
+  st = st || {};
+  var cap = Number(opts.maxOps) || PORTAL_OPS_CAP;
+  var fromTime = (opts.fromTime === 0) ? 0 : (opts.fromTime || pfSemesterStartTs());
+  var mask = (opts.mask !== false);
+  var allOps = (typeof liveOps === 'function') ? liveOps(st.operations || []) : (st.operations || []);
+  var weekStart = portalWeekStartTs(), monthStart = pfMonthStartTs();
+  var byStu = {};
+  allOps.forEach(function(o){
+    if(!o || o.studentId == null) return;
+    var t = Number(o.time) || 0;
+    if(fromTime && t < fromTime) return;
+    var k = String(o.studentId);
+    (byStu[k] = byStu[k] || []).push(o);
+  });
+  var ledger = ((st.creditBank || {}).ledger) || [];
+  var out = {};
+  (st.students || []).forEach(function(s){
+    var sid = String(s.sid == null ? '' : s.sid).trim();
+    if(!sid) return;                                   // 无学号：发布前已被 portalValidate 拦下
+    var mine = (byStu[String(s.id)] || []).slice().sort(function(a, b){
+      return (Number(b.time) || 0) - (Number(a.time) || 0);   // 最新在前
+    });
+    var weekNet = 0, monthNet = 0;
+    mine.forEach(function(o){
+      var t = Number(o.time) || 0, a = Number(o.amount) || 0;
+      if(t >= weekStart) weekNet += a;
+      if(t >= monthStart) monthNet += a;
+    });
+    /* 只留三字段：id/studentId/studentName/coin/state 全部剔除（内部主键跨库可关联，且学生端用不上） */
+    var head = mine.slice(0, cap).map(function(o){
+      return { time: Number(o.time) || 0, amount: Number(o.amount) || 0, reason: String(o.reason || '') };
+    });
+    out[sid] = {
+      sid: sid,
+      name: mask ? portalMaskName(s.name) : String(s.name || ''),
+      credit: Number(s.credit) || 0,
+      level: portalLevelText(s.credit),
+      coins: (typeof cbCoinsOf === 'function') ? cbCoinsOf(s.id, st.operations || [], ledger) : 0,
+      weekNet: weekNet,
+      monthNet: monthNet,
+      ops: head
+    };
+  });
+  return out;
+}
+
+/* ---------- 加密：一码一盐一块 ---------- */
+function portalDeriveKey(code, salt){
+  var material = normalizePortalCode(code);
+  return crypto.subtle.importKey('raw', new TextEncoder().encode(material), 'PBKDF2', false, ['deriveKey'])
+    .then(function(base){
+      return crypto.subtle.deriveKey(
+        { name:'PBKDF2', salt:salt, iterations:PBKDF2_ROUNDS, hash:'SHA-256' },
+        base, { name:'AES-GCM', length:256 }, false, ['encrypt', 'decrypt']
+      );
+    });
+}
+function sealPortalBlock(plain, code){
+  if(!cryptoOK()) return Promise.reject(new Error('当前环境不支持加密：' + cryptoFailReason()));
+  var salt = crypto.getRandomValues(new Uint8Array(16));
+  var iv = crypto.getRandomValues(new Uint8Array(12));
+  var bytes = new TextEncoder().encode(JSON.stringify(plain));
+  return portalDeriveKey(code, salt)
+    .then(function(key){ return crypto.subtle.encrypt({ name:'AES-GCM', iv:iv }, key, bytes); })
+    .then(function(ct){
+      return { salt: _b64enc(salt), iv: _b64enc(iv), data: _b64enc(ct) };
+    });
+}
+
+/* ---------- 码表维护 ---------- */
+function ensurePortalCodes(regenMissing){
+  state.portalCodes = state.portalCodes || {};
+  var used = {}, changed = false;
+  var liveSids = {};
+  (state.students || []).forEach(function(s){
+    var sid = String(s.sid == null ? '' : s.sid).trim();
+    if(!sid) return;
+    liveSids[sid] = true;
+    var cur = normalizePortalCode(state.portalCodes[sid]);
+    if(cur.length === PORTAL_CODE_LEN && !used[cur]){ used[cur] = true; return; }
+    if(regenMissing){
+      var c;
+      do { c = normalizePortalCode(genPortalCode()); } while(used[c]);
+      used[c] = true;
+      state.portalCodes[sid] = formatPortalCode(c);
+      changed = true;
+    }
+  });
+  /* 已删学生的码不留在账本里（否则换班/毕业生的码永远飘着） */
+  Object.keys(state.portalCodes).forEach(function(k){
+    if(!liveSids[k]){ delete state.portalCodes[k]; changed = true; }
+  });
+  if(changed && typeof saveData === 'function') saveData();
+  return changed;
+}
+function regeneratePortalCode(sid){
+  sid = String(sid == null ? '' : sid).trim();
+  if(!sid) return;
+  state.portalCodes = state.portalCodes || {};
+  var used = {};
+  Object.keys(state.portalCodes).forEach(function(k){
+    if(k !== sid) used[normalizePortalCode(state.portalCodes[k])] = true;
+  });
+  var c;
+  do { c = normalizePortalCode(genPortalCode()); } while(used[c]);
+  state.portalCodes[sid] = formatPortalCode(c);
+  saveData();
+  return state.portalCodes[sid];
+}
+function regenerateAllPortalCodes(){
+  if(!confirm('将给全班重新生成查询码。\n\n· 旧码立即作废\n· 已经发下去的纸条全部失效，需重新下发\n· 必须重新「发布」后才生效\n\n确认？')) return;
+  var used = {};
+  (state.students || []).forEach(function(s){
+    var sid = String(s.sid == null ? '' : s.sid).trim();
+    if(!sid) return;
+    var c;
+    do { c = normalizePortalCode(genPortalCode()); } while(used[c]);
+    used[c] = true;
+    state.portalCodes[sid] = formatPortalCode(c);
+  });
+  saveData();
+  renderPortalPanel();
+  showToast('已重新生成 ' + Object.keys(used).length + ' 个查询码，请重新发布', 'success');
+}
+
+/* ---------- 发布前校验 ---------- */
+function portalValidate(st){
+  var errs = [];
+  st = st || {};
+  if(!cryptoOK()) errs.push('当前环境不支持加密：' + (typeof cryptoFailReason === 'function' ? cryptoFailReason() : '需 https'));
+  if(!hasPortalToken()) errs.push('尚未配置发布 Token（只需 Gist 权限，不要用数据同步 Token）');
+  var studs = st.students || [];
+  if(!studs.length) errs.push('当前没有学生数据');
+  var seen = {}, dup = [], empty = 0;
+  studs.forEach(function(s){
+    var sid = String(s.sid == null ? '' : s.sid).trim();
+    if(!sid){ empty++; return; }
+    if(seen[sid]){ if(dup.indexOf(sid) < 0) dup.push(sid); } else { seen[sid] = true; }
+  });
+  if(empty) errs.push(empty + ' 名学生没有学号，请先在学生页补齐');
+  if(dup.length) errs.push('学号重复：' + dup.slice(0, 5).join('、') + (dup.length > 5 ? ' 等' : '') + '（学生端按学号查人，重复会认错人）');
+  return errs;
+}
+
+/* ---------- 学生端链接 ---------- */
+function portalBaseUrl(){
+  return location.origin + location.pathname.replace(/[^/]*$/, '');
+}
+function portalStudentUrl(owner, gistId){
+  return portalBaseUrl() + 'portal/?o=' + encodeURIComponent(owner || '') + '&g=' + encodeURIComponent(gistId || '');
+}
+function portalRawUrl(owner, gistId){
+  return 'https://gist.githubusercontent.com/' + encodeURIComponent(owner) + '/' +
+         encodeURIComponent(gistId) + '/raw/' + PORTAL_FILE;
+}
+
+/* ---------- 唯一写 Gist 的入口 ----------
+   ⚠️ 刻意用 POST/PATCH，不用 PUT —— 与 doPushToCloud（数据仓唯一 PUT）物理隔离，
+      且两者的 Token 也不同：这个 Token 只能碰 Gist，碰不到 index.html。 */
+function doPushPortal(payload, count, size){
+  var token = getPortalToken();
+  var pub = state.portalPublish || null;
+  var isUpdate = !!(pub && pub.gistId && !pub.revoked);
+  var api = isUpdate
+    ? 'https://api.github.com/gists/' + encodeURIComponent(pub.gistId)
+    : 'https://api.github.com/gists';
+  var body = {
+    description: '班主任工作台 · 学生学分查询（密文）· ' + (state.className || ''),
+    public: true,
+    files: {}
+  };
+  body.files[PORTAL_FILE] = { content: JSON.stringify(payload) };
+  return fetch(api, {
+    method: isUpdate ? 'PATCH' : 'POST',
+    headers: {
+      'Authorization': 'token ' + token,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+      'User-Agent': 'cm-portal'
+    },
+    body: JSON.stringify(body)
+  }).then(function(r){
+    if(!r.ok) return r.text().then(function(t){ throw new Error('HTTP ' + r.status + ' ' + String(t).slice(0, 160)); });
+    return r.json();
+  }).then(function(j){
+    var owner = (j.owner && j.owner.login) || '';
+    state.portalPublish = {
+      at: Date.now(),
+      gistId: j.id || (pub && pub.gistId) || '',
+      owner: owner,
+      count: count,
+      bytes: size,
+      opsCap: PORTAL_OPS_CAP,
+      revoked: false,
+      url: portalStudentUrl(owner, j.id || (pub && pub.gistId) || '')
+    };
+    saveData();
+    renderPortalPanel();
+    return state.portalPublish;
+  });
+}
+
+/* ---------- 发布 / 撤销 ---------- */
+function publishPortal(){
+  if(window.__cmRole === 'committee'){ showToast('班委无发布权限', 'error'); return; }
+  var errs = portalValidate(state);
+  if(errs.length){
+    showToast(errs[0], 'error');
+    alert('无法发布：\n\n· ' + errs.join('\n· '));
+    return;
+  }
+  ensurePortalCodes(true);
+  var plain = buildPortalPayload(state);
+  var sids = Object.keys(plain);
+  if(!sids.length){ showToast('没有可发布的学生', 'error'); return; }
+  showToast('正在加密并发布 ' + sids.length + ' 名学生…', 'info');
+  var codes = state.portalCodes || {};
+  var tasks = sids.map(function(sid){
+    return sealPortalBlock(plain[sid], codes[sid]).then(function(blk){ return { sid: sid, blk: blk }; });
+  });
+  Promise.all(tasks).then(function(list){
+    var students = {};
+    list.forEach(function(x){ students[x.sid] = x.blk; });
+    var payload = {
+      v: 1,
+      alg: 'PBKDF2-SHA256(' + PBKDF2_ROUNDS + ')/AES-GCM-256',
+      className: state.className || '',
+      publishedAt: new Date().toISOString(),
+      scope: { fromTime: pfSemesterStartTs(), maxOps: PORTAL_OPS_CAP },
+      students: students
+    };
+    var text = JSON.stringify(payload);
+    var size = (typeof Blob !== 'undefined') ? new Blob([text]).size : text.length;
+    if(size > PORTAL_MAX_BYTES){
+      throw new Error('发布包约 ' + Math.round(size / 1024) + ' KB，超出 ' +
+        Math.round(PORTAL_MAX_BYTES / 1024) + ' KB 上限。请缩短流水范围（改成「仅本月」或减少条数）后重试。');
+    }
+    return doPushPortal(payload, list.length, size);
+  }).then(function(pub){
+    showToast('已发布：' + pub.count + ' 名学生，' + Math.round((pub.bytes || 0) / 1024) + ' KB', 'success');
+  }).catch(function(e){
+    console.warn('[Portal] publish failed:', e);
+    showToast('发布失败：' + (e && e.message ? e.message : e), 'error');
+  });
+}
+function revokePortal(){
+  if(window.__cmRole === 'committee'){ showToast('班委无发布权限', 'error'); return; }
+  var pub = state.portalPublish;
+  if(!pub || !pub.gistId || pub.revoked){ showToast('当前没有已发布的查询包', 'info'); return; }
+  if(!confirm('撤销后学生将无法再查询。\n\n⚠️ 撤销只让「新访问」失效；如果学生之前打开过页面，浏览器缓存里可能仍有数据。\n\n确认撤销？')) return;
+  var token = getPortalToken();
+  fetch('https://api.github.com/gists/' + encodeURIComponent(pub.gistId), {
+    method: 'DELETE',
+    headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'cm-portal' }
+  }).then(function(r){
+    /* 404 也算成功：说明 Gist 已经不在了（例如老师手动去 GitHub 删过），结果一致 */
+    if(!r.ok && r.status !== 404) return r.text().then(function(t){ throw new Error('HTTP ' + r.status + ' ' + String(t).slice(0, 160)); });
+    state.portalPublish = Object.assign({}, pub, { at: Date.now(), revoked: true });
+    saveData();
+    renderPortalPanel();
+    showToast('已撤销，学生查询入口已下线', 'success');
+  }).catch(function(e){
+    showToast('撤销失败：' + (e && e.message ? e.message : e), 'error');
+  });
+}
+
+/* ---------- 导出码表（打印裁剪发下去） ---------- */
+function exportPortalCodes(){
+  if(window.__cmRole === 'committee'){ showToast('班委无此权限', 'error'); return; }
+  ensurePortalCodes(true);
+  var rows = [['姓名', '学号', '查询码']];
+  (state.students || []).forEach(function(s){
+    var sid = String(s.sid == null ? '' : s.sid).trim();
+    if(!sid) return;
+    rows.push([String(s.name || ''), sid, state.portalCodes[sid] || '']);
+  });
+  if(rows.length <= 1){ showToast('没有可导出的学生', 'error'); return; }
+  var csv = '\ufeff' + rows.map(function(r){
+    return r.map(function(c){ return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',');
+  }).join('\r\n');
+  var blob = new Blob([csv], { type:'text/csv;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = (state.className || '班级').replace(/[\\/:*?"<>|]/g, '_') + '_学生查询码.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 3000);
+  showToast('码表已导出（含 ' + (rows.length - 1) + ' 人），建议打印裁剪后逐个下发', 'success');
+}
+
+/* ---------- 配置发布 Token ---------- */
+function configPortalToken(){
+  var cur = hasPortalToken() ? '（已配置）' : '（未配置）';
+  cmPrompt({
+    title: '🔑 配置发布 Token（仅 Gist 权限）' + cur,
+    label: 'Token（留空并保存＝清除）',
+    placeholder: 'github_pat_… 或 ghp_…',
+    hint: '生成方法：GitHub → Settings → Developer settings → Fine-grained tokens<br>' +
+          '· <strong>不要</strong>勾选任何仓库权限，只勾 <strong>Account permissions → Gists: Read and write</strong><br>' +
+          '· 千万不要复用云同步 Token —— 那把钥匙能读写全班明文数据仓<br>' +
+          '· Token 只存本机浏览器，不上传任何地方',
+    onOk: configPortalTokenApply
+  });
+}
+function configPortalTokenApply(token){
+  token = String(token || '').trim();
+  if(token === ''){
+    setPortalToken('');
+    showToast('发布 Token 已清除', 'info');
+    renderPortalPanel();
+    return;
+  }
+  showToast('正在验证 Token…', 'info');
+  /* 用「列自己的 Gist」验证：200 = 有 Gists 权限；401/403 另有提示。
+     不用 /user 校验——那个只证明 Token 有效，证明不了有 Gist 权限。 */
+  fetch('https://api.github.com/gists?per_page=1', {
+    method: 'GET',
+    headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'cm-portal' }
+  }).then(function(r){
+    if(r.status === 200){
+      setPortalToken(token);
+      showToast('Token 验证通过，已保存', 'success');
+    } else if(r.status === 401){
+      showToast('Token 无效或已过期，未保存', 'error');
+    } else if(r.status === 403 || r.status === 404){
+      showToast('Token 没有 Gists 权限（需 Account permissions → Gists: Read and write），未保存', 'error');
+    } else {
+      setPortalToken(token);
+      showToast('Token 已保存（未验证，HTTP ' + r.status + '）', 'warning');
+    }
+    renderPortalPanel();
+  }).catch(function(){
+    setPortalToken(token);
+    showToast('网络异常，Token 已保存但未验证', 'warning');
+    renderPortalPanel();
+  });
+}
+
+/* ---------- 面板 UI ---------- */
+function openPortalPanel(){
+  if(window.__cmRole === 'committee'){ showToast('班委无此权限', 'error'); return; }
+  var old = document.getElementById('portalPanel');
+  if(old) old.remove();
+  var d = document.createElement('div');
+  d.id = 'portalPanel';
+  d.style.cssText = 'position:fixed;inset:0;z-index:2147483000;background:rgba(20,16,12,.45);display:flex;align-items:center;justify-content:center;padding:16px';
+  d.onclick = function(ev){ if(ev.target === d) d.remove(); };
+  d.innerHTML =
+    '<div style="background:var(--card-bg);color:var(--text);border:1px solid var(--border);' +
+    'border-radius:16px;max-width:580px;width:100%;max-height:88vh;overflow:auto;padding:20px 22px;box-shadow:0 24px 60px rgba(60,40,20,.28)">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
+        '<div style="font-size:16px;font-weight:700">🔑 学生查询端</div>' +
+        '<button onclick="document.getElementById(\'portalPanel\').remove()" ' +
+          'style="border:0;background:none;font-size:24px;line-height:1;cursor:pointer;color:var(--text-muted)">×</button>' +
+      '</div>' +
+      '<div id="portalPanelBody"></div>' +
+    '</div>';
+  document.body.appendChild(d);
+  renderPortalPanel();
+}
+function portalEsc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
+}
+function renderPortalPanel(){
+  var el = document.getElementById('portalPanelBody');
+  if(!el) return;
+  var pub = state.portalPublish || null;
+  var studs = (state.students || []).filter(function(s){ return String(s.sid || '').trim(); });
+  var h = '';
+
+  /* 状态区 */
+  h += '<div style="border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:12px;' +
+       'background:var(--row-bg);font-size:13px;line-height:1.8">';
+  if(pub && !pub.revoked){
+    h += '<div style="font-weight:700;color:var(--success)">● 已发布</div>' +
+         '<div>数据截至：' + portalEsc(new Date(pub.at).toLocaleString('zh-CN')) + '</div>' +
+         '<div>覆盖学生：' + (pub.count || 0) + ' 人　包体：' + Math.round((pub.bytes || 0) / 1024) + ' KB</div>';
+    if(pub.url){
+      h += '<div style="margin-top:8px;word-break:break-all;font-size:12px;color:var(--text-secondary)">' +
+           '学生入口：<br><span style="color:var(--primary)">' + portalEsc(pub.url) + '</span></div>' +
+           '<button class="btn btn-sm" style="margin-top:8px" onclick="portalCopyUrl()">📋 复制学生入口链接</button>';
+    }
+  } else if(pub && pub.revoked){
+    h += '<div style="font-weight:700;color:var(--text-muted)">○ 已撤销</div>' +
+         '<div style="color:var(--text-secondary)">撤销于 ' + portalEsc(new Date(pub.at).toLocaleString('zh-CN')) +
+         '。学生现已无法查询；如需恢复，重新发布即可。</div>';
+  } else {
+    h += '<div style="font-weight:700;color:var(--text-muted)">○ 未发布</div>' +
+         '<div style="color:var(--text-secondary)">发布后，学生可用「学号 + 专属码」查看自己的学分与流水。</div>';
+  }
+  h += '<div style="margin-top:8px;font-size:12px;color:' + (hasPortalToken() ? 'var(--success)' : 'var(--danger)') + '">' +
+       '发布 Token：' + (hasPortalToken() ? '已配置' : '未配置（发布前必须配置）') + '</div>';
+  h += '</div>';
+
+  /* 说明区 */
+  h += '<div style="font-size:12px;line-height:1.9;color:var(--text-secondary);margin-bottom:12px">' +
+       '· 可查询学生：<b>' + studs.length + '</b> 人（无学号的学生不参与发布）<br>' +
+       '· 每位学生一个 <b>8 位专属码</b>，用「导出码表」打印裁剪后逐个下发<br>' +
+       '· 流水范围：本学期，每人最多 <b>' + PORTAL_OPS_CAP + '</b> 条<br>' +
+       '· <b>不含</b>家长电话、住址、生日、备注、标签、寝室——只有学分和流水' +
+       '</div>';
+
+  /* 按钮区 */
+  h += '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+       '<button class="btn btn-primary btn-sm" onclick="publishPortal()">' + (pub && !pub.revoked ? '🔄 重新发布' : '🚀 发布') + '</button>' +
+       '<button class="btn btn-sm" onclick="exportPortalCodes()">📋 导出码表</button>' +
+       '<button class="btn btn-sm" onclick="configPortalToken()">🔑 配置 Token</button>' +
+       '<button class="btn btn-sm" onclick="regenerateAllPortalCodes()">🎲 全部重发码</button>';
+  if(pub && !pub.revoked){
+    h += '<button class="btn btn-sm" style="color:var(--danger)" onclick="revokePortal()">⛔ 撤销发布</button>';
+  }
+  h += '</div>';
+
+  /* 安全提醒 */
+  h += '<div style="margin-top:14px;padding:10px 12px;border-radius:10px;background:rgba(180,35,24,.05);' +
+       'border:1px solid rgba(180,35,24,.15);font-size:12px;line-height:1.8;color:var(--text-secondary)">' +
+       '<b style="color:var(--danger)">发布前请知悉</b><br>' +
+       '· 发布包放在<b>公开 Gist</b>，任何人可下载，但内容全部加密——只有本人的码能解开自己那块<br>' +
+       '· 学生把码告诉同学，同学就能查他（凭证即权限，无解）<br>' +
+       '· 撤销只让新访问失效；换学期请先撤销，别让毕业生的流水长期躺在公网' +
+       '</div>';
+
+  el.innerHTML = h;
+}
+function portalCopyUrl(){
+  var pub = state.portalPublish;
+  if(!pub || !pub.url){ showToast('没有可复制的链接', 'error'); return; }
+  var done = function(){
+    showToast('已复制，发到班级群即可', 'success');
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(pub.url).then(done).catch(function(){ window.prompt('手动复制：', pub.url); });
+  } else {
+    window.prompt('手动复制：', pub.url);
+  }
+}
+
 // v2.20.0 学分周报：家长群友好版式（表扬实名、加油温和、预警只报人数不点名）
 function exportWeeklyReport(){
   if(!state.students || !state.students.length){ showToast('暂无学生数据', 'error'); return; }

@@ -146,6 +146,8 @@
 | `avatar-img.txt` / `schedule-img.txt` | 裸 JPEG 二进制（.txt 后缀） | **历史遗留，代码中无任何引用**，可删 |
 | `README.md` | 用户文档 | 停留在 v2.4.1，待更新 |
 | `upgrade_v2.0.0_20260808.md` | v2.0.0 升级记录 | 含云同步合并策略的设计初衷 |
+| `portal/index.html` | **学生查询端**（v3.7.0） | 独立只读页，学生用「学号 + 8 位码」查自己学分/流水。**改它必须同步 `index.html` 的加密常量**，详见第 11 节 |
+| `SPEC_学生查询端.md` | 学生查询端规格 + 实现记录 | 决策依据、威胁模型、字段白名单全在里面 |
 
 ## 3. index.html 内部结构地图
 
@@ -540,3 +542,40 @@ curl -sS "https://api.github.com/repos/cheeeom/class-manager/contents/data.json?
 # 查重复函数定义（本项目的老毛病）
 grep -o "^\s*function [a-zA-Z_$][a-zA-Z0-9_$]*" index.html | sed 's/.*function //' | sort | uniq -d
 ```
+
+---
+
+## 11. 学生查询端（v3.7.0 新增，接手必读）
+
+> 完整规格与决策记录见 `SPEC_学生查询端.md`（含威胁模型、字段白名单、测试清单）。这里只留接手时最容易踩的三件事。
+
+### 11.1 它是什么
+
+学生打开 `…/portal/?o=<owner>&g=<gistId>`，输入**学号 + 自己的 8 位码**，看到**只属于自己**的学分、等级、本周/本月净变化、学分币，以及流水明细。
+
+数据来自**公开 Gist** 里一份**全密文**发布包 —— 老师点「🔑 学生查询端 → 发布」生成。
+
+### 11.2 🔴 三条铁律（破一条就是事故）
+
+1. **绝不复用同步口令**（`getSyncPwd` / `encryptForCloud`）。那个口令能解开全班家长手机号、住址、生日。学生端走的是「每人一个 8 位码 + 每人独立盐」的另一条派生路径。`_v370_test.js` ⑨ 会断言这整块代码里不出现 `getSyncPwd()`。
+2. **两端加密参数必须同步**。`index.html` 的 `PBKDF2_ROUNDS` / `PORTAL_CODE_LEN` / `normalizePortalCode` 与 `portal/index.html` 的 `PBKDF2_ROUNDS` / `CODE_LEN` / `normCode` 必须逐字等价。改了一边忘了另一边 → **全班当场解不开**，而且**只有真实发布后才暴露**（本地测试全绿也发现不了）。守卫 ④ 专门盯这个。
+3. **码表不许进发布包**。`state.portalCodes` 只在加密的数据仓里同步，绝不能混进 `buildPortalPayload` 的输出。
+
+### 11.3 两个已经踩过的坑（别重犯）
+
+| 坑 | 症状 | 修法 |
+|---|---|---|
+| **SW 拦跨域** | 老师重新发布后，学生永远看到旧数据，且**不报错** | `sw.js` 已放行 `gist.githubusercontent.com` 与 `/portal/`。**别删这两行** —— 初版曾以为"跨域不同源 SW 不拦"，实测是错的：fetch 事件对跨域同样触发，兜底那段「缓存优先」会永久缓存发布包 |
+| **绕过 `doPushPortal` 直接写 Gist** | 加密/体积校验/状态回填全被跳过 | 发布载体只有一个写入口 `doPushPortal`（用 `POST`/`PATCH`）。它刻意不用 `PUT`，与数据仓的 `doPushToCloud` 物理隔开 |
+
+### 11.4 ⚠️ 顺带更正一条过时说法
+
+本文件 §5.8 第 1 条写「全站只有一处 PUT，任何新增推送都必须走 `doPushToCloud`」。**核对源码后：不成立。** `index.html` 里 `method:'PUT'` 实际有 **3 处**（`doPushToCloud` + reset + rekey），且**没有**任何守卫测试在数这个数。
+
+真正该守的是：① 数据仓写路径必须保持加密；② 发布载体与数据仓用**不同 Token、不同 API**。别照着那条过时约束去"修"一个不存在的问题。
+
+### 11.5 发版时注意
+
+- `portal/index.html` **不要**加进 `sw.js` 的 `CORE_ASSETS`（`addAll` 全成全败，多一个文件就多一份拖垮 PWA 预缓存的风险）
+- 发布 Token 存在 `localStorage.cm_portal_token`，**与 `gh_sync_token` 是两个不同的 Token**，权限分别是 `Gists: Read+Write` 与数据仓 `Contents: Read+Write`
+- 撤销写的是 `revoked:true + at`（**不是 null**）—— 写 null 会被另一台设备的旧记录顶回来，老师以为撤了其实没撤

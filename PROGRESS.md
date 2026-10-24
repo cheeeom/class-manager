@@ -3514,3 +3514,25 @@ const lockStart = html.indexOf('/* v2.24.1 推送互斥');
 - [x] **守卫 `_v3610_test.js`** 4 项（抽屉注入+py 同步/撤除干净+专用入口保留/v3608 已删/版本）；_v3609④动态跟版化（写死版本断言第 7 次踩坑，至此 v3602~09 全动态）。**全量 85 套全绿**。
 - [x] **推送**：bugfix 整改直推。
 
+
+### 2026-10-24（v3.7.0：学生查询端——学生用「学号 + 8 位专属码」自查学分与流水）
+
+- [x] **需求**（老板）：「网页版班主任工作台能否开发一个学生查询自己的学分和流水记录的入口？」→ 先出 `SPEC_学生查询端.md` 审阅，后拍板 **Q1 载体 = 公开 Gist**、Q3~Q7 全按建议（姓名 `张*` / 预警中性文案 / 显示学分币 / 本学期+200 条 / v3.7.0）。老板同时否掉 MVP「个人学分报告图」——**v3.6.0 学期报告引擎已覆盖**（`cmgx.js` `cmReportStuCanvas`），不做重复轮子。
+- [x] **核心矛盾**：现有数据是整包 AES-GCM 加密进私有仓，同步口令 = 老师总密钥（含全班家长手机号/住址/生日）。学生端**绝不能复用** → 另开「按人切片 + 每人独立码」的密文发布通道。
+- [x] **身份凭证 = 学号 + 8 位 base32 码**（`23456789A-HJ-NP-Z`，剔除 0/1/I/O；显示 `XXXX-XXXX`）。**6 位纯数字被否决**：PBKDF2-250k 下单卡 GPU 约 6 分钟爆破一个人；8 位约 11 年/人/卡。家长手机后 4 位同样否决（1e4 熵，且随家长信息一起泄）。
+- [x] **字段白名单**：只出 `sid / name(脱敏) / credit / level / coins / weekNet / monthNet / ops[{time,amount,reason}]`；**黑名单** phone / guardian / address / birth / notes / timeline / tags / creditBase / dorm 一律不出（比学期报告更克制——那是有老师掌控去向的图片，这是公网静态文件）。
+- [x] **实现**（`index.html` +480 行）：
+  - `STATE_SCHEMA` +`portalCodes` / `portalPublish`（都 `cfs:1` 上云）+ `MERGE_ST` +`msPortalCodes`（sid 并集、**本机优先**）/ `msPortalPub`（`at` 新者胜）
+  - `buildPortalPayload`（纯函数，白名单+`liveOps` 过滤+取最近 N 条）/ `genPortalCode` / `normalizePortalCode` / `formatPortalCode` / `portalMaskName` / `portalLevelText`（<60 折叠「需努力」）/ `portalWeekStartTs`
+  - `portalDeriveKey` / `sealPortalBlock`（一码一盐一块）/ `portalValidate`（学号空+重复拦截）/ `doPushPortal`（**POST/PATCH Gist，唯一写发布载体入口**）/ `publishPortal` / `revokePortal`（写 `revoked:true+at`，不是 null）/ `exportPortalCodes`（CSV 含 BOM）/ `regeneratePortalCode` / `regenerateAllPortalCodes` / `configPortalToken` / `openPortalPanel` / `renderPortalPanel`
+  - 入口：公示页工具条「🔑 学生查询端」；班委一律拦截
+- [x] **新增 `portal/index.html`**（426 行，零依赖零 CDN）：学号+码输入（自动插横线/转大写）、`?o=&g=` 读发布源、CDN 优先+API 兜底拉包、10 分钟本地缓存、只 `students[sid]` 取自己那片、流水按日分组、三态错误（学号未找到/码错/服务未开放）、5 次软限速、`prefers-color-scheme` 深色适配、所有自由文本过 `esc`。
+- [x] **🚨 实现中抓到的两个真 bug**：
+  1. **SW 拦跨域**（SPEC 初稿判断错误，已在 v1.2 更正）——`fetch` 事件对跨域同样触发，最后那段「缓存优先」会永久缓存 Gist 响应 ⇒ 重新发布后学生永远看旧数据且不报错。修法：`sw.js` 放行 `gist.githubusercontent.com` + `/portal/` 双保险。
+  2. **面板硬编码 `#FFFDF7`** —— 被 `_v2273`「硬编码米色只许 1 处」当场抓住，暗色下会变白板。清理 19 处 fallback 全改 CSS 变量。
+- [x] **守卫 `_v370_test.js` 13 项**（版本一律从 `CACHE_NAME` 反推）：白名单逐键遍历+值级泄露检查 / 撤销流水过滤 / 裁剪取最近 N 条 / **两端加密参数一致**（迭代次数·码长·归一化正则·SHA-256·256位·16B盐·12B IV）/ 明文块与信封结构 / 码格式与 800 次不重复 / 加解密回环+错码拒+密文无残留 / 无 Token 必拦且校验在推送前 / 载体隔离（POST/PATCH、不碰 `GH_REPO`、不碰 `getSyncPwd`）/ 学生端只解自己那片+全转义+错误态 / 每块独立盐IV / SW 放行 / 版本一致。**13/13 全绿**。
+- [x] **跟改计数基线**（均属正常漂移）：`_v21200` schema 49→51 / CFS 47→49 / MERGE_ST 30→32 / 落盘 46→48；`_v2188` cmPrompt 9→10；`_v2273` `var(--row-bg)` 6→7；`_v3610` 版本断言去写死改动态。
+- [x] **全量 `node _runall.js` → 86 套全绿**。
+- [x] ⚠️ **未做**：真实 Gist 端到端发布（本机无发布 Token，需老板配一次自测）；浏览器截图（本次会话浏览器控制器持续超时，改用 DOM 引用一致性静态校验替代：学生端 8 个 id 全有定义、主站 24 个新函数全存在）。
+- [x] **顺带发现**：`AGENTS.md` §5.8「全站只有一处 PUT」**已不成立**——实际 3 处（`doPushToCloud` + reset + rekey），且**没有对应的守卫测试**。已在 SPEC §10.2 记录，待老板确认后修正 AGENTS。
+- [x] **推送**：待老板审阅后明示（`index.html` / `portal/` / `sw.js` / 4 个测试 / SPEC）。

@@ -124,9 +124,10 @@ t('★ .grade-table tr:hover（成绩表悬停）', () => {
   has(html, '.grade-table tr:hover{background:var(--row-bg)}', '成绩表悬停没走变量');
   notHas(html, `.grade-table tr:hover{background:${OLD_LIGHT}}`, '成绩表悬停仍是硬编码');
 });
-t('恰好 4 处使用 var(--row-bg)（新增第 5 处时提醒你回来更新本测试）', () => {
+t('恰好 7 处使用 var(--row-bg)（新增第 8 处时提醒你回来更新本测试）', () => {
+  /* v3.7.0 +1：学生查询面板的状态区是内嵌行区块，与表格行同语义，走 --row-bg 而非 --card-bg */
   const n = html.split('background:var(--row-bg)').length - 1;
-  eq(n, 6, 'var(--row-bg) 使用处数：');
+  eq(n, 7, 'var(--row-bg) 使用处数：');
 });
 
 /* ============================================================ */

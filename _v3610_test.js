@@ -50,11 +50,11 @@ t('③ P3：_v3608_test.js 已删（撤下功能的守卫随之退役）', () =>
   ok(!fs.existsSync(path.join(__dirname, '_v3608_test.js')), '_v3608_test.js 应已删除');
 });
 
-t('④ 版本 v3.6.10 一致性 + 速览条目', () => {
+t('④ 版本一致性 + 速览条目（一律从 CACHE_NAME 反推，不写死）', () => {
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
-  ok(m && v && m[1] === v[1] && m[1] === 'v3.6.10', 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同为 v3.6.10');
-  has(html, '手机端学期报告入口（v3.6.10）', '速览当版条目');
+  ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应一致');
+  has(html, '手机端学期报告入口（v3.6.10）', '速览历史条目');
   ok((cmgx.match(/增强引擎（v3\.6\.10）/g) || []).length === 1, 'cmgx 头跟版');
 });
 
