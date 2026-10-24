@@ -107,7 +107,7 @@ t('常量就位：CB_NET_TIERS 五档币/券单递进 + 6 类预设目录 + 类�
   eq(CB_NET_TIERS[0].coupons.length, 1, 't1 起步 1 券');
   ok(CB_NET_TIERS.slice(0, 4).every((x, i) => i === 0 || x.coupons.length > CB_NET_TIERS[i - 1].coupons.length), '券单应逐档递进');
   eq(CB_NET_TIERS[4].coupons, null, 't5 全目录动态取');
-  eq(CB_STORE.length, 6, '预设 6 券');
+  eq(CB_STORE.length, 15, '预设 15 券');
   eq(CB_CATS.length, 6, '6 个类别');
   CB_STORE.forEach(it => { ok(it.cat && it.detail, '预设券缺 cat/detail：' + it.key); });
 });
@@ -138,13 +138,13 @@ t('t5 封顶券单 = 当前上架目录全量（动态，不含已下架）', ()
 });
 
 console.log('\n=== 商店目录 CRUD（可改价 / 可下架 / 可增删）===');
-t('首次进入自动种入预设 6 券（builtin + on），并只返回上架项', () => {
+t('首次进入自动种入预设 15 券（builtin + on），并只返回上架项', () => {
   state = freshState([{ id: 1, name: '甲', credit: 100 }]);
   const items = cbStoreItems();
-  eq(items.length, 6);
-  eq(items.filter(i => i.builtin === true).length, 6);
-  eq(items.filter(i => i.on !== false).length, 6);
-  eq(cbStoreAll().length, 6);
+  eq(items.length, 15);
+  eq(items.filter(i => i.builtin === true).length, 15);
+  eq(items.filter(i => i.on !== false).length, 15);
+  eq(cbStoreAll().length, 15);
   ok(cbStoreItemByKey('lateFree') !== null);
   eq(cbStoreItemByKey('nope'), null);
 });
@@ -155,7 +155,7 @@ t('改价 / 改限购 / 改描述：编辑命中即覆盖，key 与 builtin 不�
   eq(it.name, '免迟到券（改名）'); eq(it.cost, 66); eq(it.limit, 3);
   eq(it.desc, '新简介'); eq(it.detail, '新详情');
   eq(it.builtin, true, '改过仍是预设项（保留 builtin 标记）');
-  eq(cbStoreAll().length, 6, '编辑不新增条目');
+  eq(cbStoreAll().length, 15, '编辑不新增条目');
 });
 t('新增自定义商品：key 自增不撞号，builtin:false，可删除', () => {
   state = freshState([{ id: 1, name: '甲', credit: 100 }]);
@@ -164,18 +164,18 @@ t('新增自定义商品：key 自增不撞号，builtin:false，可删除', () 
   eq(a.builtin, false); eq(a.on, true);
   const b = cbSaveStoreItem({ name: '免写作文一次', cat: '学习', cost: 88, limit: 1 });
   eq(b.key, 'c' + (Number(a.key.slice(1)) + 1), '自增不撞号');
-  eq(cbStoreAll().length, 8);
+  eq(cbStoreAll().length, 17);
   eq(cbDeleteStoreItem(a.key), true);
-  eq(cbStoreAll().length, 7); eq(cbStoreItemByKey(a.key), null);
+  eq(cbStoreAll().length, 16); eq(cbStoreItemByKey(a.key), null);
   eq(cbDeleteStoreItem(a.key), false, '重复删除返回 false');
 });
 t('上下架：下架后不出现在商店、不可兑换；再上架恢复', () => {
   state = freshState([{ id: 1, name: '甲', credit: 100 }]);
   eq(cbToggleStoreItem('lunch').on, false);
-  eq(cbStoreItems().length, 5, '下架一项');
+  eq(cbStoreItems().length, 14, '下架一项');
   eq(cbStoreItemByKey('lunch').on, false);
   cbToggleStoreItem('lunch');
-  eq(cbStoreItems().length, 6, '上架恢复');
+  eq(cbStoreItems().length, 15, '上架恢复');
 });
 t('已发出的券自带名称/图标/价快照：删商品后历史券仍可核销显示', () => {
   state = freshState([{ id: 1, name: '甲', credit: 100 }]);
@@ -346,10 +346,10 @@ t('结算说明与确认框已改为净增五档口径（+10 起奖 / +70 封顶
 console.log('\n=== 币与兑换基础（回归防 regressions）===');
 t('cbStoreItemCost：无折扣 = 原价；9 折月 = 原价×0.9 取整', () => {
   state = freshState([{ id: 1, name: '甲', credit: 100 }]);
-  const it = cbStoreItemByKey('movie');   // 50 币
-  eq(cbStoreItemCost(1, it), 50);
+  const it = cbStoreItemByKey('movie');   // 70 币
+  eq(cbStoreItemCost(1, it), 70);
   cbWallet(1).discountMonth = cbMonthKey();
-  eq(cbStoreItemCost(1, it), 45, '50×0.9=45');
+  eq(cbStoreItemCost(1, it), 63, '70×0.9=63');
   eq(cbStoreItemCost(1, cbStoreItemByKey('seatMate')), 7, '8×0.9=7.2→7');
 });
 t('cbStoreUsedCount 只算当月 redeem 未退还券', () => {

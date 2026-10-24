@@ -133,7 +133,7 @@ t('cbDoSettle 写快照（v2.18.0 净增五档）：各档人数/实发币/发�
   eq(h.coins.t3, tierCoin('t3'));
   eq(h.coins.t2, tierCoin('t2'));
   eq(h.coins.t1, tierCoin('t1'));
-  eq(h.vouchers, 6 + 5 + 4 + 3 + 1, '实发券：全目录6 + t4五 + t3四 + t2三 + t1一');
+  eq(h.vouchers, 15 + 5 + 4 + 3 + 1, '实发券：全目录15 + t4五 + t3四 + t2三 + t1一');
   ok(h.at > 0);
   cbDoSettle();
   eq(state.creditBank.settleHist.length, 1, '同月重复结算不追加建档');

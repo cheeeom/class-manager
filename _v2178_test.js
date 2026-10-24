@@ -162,7 +162,7 @@ t('学分银行核心函数与商店目录/预警档位常量就位', () => {
   ['function cbRedeem(', 'function cbRefundVoucher(', 'function cbUseVoucher(', 'function cbAlertMark(',
    'function cbAlertDraft(', 'function cbMergeBanks(', 'function cbCoinMap(', 'function cbScanAlerts(',
    'function cbDoSettle(', 'function renderBankPage('].forEach(f => has(html, f));
-  eq(CB_STORE.length, 6);
+  eq(CB_STORE.length, 15);
   eq(CB_ALERT_TIERS.length, 4);
 });
 
@@ -212,9 +212,9 @@ t('cbSettleTier 净增五档边界（v2.18.0）：≥70 巅峰 / 50-69 卓越 / 
   eq(cbSettleTier(-3).coin, 0);
   // 券单递进：t1 1 张 → t4 5 张；t5 动态取全目录
   eq(cbSettleTier(10).coupons.join(','), 'lateFree');
-  eq(cbSettleTier(20).coupons.join(','), 'lateFree,dayMonitor,laborWaive');
-  eq(cbSettleTier(30).coupons.join(','), 'lateFree,dayMonitor,laborWaive,seatMate');
-  eq(cbSettleTier(50).coupons.join(','), 'lateFree,dayMonitor,laborWaive,seatMate,lunch');
+  eq(cbSettleTier(20).coupons.join(','), 'lateFree,dayMonitor,podiumDuty');
+  eq(cbSettleTier(30).coupons.join(','), 'lateFree,dayMonitor,podiumDuty,seatMate');
+  eq(cbSettleTier(50).coupons.join(','), 'lateFree,dayMonitor,podiumDuty,seatMate,lunch');
   eq(cbSettleTier(70).coupons, null, 't5 券单由 cbSettleLv3Coupons 动态取全目录');
 });
 t('结算本月（按当月净增定档）：t5 全目录券+80币 / t4 五券+60币 / t3 四券+45币 / t2 三券+30币 / t1 一券+20币；净增<10 与负值无奖励；同月防重复', () => {
@@ -239,7 +239,7 @@ t('结算本月（按当月净增定档）：t5 全目录券+80币 / t4 五券+6
   const month = cbMonthKey();
   const allKeys = cbStoreItems().map(it => it.key);
   const n = cbDoSettle();
-  eq(n, 1 + 6 + 1 + 5 + 1 + 4 + 1 + 3 + 1 + 1, '发放条数（5 人币各 1 + t5全目录6 / t4 5 / t3 4 / t2 3 / t1 1 张券）');
+  eq(n, 1 + 15 + 1 + 5 + 1 + 4 + 1 + 3 + 1 + 1, '发放条数（5 人币各 1 + t5全目录15 / t4 5 / t3 4 / t2 3 / t1 1 张券）');
   const v1 = cbVouchers(1).filter(v => v.status !== 'refunded');
   eq(v1.length, allKeys.length, 't5 全目录各 1 张');
   eq(v1.map(v => v.key).sort().join(','), allKeys.slice().sort().join(','), '券单 = 上架目录');
@@ -247,13 +247,13 @@ t('结算本月（按当月净增定档）：t5 全目录券+80币 / t4 五券+6
   const l1 = state.creditBank.ledger.filter(e => String(e.sid) === '1')[0];
   eq(l1.delta, tierOf('t5').coin, 't5 发币');
   const v2 = cbVouchers(2).filter(v => v.status !== 'refunded');
-  eq(v2.map(v => v.key).sort().join(','), 'dayMonitor,laborWaive,lateFree,lunch,seatMate', 't4 五券');
+  eq(v2.map(v => v.key).sort().join(','), 'dayMonitor,lateFree,lunch,podiumDuty,seatMate', 't4 五券');
   eq(state.creditBank.ledger.filter(e => String(e.sid) === '2')[0].delta, tierOf('t4').coin, 't4 发币');
   const v3 = cbVouchers(3).filter(v => v.status !== 'refunded');
-  eq(v3.map(v => v.key).sort().join(','), 'dayMonitor,laborWaive,lateFree,seatMate', 't3 四券');
+  eq(v3.map(v => v.key).sort().join(','), 'dayMonitor,lateFree,podiumDuty,seatMate', 't3 四券');
   eq(state.creditBank.ledger.filter(e => String(e.sid) === '3')[0].delta, tierOf('t3').coin, 't3 发币');
   const v4 = cbVouchers(4).filter(v => v.status !== 'refunded');
-  eq(v4.map(v => v.key).sort().join(','), 'dayMonitor,laborWaive,lateFree', 't2 三券');
+  eq(v4.map(v => v.key).sort().join(','), 'dayMonitor,lateFree,podiumDuty', 't2 三券');
   eq(state.creditBank.ledger.filter(e => String(e.sid) === '4')[0].delta, tierOf('t2').coin, 't2 发币');
   const v5 = cbVouchers(5).filter(v => v.status !== 'refunded');
   eq(v5.length, 1); eq(v5[0].key, 'lateFree'); eq(v5[0].source, 'settle');

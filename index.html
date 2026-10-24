@@ -2603,7 +2603,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.6.1</div>
+      <div class="login-version">v3.6.2</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2725,7 +2725,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.6.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.6.2 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3497,18 +3497,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.6.1</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.6.2</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.6.1）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.6.2）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+ · 🛒 <b>默认商品表重新设计（v3.6.2）</b>：新班级首次开通学分银行自动种入 15 件预设——旗舰「📱 报喜短信」，免值日分讲台（15 币）/教室·公区（30 币）两档，一周点歌权 14 币、随机小文具等，四栏分类（特权/餐饮/娱乐/实物）；月度奖励阶梯送券同步换绑。已有班级的商品目录不受影响<br>
  · 🎨 <b>学期报告导航图标线条化（v3.6.1）</b>：学士帽线条图标并入侧栏精灵图（#i-report），弃用 emoji，与其他导航图标同风格同尺寸<br>
  · 📊 <b>数据分析图表引擎 + 学期报告引擎上线（v3.6.0）</b>：成绩分析（KPI 环比/直方图/雷达/趋势/名次流动/学业预警）、学分分析（KPI 六卡/五档分布/近 7 天净变动/进退步榜）全部 ECharts 重绘，自动适配皮肤与暗色；首页学分分布与公示页四图统一纸墨主题；侧栏新增 <b>🎓 学期报告</b>（个人/班级报告，长图导出 + 打印 PDF）<br>
           </div>
@@ -5514,17 +5515,26 @@ let state = buildDefaultState();
       「加分当时的总分」（= creditBase + Σ该生 ≤该时刻的流水）回溯补算 5 折，幂等只算一次；
       同时余额下限 clamp 到 0（老板选：宁可显示 0，也不让账面出现负数）。 */
 
-/* v2.17.30 兑换商店商品目录（默认种子）。老师可在商店页增删改：
+/* v2.17.30 兑换商店商品目录（默认种子，v3.6.2 重新设计 15 件）。老师可在商店页增删改：
    改价格/月限/描述、下架（on:false）、新增自定义商品（builtin:false）。
    实时的、老师改过的目录存在 state.creditBank.store.items（随云同步），
    本常量只在「首次进入 v2.17.30 且无目录」时作为种子写入一次。 */
 const CB_STORE = [
-  { key:'lateFree',   icon:'🎟', name:'免迟到券',        cost:10, limit:1, cat:'特权', desc:'免除一次迟到扣分',      detail:'发生迟到时出示本券，由班主任核销，该次迟到不计扣分。每人每月限购 1 张。' },
-  { key:'lunch',      icon:'🍚', name:'与班主任共进午餐', cost:30, limit:2, cat:'餐饮', desc:'预约一次食堂共进午餐',  detail:'与班主任预约时间，到食堂共进午餐一次。可聊学习、生活、班级事务。每人每月限购 2 张。' },
-  { key:'dayMonitor', icon:'👔', name:'一日班长',        cost:20, limit:1, cat:'特权', desc:'体验一天班长职责',      detail:'由班主任排期担任一日班长：协助考勤、维持秩序、记录班级日志。每人每月限购 1 张。' },
-  { key:'movie',      icon:'🎬', name:'晚自习电影点播',   cost:50, limit:1, cat:'娱乐', desc:'获得一次晚自习观影点播权', detail:'获得一次晚自习全班观影点播权，片源需健康向上并经班主任审核。每人每月限购 1 张。' },
-  { key:'laborWaive', icon:'🧹', name:'劳动整改豁免',     cost:15, limit:1, cat:'特权', desc:'豁免一次劳动整改',      detail:'豁免一次因卫生/值日问题产生的劳动整改（不含损坏公物等需赔偿事项）。每人每月限购 1 张。' },
-  { key:'seatMate',   icon:'🪑', name:'同桌一日',        cost:8,  limit:2, cat:'特权', desc:'与指定同学做一日同桌',  detail:'与指定同学做一日同桌体验，需双方同意且不影响课堂秩序。每人每月限购 2 张。' }
+  { key:'seatMate',   icon:'🪑', name:'同桌一日',           cost:8,  limit:2, cat:'特权', desc:'与指定同学做一日同桌',      detail:'与指定同学做一日同桌体验，需双方同意且不影响课堂秩序。每人每月限购 2 张。' },
+  { key:'lateFree',   icon:'🎟', name:'免迟到券',           cost:10, limit:2, cat:'特权', desc:'免除一次迟到扣分',          detail:'发生迟到时出示本券，由班主任核销，该次迟到不计扣分。每人每月限购 2 张。' },
+  { key:'hwDelay',    icon:'📝', name:'作业延时卡',         cost:12, limit:2, cat:'特权', desc:'迟交一天不计迟交',          detail:'一科作业延时一天提交，不计迟交、不扣平时分（需在收作业前出示）。每人每月限购 2 张。' },
+  { key:'podiumDuty', icon:'🧽', name:'免讲台值日券',       cost:15, limit:2, cat:'特权', desc:'免一次讲台值日',            detail:'豁免一次讲台值日（擦黑板、整理讲台），当日由值日组长另行安排。每人每月限购 2 张。' },
+  { key:'dayMonitor', icon:'👔', name:'一日班长',           cost:20, limit:1, cat:'特权', desc:'体验一天班长职责',          detail:'由班主任排期担任一日班长：协助考勤、维持秩序、记录班级日志。每人每月限购 1 张。' },
+  { key:'praiseSms',  icon:'📱', name:'报喜短信',           cost:25, limit:1, cat:'特权', desc:'给家长发一条专属喜报短信',  detail:'班主任把你本周的进步或好事迹写成喜报短信发给家长，内容可先看稿。每人每月限购 1 条。' },
+  { key:'seatWeek',   icon:'🎯', name:'自选座位一周',       cost:30, limit:1, cat:'特权', desc:'一周内自选座位',            detail:'兑换后与班主任约定起止日期，一周内可自选座位（以不影响课堂为前提）。每人每月限购 1 张。' },
+  { key:'roomDuty',   icon:'🧹', name:'免教室公区值日券',   cost:30, limit:1, cat:'特权', desc:'免一次教室或公区值日',      detail:'豁免一次教室或公区（走廊、包干区）值日，需提前一天出示，由值日组长记录。每人每月限购 1 张。' },
+  { key:'yearWords',  icon:'✍️', name:'期末定制寄语',       cost:60, limit:1, cat:'特权', desc:'期末评语旁附亲写寄语',      detail:'期末评语旁附一段班主任亲写的专属寄语（可指定方向：鼓励、复盘或祝愿）。每人每月限购 1 张。' },
+  { key:'drink',      icon:'🥤', name:'饮料一瓶',           cost:15, limit:2, cat:'餐饮', desc:'兑换一瓶饮料',              detail:'兑换指定范围内的饮料一瓶（汽水、果汁或牛奶任选）。每人每月限购 2 瓶。' },
+  { key:'lunch',      icon:'🍱', name:'与班主任共进午餐',   cost:35, limit:2, cat:'餐饮', desc:'预约一次食堂共进午餐',      detail:'与班主任预约时间，到食堂共进午餐一次。可聊学习、生活、班级事务。每人每月限购 2 次。' },
+  { key:'milkTea',    icon:'🧋', name:'奶茶一杯',           cost:40, limit:1, cat:'餐饮', desc:'兑换一杯奶茶',              detail:'兑换一杯奶茶（品牌与规格由班主任确定，可折算为等值饮品）。每人每月限购 1 杯。' },
+  { key:'songWeek',   icon:'🎵', name:'一周点歌权',         cost:14, limit:1, cat:'娱乐', desc:'一周内每天午休点一首歌',    detail:'生效一周内，每天午休可点播一首歌曲，曲目需健康向上并经班主任审核。每人每月限购 1 次。' },
+  { key:'movie',      icon:'🎬', name:'晚自习电影点播',     cost:70, limit:1, cat:'娱乐', desc:'获得一次晚自习观影点播权',  detail:'获得一次晚自习全班观影点播权，片源需健康向上并经班主任审核。每人每月限购 1 张。' },
+  { key:'stationery', icon:'✏️', name:'随机小文具',         cost:15, limit:1, cat:'实物', desc:'随机一款小文具',            detail:'由班主任从文具池中随机发放一款（笔、便签、书签、贴纸等），开出什么看运气。每人每月限购 1 次。' }
 ];
 // 商品类别（自定义商品可选其一，也可自填新类别）
 const CB_CATS = ['特权', '餐饮', '娱乐', '学习', '实物', '其他'];
@@ -5536,9 +5546,9 @@ const CB_CATS = ['特权', '餐饮', '娱乐', '学习', '实物', '其他'];
    v2.20.4 起再加一道奖励资格线：总分 <CB_REWARD_MIN(100) 的学生不参与定档（见 cbDoSettle）。 */
 const CB_NET_TIERS = [
   { key:'t1', label:'进取', min:10, coin:5, coupons:['lateFree'] },
-  { key:'t2', label:'勤学', min:20, coin:10, coupons:['lateFree', 'dayMonitor', 'laborWaive'] },
-  { key:'t3', label:'优秀', min:30, coin:15, coupons:['lateFree', 'dayMonitor', 'laborWaive', 'seatMate'] },
-  { key:'t4', label:'卓越', min:50, coin:20, coupons:['lateFree', 'dayMonitor', 'laborWaive', 'seatMate', 'lunch'] },
+  { key:'t2', label:'勤学', min:20, coin:10, coupons:['lateFree', 'dayMonitor', 'podiumDuty'] },
+  { key:'t3', label:'优秀', min:30, coin:15, coupons:['lateFree', 'dayMonitor', 'podiumDuty', 'seatMate'] },
+  { key:'t4', label:'卓越', min:50, coin:20, coupons:['lateFree', 'dayMonitor', 'podiumDuty', 'seatMate', 'lunch'] },
   { key:'t5', label:'巅峰', min:70, coin:30, coupons:null }        // 全目录动态取（cbSettleLv3Coupons）
 ];
 // 预警档位（阈值按降序命中；min 为该档下限）
@@ -5561,7 +5571,7 @@ function cbDefaultBank(){
            settleHist: [], store:{ items:[], nextItemId:1 } };
 }
 /* v2.17.30 商品目录：实时的、老师改过的目录存在 state.creditBank.store.items。
-   首次进入（items 为空）自动种入 CB_STORE 预设 6 券（builtin:true 标记，可改可下架）。
+   首次进入（items 为空）自动种入 CB_STORE 预设 15 券（builtin:true 标记，可改可下架）。
    返回「上架中」的商品（on !== false）。 */
 function cbStoreItems(){
   var b = cbBankSafe();

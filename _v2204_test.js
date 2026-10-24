@@ -296,7 +296,7 @@ t('巅峰档（净增 ≥70 且总分 ≥100）发全目录券各 1 张', () => 
   eq(cbVouchers('k').length, CB_STORE.length, '全目录券');
 });
 t('幂等：同月重复结算返回 0，不重复发放', () => {
-  // +20 → 勤学档（30 币 + lateFree/dayMonitor/laborWaive 3 张券）
+  // +20 → 勤学档（30 币 + lateFree/dayMonitor/podiumDuty 3 张券）
   freshState([mkStudent('p', '重复', 150)], [mkOp('p', 20)]);
   const first = cbDoSettle();
   ok(first > 0, '首次应发放');
