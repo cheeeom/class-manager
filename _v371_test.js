@@ -99,8 +99,14 @@ t('⑤ 库文件与 sw 资产齐备 + 版本 v3.7.1', () => {
   has(sw, './portal/qrcode.js', 'sw 离线资产 QR 库');
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
-  ok(m && v && m[1] === v[1] && m[1] === 'v3.7.1', 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同为 v3.7.1');
-  has(html, '学生自助兑换（v3.7.1）', '速览当版条目');
+  ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同版（动态跟版）');
+  ok(html.includes('学生自助兑换（v3.7.1）'), '速览历史条目（v3.7.1）仍在');
+  // v3.7.2：设置页入口卡 + 状态简报
+  has(html, 'id="settingsPortal"', '设置页查询端卡片');
+  has(html, 'portalSettingsBrief', '设置卡状态简报容器');
+  has(html, 'openPortalRedeemModal()">📷 兑换核销</button>\n          </div>\n          <div id="portalSettingsBrief"', '设置卡双按钮+简报接线');
+  has(html, "if(typeof renderPortalPanel === 'function') renderPortalPanel();", '设置页渲染时刷新简报');
+  ok((html.match(/openPortalPanel\(\)">🔑/g) || []).length >= 2, '公示页+设置页双入口（实际 ' + (html.match(/openPortalPanel\(\)">🔑/g) || []).length + ' 处）');
 });
 
 console.log('\n通过 ' + pass + ' 项，失败 ' + fail + ' 项');
