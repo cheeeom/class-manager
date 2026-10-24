@@ -1,4 +1,4 @@
-/*! cmgx.js — 班主任工作台 网页版 增强引擎（v3.6.8）
+/*! cmgx.js — 班主任工作台 网页版 增强引擎（v3.6.9）
  *  内容：数据分析图表引擎（成绩/学分/首页/公示，ECharts + 纸墨主题）+ 学期报告引擎（个人/班级，长图/打印PDF）
  *  移植自桌面版注入层（class-manager-desktop v1.5.5 app/src/app.patch.js 的 M3/P0/P1/P2 分节），
  *  网页版全部功能免费开放（无 Pro 闸）。echarts.min.js 首次渲染时懒加载，失败/超时静默回退原实现；
@@ -616,11 +616,13 @@ function gxPlayCounters(root) {
     for (var k in (o || {})) a[k] = o[k];
     return a;
   }
+  var cmGxPendingById = {};
   function cmGxChart(id, option) {
     var dom = document.getElementById(id);
     if (!cmEchartsReady()) {
       if (!dom) return;
-      cmLoadEcharts(function (okFlag) { if (okFlag) { try { cmEchartsAfterLoad(); } catch (e) {} } });
+      cmGxPendingById[id] = option;   /* v3.6.9 未就绪先记下（同图后画覆盖前画），加载完成统一补画 */
+      cmLoadEcharts(function (okFlag) { if (!okFlag) cmGxPendingById = {}; });
       return;
     }
     var old = window.echarts.getInstanceByDom(dom);
@@ -1258,6 +1260,15 @@ function gxPlayCounters(root) {
           tooltip: { valueFormatter: function (v) { return v + ' 人'; } },
           animationDuration: 900, animationDelay: function (i) { return i * 60; } }]
       });
+      if (!cmEchartsReady()) {
+        cmLoadEcharts(function (okFlag) {
+          if (okFlag) return;   /* 成功由 cmEchartsAfterLoad 补画 */
+          var bx = document.getElementById('cmGxDashDist'), cv = document.getElementById('distChart');
+          if (bx && bx.parentNode) bx.parentNode.removeChild(bx);   /* v3.6.9 回退原 canvas 实现（加载失败/超时） */
+          if (cv) cv.style.display = '';
+          if (typeof orig === 'function') orig(credits);
+        });
+      }
     };
     wrapped.__cmGxDist = true;
     window.drawDistChart = wrapped;
@@ -1401,6 +1412,14 @@ function gxPlayCounters(root) {
       window.drawPubDist('pubDistChart', st.students || []);
       window.drawPubReason('pubReasonChart', 'pubReasonLegend', st.operations || []);
     }
+  }
+
+  /* ---------- v3.6.9 首访竞态补画（echarts 懒加载完成后：补画排队图表 + 可见页图表；移植切片漏带桌面启动段实现，此前调用未定义函数被 try/catch 吞掉致首页分布冷启动空白） ---------- */
+  function cmEchartsAfterLoad() {
+    var pend = cmGxPendingById;
+    cmGxPendingById = {};
+    for (var pid in pend) { try { cmGxChart(pid, pend[pid]); } catch (e) {} }
+    try { cmGxThemeExtras(); } catch (e) {}
   }
 
   /* ---------- 学期报告导航入口（网页版：侧栏设置项前注入；随侧栏重渲染自愈） ---------- */

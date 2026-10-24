@@ -2603,7 +2603,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.6.8</div>
+      <div class="login-version">v3.6.9</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2725,7 +2725,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.6.8 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.6.9 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3497,18 +3497,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.6.8</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.6.9</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.6.8）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.6.9）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+ · 📊 <b>首页学分分布空白修复（v3.6.9）</b>：修复冷启动时首页「学分分布」卡片空白——echarts 懒加载完成后的补画函数在移植时缺失（异常被静默吞掉），现已补齐；加载失败时自动回退原图表<br>
  · 🏠 <b>学分批量按寝室选择（v3.6.8）</b>：学分加减分模块「全班全选」左侧新增「按寝室」——下拉列出全部寝室与人数，点选即整寝选入/移出，快速给目标寝室加减分<br>
  · 🧹 <b>劳动整改批量多选（v3.6.7）</b>：记劳动整改支持一次选多名学生批量记录（连续点选/已选名单常显/标签可单个移除）；修复选中学生后输入框不显示姓名的问题<br>
  · 🔍 <b>选中学生姓名常显（v3.6.6）</b>：兑换商店选中学生后姓名始终可见——再点搜索框不再清空名字（全选待替换），误清空后失焦自动补回，选中状态一目了然<br>
