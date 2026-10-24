@@ -6,23 +6,25 @@
 <meta name="theme-color" content="#A63A2B">
 <title>我的学分 · 班主任工作台</title>
 <!--
-  学生查询端（v3.7.0）· 独立只读页
-  规格见 ../SPEC_学生查询端.md。三条铁律：
-  ① 零依赖、零 CDN —— 班级现场网络不可控，且本页要能在弱网下打开；
+  学生查询端（v3.7.1）· 独立只读页 + 自助兑换申请
+  规格见 ../SPEC_学生查询端.md（v3.7.0 基础）与 ../PROGRESS.md v3.7.1 章节。铁律：
+  ① 外部零依赖零 CDN —— QR 生成器为同仓自带的 qrcode.js / qrcode_utf8.js（MIT，kazuhikoarase）；
   ② 只解密自己那一片，页面里不存在任何「解全部」的代码路径；
-  ③ 加密参数必须与 ../index.html 完全一致（PBKDF2 250000 / SHA-256 / AES-GCM 256 / 12 字节 IV /
-     密钥材料 = 去掉横线的大写码），不同步 = 全班当场解不开。守卫 _v370_test.js 会逐项比对两端常量。
+  ③ 加密参数必须与 ../index.html 完全一致（PBKDF2 250000 / SHA-256 / AES-GCM 256 /
+     12 字节 IV / 密钥材料 = 去掉横线的大写码），不同步 = 全班当场解不开。守卫 _v370/_v371 会比对两端常量；
+  ④ 兑换二维码 = 一次性「带签名的申请单」：HMAC-SHA256 密钥与查询分片同源派生，
+     10 分钟时效 + 一次性 nonce，老师端验签后才入账——学生端永远不直接写账。
 -->
 <style>
   :root{
     --bg:#F6F2E9; --card:#FFFDF7; --ink:#2B2B33; --ink2:#5F5E5A; --ink3:#8C8577;
-    --border:#E6DECD; --primary:#A63A2B; --up:#2F7D5B; --down:#B42318;
+    --border:#E6DECD; --primary:#A63A2B; --up:#2F7D5B; --down:#B42318; --gold:#C08A2D;
     --radius:16px;
   }
   @media (prefers-color-scheme: dark){
     :root{
       --bg:#191714; --card:#232019; --ink:#EDE8DD; --ink2:#B8B2A5; --ink3:#8C8577;
-      --border:#3A352C; --primary:#D9705E; --up:#5FBF8E; --down:#E57373;
+      --border:#3A352C; --primary:#D9705E; --up:#5FBF8E; --down:#E57373; --gold:#D9A94E;
     }
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -30,32 +32,21 @@
   body{
     background:var(--bg); color:var(--ink); min-height:100vh;
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
-    font-size:15px; line-height:1.6; padding:0 16px 48px;
+    font-size:15px; line-height:1.6; padding:0 16px 140px;
     display:flex; flex-direction:column; align-items:center;
   }
   .wrap{width:100%; max-width:460px; padding-top:28px}
   .brand{text-align:center; margin-bottom:22px}
   .brand h1{font-size:17px; font-weight:600; margin:0 0 4px; letter-spacing:.5px}
   .brand p{font-size:12px; color:var(--ink3); margin:0}
-  .card{
-    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
-    padding:18px 18px 20px; margin-bottom:14px;
-  }
+  .card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px 18px 20px; margin-bottom:14px}
   label{display:block; font-size:12.5px; color:var(--ink2); margin-bottom:6px}
-  input{
-    width:100%; padding:12px 14px; font-size:16px; border-radius:12px;
-    border:1px solid var(--border); background:var(--bg); color:var(--ink);
-    outline:none; font-family:inherit;
-  }
+  input{width:100%; padding:12px 14px; font-size:16px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--ink); outline:none; font-family:inherit}
   input:focus{border-color:var(--primary)}
   input::placeholder{color:var(--ink3)}
   .field{margin-bottom:14px}
   #codeInput{letter-spacing:2px; text-transform:uppercase; font-variant-numeric:tabular-nums}
-  button.go{
-    width:100%; padding:13px; font-size:15.5px; font-weight:600; border:0; border-radius:12px;
-    background:var(--primary); color:#fff; cursor:pointer; font-family:inherit;
-    transition:opacity .15s;
-  }
+  button.go{width:100%; padding:13px; font-size:15.5px; font-weight:600; border:0; border-radius:12px; background:var(--primary); color:#fff; cursor:pointer; font-family:inherit; transition:opacity .15s}
   button.go:disabled{opacity:.55; cursor:default}
   button.go:active{opacity:.8}
   .msg{margin-top:12px; font-size:13px; line-height:1.7; border-radius:10px; padding:10px 12px; display:none}
@@ -68,8 +59,8 @@
   .hero .nm b{color:var(--ink); font-weight:600}
   .hero .score{font-size:56px; font-weight:700; line-height:1.05; font-variant-numeric:tabular-nums; letter-spacing:-1px}
   .hero .unit{font-size:14px; color:var(--ink3); margin-left:4px; font-weight:400}
-  .hero .lv{display:inline-block; margin-top:10px; font-size:12px; padding:3px 12px; border-radius:999px;
-    background:rgba(166,58,43,.09); color:var(--primary); border:1px solid rgba(166,58,43,.22)}
+  .hero .lv{display:inline-block; margin-top:10px; font-size:12px; padding:3px 12px; border-radius:999px; background:rgba(166,58,43,.09); color:var(--primary); border:1px solid rgba(166,58,43,.22)}
+  .rankseal{display:inline-block; margin-top:10px; margin-left:6px; font-size:12px; padding:3px 12px; border-radius:10px; border:1.5px solid rgba(166,58,43,.45); background:rgba(166,58,43,.06); color:var(--primary); font-weight:600}
   .trend{display:flex; gap:10px; margin-top:16px}
   .trend div{flex:1; background:var(--bg); border-radius:12px; padding:10px 8px; text-align:center}
   .trend .k{font-size:11.5px; color:var(--ink3); display:block; margin-bottom:3px}
@@ -80,18 +71,75 @@
   /* 流水 */
   .sec-title{font-size:13px; font-weight:600; color:var(--ink2); margin:20px 2px 10px; display:flex; justify-content:space-between; align-items:baseline}
   .sec-title span{font-size:11.5px; font-weight:400; color:var(--ink3)}
+  .chips{display:flex; gap:7px; flex-wrap:wrap; margin-bottom:10px}
+  .chip{font-size:12px; padding:5px 13px; border-radius:999px; border:1px solid var(--border); background:var(--card); color:var(--ink2); cursor:pointer; user-select:none}
+  .chip:active{transform:scale(.96)}
+  .chip.on{background:var(--primary); border-color:var(--primary); color:#fff}
+  .chip .n{font-size:10.5px; opacity:.75; margin-left:2px}
   .day{font-size:11.5px; color:var(--ink3); margin:14px 2px 6px}
-  .row{display:flex; align-items:center; gap:10px; padding:11px 12px; background:var(--card);
-    border:1px solid var(--border); border-radius:12px; margin-bottom:7px}
+  .row{display:flex; align-items:center; gap:10px; padding:11px 12px; background:var(--card); border:1px solid var(--border); border-radius:12px; margin-bottom:7px}
   .row .amt{font-size:15px; font-weight:600; font-variant-numeric:tabular-nums; min-width:44px; text-align:right; flex:none}
   .row .rs{flex:1; min-width:0; font-size:13.5px; color:var(--ink); word-break:break-word}
   .row .tm{font-size:11.5px; color:var(--ink3); flex:none}
+  .opsum{padding:9px 12px; font-size:11.5px; color:var(--ink3); background:var(--card); border:1px dashed var(--border); border-radius:10px; display:flex; justify-content:space-between; margin-bottom:7px}
   .empty{text-align:center; padding:26px 10px; color:var(--ink3); font-size:13px}
+  /* 商品 */
+  .goods{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .good{background:var(--card); border:1px solid var(--border); border-radius:13px; padding:13px 12px; display:flex; flex-direction:column; gap:5px; position:relative}
+  .good .gi{font-size:22px; line-height:1}
+  .good .gn{font-size:13.5px; font-weight:600}
+  .good .gc{font-size:11px; color:var(--ink3)}
+  .good .gp{font-size:13px; color:var(--ink2); flex:1}
+  .good .gp b{font-size:17px; color:var(--primary); font-weight:700}
+  .good.dim{opacity:.5}
+  .addbtn{align-self:flex-end; border:1.5px solid rgba(166,58,43,.4); color:var(--primary); background:rgba(166,58,43,.05); border-radius:9px; font-size:12px; padding:5px 12px; cursor:pointer; font-weight:600; font-family:inherit}
+  .addbtn:active{transform:scale(.94)}
+  .addbtn[disabled]{border-color:var(--border); color:var(--ink3); background:transparent}
+  .incart{position:absolute; top:9px; right:9px; background:var(--primary); color:#fff; font-size:10px; border-radius:999px; padding:1px 7px; display:none}
+  /* 购物车浮条 */
+  .cartbar{position:fixed; left:50%; transform:translateX(-50%); bottom:14px; width:min(430px,calc(100vw - 24px)); background:#2B2B33; color:#F5EFE2; border-radius:15px; padding:12px 16px; display:none; align-items:center; gap:10px; box-shadow:0 10px 30px rgba(20,17,12,.35); z-index:50}
+  .cartbar .ci{flex:1; font-size:13px}
+  .cartbar .ci b{color:#E8B96A; font-size:16px; font-weight:700}
+  .cartbar .ci .lack{color:#F0917E; font-size:11.5px; display:block}
+  .cartbar button{border:0; border-radius:10px; padding:10px 20px; font-size:14px; font-weight:600; cursor:pointer; background:var(--primary); color:#fff; font-family:inherit}
+  .cartbar button[disabled]{opacity:.4}
+  /* 清单抽屉 */
+  .sheetmask{position:fixed; inset:0; background:rgba(30,26,20,.45); z-index:60; display:none}
+  .sheet{position:fixed; left:50%; transform:translateX(-50%); bottom:0; width:min(460px,100vw); background:var(--card); border-radius:18px 18px 0 0; padding:18px 18px 26px; z-index:61; display:none; max-height:82vh; overflow-y:auto}
+  .sheet h3{font-size:16px; margin:0 0 4px}
+  .sheet .sub{font-size:11.5px; color:var(--ink3); margin-bottom:12px}
+  .crow{display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px dashed var(--border)}
+  .crow .cn{flex:1; min-width:0}
+  .crow .cn b{font-size:14px}
+  .crow .cn span{display:block; font-size:11px; color:var(--ink3)}
+  .crow .qty{display:flex; align-items:center; gap:9px}
+  .crow .qty i{font-style:normal; width:27px; height:27px; border:1px solid var(--border); border-radius:8px; display:grid; place-items:center; cursor:pointer; font-size:15px; color:var(--ink2); user-select:none}
+  .crow .qty i[disabled]{opacity:.3}
+  .crow .qty b{font-size:15px; min-width:16px; text-align:center}
+  .crow .cost{font-size:14px; font-weight:700; color:var(--primary); min-width:44px; text-align:center}
+  .ctotal{display:flex; justify-content:space-between; align-items:baseline; padding:14px 2px 4px; font-size:14px}
+  .ctotal b{font-size:24px; color:var(--gold); font-weight:700}
+  .cnote{font-size:11px; color:var(--ink3); line-height:1.8; margin:4px 0 10px}
+  .btn2{display:block; width:100%; padding:14px; border:0; border-radius:12px; background:var(--primary); color:#fff; font-size:16px; font-weight:600; letter-spacing:4px; cursor:pointer; min-height:50px; font-family:inherit}
+  .btn2:active{transform:scale(.98)}
+  .btn2[disabled]{opacity:.45; letter-spacing:2px}
+  .ghost{display:block; width:100%; margin-top:9px; padding:11px; border:1px solid var(--border); border-radius:12px; background:transparent; color:var(--ink2); font-size:14px; cursor:pointer; font-family:inherit}
+  /* 二维码屏 */
+  #qrpage{position:fixed; inset:0; background:var(--bg); z-index:70; display:none; overflow-y:auto}
+  #qrpage .inner{max-width:460px; margin:0 auto; padding:26px 18px 40px; text-align:center}
+  #qrpage h2{font-size:18px; margin:0 0 4px}
+  #qrpage .qs{font-size:12.5px; color:var(--ink3); margin:0}
+  .qrbox{width:248px; height:248px; margin:20px auto 8px; background:#fff; border:1.5px solid var(--border); border-radius:14px; padding:12px; box-shadow:0 4px 18px rgba(43,43,51,.06)}
+  .qrbox img{width:100%; height:100%; display:block}
+  .qr-exp{font-size:12px; color:var(--down); margin-bottom:10px}
+  .qr-meta{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px; text-align:left; font-size:13px; margin:8px 0 14px}
+  .qr-meta .r{display:flex; justify-content:space-between; padding:3px 0}
+  .qr-meta .r b{font-weight:600}
+  .qr-code{font-family:Consolas,monospace; font-size:11px; color:var(--ink3); word-break:break-all; background:var(--card); border:1px dashed var(--border); border-radius:9px; padding:9px 11px; text-align:left; margin-bottom:14px; user-select:all}
   .foot{text-align:center; font-size:11.5px; color:var(--ink3); margin-top:26px; line-height:1.9}
   .foot a{color:var(--ink3)}
   .hidden{display:none !important}
-  .spinner{display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.35);
-    border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; vertical-align:-2px; margin-right:6px}
+  .spinner{display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.35); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; vertical-align:-2px; margin-right:6px}
   @keyframes spin{to{transform:rotate(360deg)}}
   @media (prefers-reduced-motion: reduce){ .spinner{animation:none} }
 </style>
@@ -123,6 +171,41 @@
   <div class="foot" id="foot"></div>
 </div>
 
+<!-- 购物车浮条 / 清单抽屉 / 二维码屏（v3.7.1 自助兑换申请） -->
+<div class="cartbar" id="cartbar">
+  <div class="ci" id="cartinfo"></div>
+  <button id="cartgo" onclick="openCart()">去结算</button>
+</div>
+<div class="sheetmask" id="sheetmask" onclick="closeCart()"></div>
+<div class="sheet" id="sheet">
+  <h3>🛒 兑换清单</h3>
+  <div class="sub">实际兑换以班主任核销时的最新数据为准</div>
+  <div id="cartrows"></div>
+  <div class="ctotal"><span>合计</span><span><b id="carttotal">0</b> 币</span></div>
+  <div class="cnote">生成后请在 10 分钟内出示给班主任扫码核销；逾期自动作废，可重新生成。二维码为一次性凭据，核销后即失效。</div>
+  <button class="btn2" id="makqr" onclick="makeQr()">生成兑换二维码</button>
+  <button class="ghost" onclick="closeCart()">继续逛逛</button>
+</div>
+<div id="qrpage">
+  <div class="inner">
+    <h2>兑换码已生成</h2>
+    <p class="qs">出示本页给班主任 · 扫码即完成核销</p>
+    <div class="qrbox" id="qrbox"></div>
+    <div class="qr-exp">有效期剩余 <b id="qrtimer">--:--</b>（超时作废可重新生成）</div>
+    <div class="qr-meta">
+      <div class="r"><span>学生</span><b id="qrstu">-</b></div>
+      <div class="r"><span>合计</span><b id="qrtotal2">0 币</b></div>
+      <div class="r"><span>清单</span><b id="qritems">-</b></div>
+    </div>
+    <div class="qr-code" id="qrcodetext">-</div>
+    <button class="btn2" onclick="qrDone()">已完成 · 返回</button>
+    <div class="foot">二维码为一次性凭据 · 核销后即失效<br>凭据由你的查询码签名，他人无法伪造</div>
+  </div>
+</div>
+
+<!-- QR 生成器：同仓自带（MIT, kazuhikoarase/qrcode-generator），零外部 CDN -->
+<script src="qrcode.js"></script>
+<script src="qrcode_utf8.js"></script>
 <script>
 (function(){
   'use strict';
@@ -138,6 +221,9 @@
   var FAIL_LOCK_MS = 60000;
   var CACHE_KEY = 'cm_portal_cache';
   var CACHE_TTL_MS = 10 * 60 * 1000;   // 发布包 10 分钟内复用，避免反复拉取
+  /* v3.7.1 兑换凭据（与老师端 index.html 的 PORTAL_REDEEM_* 同步，守卫 _v371 比对） */
+  var REDEEM_VER = 'CM1';
+  var REDEEM_WINDOW_MS = 10 * 60 * 1000;
 
   var $ = function(id){ return document.getElementById(id); };
 
@@ -160,6 +246,11 @@
     var bin = atob(String(str || '')), b = new Uint8Array(bin.length);
     for(var i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
     return b;
+  }
+  function b64enc(buf){
+    var s = '';
+    new Uint8Array(buf).forEach(function(x){ s += String.fromCharCode(x); });
+    return btoa(s);
   }
   function hasCrypto(){
     return !!(window.crypto && window.crypto.subtle && window.crypto.subtle.deriveKey);
@@ -252,6 +343,21 @@
       })
       .then(function(pt){ return JSON.parse(new TextDecoder().decode(pt)); });
   }
+  /* v3.7.1 兑换凭据签名：与查询分片同源派生（同码同盐同轮数），但派生成 HMAC-SHA256 */
+  function redeemHmacKey(code, salt){
+    return crypto.subtle.importKey('raw', new TextEncoder().encode(normCode(code)), 'PBKDF2', false, ['deriveKey'])
+      .then(function(base){
+        return crypto.subtle.deriveKey(
+          { name:'PBKDF2', salt:salt, iterations:PBKDF2_ROUNDS, hash:'SHA-256' },
+          base, { name:'HMAC', hash:'SHA-256' }, false, ['sign']
+        );
+      });
+  }
+  function redeemCanonical(o){
+    return REDEEM_VER + '|' + o.sid + '|' +
+      o.items.map(function(x){ return x[0] + ':' + x[1]; }).join(',') + '|' +
+      o.total + '|' + o.ts + '|' + o.nonce;
+  }
 
   /* ---------- 渲染 ---------- */
   function fmtTime(ts){
@@ -278,29 +384,166 @@
   }
   function trendCls(n){ var v = Number(n) || 0; return v > 0 ? 'up' : (v < 0 ? 'down' : 'flat'); }
 
-  function render(data, meta){
-    $('formCard').classList.add('hidden');
+  /* v3.7.1 流水筛选（客户端按时间阈值）：最近 8 条 / 本周（周一起）/ 本月 / 全部 */
+  function weekStartTs(){
+    var d = new Date();
+    var dow = d.getDay();
+    var back = (dow === 0) ? 6 : (dow - 1);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate() - back).getTime();
+  }
+  function monthStartTs(){
+    var d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1).getTime();
+  }
+  var _data = null, _blkSalt = '', _curOpsFilter = 'recent', _curCat = '';
+  function opsFilters(ops){
+    var wk = weekStartTs(), mo = monthStartTs();
+    return [
+      { k:'recent', label:'最近', list:ops.slice(0, 8) },
+      { k:'week',   label:'本周', list:ops.filter(function(o){ return o.time >= wk; }) },
+      { k:'month',  label:'本月', list:ops.filter(function(o){ return o.time >= mo; }) },
+      { k:'all',    label:'全部', list:ops.slice() }
+    ];
+  }
+  function renderOpsChips(ops){
+    var fs = opsFilters(ops);
+    $('opChips').innerHTML = fs.map(function(f){
+      return '<span class="chip' + (_curOpsFilter === f.k ? ' on' : '') + '" onclick="setOpsFilter(\'' + f.k + '\')">' +
+             f.label + '<span class="n">' + f.list.length + '</span></span>';
+    }).join('');
+  }
+  window.setOpsFilter = function(k){ _curOpsFilter = k; renderResult(); };
+  window.setCat = function(c){ _curCat = c; renderResult(); };
+
+  /* 购物车（v3.7.1） */
+  var CART = {};
+  function goodByKey(key){ return ((_data && _data.goods) || []).filter(function(g){ return g.key === key; })[0] || null; }
+  function cartQty(key){ return CART[key] || 0; }
+  function cartTotal(){ var t = 0; Object.keys(CART).forEach(function(k){ var g = goodByKey(k); if(g) t += g.cost * CART[k]; }); return t; }
+  function cartCount(){ var n = 0; Object.keys(CART).forEach(function(k){ n += CART[k]; }); return n; }
+  window.addToCart = function(key){
+    var g = goodByKey(key);
+    if(!g) return;
+    if(g.remain - cartQty(key) <= 0) return;
+    CART[key] = cartQty(key) + 1;
+    renderResult();
+  };
+  window.chgQty = function(key, d){
+    var g = goodByKey(key), q = cartQty(key) + d;
+    if(q <= 0) delete CART[key];
+    else if(g && q <= g.remain) CART[key] = q;
+    renderCartRows(); renderResult();
+  };
+  function renderCartBar(){
+    var bar = $('cartbar'), n = cartCount(), t = cartTotal();
+    if(!n || !_data){ bar.style.display = 'none'; return; }
+    bar.style.display = 'flex';
+    var lack = t > (Number(_data.coins) || 0);
+    $('cartinfo').innerHTML = '🛒 已选 ' + n + ' 件 · 合计 <b>' + t + '</b> 币' +
+      (lack ? '<span class="lack">币不足（还差 ' + (t - (Number(_data.coins) || 0)) + ' 币），请减少商品</span>' : '');
+    $('cartgo').disabled = lack;
+  }
+  window.openCart = function(){
+    if(!cartCount()) return;
+    renderCartRows();
+    $('sheetmask').style.display = 'block';
+    $('sheet').style.display = 'block';
+  };
+  window.closeCart = function(){ $('sheetmask').style.display = 'none'; $('sheet').style.display = 'none'; };
+  function renderCartRows(){
+    $('cartrows').innerHTML = Object.keys(CART).map(function(k){
+      var g = goodByKey(k);
+      return '<div class="crow"><div class="cn"><b>' + esc(g.icon + ' ' + g.name) + '</b>' +
+        '<span>' + g.cost + ' 币 · 本月余 ' + g.remain + '/' + g.limit + '</span></div>' +
+        '<div class="qty"><i onclick="chgQty(\'' + k + '\',-1)">−</i><b>' + CART[k] + '</b>' +
+        '<i onclick="chgQty(\'' + k + '\',1)"' + (CART[k] >= g.remain ? ' disabled' : '') + '>＋</i></div>' +
+        '<div class="cost">' + (g.cost * CART[k]) + '</div></div>';
+    }).join('');
+    $('carttotal').textContent = cartTotal();
+  }
+
+  /* 兑换二维码（v3.7.1）：真二维码 + HMAC 签名凭据 + 10 分钟倒计时 */
+  var _qrTimer = null;
+  window.makeQr = function(){
+    if(!_data || !cartCount()) return;
+    var items = Object.keys(CART).map(function(k){ return [k, CART[k]]; });
+    var total = cartTotal();
+    if(total > (Number(_data.coins) || 0)) return;
+    var nonce = b64enc(crypto.getRandomValues(new Uint8Array(12)));
+    var o = { v: REDEEM_VER, sid: _data.sid, items: items, total: total, ts: Date.now(), nonce: nonce, salt: _blkSalt };
+    var canon = redeemCanonical(o);
+    redeemHmacKey($('codeInput').value || window.__lastCode, b64dec(_blkSalt)).then(function(key){
+      return crypto.subtle.sign('HMAC', key, new TextEncoder().encode(canon));
+    }).then(function(sig){
+      o.sig = b64enc(sig);
+      var json = JSON.stringify(o);
+      var qr = window.qrcode(0, 'M');
+      qr.addData(json, 'Byte');
+      qr.make();
+      $('qrbox').innerHTML = '<img alt="兑换二维码" src="' + qr.createDataURL(4, 8) + '">';
+      $('qrstu').textContent = (_data.name || '') + ' · ' + _data.sid;
+      $('qrtotal2').textContent = total + ' 币';
+      $('qritems').textContent = items.map(function(x){ var g = goodByKey(x[0]); return (g ? g.name : x[0]) + '×' + x[1]; }).join('、');
+      $('qrcodetext').textContent = json;
+      closeCart();
+      $('qrpage').style.display = 'block';
+      try{ window.scrollTo(0, 0); }catch(e){}
+      var endAt = Date.now() + REDEEM_WINDOW_MS;
+      if(_qrTimer) clearInterval(_qrTimer);
+      _qrTimer = setInterval(function(){
+        var left = endAt - Date.now();
+        if(left <= 0){
+          clearInterval(_qrTimer); _qrTimer = null;
+          $('qrtimer').textContent = '已过期';
+          $('qrbox').innerHTML = '<div style="display:grid;place-items:center;height:100%;color:#B42318;font-size:14px;text-align:center;line-height:1.8">已过期<br>请返回重新生成</div>';
+          return;
+        }
+        var m = Math.floor(left / 60000), s = Math.floor((left % 60000) / 1000);
+        $('qrtimer').textContent = ('0' + m).slice(-2) + ':' + ('0' + s).slice(-2);
+      }, 500);
+    }).catch(function(e){
+      alert('生成失败：' + (e && e.message ? e.message : e));
+    });
+  };
+  window.qrDone = function(){
+    if(_qrTimer){ clearInterval(_qrTimer); _qrTimer = null; }
+    $('qrpage').style.display = 'none';
+    CART = {};
+    renderResult();
+  };
+
+  /* ---------- 结果渲染（含 v3.7.1 排名/筛选/商品） ---------- */
+  function renderResult(){
+    var data = _data;
     var h = '';
     h += '<div class="card hero">';
     h += '<div class="nm">' + esc(data.name || '') + '　<span style="color:var(--ink3);font-size:12.5px">' + esc(data.sid || '') + '</span></div>';
     h += '<div><span class="score">' + (Number(data.credit) || 0) + '</span><span class="unit">分</span></div>';
-    if(data.level) h += '<div class="lv">' + esc(data.level) + '</div>';
+    if(data.level) h += '<div><span class="lv">' + esc(data.level) + '</span>';
+    if(data.rank && data.total) h += '<span class="rankseal">第 ' + data.rank + ' 名 · 共 ' + data.total + ' 人</span>';
+    if(data.level) h += '</div>';
     h += '<div class="trend">';
     h += '<div><span class="k">本周</span><span class="v ' + trendCls(data.weekNet) + '">' + signed(data.weekNet) + '</span></div>';
     h += '<div><span class="k">本月</span><span class="v ' + trendCls(data.monthNet) + '">' + signed(data.monthNet) + '</span></div>';
     h += '</div>';
-    if(typeof data.coins === 'number' && data.coins > 0){
+    if(typeof data.coins === 'number'){
       h += '<div class="coin-line">学分币 <b>' + data.coins + '</b> 币 · 可在兑换商店使用</div>';
     }
     h += '</div>';
 
     var ops = data.ops || [];
-    h += '<div class="sec-title">学分流水<span>' + (ops.length ? '共 ' + ops.length + ' 条' : '') + '</span></div>';
-    if(!ops.length){
-      h += '<div class="empty">本学期暂无加减分记录</div>';
+    h += '<div class="sec-title">学分流水<span>' + (ops.length ? '本学期共 ' + ops.length + ' 条' : '') + '</span></div>';
+    h += '<div class="chips" id="opChips"></div>';
+    var fs = opsFilters(ops);
+    var cur = fs.filter(function(f){ return f.k === _curOpsFilter; })[0] || fs[0];
+    if(!cur.list.length){
+      h += '<div class="empty">该时段暂无加减分记录</div>';
     } else {
+      var plus = 0, minus = 0;
+      cur.list.forEach(function(o){ var a = Number(o.amount) || 0; if(a > 0) plus += a; else minus += Math.abs(a); });
+      h += '<div class="opsum"><span>共 ' + cur.list.length + ' 条</span><span>＋' + plus + ' / −' + minus + '</span></div>';
       var lastDay = '';
-      ops.forEach(function(o){
+      cur.list.forEach(function(o){
         var dk = dayKey(o.time);
         if(dk !== lastDay){ h += '<div class="day">' + esc(dk) + '</div>'; lastDay = dk; }
         var amt = Number(o.amount) || 0;
@@ -312,15 +555,39 @@
       });
     }
 
-    var footAt = meta && meta.publishedAt ? new Date(meta.publishedAt) : null;
-    h += '<div class="foot">';
-    if(footAt) h += '数据截至 ' + footAt.getFullYear() + '年' + (footAt.getMonth() + 1) + '月' + footAt.getDate() +
-                    '日 ' + ('0' + footAt.getHours()).slice(-2) + ':' + ('0' + footAt.getMinutes()).slice(-2) + '<br>';
-    h += '如与班主任记录不一致，请以班主任处为准<br>由班主任工作台生成';
-    h += '</div>';
+    var goods = data.goods || [];
+    if(goods.length){
+      h += '<div class="sec-title">可兑换商品<span>点 ＋ 加入兑换清单 · 一起结算</span></div>';
+      var cats = [''].concat(Object.keys(goods.reduce(function(a, g){ a[g.cat || '其他'] = 1; return a; }, {})));
+      h += '<div class="chips" id="catChips">' + cats.map(function(c){
+        var n = c ? goods.filter(function(g){ return (g.cat || '其他') === c; }).length : goods.length;
+        return '<span class="chip' + (_curCat === c ? ' on' : '') + '" onclick="setCat(\'' + esc(c) + '\')">' +
+               (c || '全部') + '<span class="n">' + n + '</span></span>';
+      }).join('') + '</div>';
+      var list = _curCat ? goods.filter(function(g){ return (g.cat || '其他') === _curCat; }) : goods;
+      h += '<div class="goods">' + list.map(function(g){
+        var inCart = cartQty(g.key), dim = !g.remain;
+        var canAdd = (g.remain - inCart) > 0;
+        return '<div class="good' + (dim ? ' dim' : '') + '">' +
+          (inCart ? '<span class="incart">清单×' + inCart + '</span>' : '') +
+          '<span class="gi">' + esc(g.icon || '') + '</span><span class="gn">' + esc(g.name) + '</span>' +
+          '<span class="gc">' + esc(g.cat || '') + ' · ' + (dim ? '本月已兑满' : '本月余 ' + g.remain + '/' + g.limit) + '</span>' +
+          '<span class="gp"><b>' + g.cost + '</b> 币</span>' +
+          '<button class="addbtn"' + (canAdd ? '' : ' disabled') + ' onclick="addToCart(\'' + esc(g.key) + '\')">' +
+          (dim ? '已兑满' : (canAdd ? '＋ 加购' : '已加满')) + '</button></div>';
+      }).join('') + '</div>';
+    }
 
+    h += '<div class="foot" id="resultFoot"></div>';
     $('result').innerHTML = h;
-    $('foot').innerHTML = '<a href="javascript:location.reload()">切换学号重新查询</a>';
+    renderOpsChips(ops);
+    var footAt = window.__pubMeta && window.__pubMeta.publishedAt ? new Date(window.__pubMeta.publishedAt) : null;
+    var fh = '';
+    if(footAt) fh += '数据截至 ' + footAt.getFullYear() + '年' + (footAt.getMonth() + 1) + '月' + footAt.getDate() +
+                    '日 ' + ('0' + footAt.getHours()).slice(-2) + ':' + ('0' + footAt.getMinutes()).slice(-2) + '<br>';
+    fh += '如与班主任记录不一致，请以班主任处为准<br>由班主任工作台生成';
+    var rf = $('resultFoot'); if(rf) rf.innerHTML = fh;
+    renderCartBar();
     try{ window.scrollTo(0, 0); }catch(e){}
   }
 
@@ -370,7 +637,15 @@
         clearFail();
         setBusy(false);
         payloadCache = null;          // 明文只在内存里活一次，渲染完即丢弃
-        render(data, p);
+        _data = data;                 // v3.7.1 兑换与筛选需要驻留（仅本页内存，不落盘）
+        _blkSalt = blk.salt;
+        window.__lastCode = code;
+        window.__pubMeta = p;
+        _curOpsFilter = 'recent'; _curCat = '';
+        CART = {};
+        $('formCard').classList.add('hidden');
+        renderResult();
+        $('foot').innerHTML = '<a href="javascript:location.reload()">切换学号重新查询</a>';
       });
     }).catch(function(e){
       setBusy(false);

@@ -2603,7 +2603,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.7.0</div>
+      <div class="login-version">v3.7.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2725,7 +2725,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.7.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.7.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3498,19 +3498,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.7.0</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.7.1</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.7.0）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.7.1）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
- · 🔑 <b>学生查询端（v3.7.0）</b>：学生可用「学号 + 8 位专属码」查看<b>自己的</b>学分与流水——公示页「🔑 学生查询端」一键导出码表并发布；每生一块独立密文，只解自己那份；<b>不含</b>家长电话、住址、生日、备注、标签、寝室<br>
+ · 🛒 <b>学生自助兑换（v3.7.1）</b>：学生端可加购物车批量结算，生成 10 分钟时效二维码（查询码签名防伪）；老师端「📷 兑换核销」三入口收码（摄像头扫码 / 粘贴码原文 / 粘贴·拖入截图识别）→ 验签 → 实时校验余额月余 → 一键入账；查询端新增学分排名与商品分类筛选<br> · 🔑 <b>学生查询端（v3.7.0）</b>：学生可用「学号 + 8 位专属码」查看<b>自己的</b>学分与流水——公示页「🔑 学生查询端」一键导出码表并发布；每生一块独立密文，只解自己那份；<b>不含</b>家长电话、住址、生日、备注、标签、寝室<br>
  · 📱 <b>手机端学期报告入口（v3.6.10）</b>：「更多」抽屉新增学期报告（原先只在桌面侧栏，手机进不去）；快速加减分弹窗内的「按寝室」捷径撤下——请用学分页「🏠 按寝室加减分」专用入口<br>
  · 📊 <b>首页学分分布空白修复（v3.6.9）</b>：修复冷启动时首页「学分分布」卡片空白——echarts 懒加载完成后的补画函数在移植时缺失（异常被静默吞掉），现已补齐；加载失败时自动回退原图表<br>
  · 🏠 <b>学分批量按寝室选择（v3.6.8）</b>：学分加减分模块「全班全选」左侧新增「按寝室」——下拉列出全部寝室与人数，点选即整寝选入/移出，快速给目标寝室加减分<br>
@@ -18354,6 +18354,20 @@ function buildPortalPayload(st, opts){
     (byStu[k] = byStu[k] || []).push(o);
   });
   var ledger = ((st.creditBank || {}).ledger) || [];
+  /* v3.7.1 排名（学分降序、并列同名次；与商品清单一样只走白名单输出） */
+  var ranked = (st.students || []).slice().sort(function(a, b){ return (Number(b.credit) || 0) - (Number(a.credit) || 0); });
+  var rankMap = {}, totalStu = 0, lastC = null, lastR = 0;
+  ranked.forEach(function(s, i){
+    var sid0 = String(s.sid == null ? '' : s.sid).trim();
+    if(!sid0) return;
+    totalStu++;
+    var c = Number(s.credit) || 0;
+    if(lastC !== null && c === lastC){ rankMap[sid0] = lastR; }
+    else { rankMap[sid0] = i + 1; lastR = i + 1; lastC = c; }
+  });
+  /* v3.7.1 商品清单（上架项 + 该生当月余量；typeof 守卫防测试沙箱缺依赖） */
+  var goodsAll = (typeof cbStoreItems === 'function') ? cbStoreItems() : [];
+  var monthKeyNow = (typeof cbMonthKey === 'function') ? cbMonthKey() : '';
   var out = {};
   (st.students || []).forEach(function(s){
     var sid = String(s.sid == null ? '' : s.sid).trim();
@@ -18379,6 +18393,14 @@ function buildPortalPayload(st, opts){
       coins: (typeof cbCoinsOf === 'function') ? cbCoinsOf(s.id, st.operations || [], ledger) : 0,
       weekNet: weekNet,
       monthNet: monthNet,
+      rank: rankMap[sid] || 0,
+      total: totalStu,
+      goods: goodsAll.map(function(it){
+        var used = (typeof cbStoreUsedCount === 'function') ? cbStoreUsedCount(s.id, it.key, monthKeyNow) : 0;
+        var lim = Number(it.limit) || 1;
+        return { key: it.key, icon: it.icon, name: it.name, cat: it.cat || '其他',
+                 cost: Number(it.cost) || 0, limit: lim, remain: Math.max(0, lim - used) };
+      }),
       ops: head
     };
   });
@@ -18746,6 +18768,7 @@ function renderPortalPanel(){
   /* 按钮区 */
   h += '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
        '<button class="btn btn-primary btn-sm" onclick="publishPortal()">' + (pub && !pub.revoked ? '🔄 重新发布' : '🚀 发布') + '</button>' +
+       '<button class="btn btn-primary btn-sm" onclick="openPortalRedeemModal()">📷 兑换核销</button>' +
        '<button class="btn btn-sm" onclick="exportPortalCodes()">📋 导出码表</button>' +
        '<button class="btn btn-sm" onclick="configPortalToken()">🔑 配置 Token</button>' +
        '<button class="btn btn-sm" onclick="regenerateAllPortalCodes()">🎲 全部重发码</button>';
@@ -18776,6 +18799,269 @@ function portalCopyUrl(){
   } else {
     window.prompt('手动复制：', pub.url);
   }
+}
+
+/* ==================== 学生查询端·自助兑换核销（v3.7.1） ====================
+   学生端 portal 页：购物车 → 结算 → 生成二维码（10 分钟时效、一次性 nonce、
+   查询码 PBKDF2 派生 HMAC-SHA256 签名，与查询分片同源密钥材料）。
+   老师端本模块：三种入口收码（📷 摄像头扫码 / 粘贴码原文 / 粘贴·拖入·选入图片识别，
+   解码统一走 jsQR——懒加载 ./jsqr.min.js）→ 验签 → 按老师端实时数据校验
+   （商品在架/月余/币余额）→ confirm → 复用 cbRedeem 入账（券+扣币+流水）。
+   铁律：账本唯一事实源仍是老师端；学生端清单只是「带签名的申请单」。 */
+const PORTAL_REDEEM_VER = 'CM1';
+const PORTAL_REDEEM_WINDOW_MS = 10 * 60 * 1000;
+function portalRedeemCanonical(o){
+  return PORTAL_REDEEM_VER + '|' + o.sid + '|' +
+    (o.items || []).map(function(x){ return x[0] + ':' + x[1]; }).join(',') + '|' +
+    o.total + '|' + o.ts + '|' + o.nonce;
+}
+/* 与学生端同源派生：PBKDF2(码, salt, 250000) → HMAC-SHA256 验签密钥 */
+function portalRedeemHmacKey(code, salt){
+  var material = normalizePortalCode(code);
+  return crypto.subtle.importKey('raw', new TextEncoder().encode(material), 'PBKDF2', false, ['deriveKey'])
+    .then(function(base){
+      return crypto.subtle.deriveKey(
+        { name:'PBKDF2', salt:salt, iterations:PBKDF2_ROUNDS, hash:'SHA-256' },
+        base, { name:'HMAC', hash:'SHA-256' }, false, ['verify']);
+    });
+}
+function portalMarkRedeemNonce(nonce){
+  state.portalPublish = state.portalPublish || {};
+  var n = state.portalPublish.redeemNonces = state.portalPublish.redeemNonces || {};
+  var cut = Date.now() - 7 * 86400000;
+  Object.keys(n).forEach(function(k){ if(n[k] < cut) delete n[k]; });
+  n[nonce] = Date.now();
+  saveData();
+}
+/* 验证（纯校验，不入账）。成功 resolve({ok:true, sid, student, items:[{it,qty}], total, coin})，
+   失败 resolve({ok:false, msg})。所有失败都给中文原因，confirm 之前零副作用。 */
+function portalVerifyRedeem(raw){
+  return new Promise(function(resolve){
+    var p;
+    try{ p = (typeof raw === 'string') ? JSON.parse(raw) : raw; }catch(e){ resolve({ok:false, msg:'兑换码格式不对（不是有效的凭据）'}); return; }
+    if(!p || p.v !== PORTAL_REDEEM_VER || !p.sid || !Array.isArray(p.items) || !p.items.length ||
+       !p.total || !p.ts || !p.nonce || !p.salt || !p.sig){
+      resolve({ok:false, msg:'兑换码内容不完整'}); return;
+    }
+    var s = (state.students || []).find(function(x){ return String(x.sid == null ? '' : x.sid).trim() === String(p.sid).trim(); });
+    if(!s){ resolve({ok:false, msg:'学号 ' + portalEsc(p.sid) + ' 不在本班（或已退班）'}); return; }
+    var code = (state.portalCodes || {})[String(p.sid).trim()];
+    if(!code){ resolve({ok:false, msg:'该生还没有查询码，请先「导出码表」并重新发布'}); return; }
+    if(Math.abs(Date.now() - Number(p.ts)) > PORTAL_REDEEM_WINDOW_MS){
+      resolve({ok:false, msg:'兑换码已过期（有效期 10 分钟），请让学生重新生成'}); return;
+    }
+    var nonces = ((state.portalPublish || {}).redeemNonces) || {};
+    if(nonces[p.nonce]){ resolve({ok:false, msg:'这个兑换码已经核销过了（一次性凭据）'}); return; }
+    /* 业务校验：商品在架 / 数量 / 月余 / 币余额（以老师端实时数据为准） */
+    var month = (typeof cbMonthKey === 'function') ? cbMonthKey() : '';
+    var plan = [], calcTotal = 0;
+    for(var i = 0; i < p.items.length; i++){
+      var key = p.items[i][0], qty = Number(p.items[i][1]) || 0;
+      var it = (typeof cbStoreItemByKey === 'function') ? cbStoreItemByKey(key) : null;
+      if(!it){ resolve({ok:false, msg:'商品 ' + portalEsc(String(key)) + ' 已不存在（可能已删除）'}); return; }
+      if(it.on === false){ resolve({ok:false, msg:'「' + it.name + '」已下架，请让学生重新选择'}); return; }
+      if(qty < 1 || qty > 10){ resolve({ok:false, msg:'「' + it.name + '」数量异常'}); return; }
+      var used = (typeof cbStoreUsedCount === 'function') ? cbStoreUsedCount(s.id, key, month) : 0;
+      if(qty > (it.limit - used)){ resolve({ok:false, msg:'「' + it.name + '」本月余量不足（余 ' + Math.max(0, it.limit - used) + '）'}); return; }
+      plan.push({ it: it, qty: qty });
+      calcTotal += (Number(it.cost) || 0) * qty;
+    }
+    if(calcTotal !== Number(p.total)){ resolve({ok:false, msg:'合计对不上（学生端 ' + p.total + ' 币 / 当前 ' + calcTotal + ' 币），可能数据滞后，请让学生刷新后重新生成'}); return; }
+    var ledger = ((state.creditBank || {}).ledger) || [];
+    var coin = (typeof cbCoinsOf === 'function') ? cbCoinsOf(s.id, state.operations || [], ledger) : 0;
+    if(coin < calcTotal){ resolve({ok:false, msg:portalEsc(s.name) + ' 币余额不足（现有 ' + coin + ' 币，需 ' + calcTotal + ' 币）'}); return; }
+    /* 验签：码派生 HMAC 校验（伪造成不了，改一位都过不了） */
+    var saltB, sigB;
+    try{ saltB = _b64dec(p.salt); sigB = _b64dec(p.sig); }
+    catch(e){ resolve({ok:false, msg:'兑换码签名数据损坏'}); return; }
+    portalRedeemHmacKey(code, saltB).then(function(key){
+      return crypto.subtle.verify('HMAC', key, sigB, new TextEncoder().encode(portalRedeemCanonical(p)));
+    }).then(function(good){
+      if(!good){ resolve({ok:false, msg:'签名校验失败：兑换码被改动过或查询码已更换'}); return; }
+      resolve({ok:true, sid:p.sid, student:s, items:plan, total:calcTotal, coin:coin, raw:p});
+    }).catch(function(){
+      resolve({ok:false, msg:'验签过程出错（当前环境可能不支持加密）'});
+    });
+  });
+}
+/* 入账：confirm → 逐件走 cbRedeem（自带校验/发券/扣币/流水）→ 记 nonce防重放 */
+function portalExecuteRedeem(v){
+  var lines = v.items.map(function(x){ return '· ' + x.it.icon + ' ' + x.it.name + ' × ' + x.qty + '（' + (x.it.cost * x.qty) + ' 币）'; }).join('\n');
+  if(!confirm('核销学生自助兑换？\n\n学生：' + v.student.name + '（' + v.sid + '）\n' + lines + '\n合计：' + v.total + ' 币（现有 ' + v.coin + ' 币）\n\n将立即发券并扣币。')) return;
+  var okN = 0, failMsg = '';
+  v.items.forEach(function(x){
+    for(var i = 0; i < x.qty; i++){
+      var r = (typeof cbRedeem === 'function') ? cbRedeem(v.student.id, x.it.key) : null;
+      if(r) okN++; else failMsg = '（部分未成功，可能余量/余额在核对间隙变化）';
+    }
+  });
+  portalMarkRedeemNonce(v.raw.nonce);
+  cbPersist();
+  showToast('已核销 ' + okN + ' 件，扣 ' + v.total + ' 币' + failMsg + '。学生端数据下次发布后更新', 'success');
+  var m = document.getElementById('portalRedeemModal'); if(m) m.remove();
+}
+/* ---------- 核销弹窗：三种收码入口 ---------- */
+function openPortalRedeemModal(){
+  if(window.__cmRole === 'committee'){ showToast('班委无核销权限', 'error'); return; }
+  var old = document.getElementById('portalRedeemModal'); if(old) old.remove();
+  var d = document.createElement('div');
+  d.id = 'portalRedeemModal';
+  d.style.cssText = 'position:fixed;inset:0;z-index:2147483000;background:rgba(20,16,12,.45);display:flex;align-items:center;justify-content:center;padding:16px';
+  d.onclick = function(ev){ if(ev.target === d) portalCloseRedeem(); };
+  d.innerHTML =
+    '<div style="background:var(--card-bg);color:var(--text);border:1px solid var(--border);border-radius:16px;max-width:520px;width:100%;max-height:88vh;overflow:auto;padding:20px 22px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
+        '<div style="font-size:16px;font-weight:700">📷 学生自助兑换 · 核销</div>' +
+        '<button onclick="portalCloseRedeem()" style="border:0;background:none;font-size:24px;line-height:1;cursor:pointer;color:var(--text-muted)">×</button>' +
+      '</div>' +
+      '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">学生出示兑换二维码后，三种方式任选：<b>手机点下方摄像头扫码</b> / 电脑<b>粘贴码原文</b> / <b>Ctrl+V 粘贴二维码截图</b>（也支持拖入或选图）</div>' +
+      '<textarea id="prCode" rows="3" placeholder="粘贴学生兑换码原文（二维码下方那串 CM1|… 或 {…}）" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font-size:12.5px;font-family:Consolas,monospace;background:var(--bg);color:var(--text)"></textarea>' +
+      '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">' +
+        '<button class="btn btn-primary btn-sm" onclick="portalRedeemFromText()">✔ 验证并核销</button>' +
+        '<button class="btn btn-sm" onclick="portalScanCamera()">📷 摄像头扫码</button>' +
+        '<button class="btn btn-sm" onclick="document.getElementById(\'prFile\').click()">🖼 选择二维码图片</button>' +
+        '<input type="file" id="prFile" accept="image/*" style="display:none" onchange="portalRedeemFromFile(this)">' +
+      '</div>' +
+      '<div id="prDrop" style="margin-top:10px;border:1.5px dashed var(--border);border-radius:12px;padding:14px;text-align:center;font-size:12px;color:var(--text-muted);cursor:pointer" onclick="document.getElementById(\'prFile\').click()">二维码截图拖到这里，或在此页直接 Ctrl+V 粘贴</div>' +
+      '<div id="prVideoBox" style="display:none;margin-top:10px;text-align:center">' +
+        '<video id="prVideo" playsinline style="width:100%;max-width:300px;border-radius:12px;background:#000"></video>' +
+        '<div style="font-size:12px;color:var(--text-muted);margin-top:6px">对准学生的兑换二维码…</div>' +
+      '</div>' +
+      '<div id="prResult" style="margin-top:12px"></div>' +
+    '</div>';
+  document.body.appendChild(d);
+  /* 粘贴图片（截图直接 Ctrl+V）与拖入 */
+  d.addEventListener('paste', function(ev){
+    var items = (ev.clipboardData || {}).items || [];
+    for(var i = 0; i < items.length; i++){
+      if(items[i].type && items[i].type.indexOf('image') === 0){
+        ev.preventDefault();
+        portalRedeemFromBlob(items[i].getAsFile());
+        return;
+      }
+    }
+  });
+  var drop = d.querySelector('#prDrop');
+  drop.addEventListener('dragover', function(ev){ ev.preventDefault(); drop.style.borderColor = 'var(--primary)'; });
+  drop.addEventListener('dragleave', function(){ drop.style.borderColor = 'var(--border)'; });
+  drop.addEventListener('drop', function(ev){
+    ev.preventDefault(); drop.style.borderColor = 'var(--border)';
+    var f = (ev.dataTransfer || {}).files || [];
+    if(f[0]) portalRedeemFromBlob(f[0]);
+  });
+}
+function portalCloseRedeem(){
+  portalStopCamera();
+  var m = document.getElementById('portalRedeemModal'); if(m) m.remove();
+}
+function portalRedeemShow(html){
+  var el = document.getElementById('prResult');
+  if(el) el.innerHTML = '<div style="border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.8;background:var(--row-bg)">' + html + '</div>';
+}
+function portalRedeemFromText(){
+  var t = String((document.getElementById('prCode') || {}).value || '').trim();
+  if(!t){ showToast('请先粘贴兑换码原文', 'warning'); return; }
+  portalVerifyRedeem(t).then(function(v){
+    if(!v.ok){ portalRedeemShow('<b style="color:var(--danger)">✗ ' + v.msg + '</b>'); return; }
+    portalShowConfirmCard(v);
+  });
+}
+/* jsQR 懒加载（与 echarts 同款策略，用完常驻内存即可） */
+function portalEnsureJsQr(cb){
+  if(window.jsQR){ cb(); return; }
+  var s = document.createElement('script');
+  s.src = './jsqr.min.js';
+  s.onload = cb;
+  s.onerror = function(){ showToast('解码器加载失败（jsqr.min.js），请用码原文粘贴核销', 'error'); };
+  document.head.appendChild(s);
+}
+function portalRedeemFromBlob(blob){
+  if(!blob) return;
+  var fr = new FileReader();
+  fr.onload = function(){ portalDecodeImageUri(fr.result); };
+  fr.readAsDataURL(blob);
+}
+function portalRedeemFromFile(inp){
+  if(inp.files && inp.files[0]) portalRedeemFromBlob(inp.files[0]);
+  inp.value = '';
+}
+function portalDecodeImageUri(dataUri){
+  portalRedeemShow('正在识别二维码…');
+  portalEnsureJsQr(function(){
+    var img = new Image();
+    img.onload = function(){
+      try{
+        var cv = document.createElement('canvas');
+        cv.width = img.width; cv.height = img.height;
+        var ctx = cv.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        var d = ctx.getImageData(0, 0, cv.width, cv.height);
+        var r = window.jsQR(d.data, cv.width, cv.height);
+        if(r && r.data){ (document.getElementById('prCode') || {}).value = r.data; portalRedeemFromText(); }
+        else portalRedeemShow('<b style="color:var(--danger)">✗ 图里没识别到二维码</b>（截图一般可识别；拍照反光/角度差会失败）——请让学生把二维码下方的码原文发来粘贴');
+      }catch(e){ portalRedeemShow('<b style="color:var(--danger)">✗ 图片解析失败：' + portalEsc(e.message) + '</b>'); }
+    };
+    img.onerror = function(){ portalRedeemShow('<b style="color:var(--danger)">✗ 图片无法读取</b>'); };
+    img.src = dataUri;
+  });
+}
+/* 摄像头实时扫码（手机/带摄像头电脑） */
+var _prScanStop = null;
+function portalStopCamera(){
+  if(_prScanStop){ try{ _prScanStop(); }catch(e){} _prScanStop = null; }
+  var box = document.getElementById('prVideoBox'); if(box) box.style.display = 'none';
+}
+function portalScanCamera(){
+  portalEnsureJsQr(function(){
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      showToast('当前浏览器不支持摄像头扫码，请用粘贴码原文/贴图', 'warning'); return;
+    }
+    var box = document.getElementById('prVideoBox');
+    var video = document.getElementById('prVideo');
+    if(!box || !video) return;
+    navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' }, audio:false }).then(function(stream){
+      box.style.display = '';
+      video.srcObject = stream;
+      video.play();
+      var cv = document.createElement('canvas'), ctx = cv.getContext('2d'), stopped = false;
+      _prScanStop = function(){
+        stopped = true;
+        try{ stream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
+      };
+      (function tick(){
+        if(stopped) return;
+        try{
+          if(video.videoWidth){
+            cv.width = video.videoWidth; cv.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+            var d = ctx.getImageData(0, 0, cv.width, cv.height);
+            var r = window.jsQR(d.data, cv.width, cv.height);
+            if(r && r.data){
+              portalStopCamera();
+              (document.getElementById('prCode') || {}).value = r.data;
+              portalRedeemFromText();
+              return;
+            }
+          }
+        }catch(e){}
+        requestAnimationFrame(tick);
+      })();
+    }).catch(function(e){
+      showToast('摄像头打开失败（' + (e && e.message ? e.message : '未授权') + '），可用粘贴方式', 'warning');
+    });
+  });
+}
+function portalShowConfirmCard(v){
+  var lines = v.items.map(function(x){
+    return '<div>· ' + portalEsc(x.it.icon + ' ' + x.it.name) + ' × ' + x.qty + '（' + (x.it.cost * x.qty) + ' 币）</div>';
+  }).join('');
+  portalRedeemShow(
+    '<div style="display:flex;justify-content:space-between;align-items:baseline"><b>✓ 验证通过</b>' +
+    '<span style="font-size:12px;color:var(--text-muted)">' + portalEsc(v.student.name) + ' · ' + portalEsc(v.sid) + ' · 币余 ' + v.coin + '</span></div>' +
+    lines + '<div style="margin-top:6px">合计 <b style="color:var(--primary)">' + v.total + '</b> 币</div>' +
+    '<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="portalExecuteRedeem(__prVerified)">✔ 确认核销入账</button>'
+  );
+  window.__prVerified = v;
 }
 
 // v2.20.0 学分周报：家长群友好版式（表扬实名、加油温和、预警只报人数不点名）

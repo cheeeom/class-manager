@@ -3536,3 +3536,14 @@ const lockStart = html.indexOf('/* v2.24.1 推送互斥');
 - [x] ⚠️ **未做**：真实 Gist 端到端发布（本机无发布 Token，需老板配一次自测）；浏览器截图（本次会话浏览器控制器持续超时，改用 DOM 引用一致性静态校验替代：学生端 8 个 id 全有定义、主站 24 个新函数全存在）。
 - [x] **顺带发现**：`AGENTS.md` §5.8「全站只有一处 PUT」**已不成立**——实际 3 处（`doPushToCloud` + reset + rekey），且**没有对应的守卫测试**。已在 SPEC §10.2 记录，待老板确认后修正 AGENTS。
 - [x] **推送**：待老板审阅后明示（`index.html` / `portal/` / `sw.js` / 4 个测试 / SPEC）。
+
+### 2026-10-24（v3.7.1：学生自助兑换 + 查询端增强——接手并行线 v3.7.0 后叠加）
+
+- [x] **交接**：并行线已完成 v3.7.0 学生查询端（学号+8位码、每生 AES-GCM 密文切片、公开 Gist 发布、码表/CSV/撤销、13 项守卫），老板令「他们完了你来」→ **现场原样入库 `7c6a6f0`**（86 套独立复验全绿），增强叠加其上。
+- [x] **快照扩展（buildPortalPayload）**：+rank/total（学分降序并列同名次）+goods[]（上架商品+每生当月余量，typeof 守卫防沙箱缺依赖）；白名单纪律不破（黑名单断言继续通过）。
+- [x] **学生端 portal 页**：排名印章/流水筛选 chips（最近8/本周/本月/全部+＋−汇总）/商品分类 chips/**购物车**（加购·数量上限=月余·浮条超预算拦截·清单±调量）/**真二维码**（内嵌同仓 qrcode.js MIT 零 CDN，10 分钟倒计时超时作废）。凭据 {v:CM1, sid, items, total, ts, nonce, salt, sig}，**HMAC-SHA256 与查询分片同源派生**（同码同盐同 250000 轮）；快照币不足静默拒绝出码。
+- [x] **老师端核销中心（新分节）**：面板「📷 兑换核销」→ 三入口收码（摄像头 jsQR 逐帧/粘码原文/Ctrl+V 贴图·拖入·选图，jsQR 懒加载 ./jsqr.min.js）→ portalVerifyRedeem 验签+实时校验（在册/窗效/nonce/在架/月余/合计/币余额以老师端为准）→ confirm → portalExecuteRedeem 逐件走 cbRedeem（券+扣币+流水）+ nonce 防重放。账本唯一事实源仍是老师端。
+- [x] **库与离线**：jsQR（cozmo，gh api 取）+ qrcode.js/qrcode_utf8.js（kazuhikoarase MIT）进 sw CORE_ASSETS。
+- [x] **守卫 _v371** 5 项；_v2273 row-bg 7→8；_v3610 动态化。**全量 87 套全绿**。
+- [x] **IAB 双端全链路**：造码→加密包（老师端往返自验）→查询（排名2/3·17商品）→加购 45 币→真码 09:59→粘码验签→入账（ledger -35/-10·pendingItems 两张·nonce 落账·弹窗自关）→重放拦截✓→jsQR 解真码✓→超预算拦截✓。坑：直接写 localStorage 绕过 saveData 致空码封片（OperationError）——ensurePortalCodes(true)+往返自验兜住。
+- [x] **推送**：待老板验收（真机扫码建议手机走一遍再推）。
