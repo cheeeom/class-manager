@@ -2603,7 +2603,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.6.4</div>
+      <div class="login-version">v3.6.5</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2725,7 +2725,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.6.4 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.6.5 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3497,18 +3497,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.6.4</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.6.5</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.6.4）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.6.5）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+ · 🛒 <b>商品卡片按价格升序（v3.6.5）</b>：兑换商店商品卡片自动按价格从低到高排列，改价保存后顺序即时更新（同价保持原目录序）<br>
  · 📥 <b>补齐默认商品（v3.6.4）</b>：兑换商店工具条新增「补齐默认商品」按钮——一键把默认表里本店还没有的商品补入（保留默认定价与月限，已有的商品一律不动），老班级也能用上新默认表<br>
  · 🛠 <b>阶梯送券兜底（v3.6.3）</b>：月度阶梯的券名与发放改为「实时目录 → 种子表」双查——目录里还没有新种子商品的老班级，阶梯文案不再露英文 key，勤学/优秀/卓越档结算送券不再漏发<br>
  · 🛒 <b>默认商品表重新设计（v3.6.2）</b>：新班级首次开通学分银行自动种入 15 件预设——旗舰「📱 报喜短信」，免值日分讲台（15 币）/教室·公区（30 币）两档，一周点歌权 14 币、随机小文具等，四栏分类（特权/餐饮/娱乐/实物）；月度奖励阶梯送券同步换绑。已有班级的商品目录不受影响<br>
@@ -6944,7 +6945,8 @@ function renderBankPage(){
         catHtml += '<div class="cb-chip' + (cbBankCat === c ? ' on' : '') + '" onclick="cbBankCatTo(\'' + cbEsc(c) + '\')">' + cbEsc(c) + '</div>';
       });
       // 商品卡片（按类别过滤；整卡点击看详情，卡内按钮不冒泡）
-      var list = cbStoreItems().filter(function(it){ return !cbBankCat || it.cat === cbBankCat; });
+      var list = cbStoreItems().filter(function(it){ return !cbBankCat || it.cat === cbBankCat; })
+        .sort(function(a, b){ return (Number(a.cost) || 0) - (Number(b.cost) || 0); });   // v3.6.5 卡片按价格升序（同价保持目录序；改价保存后重渲染即生效）
       var cards = '';
       list.forEach(function(it){
         var used = cbStoreUsedCount(cbStoreSid, it.key, month);

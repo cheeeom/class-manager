@@ -65,11 +65,11 @@ t('④ 差集语义：按 key 判缺（老板现役店仿真）', () => {
   ok(missingOf(['lateFree']).length === CB_STORE.length - 1, '只有一个在店时缺其余全部');
 });
 
-t('⑤ 版本 v3.6.4 一致性 + 默认表未动', () => {
+t('⑤ 版本一致性（动态跟版）+ 速览条目 + 默认表未动', () => {
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
-  ok(m && v && m[1] === v[1] && m[1] === 'v3.6.4', 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同为 v3.6.4');
-  has(html, '补齐默认商品（v3.6.4）', '速览当版条目');
+  ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同版（版本从 CACHE 反推，无需随版改）');
+  has(html, '补齐默认商品（v3.6.4）', '速览历史条目（v3.6.4）仍在');
   ok(CB_STORE.length === 15, 'CB_STORE 保持 15 件');
 });
 
