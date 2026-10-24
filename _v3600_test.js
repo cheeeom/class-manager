@@ -9,7 +9,9 @@
      3. 接管契约：window.renderGradeAnalyticsDetail / renderAnalytics 重挂 + 启动五接线 + echarts 懒加载回退；
      4. index.html：script 注入在主脚本后 </body> 前；v3.4.1 停更横幅（与本功能矛盾的公告）已摘除；
      5. sw.js：两新文件进 CORE_ASSETS（PWA 离线可用）+ CACHE_NAME 跟版；
-     6. 结构铁律：全文档 div 深度平衡（横幅摘除是结构手术）。
+     6. 结构铁律：全文档 div 深度平衡（横幅摘除是结构手术）；
+     7. v3.6.1 导航图标：i-report 精灵符号恰好一份 + cmgx 导航注入引用之（弃用 emoji），
+        报告面板 h3 标题的 emoji 属弹窗标题惯例、不在管制内。
 
    运行：node _v3600_test.js（版本号从 sw.js CACHE_NAME 反推，无需随版改） */
 const fs = require('fs');
@@ -104,6 +106,19 @@ t('⑥ 结构铁律：全文档 div 深度平衡（横幅摘除是结构手术�
   const o = (stripped.match(/<div\b/g) || []).length;
   const c = (stripped.match(/<\/div>/g) || []).length;
   ok(o === c, 'div 不平衡: 开 ' + o + ' 闭 ' + c);
+});
+
+t('⑦ v3.6.1 导航图标契约：学期报告并入 #i-xxx 线条图标体系', () => {
+  ok(cmgx, 'cmgx.js 缺失');
+  const nav = cmgx.match(/item\.innerHTML = '([^']*)';/);
+  ok(nav, 'cmgx 导航注入 innerHTML 缺失');
+  has(nav[1], '<svg class="ic"><use href="#i-report"/></svg>', '导航图标应为精灵引用');
+  notHas(nav[1], '🎓', '导航图标不得用 emoji');
+  const syms = html.match(/<symbol id="i-report"[^>]*>[\s\S]*?<\/symbol>/g) || [];
+  ok(syms.length === 1, 'i-report 符号应恰好 1 个（实际 ' + syms.length + '）');
+  ok(/viewBox="0 0 24 24"/.test(syms[0]) && !/fill=|stroke/.test(syms[0]), '符号须裸路径（继承全局 .ic 描边）');
+  // 导航注入口的符号必须真实存在于精灵图，防引用悬空
+  ok(html.indexOf('</symbol>\n</svg>') > html.indexOf('id="i-report"'), 'i-report 应位于精灵图容器内');
 });
 
 console.log('\n通过 ' + pass + ' 项，失败 ' + fail + ' 项');

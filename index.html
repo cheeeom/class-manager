@@ -2586,6 +2586,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <symbol id="i-dorm" viewBox="0 0 24 24"><path d="M3.5 12 7 6h10l3.5 6"/><path d="M5 12v7.5h14V12"/><path d="M8.5 19.5v-4h7v4"/><path d="M12 16V9.5"/></symbol>
 <symbol id="i-credit-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
 <symbol id="i-credit-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+<symbol id="i-report" viewBox="0 0 24 24"><path d="M12 4 2.8 8.6 12 13.2 21.2 8.6Z"/><path d="M6.6 10.9v4.3c0 1.65 2.4 3 5.4 3s5.4-1.35 5.4-3v-4.3"/><path d="M21.2 8.6v5.4"/></symbol>
 </svg>
 
 <!-- ==================== Login Page ==================== -->
@@ -2602,7 +2603,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.6.0</div>
+      <div class="login-version">v3.6.1</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2724,7 +2725,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.6.0 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.6.1 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3496,18 +3497,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.6.0</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.6.1</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.6.0）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.6.1）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+ · 🎨 <b>学期报告导航图标线条化（v3.6.1）</b>：学士帽线条图标并入侧栏精灵图（#i-report），弃用 emoji，与其他导航图标同风格同尺寸<br>
  · 📊 <b>数据分析图表引擎 + 学期报告引擎上线（v3.6.0）</b>：成绩分析（KPI 环比/直方图/雷达/趋势/名次流动/学业预警）、学分分析（KPI 六卡/五档分布/近 7 天净变动/进退步榜）全部 ECharts 重绘，自动适配皮肤与暗色；首页学分分布与公示页四图统一纸墨主题；侧栏新增 <b>🎓 学期报告</b>（个人/班级报告，长图导出 + 打印 PDF）<br>
           </div>
           </div>

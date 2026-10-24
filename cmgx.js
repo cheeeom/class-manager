@@ -1,4 +1,4 @@
-/*! cmgx.js — 班主任工作台 网页版 增强引擎（v3.6.0）
+/*! cmgx.js — 班主任工作台 网页版 增强引擎（v3.6.1）
  *  内容：数据分析图表引擎（成绩/学分/首页/公示，ECharts + 纸墨主题）+ 学期报告引擎（个人/班级，长图/打印PDF）
  *  移植自桌面版注入层（class-manager-desktop v1.5.5 app/src/app.patch.js 的 M3/P0/P1/P2 分节），
  *  网页版全部功能免费开放（无 Pro 闸）。echarts.min.js 首次渲染时懒加载，失败/超时静默回退原实现；
@@ -1412,7 +1412,7 @@ function gxPlayCounters(root) {
     var item = el('div', 'nav-item');
     item.id = 'cmNavReport';
     item.title = '学期报告（个人 / 班级）';
-    item.innerHTML = '<span class="nav-icon">🎓</span><span class="nav-text">学期报告</span>';
+    item.innerHTML = '<span class="nav-icon"><svg class="ic"><use href="#i-report"/></svg></span><span class="nav-text">学期报告</span>';
     item.addEventListener('click', function () { if (typeof cmReportOpen === 'function') cmReportOpen(); });
     if (settingsItem) settingsItem.parentNode.insertBefore(item, settingsItem);
     else nav.appendChild(item);
