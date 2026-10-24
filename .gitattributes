@@ -1,0 +1,5 @@
+# 机器生成/压缩文件：禁行尾改写，保字节稳定（cmgx 溯源锁依赖与桌面源逐字节一致）
+echarts.min.js -text
+pdf.min.js -text
+pdf.worker.min.js -text
+cmgx.js -text
