@@ -58,11 +58,11 @@ t('④ 老目录场景仿真：种子表能兜出阶梯全部券名与图标', (
   }));
 });
 
-t('⑤ 版本跟版 v3.6.3 + 速览条目 + CB_STORE 未动', () => {
+t('⑤ 版本一致性（动态跟版）+ 速览条目 + CB_STORE 未动', () => {
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
-  ok(m && v && m[1] === v[1] && m[1] === 'v3.6.3', 'CACHE ' + (m && m[1]) + ' 与登录页 ' + (v && v[1]) + ' 应同为 v3.6.3');
-  has(html, '阶梯送券兜底（v3.6.3）', '速览当版条目');
+  ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' 与登录页 ' + (v && v[1]) + ' 应同版（版本从 CACHE 反推，无需随版改）');
+  has(html, '阶梯送券兜底（v3.6.3）', '速览历史条目（v3.6.3）仍在');
   ok(CB_STORE.length === 15, 'CB_STORE 应保持 15 件（本版未动表），实际 ' + CB_STORE.length);
 });
 
