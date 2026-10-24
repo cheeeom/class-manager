@@ -40,11 +40,11 @@ t('② 失焦安全网：框空且有选中 → 自动补回姓名', () => {
   ok(/if\(!cbStoreSid \|\| !inp\) return;/.test(rfn), '无选中/无框时不动作');
 });
 
-t('③ 版本 v3.6.6 一致性 + 速览条目', () => {
+t('③ 版本一致性（动态跟版）+ 速览条目', () => {
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
-  ok(m && v && m[1] === v[1] && m[1] === 'v3.6.6', 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同为 v3.6.6');
-  has(html, '选中学生姓名常显（v3.6.6）', '速览当版条目');
+  ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同版（版本从 CACHE 反推，无需随版改）');
+  has(html, '选中学生姓名常显（v3.6.6）', '速览历史条目（v3.6.6）仍在');
 });
 
 console.log('\n通过 ' + pass + ' 项，失败 ' + fail + ' 项');

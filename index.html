@@ -2603,7 +2603,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.6.6</div>
+      <div class="login-version">v3.6.8</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2725,7 +2725,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.6.6 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.6.8 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3497,18 +3497,20 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.6.6</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.6.8</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.6.6）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.6.8）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
+ · 🏠 <b>学分批量按寝室选择（v3.6.8）</b>：学分加减分模块「全班全选」左侧新增「按寝室」——下拉列出全部寝室与人数，点选即整寝选入/移出，快速给目标寝室加减分<br>
+ · 🧹 <b>劳动整改批量多选（v3.6.7）</b>：记劳动整改支持一次选多名学生批量记录（连续点选/已选名单常显/标签可单个移除）；修复选中学生后输入框不显示姓名的问题<br>
  · 🔍 <b>选中学生姓名常显（v3.6.6）</b>：兑换商店选中学生后姓名始终可见——再点搜索框不再清空名字（全选待替换），误清空后失焦自动补回，选中状态一目了然<br>
  · 🛒 <b>商品卡片按价格升序（v3.6.5）</b>：兑换商店商品卡片自动按价格从低到高排列，改价保存后顺序即时更新（同价保持原目录序）<br>
  · 📥 <b>补齐默认商品（v3.6.4）</b>：兑换商店工具条新增「补齐默认商品」按钮——一键把默认表里本店还没有的商品补入（保留默认定价与月限，已有的商品一律不动），老班级也能用上新默认表<br>
@@ -3999,13 +4001,14 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
     <h3>记劳动整改</h3>
     <div class="modal-body">
       <div class="form-group">
-        <label>学生</label>
+        <label>学生（可多选批量记录）</label>
         <div class="search-select-wrapper" style="position:relative;z-index:20">
           <input type="text" id="punishStudentInput" placeholder="输入姓名或学号搜索..." autocomplete="off"
             style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:14px"
             oninput="filterPunishStudents()" onfocus="showPunishStudentList()" onblur="setTimeout(hidePunishStudentList,200)">
           <div id="punishStudentDropdown" class="search-select-dropdown" style="display:none"></div>
         </div>
+        <div id="punishSelectedChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
       </div>
       <div style="display:flex;gap:10px">
         <div class="form-group" style="flex:1">
@@ -4284,7 +4287,11 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
         </div>
         <div class="credit-sel-head" style="margin-top:10px">
           <span>已选（<b id="creditSelCount">0</b> 人）</span>
-          <span style="display:flex;gap:4px">
+          <span style="display:flex;gap:4px;align-items:center">
+            <span style="position:relative;display:inline-block">
+              <button type="button" class="btn btn-outline btn-sm" style="padding:1px 8px;font-size:11px" onclick="toggleDormPickList(event)">🏠 按寝室</button>
+              <div id="dormPickList" class="search-select-dropdown" style="display:none;min-width:150px;max-height:260px;overflow-y:auto"></div>
+            </span>
             <button type="button" class="btn btn-outline btn-sm" style="padding:1px 8px;font-size:11px" onclick="selectAllCreditStudents()">全班全选</button>
             <button type="button" class="btn btn-outline btn-sm" style="padding:1px 8px;font-size:11px" onclick="clearCreditStudents()">清空</button>
           </span>
@@ -10018,7 +10025,7 @@ function studentSuggestDropdown(opts){
   var input = document.getElementById(opts.inputId);
   var dd = document.getElementById(opts.dropdownId);
   if(!input || !dd) return;
-  var q = (input.value || '').trim().toLowerCase();
+  var q = ((opts.getQuery ? opts.getQuery() : input.value) || '').trim().toLowerCase();
   var list = matchStudentsByName(opts.pool != null ? opts.pool : (state.students || []), q);
   if(list.length === 0){
     dd.innerHTML = '<div style="padding:8px 12px;color:var(--text-muted);font-size:13px">无匹配学生</div>';
@@ -11332,16 +11339,73 @@ function punishStatusFor(p, today){
   return { st: 'overdue', left: Math.round((t - e) / 86400000) };
 }
 
-var _punishSelectedId = null;
-
+/* v3.6.7 劳动整改批量多选（替代单选 _punishSelectedId；修复选中后输入框无姓名预览）
+   模式与学分批量一致：keepOpen 连续点选 + 行内 ✓/＋ + chips 已选预览可单个移除；
+   铁律「有选中必显名」：输入框常显已选名单（全选待替换），失焦空框自动补回。 */
+var _punishSelectedIds = [];
+function punishPreviewText(){
+  var names = _punishSelectedIds.map(function(id){
+    var s = state.students.find(function(x){ return x.id === id; });
+    return s ? s.name : '';
+  }).filter(Boolean);
+  if(!names.length) return '';
+  return names.length === 1 ? names[0] : names.join('、') + '（' + names.length + ' 人）';
+}
+function renderPunishSelectedChips(){
+  var box = document.getElementById('punishSelectedChips');
+  if(!box) return;
+  if(!_punishSelectedIds.length){
+    box.innerHTML = '<span style="font-size:12px;color:var(--text-muted)">输入姓名或学号搜索，点选学生；可连续点选多人批量记录</span>';
+    return;
+  }
+  box.innerHTML = _punishSelectedIds.map(function(id){
+    var s = state.students.find(function(x){ return x.id === id; });
+    if(!s) return '';
+    return '<span class="stag stag-blue" style="cursor:pointer" title="点击移除" onclick="removePunishStudent(' + id + ')">' + escapeHtml(s.name) + ' ✕</span>';
+  }).join('') + '<span style="font-size:12px;color:var(--text-muted);align-self:center">已选 ' + _punishSelectedIds.length + ' 人</span>';
+}
+function removePunishStudent(id){
+  _punishSelectedIds = _punishSelectedIds.filter(function(x){ return x !== id; });
+  renderPunishSelectedChips();
+  var inp = document.getElementById('punishStudentInput');
+  if(inp) inp.value = punishPreviewText();
+}
 function filterPunishStudents(){
+  var inp = document.getElementById('punishStudentInput');
   studentSuggestDropdown({
     inputId: 'punishStudentInput', dropdownId: 'punishStudentDropdown',
-    onPick: function(s){ _punishSelectedId = s.id; }
+    keepOpen: true,   // 批量多选：点选后保持下拉展开，方便连续点选
+    getQuery: function(){   // 输入框显示的是已选名单预览时按空词列全体（预览文字不作搜索词）
+      var v = inp ? String(inp.value || '').trim() : '';
+      return (v && v === punishPreviewText()) ? '' : v;
+    },
+    itemStyle: function(s){ return _punishSelectedIds.indexOf(s.id) >= 0 ? 'background:rgba(47,125,91,0.08);' : ''; },
+    rowHtml: function(s){
+      var on = _punishSelectedIds.indexOf(s.id) >= 0;
+      return '<span style="color:' + (on ? 'var(--success)' : 'var(--text-muted)') + ';margin-right:4px">' + (on ? '✓' : '＋') + '</span>' +
+        '<span style="font-weight:600">' + escapeHtml(s.name) + '</span> <span style="color:var(--text-muted);font-size:12px">(#' + escapeHtml(s.sid) + ')</span>';
+    },
+    onPick: function(s){
+      var i = _punishSelectedIds.indexOf(s.id);
+      if(i >= 0) _punishSelectedIds.splice(i, 1);
+      else _punishSelectedIds.push(s.id);
+      renderPunishSelectedChips();
+      if(inp){ inp.value = punishPreviewText(); try { inp.select(); } catch (e) {} }
+      filterPunishStudents();   // 重绘行内 ✓ 状态
+    }
   });
 }
-function showPunishStudentList(){ filterPunishStudents(); var dd=document.getElementById('punishStudentDropdown'); if(dd) dd.style.display=''; }
-function hidePunishStudentList(){ var dd=document.getElementById('punishStudentDropdown'); if(dd) dd.style.display='none'; }
+function showPunishStudentList(){
+  var inp = document.getElementById('punishStudentInput');
+  if(inp && _punishSelectedIds.length){ try { inp.select(); } catch (e) {} }   // 名字预览保留（输入即替换）
+  filterPunishStudents();
+  var dd = document.getElementById('punishStudentDropdown'); if(dd) dd.style.display = '';
+}
+function hidePunishStudentList(){
+  var dd = document.getElementById('punishStudentDropdown'); if(dd) dd.style.display = 'none';
+  var inp = document.getElementById('punishStudentInput');
+  if(inp && !String(inp.value || '').trim() && _punishSelectedIds.length) inp.value = punishPreviewText();   // 失焦空框补回名单
+}
 
 /* v2.14.0 各劳动类型默认整改天数：教室/公共区 7 天，搬水 1 天；均可在弹窗里 1-30 天自定义 */
 const PUNISH_AREA_DEFAULT_DAYS = { '教室': 7, '公共区': 7, '搬水劳动': 1 };
@@ -11352,41 +11416,49 @@ function onPunishAreaChange(){
 }
 
 function openPunishModal(){
-  _punishSelectedId = null;
+  _punishSelectedIds = [];
   document.getElementById('punishStudentInput').value = '';
   document.getElementById('punishArea').value = '教室';
   document.getElementById('punishDays').value = String(PUNISH_AREA_DEFAULT_DAYS['教室']);
   document.getElementById('punishReason').value = '';
   openModal('punishModal');
+  renderPunishSelectedChips();
 }
 
 function confirmPunish(){
-  var id = parseInt(_punishSelectedId, 10);
-  var s = state.students.find(function(x){ return x.id === id; });
-  if(!s){ showToast('请选择学生','error'); return; }
+  if(!_punishSelectedIds.length){ showToast('请选择学生','error'); return; }
+  var studs = _punishSelectedIds.map(function(id){
+    return state.students.find(function(x){ return x.id === id; });
+  }).filter(Boolean);
+  if(!studs.length){ showToast('请选择学生','error'); return; }
   var area = document.getElementById('punishArea').value;
   var days = parseInt(document.getElementById('punishDays').value, 10);
   var reason = document.getElementById('punishReason').value.trim();
   if(!days || days < 1 || days > 30){ showToast('整改天数需在 1-30 之间','error'); return; }
   if(!reason){ showToast('请填写原因','error'); return; }
-  state.punishments.unshift({
-    id: state.nextPunishId++,
-    studentId: id,
-    studentName: s.name,
-    area: area,
-    days: days,
-    reason: reason,
-    /* v2.24.0 起劳动整改不扣分：不再调用 applyCredit，deduct 固定写 0。
-       ⚠️ 旧记录里已扣掉的学分**不回溯退分** —— 学分账本已固化，退分会让历史兑换对不上账；
-          历史记录保留各自的 deduct 值，列表里照旧显示「已扣 N 分」，一眼能看出是新是旧。 */
-    deduct: 0,
-    startDate: localDateStr(),
-    done: false,
-    createdAt: Date.now()
+  studs.forEach(function(s){
+    state.punishments.unshift({
+      id: state.nextPunishId++,
+      studentId: s.id,
+      studentName: s.name,
+      area: area,
+      days: days,
+      reason: reason,
+      /* v2.24.0 起劳动整改不扣分：不再调用 applyCredit，deduct 固定写 0。
+         ⚠️ 旧记录里已扣掉的学分**不回溯退分** —— 学分账本已固化，退分会让历史兑换对不上账；
+              历史记录保留各自的 deduct 值，列表里照旧显示「已扣 N 分」，一眼能看出是新是旧。 */
+      deduct: 0,
+      startDate: localDateStr(),
+      done: false,
+      createdAt: Date.now()
+    });
   });
   saveData();
   renderPunishments();
-  showToast(s.name + ' 劳动整改已记录（' + area + ' ' + days + ' 天），未扣分', 'warning');
+  closeModal('punishModal');
+  var names = studs.map(function(x){ return x.name; }).join('、');
+  if(names.length > 36) names = names.slice(0, 36) + '…';
+  showToast('已记录 ' + studs.length + ' 人劳动整改（' + area + ' ' + days + ' 天）：' + names + '，未扣分', 'warning');
 }
 
 function finishPunish(pid){
@@ -12429,6 +12501,54 @@ function selectAllCreditStudents(){
   renderCreditSelectedChips();
   showToast('已全选 ' + _creditSelectedIds.size + ' 名学生', 'info');
 }
+
+/* v3.6.8 按寝室选择：寝室成员整体选入/移出学分批量多选（数据口径与寝室管理页同源 buildDormMap） */
+function toggleDormPickList(e){
+  if(e && e.stopPropagation) e.stopPropagation();
+  var dd = document.getElementById('dormPickList');
+  if(!dd) return;
+  if(dd.style.display !== 'none'){ dd.style.display = 'none'; return; }
+  renderDormPickList();
+  dd.style.display = '';
+}
+function renderDormPickList(){
+  var dd = document.getElementById('dormPickList');
+  if(!dd) return;
+  var dorms = buildDormMap(state.students);
+  if(!dorms.length){
+    dd.innerHTML = '<div style="padding:8px 12px;color:var(--text-muted);font-size:12.5px">还没有寝室数据（在「寝室管理」里分配）</div>';
+    return;
+  }
+  dd.innerHTML = dorms.map(function(d){
+    var all = d.members.every(function(m){ return _creditSelectedIds.has(m.id); });
+    return '<div data-dorm="' + escapeAttr(d.no) + '" style="padding:7px 12px;cursor:pointer;font-size:13px;border-radius:6px;display:flex;align-items:center;gap:6px;' + (all ? 'background:rgba(47,125,91,0.08);' : '') + '">' +
+      '<span style="color:' + (all ? 'var(--success)' : 'var(--text-muted)') + '">' + (all ? '✓' : '🏠') + '</span>' +
+      '<b>' + escapeHtml(d.no) + '</b> <span style="color:var(--text-muted);font-size:12px">' + d.members.length + ' 人</span></div>';
+  }).join('');
+  dd.querySelectorAll('[data-dorm]').forEach(function(row){
+    row.addEventListener('click', function(ev){ ev.stopPropagation(); toggleDormCreditSelection(row.dataset.dorm); });
+  });
+}
+function toggleDormCreditSelection(no){
+  var d = buildDormMap(state.students).find(function(x){ return x.no === no; });
+  if(!d) return;
+  var all = d.members.every(function(m){ return _creditSelectedIds.has(m.id); });
+  d.members.forEach(function(m){
+    if(all) _creditSelectedIds.delete(m.id);
+    else _creditSelectedIds.add(m.id);
+  });
+  renderCreditSelectedChips();
+  renderDormPickList();
+  showToast((all ? '已移出 ' : '已选入 ') + d.no + ' 寝室 ' + d.members.length + ' 人', 'info');
+}
+(function(){   // 点外关闭寝室下拉（只绑一次）
+  if(window.__dormPickBound) return;
+  window.__dormPickBound = true;
+  document.addEventListener('click', function(e){
+    var dd = document.getElementById('dormPickList');
+    if(dd && dd.style.display !== 'none' && dd.parentElement && !dd.parentElement.contains(e.target)) dd.style.display = 'none';
+  });
+})();
 
 function renderCreditSelectedChips(){
   var box = document.getElementById('creditSelectedChips');
