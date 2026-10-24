@@ -107,6 +107,8 @@ t('⑤ 库文件与 sw 资产齐备 + 版本 v3.7.1', () => {
   has(html, 'openPortalRedeemModal()">📷 兑换核销</button>\n          </div>\n          <div id="portalSettingsBrief"', '设置卡双按钮+简报接线');
   has(html, "if(typeof renderPortalPanel === 'function') renderPortalPanel();", '设置页渲染时刷新简报');
   ok((html.match(/openPortalPanel\(\)">🔑/g) || []).length >= 2, '公示页+设置页双入口（实际 ' + (html.match(/openPortalPanel\(\)">🔑/g) || []).length + ' 处）');
+  // v3.7.3：cmPrompt 层级高于注入面板（2147483100 > 2147483000）
+  ok(/id="cmPromptModal"[^>]*z-index:2147483100/.test(html), 'cmPrompt 应带内联 z-index 2147483100');
 });
 
 console.log('\n通过 ' + pass + ' 项，失败 ' + fail + ' 项');
