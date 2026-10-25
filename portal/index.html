@@ -53,6 +53,13 @@
   .msg.show{display:block}
   .msg.err{background:rgba(180,35,24,.08); color:var(--down); border:1px solid rgba(180,35,24,.2)}
   .msg.warn{background:rgba(192,138,45,.1); color:#8a6410; border:1px solid rgba(192,138,45,.25)}
+  /* v3.7.6 记住我 */
+  .rmrow{display:flex;align-items:flex-start;gap:7px;margin:2px 0 12px;font-size:12px;color:var(--ink2);cursor:pointer}
+  .rmrow input{width:auto;margin-top:3px;accent-color:var(--primary)}
+  .rmrow b{font-weight:600}
+  #rmBanner{display:none;background:rgba(166,58,43,.07);border:1px solid rgba(166,58,43,.22);border-radius:10px;padding:9px 12px;font-size:12.5px;margin-bottom:12px;line-height:1.9}
+  .rmact{display:inline-block;margin-left:6px;padding:2px 10px;border-radius:999px;background:var(--primary);color:#fff;cursor:pointer}
+  .rmact.rmclear{background:transparent;color:var(--ink3);border:1px solid var(--border)}
   /* 结果区 */
   .hero{text-align:center; padding:22px 16px}
   .hero .nm{font-size:15px; color:var(--ink2); margin-bottom:10px}
@@ -152,6 +159,7 @@
   </div>
 
   <div class="card" id="formCard">
+    <div id="rmBanner"></div>
     <div class="field">
       <label for="sidInput">学号</label>
       <input id="sidInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters"
@@ -162,6 +170,7 @@
       <input id="codeInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters"
              spellcheck="false" maxlength="9" placeholder="ABCD-EFGH">
     </div>
+    <label class="rmrow"><input type="checkbox" id="rmChk"> <span>记住我：在这台设备上保存，下次免输入（<b>公共设备请勿勾选</b>）</span></label>
     <button class="go" id="goBtn">查询</button>
     <div class="msg" id="msg"></div>
   </div>
@@ -221,6 +230,7 @@
   var FAIL_LOCK_MS = 60000;
   var CACHE_KEY = 'cm_portal_cache';
   var CACHE_TTL_MS = 10 * 60 * 1000;   // 发布包 10 分钟内复用，避免反复拉取
+  var RM_KEY = 'cm_portal_remember';   // v3.7.6 记住我（仅存本机，明文学号+码；公共设备不勾不存）
   /* v3.7.1 兑换凭据（与老师端 index.html 的 PORTAL_REDEEM_* 同步，守卫 _v371 比对） */
   var REDEEM_VER = 'CM1';
   var REDEEM_WINDOW_MS = 10 * 60 * 1000;
@@ -233,6 +243,9 @@
   }
   var OWNER = qsp('o');
   var GIST = qsp('g');
+  /* v3.7.6 二维码卡直达参数（&s=学号&c=查询码）：自动填充并直接查询 */
+  var PSID = qsp('s');
+  var PCODE = qsp('c');
 
   function esc(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
@@ -597,6 +610,39 @@
     b.innerHTML = busy ? '<span class="spinner"></span>查询中…' : '查询';
   }
 
+  /* ---------- v3.7.6 记住我（仅本人设备） ---------- */
+  function readRemember(){
+    try{
+      var r = JSON.parse(localStorage.getItem(RM_KEY) || 'null');
+      return (r && r.sid && r.code) ? r : null;
+    }catch(e){ return null; }
+  }
+  function saveRemember(sid, code){
+    try{ localStorage.setItem(RM_KEY, JSON.stringify({ sid: sid, code: code, at: Date.now() })); }catch(e){}
+  }
+  function renderRememberBanner(){
+    var b = $('rmBanner');
+    if(!b) return;
+    var r = readRemember();
+    if(!r){ b.style.display = 'none'; return; }
+    b.style.display = '';
+    b.innerHTML = '本机已保存的查询：<b>' + esc(r.sid) + '</b>' +
+      ' <span class="rmact" onclick="useRemember()">一键进入</span>' +
+      ' <span class="rmact rmclear" onclick="forgetRemember()">清除</span>';
+  }
+  window.useRemember = function(){
+    var r = readRemember();
+    if(!r) return;
+    $('sidInput').value = r.sid;
+    var c = normCode(r.code);
+    $('codeInput').value = c.length > 4 ? c.slice(0, 4) + '-' + c.slice(4) : c;
+    submit();
+  };
+  window.forgetRemember = function(){
+    try{ localStorage.removeItem(RM_KEY); }catch(e){}
+    renderRememberBanner();
+  };
+
   /* ---------- 主流程 ---------- */
   var payloadCache = null;
   function submit(){
@@ -641,6 +687,7 @@
         _blkSalt = blk.salt;
         window.__lastCode = code;
         window.__pubMeta = p;
+        try{ if($('rmChk') && $('rmChk').checked) saveRemember(sid, code); }catch(e){}   // v3.7.6 记住我
         _curOpsFilter = 'recent'; _curCat = '';
         CART = {};
         $('formCard').classList.add('hidden');
@@ -674,6 +721,14 @@
       var el = this, raw = normCode(el.value).slice(0, CODE_LEN);
       el.value = raw.length > 4 ? raw.slice(0, 4) + '-' + raw.slice(4) : raw;
     });
+
+    renderRememberBanner();
+    if(PSID && PCODE){
+      $('sidInput').value = String(PSID).trim();
+      var _pc = normCode(PCODE);
+      $('codeInput').value = _pc.length > 4 ? _pc.slice(0, 4) + '-' + _pc.slice(4) : _pc;
+      setTimeout(submit, 150);   // 等首屏渲染一拍再查（fetchPayload 已在预取）
+    }
 
     if(!OWNER || !GIST){
       msg('这个页面需要通过<b>班主任发来的链接</b>打开。<br>直接访问会缺少查询参数，无法定位你班级的数据。');

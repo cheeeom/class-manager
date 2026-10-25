@@ -99,11 +99,11 @@ t('②b loadData 本地加载补齐六字段（portalCodes/portalPublish + 审�
   });
 });
 
-t('④ 版本 v3.7.5 一致性 + 速览条目', () => {
+t('④ 版本一致性（动态跟版）+ 速览条目', () => {
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
-  ok(m && v && m[1] === v[1] && m[1] === 'v3.7.5', 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同为 v3.7.5');
-  has(html, '学号续号与批量配学号（v3.7.5）', '速览当版条目');
+  ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同版（从 CACHE 反推，无需随版改）');
+  has(html, '学号续号与批量配学号（v3.7.5）', '速览历史条目（v3.7.5）仍在');
 });
 
 console.log('\n通过 ' + pass + ' 项，失败 ' + fail + ' 项');
