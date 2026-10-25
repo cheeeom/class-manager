@@ -50,11 +50,11 @@ t('③ 补印单张（拆分复用 portalCardsHtml/openPortalPrint）', () => {
   has(html, '该生没有学号，请先在学生页补齐', '无学号拦截');
 });
 
-t('④ 版本 v3.8.1 一致性 + 速览条目', () => {
+t('④ 版本一致性（动态跟版）+ 速览条目', () => {
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
-  ok(m && v && m[1] === v[1] && m[1] === 'v3.8.1', 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同为 v3.8.1');
-  has(html, '兑换体验优化（v3.8.1）', '速览当版条目');
+  ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同版（从 CACHE 反推）');
+  has(html, '兑换体验优化（v3.8.1）', '速览历史条目（v3.8.1）仍在');
 });
 
 console.log('\n通过 ' + pass + ' 项，失败 ' + fail + ' 项');

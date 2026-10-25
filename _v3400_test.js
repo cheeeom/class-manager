@@ -6,11 +6,11 @@
      1. 源顺序不变量：浅色皮肤块必须在 html.dark 之前（同特异性 (0,1,1) 下暗色靠源顺序
         胜出——这条被移动，暗色模式下皮肤浅色值就会盖掉暗色，全站闪白）；
      2. 令牌值契约：两套皮肤 × 明暗的完整令牌表（对设计稿 _SKIN_DESIGN_v340.md）；
-     3. 跨层同源：JS CM_GRP_COLORS ↔ CSS --grp-* 逐键一致（课表提示/屏幕图表与 DOM 配色不许漂移）；
+     3. 跨层同源：JS CM_GRP_COLORS ↔ CSS --grp-* 逐键一致（六套皮肤，v3.9.0 起新增藤黄/紫檀/松烟）；
      4. 签名细节：青花釉口线（背景图）/ 竹青双篾线（内阴影叠加）；
      5. UI 接线：设置页 skinPicker 三 chip、setSkin/applySkin/initSkin、initSkin 启动接线、
         meta theme-color 随肤；localStorage 键名 cm_skin；
-     6. 对比度矩阵：三套 × 明暗的核心文字对真算 WCAG（新增皮肤先过这道闸）。
+     6. 对比度矩阵：六套 × 明暗的核心文字对真算 WCAG（新增皮肤先过这道闸）。
 
    版本无关：版本号从 sw.js CACHE_NAME 反推。运行：node _v3400_test.js */
 const fs = require('fs');
@@ -55,15 +55,21 @@ const QL = blockAfter(style, 'html[data-skin="qinghua"]{');
 const ZL = blockAfter(style, 'html[data-skin="zhuqing"]{');
 const QD = blockAfter(style, 'html.dark[data-skin="qinghua"]{');
 const ZD = blockAfter(style, 'html.dark[data-skin="zhuqing"]{');
+const THL = blockAfter(style, 'html[data-skin="tenghuang"]{');
+const ZTL = blockAfter(style, 'html[data-skin="zitan"]{');
+const SYL = blockAfter(style, 'html[data-skin="songyan"]{');
+const THD = blockAfter(style, 'html.dark[data-skin="tenghuang"]{');
+const ZTD = blockAfter(style, 'html.dark[data-skin="zitan"]{');
+const SYD = blockAfter(style, 'html.dark[data-skin="songyan"]{');
 
 t('★ 源顺序不变量：浅色皮肤块必须在 html.dark 之前，暗色组合块必须在 html.dark 之后', () => {
   const iDark = style.indexOf('html.dark{');
   ok(iDark > 0, '找不到 html.dark');
-  for (const a of ['html[data-skin="qinghua"]{', 'html[data-skin="zhuqing"]{']) {
+  for (const a of ['html[data-skin="qinghua"]{', 'html[data-skin="zhuqing"]{', 'html[data-skin="tenghuang"]{', 'html[data-skin="zitan"]{', 'html[data-skin="songyan"]{']) {
     const i = style.indexOf(a);
     ok(i > 0 && i < iDark, a + ' 必须在 html.dark 之前（现 ' + i + ' vs ' + iDark + '）');
   }
-  for (const a of ['html.dark[data-skin="qinghua"]{', 'html.dark[data-skin="zhuqing"]{']) {
+  for (const a of ['html.dark[data-skin="qinghua"]{', 'html.dark[data-skin="zhuqing"]{', 'html.dark[data-skin="tenghuang"]{', 'html.dark[data-skin="zitan"]{', 'html.dark[data-skin="songyan"]{']) {
     const i = style.indexOf(a);
     ok(i > iDark, a + ' 必须在 html.dark 之后');
   }
@@ -90,6 +96,43 @@ t('契约2b：竹青浅色令牌表（success 转青碧防撞）', () => {
   for (const k in want) eq(v[k], want[k], '竹青浅色 ' + k);
 });
 
+t('契约2c2：藤黄浅色令牌表（v3.9.0）', () => {
+  const v = varsOf(THL);
+  const want = { '--primary': '#8A6210', '--primary-light': '#A67E1F', '--primary-lighter': '#E3D3A6', '--primary-dark': '#6B4A0C', '--primary-darker': '#523807',
+    '--primary-bright': '#9C7412', '--primary-deep': '#6B4A0C', '--primary-deeper': '#523807',
+    '--bg': '#F7F3E7', '--card-bg': '#FFFDF4', '--row-bg': '#FAF6E9', '--border': '#E2DCC4',
+    '--text': '#33301F', '--text-secondary': '#5E5945', '--text-muted': '#8B8468',
+    '--grp-cul': '#8A6210', '--grp-maj': '#2F7D5B', '--grp-art': '#6B5B95', '--grp-gen': '#2F5D6E' };
+  for (const k in want) eq(v[k], want[k], '藤黄浅色 ' + k);
+});
+t('契约2c3：紫檀浅色令牌表（v3.9.0）', () => {
+  const v = varsOf(ZTL);
+  const want = { '--primary': '#5A4470', '--primary-light': '#73618A', '--primary-lighter': '#D4CBDE', '--primary-dark': '#463557', '--primary-darker': '#342743',
+    '--primary-bright': '#675084', '--bg': '#F3F1F5', '--card-bg': '#FDFCFF', '--row-bg': '#F7F5FA', '--border': '#DCD8E4',
+    '--text': '#2E2A38', '--text-secondary': '#5B5566', '--text-muted': '#87819A',
+    '--grp-cul': '#5A4470', '--grp-maj': '#8C6239', '--grp-art': '#2F5D6E', '--grp-gen': '#2F7D5B' };
+  for (const k in want) eq(v[k], want[k], '紫檀浅色 ' + k);
+});
+t('契约2c4：松烟浅色令牌表（v3.9.0）', () => {
+  const v = varsOf(SYL);
+  const want = { '--primary': '#3D4450', '--primary-light': '#59626F', '--primary-lighter': '#C8CDD4', '--primary-dark': '#2C313A', '--primary-darker': '#1F232A',
+    '--primary-bright': '#4A525E', '--bg': '#F1F2F1', '--card-bg': '#FDFEFD', '--row-bg': '#F6F7F6', '--border': '#D9DCDF',
+    '--text': '#2B2E33', '--text-secondary': '#565B63', '--text-muted': '#82888F',
+    '--grp-cul': '#3D4450', '--grp-maj': '#8C6239', '--grp-art': '#6B5B95', '--grp-gen': '#2F7D5B' };
+  for (const k in want) eq(v[k], want[k], '松烟浅色 ' + k);
+});
+t('契约2c5：三套新皮肤暗色组合块（deep 不翻转 + grp-deep 浅彩前景）', () => {
+  const th = varsOf(THD), zt = varsOf(ZTD), sy = varsOf(SYD);
+  eq(th['--primary'], '#B08A2E', '藤黄暗 primary'); eq(th['--card-bg'], '#211D12', '藤黄暗卡底');
+  eq(th['--primary-deep'], '#7A5A10', '藤黄暗 deep 不翻转');
+  eq(th['--grp-cul-deep'], '#D9BC6E', '藤黄暗 cul 前景');
+  eq(zt['--primary'], '#9B7FC0', '紫檀暗 primary'); eq(zt['--card-bg'], '#1E1A24', '紫檀暗卡底');
+  eq(zt['--primary-deep'], '#3E3050', '紫檀暗 deep 不翻转');
+  eq(zt['--grp-cul-deep'], '#C4B3DC', '紫檀暗 cul 前景');
+  eq(sy['--primary'], '#76839A', '松烟暗 primary'); eq(sy['--card-bg'], '#191C20', '松烟暗卡底');
+  eq(sy['--primary-deep'], '#2A2F38', '松烟暗 deep 不翻转');
+  eq(sy['--grp-cul-deep'], '#B9C2CF', '松烟暗 cul 前景');
+});
 t('契约2c：暗色组合块（primary 白字对齐现行暗色档；--grp-*-deep 各肤设计值）', () => {
   const q = varsOf(QD), z = varsOf(ZD);
   eq(q['--primary'], '#5E93A6', '青花暗 primary'); eq(q['--card-bg'], '#1B2325', '青花暗卡底');
@@ -111,7 +154,7 @@ t('契约3：JS CM_GRP_COLORS ↔ CSS --grp-* 逐键同源（三套皮肤）', (
     return out;
   };
   const cssOf = (blk) => { const v = varsOf(blk); return { cul: v['--grp-cul'], maj: v['--grp-maj'], art: v['--grp-art'], gen: v['--grp-gen'] }; };
-  const pairs = [['zhusha', cssOf(blockAfter(style, ':root{'))], ['qinghua', cssOf(QL)], ['zhuqing', cssOf(ZL)]];
+  const pairs = [['zhusha', cssOf(blockAfter(style, ':root{'))], ['qinghua', cssOf(QL)], ['zhuqing', cssOf(ZL)], ['tenghuang', cssOf(THL)], ['zitan', cssOf(ZTL)], ['songyan', cssOf(SYL)]];
   for (const [name, css] of pairs) {
     const jsC = parse(name);
     for (const g of ['cul', 'maj', 'art', 'gen']) eq((jsC[g] || '').toLowerCase(), (css[g] || '').toLowerCase(), name + '.' + g);
@@ -125,11 +168,16 @@ t('契约4：签名细节（青花釉口线=背景图 1px；竹青双篾线=内�
   ok(/html\[data-skin="qinghua"\] \.card\{background-image:linear-gradient\(90deg,transparent,var\(--primary-lighter\)[^}]*background-size:100% 1px/.test(style), '青花釉口线');
   has(style, 'html[data-skin="zhuqing"] .card{box-shadow:var(--shadow-card),inset 0 0 0 1px var(--border)}', '竹青双篾线');
   has(style, 'html[data-skin="zhuqing"] .card:hover{box-shadow:var(--shadow-hover),inset 0 0 0 1px var(--border)}', '竹青悬停不丢细篾');
+  /* v3.9.0 三套新签名：金榜题线 / 暮霭 / 墨脊 */
+  ok(/html\[data-skin="tenghuang"\] \.card\{background-image:linear-gradient\(90deg,transparent,var\(--primary-light\)[^}]*background-size:100% 2px/.test(style), '藤黄金榜题线（2px 金渐隐）');
+  ok(/html\[data-skin="zitan"\] \.card\{background-image:radial-gradient\(circle at 100% 0%/.test(style), '紫檀暮霭（右上淡紫霭光）');
+  has(style, 'html[data-skin="songyan"] .card{box-shadow:var(--shadow-card),inset 2px 0 0 var(--primary-light)}', '松烟墨脊（左 2px 内阴影）');
+  has(style, 'html[data-skin="songyan"] .card:hover{box-shadow:var(--shadow-hover),inset 2px 0 0 var(--primary-light)}', '松烟悬停不丢墨脊');
 });
 
 t('契约5：UI 接线（皮肤卡三 chip + 函数 + 启动 + meta theme-color + 仅本机提示）', () => {
   has(html, 'id="skinPicker"', '皮肤选择器容器');
-  for (const sk of ['zhusha', 'qinghua', 'zhuqing']) has(html, 'data-skin-choose="' + sk + '"', 'chip ' + sk);
+  for (const sk of ['zhusha', 'qinghua', 'zhuqing', 'tenghuang', 'zitan', 'songyan']) has(html, 'data-skin-choose="' + sk + '"', 'chip ' + sk);
   const js = html.slice(html.indexOf('<script>'));
   for (const fn of ['function applySkin(', 'function setSkin(', 'function initSkin()', 'function syncSkinUI(', 'function cmSkin()']) has(js, fn, fn);
   ok(/initTheme\(\);\s*\n\s*initSkin\(\);/.test(js), 'initSkin 必须在 initTheme 后接线启动');
@@ -144,6 +192,9 @@ t('契约6：对比度矩阵——三套 × 明暗核心对（文字 ≥4.5 / mu
     { n: '朱砂浅', card: '#FFFDF7', text: '#2B2B33', ts: '#5C574F', tm: '#8C8577', pri: '#A63A2B' },
     { n: '青花浅', card: varsOf(QL)['--card-bg'], text: varsOf(QL)['--text'], ts: varsOf(QL)['--text-secondary'], tm: varsOf(QL)['--text-muted'], pri: varsOf(QL)['--primary'] },
     { n: '竹青浅', card: varsOf(ZL)['--card-bg'], text: varsOf(ZL)['--text'], ts: varsOf(ZL)['--text-secondary'], tm: varsOf(ZL)['--text-muted'], pri: varsOf(ZL)['--primary'] },
+    { n: '藤黄浅', card: varsOf(THL)['--card-bg'], text: varsOf(THL)['--text'], ts: varsOf(THL)['--text-secondary'], tm: varsOf(THL)['--text-muted'], pri: varsOf(THL)['--primary'] },
+    { n: '紫檀浅', card: varsOf(ZTL)['--card-bg'], text: varsOf(ZTL)['--text'], ts: varsOf(ZTL)['--text-secondary'], tm: varsOf(ZTL)['--text-muted'], pri: varsOf(ZTL)['--primary'] },
+    { n: '松烟浅', card: varsOf(SYL)['--card-bg'], text: varsOf(SYL)['--text'], ts: varsOf(SYL)['--text-secondary'], tm: varsOf(SYL)['--text-muted'], pri: varsOf(SYL)['--primary'] },
   ];
   for (const s of skins) {
     ok(contrast(s.text, s.card) >= 4.5, s.n + ' text/card');
@@ -151,7 +202,7 @@ t('契约6：对比度矩阵——三套 × 明暗核心对（文字 ≥4.5 / mu
     ok(contrast(s.tm, s.card) >= 3.0, s.n + ' text-muted/card');
     ok(contrast('#FFFFFF', s.pri) >= 4.5, s.n + ' 白字/primary 按钮');
   }
-  for (const [n, blk] of [['青花暗', QD], ['竹青暗', ZD]]) {
+  for (const [n, blk] of [['青花暗', QD], ['竹青暗', ZD], ['藤黄暗', THD], ['紫檀暗', ZTD], ['松烟暗', SYD]]) {
     const v = varsOf(blk);
     ok(contrast(v['--text'], v['--card-bg']) >= 7, n + ' text/card');
     ok(contrast(v['--text-secondary'], v['--card-bg']) >= 4.5, n + ' secondary/card');
