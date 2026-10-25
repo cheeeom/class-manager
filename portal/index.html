@@ -102,9 +102,13 @@
   .addbtn{align-self:flex-end; border:1.5px solid rgba(166,58,43,.4); color:var(--primary); background:rgba(166,58,43,.05); border-radius:9px; font-size:12px; padding:5px 12px; cursor:pointer; font-weight:600; font-family:inherit}
   .addbtn:active{transform:scale(.94)}
   .addbtn[disabled]{border-color:var(--border); color:var(--ink3); background:transparent}
+  .cardqty{align-self:flex-end;display:flex;align-items:center;gap:8px}
+  .cardqty i{font-style:normal;width:26px;height:26px;border:1px solid var(--border);border-radius:8px;display:grid;place-items:center;cursor:pointer;font-size:14px;color:var(--ink2);user-select:none}
+  .cardqty i[disabled]{opacity:.3}
+  .cardqty b{font-size:14px;min-width:14px;text-align:center}
   .incart{position:absolute; top:9px; right:9px; background:var(--primary); color:#fff; font-size:10px; border-radius:999px; padding:1px 7px; display:none}
   /* 购物车浮条 */
-  .cartbar{position:fixed; left:50%; transform:translateX(-50%); bottom:14px; width:min(430px,calc(100vw - 24px)); background:#2B2B33; color:#F5EFE2; border-radius:15px; padding:12px 16px; display:none; align-items:center; gap:10px; box-shadow:0 10px 30px rgba(20,17,12,.35); z-index:50}
+  .cartbar{position:fixed; left:50%; transform:translateX(-50%); bottom:14px; width:min(430px,calc(100vw - 24px)); background:#2B2B33; color:#F5EFE2; border-radius:15px; padding:12px 16px; display:none; align-items:center; gap:10px; box-shadow:0 10px 30px rgba(20,17,12,.35); z-index:50; cursor:pointer}
   .cartbar .ci{flex:1; font-size:13px}
   .cartbar .ci b{color:#E8B96A; font-size:16px; font-weight:700}
   .cartbar .ci .lack{color:#F0917E; font-size:11.5px; display:block}
@@ -181,7 +185,7 @@
 </div>
 
 <!-- 购物车浮条 / 清单抽屉 / 二维码屏（v3.7.1 自助兑换申请） -->
-<div class="cartbar" id="cartbar">
+<div class="cartbar" id="cartbar" onclick="openCart()">
   <div class="ci" id="cartinfo"></div>
   <button id="cartgo" onclick="openCart()">去结算</button>
 </div>
@@ -191,7 +195,7 @@
   <div class="sub">实际兑换以班主任核销时的最新数据为准</div>
   <div id="cartrows"></div>
   <div class="ctotal"><span>合计</span><span><b id="carttotal">0</b> 币</span></div>
-  <div class="cnote">生成后请在 10 分钟内出示给班主任扫码核销；逾期自动作废，可重新生成。二维码为一次性凭据，核销后即失效。</div>
+  <div class="cnote">生成后请在 3 天内出示给班主任扫码核销；逾期自动作废，可重新生成。二维码为一次性凭据，核销后即失效。</div>
   <button class="btn2" id="makqr" onclick="makeQr()">生成兑换二维码</button>
   <button class="ghost" onclick="closeCart()">继续逛逛</button>
 </div>
@@ -200,7 +204,7 @@
     <h2>兑换码已生成</h2>
     <p class="qs">出示本页给班主任 · 扫码即完成核销</p>
     <div class="qrbox" id="qrbox"></div>
-    <div class="qr-exp">有效期剩余 <b id="qrtimer">--:--</b>（超时作废可重新生成）</div>
+    <div class="qr-exp">有效期剩余 <b id="qrtimer">--</b>（3 天内有效 · 过期作废可重新生成）</div>
     <div class="qr-meta">
       <div class="r"><span>学生</span><b id="qrstu">-</b></div>
       <div class="r"><span>合计</span><b id="qrtotal2">0 币</b></div>
@@ -233,7 +237,7 @@
   var RM_KEY = 'cm_portal_remember';   // v3.7.6 记住我（仅存本机，明文学号+码；公共设备不勾不存）
   /* v3.7.1 兑换凭据（与老师端 index.html 的 PORTAL_REDEEM_* 同步，守卫 _v371 比对） */
   var REDEEM_VER = 'CM1';
-  var REDEEM_WINDOW_MS = 10 * 60 * 1000;
+  var REDEEM_WINDOW_MS = 3 * 24 * 60 * 60 * 1000;   // v3.8.1 10 分钟→3 天（与老师端同步）
 
   var $ = function(id){ return document.getElementById(id); };
 
@@ -447,6 +451,7 @@
   function cartTotal(){ var t = 0; Object.keys(CART).forEach(function(k){ var g = goodByKey(k); if(g) t += g.cost * CART[k]; }); return t; }
   function cartCount(){ var n = 0; Object.keys(CART).forEach(function(k){ n += CART[k]; }); return n; }
   window.addToCart = function(key){
+    if(!_data) return;   // v3.8.1 防御：查询未成功前不可操作
     var g = goodByKey(key);
     if(!g) return;
     if(g.remain - cartQty(key) <= 0) return;
@@ -454,6 +459,7 @@
     renderResult();
   };
   window.chgQty = function(key, d){
+    if(!_data) return;   // v3.8.1 防御同上
     var g = goodByKey(key), q = cartQty(key) + d;
     if(q <= 0) delete CART[key];
     else if(g && q <= g.remain) CART[key] = q;
@@ -469,7 +475,7 @@
     $('cartgo').disabled = lack;
   }
   window.openCart = function(){
-    if(!cartCount()) return;
+    if(!_data || !cartCount()) return;   // v3.8.1 浮条整条可点（含币不足时点开减商品）
     renderCartRows();
     $('sheetmask').style.display = 'block';
     $('sheet').style.display = 'block';
@@ -524,8 +530,11 @@
           $('qrbox').innerHTML = '<div style="display:grid;place-items:center;height:100%;color:#B42318;font-size:14px;text-align:center;line-height:1.8">已过期<br>请返回重新生成</div>';
           return;
         }
-        var m = Math.floor(left / 60000), s = Math.floor((left % 60000) / 1000);
-        $('qrtimer').textContent = ('0' + m).slice(-2) + ':' + ('0' + s).slice(-2);
+        var d = Math.floor(left / 86400000);
+        var h = Math.floor((left % 86400000) / 3600000);
+        var m = Math.floor((left % 3600000) / 60000);
+        var s = Math.floor((left % 60000) / 1000);
+        $('qrtimer').textContent = d > 0 ? (d + ' 天 ' + h + ' 小时') : (('0' + h).slice(-2) + ':' + ('0' + m).slice(-2) + ':' + ('0' + s).slice(-2));
       }, 500);
     }).catch(function(e){
       alert('生成失败：' + (e && e.message ? e.message : e));
@@ -594,13 +603,21 @@
       h += '<div class="goods">' + list.map(function(g){
         var inCart = cartQty(g.key), dim = !g.remain;
         var canAdd = (g.remain - inCart) > 0;
+        /* v3.8.1 已加购的卡片直接给 −/＋ 微调（不用进购物车也能改数量）；币不足时也能减 */
+        var ctl;
+        if(dim){
+          ctl = '<button class="addbtn" disabled>已兑满</button>';
+        } else if(inCart > 0){
+          ctl = '<span class="cardqty"><i onclick="chgQty(\'' + esc(g.key) + '\',-1)">−</i><b>' + inCart + '</b>' +
+                '<i onclick="chgQty(\'' + esc(g.key) + '\',1)"' + (canAdd ? '' : ' disabled') + '>＋</i></span>';
+        } else {
+          ctl = '<button class="addbtn" onclick="addToCart(\'' + esc(g.key) + '\')">＋ 加购</button>';
+        }
         return '<div class="good' + (dim ? ' dim' : '') + '">' +
           (inCart ? '<span class="incart">清单×' + inCart + '</span>' : '') +
           '<span class="gi">' + esc(g.icon || '') + '</span><span class="gn">' + esc(g.name) + '</span>' +
           '<span class="gc">' + esc(g.cat || '') + ' · ' + (dim ? '本月已兑满' : '本月余 ' + g.remain + '/' + g.limit) + '</span>' +
-          '<span class="gp"><b>' + g.cost + '</b> 币</span>' +
-          '<button class="addbtn"' + (canAdd ? '' : ' disabled') + ' onclick="addToCart(\'' + esc(g.key) + '\')">' +
-          (dim ? '已兑满' : (canAdd ? '＋ 加购' : '已加满')) + '</button></div>';
+          '<span class="gp"><b>' + g.cost + '</b> 币</span>' + ctl + '</div>';
       }).join('') + '</div>';
     }
 

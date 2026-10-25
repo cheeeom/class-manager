@@ -27,7 +27,7 @@ t('① B：二维码卡导出（老师端）', () => {
   has(html, '请先「发布」——二维码卡需要学生入口链接', '未发布拦截');
   has(html, 'window.print()', '打印按钮');
   has(html, 'break-inside:avoid;page-break-inside:avoid', '卡片不跨页');
-  has(html, "if(window.qrcode){ build(); return; }", '已加载直建');
+  has(html, "if(window.qrcode){ run(); return; }", '已加载直建（补印同款懒加载）');
 });
 
 t('② C：学生页记住我 + 直达参数', () => {
@@ -41,6 +41,7 @@ t('② C：学生页记住我 + 直达参数', () => {
   has(portal, 'window.forgetRemember', '清除');
   has(portal, 'id="rmBanner"', '横幅');
   has(portal, 'renderRememberBanner();', 'init 渲染横幅');
+  has(portal, 'if(!_data) return;   // v3.8.1 防御：查询未成功前不可操作', '加购防御');
   has(portal, "var PSID = qsp('s');", '直达参数 s');
   has(portal, "var PCODE = qsp('c');", '直达参数 c');
   has(portal, 'setTimeout(submit, 150)', '参数齐→自动查询');
