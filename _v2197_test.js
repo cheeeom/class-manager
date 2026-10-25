@@ -46,6 +46,7 @@ const readXlsxGrid = extractFn('readXlsxGrid');
 const normHeader = extractFn('normHeader');
 const detectStudentCols = extractFn('detectStudentCols');
 const planStudentImport = extractFn('planStudentImport');
+const nextSidFromList = extractFn('nextSidFromList');   // v3.7.5 导入新建走数字续号
 
 console.log('=== 语法检查 ===');
 t('index.html 主 <script> 块可被完整编译（无语法错误）', () => {

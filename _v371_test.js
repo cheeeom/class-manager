@@ -112,6 +112,7 @@ t('⑤ 库文件与 sw 资产齐备 + 版本 v3.7.1', () => {
   has(html, '<button class="btn btn-primary btn-sm" onclick="openPortalPanel()">🔑 学生查询端</button>', '公示页按钮主色');
   // v3.7.3：cmPrompt 层级高于注入面板（2147483100 > 2147483000）
   ok(/id="cmPromptModal"[^>]*z-index:2147483100/.test(html), 'cmPrompt 应带内联 z-index 2147483100');
+  has(html, 'document.body.appendChild(_pm)', 'cmPrompt 打开时重挂 body（脱离 z-index:1 容器的堆叠上下文，v3.7.5）');
 });
 
 console.log('\n通过 ' + pass + ' 项，失败 ' + fail + ' 项');
