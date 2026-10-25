@@ -179,6 +179,11 @@ t('④ 两端加密参数一致（改了老师端没改学生端 = 全班解不�
   });
   ok((html.match(/getRandomValues\(new Uint8Array\(16\)\)/g) || []).length >= 1, '老师端盐应为 16 字节');
   ok((html.match(/getRandomValues\(new Uint8Array\(12\)\)/g) || []).length >= 1, '老师端 IV 应为 12 字节');
+  /* v3.8.0 P0 回归：云同步派生与查询端轮数彻底解耦（曾因共用常量被提速误伤→全设备解密失败） */
+  const syncBody = html.slice(html.indexOf('function _deriveKey('), html.indexOf('function encryptForCloud('));
+  ok(syncBody.includes('SYNC_KDF_ROUNDS'), '同步派生必须用专属常量 SYNC_KDF_ROUNDS');
+  ok(!syncBody.includes('PBKDF2_ROUNDS'), '同步派生体内不得引用查询端轮数');
+  ok(html.includes('const SYNC_KDF_ROUNDS = 250000;'), '同步轮数恒为 250000（云端信封按此加密）');
 });
 
 t('⑤ 明文块与信封结构齐整', () => {

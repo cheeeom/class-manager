@@ -49,11 +49,11 @@ t('③ 老师端验签位段对齐 + 核销链路完整', () => {
   has(html, 'cbRedeem(v.student.id, x.it.key)', '入账仍走 cbRedeem');
 });
 
-t('④ 版本 v3.7.9 一致性 + 速览条目 + 重新发布提醒', () => {
+t('④ 版本一致性（动态跟版）+ 速览条目 + 重新发布提醒', () => {
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
-  ok(m && v && m[1] === v[1] && m[1] === 'v3.7.9', 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同为 v3.7.9');
-  has(html, '查询再提速至 1-2 秒（v3.7.9）', '速览当版条目');
+  ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同版（从 CACHE 反推）');
+  has(html, '查询再提速至 1-2 秒（v3.7.9）', '速览历史条目（v3.7.9）仍在');
   has(html, '请再点一次「重新发布」', '重新发布提醒');
   has(portal, 'PBKDF2 30000', 'portal 头注释跟版');
 });
