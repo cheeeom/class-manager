@@ -2,7 +2,7 @@
    叠加在并行线 v3.7.0 之上（7c6a6f0 交接）。关键不变量：
    ① 老师端账本唯一事实源：学生端只产「带签名的一次性申请单」，入账走 cbRedeem；
    ② 凭据签名与查询分片同源派生（PBKDF2 250000 + 同盐），学生端 ['sign'] / 老师端 ['verify']；
-   ③ 两端 canonical 串与常量（CM1 / 10 分钟窗）必须逐字一致；
+   ③ 两端 canonical 串与常量（CM1 / 3 天窗）必须逐字一致；
    ④ 老师端收码三入口（摄像头扫码 / 粘码原文 / 贴图·拖图·选图）共享 jsQR 懒加载；
    ⑤ v3.7.0 的守卫锚点全部保留（students[sid] / 不遍历 / 错误态 / FAIL_MAX / 250000）。
    运行：node _v371_test.js */
@@ -39,7 +39,7 @@ t('② 老师端核销中心：验签/执行/三入口/懒加载', () => {
   has(html, 'function portalExecuteRedeem(v)', '入账函数');
   has(html, 'function openPortalRedeemModal()', '核销弹窗');
   has(html, "const PORTAL_REDEEM_VER = 'CM1';", '凭据版本常量');
-  has(html, 'PORTAL_REDEEM_WINDOW_MS = 10 * 60 * 1000', '10 分钟时效');
+  has(html, 'PORTAL_REDEEM_WINDOW_MS = 3 * 24 * 60 * 60 * 1000', '3 天时效（v3.8.1）');
   has(html, "{ name:'HMAC', hash:'SHA-256' }, false, ['verify']", '老师端验签密钥');
   has(html, 'cbRedeem(v.student.id, x.it.key)', '入账复用 cbRedeem');
   has(html, "s.src = './jsqr.min.js'", 'jsQR 懒加载');
@@ -59,7 +59,7 @@ t('③ 两端凭据契约逐字一致（canonical / 常量 / 派生参数）', (
   ok(html.includes("o.items || []).map(function(x){ return x[0] + ':' + x[1]; }).join(',')") || html.includes("o.items.map"), '老师端 canonical');
   has(portal, 'function redeemCanonical(o)', '学生端 canonical');
   has(portal, "var REDEEM_VER = 'CM1';", '学生端常量');
-  has(portal, 'REDEEM_WINDOW_MS = 10 * 60 * 1000', '学生端时效一致');
+  has(portal, 'REDEEM_WINDOW_MS = 3 * 24 * 60 * 60 * 1000', '学生端时效一致（3 天）');
   has(portal, "{ name:'HMAC', hash:'SHA-256' }, false, ['sign']", '学生端签名密钥（sign 而非 verify）');
   has(portal, 'PBKDF2_ROUNDS = 30000', '学生端派生轮数');
   has(html, 'PBKDF2_ROUNDS = 30000', '老师端派生轮数');
