@@ -10,7 +10,7 @@
   规格见 ../SPEC_学生查询端.md（v3.7.0 基础）与 ../PROGRESS.md v3.7.1 章节。铁律：
   ① 外部零依赖零 CDN —— QR 生成器为同仓自带的 qrcode.js / qrcode_utf8.js（MIT，kazuhikoarase）；
   ② 只解密自己那一片，页面里不存在任何「解全部」的代码路径；
-  ③ 加密参数必须与 ../index.html 完全一致（PBKDF2 60000 / SHA-256 / AES-GCM 256 /
+  ③ 加密参数必须与 ../index.html 完全一致（PBKDF2 30000 / SHA-256 / AES-GCM 256 /
      12 字节 IV / 密钥材料 = 去掉横线的大写码），不同步 = 全班当场解不开。守卫 _v370/_v371 会比对两端常量；
   ④ 兑换二维码 = 一次性「带签名的申请单」：HMAC-SHA256 密钥与查询分片同源派生，
      10 分钟时效 + 一次性 nonce，老师端验签后才入账——学生端永远不直接写账。
@@ -221,9 +221,9 @@
 
   /* ==================== 与 ../index.html 必须一致的常量 ====================
      ⚠️ 改这里必须同步改老师端，否则全班解不开。守卫 _v370_test.js 会比对两端字面量。 */
-  var PBKDF2_ROUNDS = 60000;   // v3.7.8 250k→60k：手机派生 10-20s→3-4s；安全账见老师端同款注释
+  var PBKDF2_ROUNDS = 30000;   // v3.7.9 60k→30k：手机派生≈1.5-2s；安全账：32^8≈1.1e12 @30k 全空间约 2.6 年（均摊 1.3 年/人）
   var CODE_LEN = 8;
-  var ALG_LABEL = 'PBKDF2-SHA256(60000)/AES-GCM-256';
+  var ALG_LABEL = 'PBKDF2-SHA256(30000)/AES-GCM-256';
 
   var FAIL_KEY = 'cm_portal_fail';
   var FAIL_MAX = 5;
@@ -346,31 +346,37 @@
   }
 
   /* ---------- 解密自己那一片 ---------- */
-  function deriveKey(code, salt){
-    return crypto.subtle.importKey('raw', new TextEncoder().encode(code), 'PBKDF2', false, ['deriveKey'])
+  /* v3.7.9 一次派生两用：PBKDF2 输出 512 位 → 前 32B 作 AES-GCM 解密钥、后 32B 作 HMAC 兑换签名钥。
+     之前解密和出兑换码各跑一次完整派生（手机上各 1.5-2s）；现在扫码查询后出码零等待。
+     AES 密钥材料与旧方案逐位一致（兼容已发布数据）；HMAC 材料换了位段 → 兑换凭据 10 分钟时效内自洽，无需兼容。 */
+  var _keys = null;   // { code, saltB64, aesKey, hmacKey }（本页会话内复用）
+  function deriveSessionKeys(code, salt){
+    return crypto.subtle.importKey('raw', new TextEncoder().encode(normCode(code)), 'PBKDF2', false, ['deriveBits'])
       .then(function(base){
-        return crypto.subtle.deriveKey(
+        return crypto.subtle.deriveBits(
           { name:'PBKDF2', salt:salt, iterations:PBKDF2_ROUNDS, hash:'SHA-256' },
-          base, { name:'AES-GCM', length:256 }, false, ['decrypt']
+          base, 512
         );
-      });
+      })
+      .then(function(bits){
+        return Promise.all([
+          crypto.subtle.importKey('raw', new Uint8Array(bits, 0, 32), { name:'AES-GCM' }, false, ['decrypt']),
+          crypto.subtle.importKey('raw', new Uint8Array(bits, 32, 32), { name:'HMAC', hash:'SHA-256' }, false, ['sign'])
+        ]);
+      })
+      .then(function(keys){ return { aesKey: keys[0], hmacKey: keys[1] }; });
   }
   function openBlock(blk, code){
-    return deriveKey(code, b64dec(blk.salt))
-      .then(function(key){
-        return crypto.subtle.decrypt({ name:'AES-GCM', iv:b64dec(blk.iv) }, key, b64dec(blk.data));
-      })
-      .then(function(pt){ return JSON.parse(new TextDecoder().decode(pt)); });
-  }
-  /* v3.7.1 兑换凭据签名：与查询分片同源派生（同码同盐同轮数），但派生成 HMAC-SHA256 */
-  function redeemHmacKey(code, salt){
-    return crypto.subtle.importKey('raw', new TextEncoder().encode(normCode(code)), 'PBKDF2', false, ['deriveKey'])
-      .then(function(base){
-        return crypto.subtle.deriveKey(
-          { name:'PBKDF2', salt:salt, iterations:PBKDF2_ROUNDS, hash:'SHA-256' },
-          base, { name:'HMAC', hash:'SHA-256' }, false, ['sign']
-        );
-      });
+    var nc = normCode(code);
+    var ready = (_keys && _keys.code === nc && _keys.saltB64 === blk.salt)
+      ? Promise.resolve(_keys)
+      : deriveSessionKeys(code, b64dec(blk.salt)).then(function(k){
+          _keys = { code: nc, saltB64: blk.salt, aesKey: k.aesKey, hmacKey: k.hmacKey };
+          return k;
+        });
+    return ready.then(function(k){
+      return crypto.subtle.decrypt({ name:'AES-GCM', iv:b64dec(blk.iv) }, k.aesKey, b64dec(blk.data));
+    }).then(function(pt){ return JSON.parse(new TextDecoder().decode(pt)); });
   }
   function redeemCanonical(o){
     return REDEEM_VER + '|' + o.sid + '|' +
@@ -489,9 +495,10 @@
     var total = cartTotal();
     if(total > (Number(_data.coins) || 0)) return;
     var nonce = b64enc(crypto.getRandomValues(new Uint8Array(12)));
+    if(!_keys || _keys.saltB64 !== _blkSalt){ alert('会话已过期，请返回重新查询'); return; }
     var o = { v: REDEEM_VER, sid: _data.sid, items: items, total: total, ts: Date.now(), nonce: nonce, salt: _blkSalt };
     var canon = redeemCanonical(o);
-    redeemHmacKey($('codeInput').value || window.__lastCode, b64dec(_blkSalt)).then(function(key){
+    Promise.resolve(_keys.hmacKey).then(function(key){
       return crypto.subtle.sign('HMAC', key, new TextEncoder().encode(canon));
     }).then(function(sig){
       o.sig = b64enc(sig);

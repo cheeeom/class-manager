@@ -152,7 +152,7 @@ t('④ 两端加密参数一致（改了老师端没改学生端 = 全班解不�
   const stuRounds = portal.match(/var PBKDF2_ROUNDS = (\d+)/);
   ok(hostRounds && stuRounds, '两端都要有 PBKDF2_ROUNDS 常量');
   ok(hostRounds[1] === stuRounds[1], '迭代次数不一致：老师端 ' + hostRounds[1] + ' / 学生端 ' + stuRounds[1]);
-  ok(hostRounds[1] === '250000', '迭代次数应保持 250000，实际 ' + hostRounds[1]);
+  ok(hostRounds[1] === '30000', '迭代次数应为 30000（v3.7.9），实际 ' + hostRounds[1]);
 
   const hostLen = html.match(/const PORTAL_CODE_LEN = (\d+)/);
   const stuLen = portal.match(/var CODE_LEN = (\d+)/);
@@ -165,10 +165,16 @@ t('④ 两端加密参数一致（改了老师端没改学生端 = 全班解不�
   ok(hostNorm && stuNorm, '两端归一化正则必须一致');
   ok(sandbox.normalizePortalCode('abcd-efgh') === 'ABCDEFGH', '归一化应去掉横线并转大写');
 
-  /* 两端都必须用 SHA-256 + AES-GCM 256 + 16 字节盐 + 12 字节 IV */
+  /* 两端都必须用 SHA-256 + AES-GCM 256 + 16 字节盐 + 12 字节 IV
+     （v3.7.9 学生端改 deriveBits 512 分段：AES 密钥=前 32B=256 位，形态从 length:256 变为 deriveBits(...,512)，安全强度不变） */
   [['老师端', html], ['学生端', portal]].forEach(([n, s]) => {
     has(s, "hash:'SHA-256'", n + ' 缺 SHA-256');
-    has(s, 'length:256', n + ' 缺 AES-GCM 256');
+    if (n === '老师端') {
+      has(s, 'length:256', n + ' 缺 AES-GCM 256');
+    } else {
+      has(s, 'base, 512', n + ' 缺 deriveBits 512 分段派生');
+      has(s, "new Uint8Array(bits, 0, 32), { name:'AES-GCM' }", n + ' 缺 32B AES 密钥导入');
+    }
     has(s, 'AES-GCM', n + ' 缺 AES-GCM');
   });
   ok((html.match(/getRandomValues\(new Uint8Array\(16\)\)/g) || []).length >= 1, '老师端盐应为 16 字节');

@@ -54,7 +54,7 @@ t('③ v3.7.0 守卫锚点仍全（学生页未破坏既有契约）', () => {
   notHas(portal, 'Object.keys(p.students)', '不得遍历');
   has(portal, 'FAIL_MAX', '软限速');
   ['学号未找到', '查询码不正确', '查询服务未开放'].forEach(k => has(portal, k, '错误态'));
-  has(portal, 'PBKDF2_ROUNDS = 60000', '派生轮数（v3.7.8 起动态跟随，勿写死数值）');
+  has(portal, 'PBKDF2_ROUNDS = 30000', '派生轮数（v3.7.9 起动态跟随，勿写死数值）');
 });
 
 t('④ 版本一致性（动态跟版）+ 速览条目', () => {

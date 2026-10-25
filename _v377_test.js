@@ -39,7 +39,7 @@ t('② 超时可读文案 + 学号格式指路', () => {
 t('③ 既有契约不破坏（v370 锚点抽检）+ 版本 v3.7.7', () => {
   has(portal, 'students[sid]', '按学号取片');
   has(portal, 'FAIL_MAX', '软限速');
-  has(portal, 'PBKDF2_ROUNDS = 60000', '派生轮数');
+  has(portal, 'PBKDF2_ROUNDS = 30000', '派生轮数');
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
   ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同版（动态跟版）');

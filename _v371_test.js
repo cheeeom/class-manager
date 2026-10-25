@@ -61,8 +61,8 @@ t('③ 两端凭据契约逐字一致（canonical / 常量 / 派生参数）', (
   has(portal, "var REDEEM_VER = 'CM1';", '学生端常量');
   has(portal, 'REDEEM_WINDOW_MS = 10 * 60 * 1000', '学生端时效一致');
   has(portal, "{ name:'HMAC', hash:'SHA-256' }, false, ['sign']", '学生端签名密钥（sign 而非 verify）');
-  has(portal, 'PBKDF2_ROUNDS = 250000', '学生端派生轮数');
-  has(html, 'PBKDF2_ROUNDS = 250000', '老师端派生轮数（沿用既有）');
+  has(portal, 'PBKDF2_ROUNDS = 30000', '学生端派生轮数');
+  has(html, 'PBKDF2_ROUNDS = 30000', '老师端派生轮数');
 });
 
 t('④ 学生端页面增强 + v3.7.0 守卫锚点全保留', () => {

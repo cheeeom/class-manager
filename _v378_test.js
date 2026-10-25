@@ -20,11 +20,11 @@ function has(s, k, msg) { if (s.indexOf(k) < 0) throw new Error((msg || '') + ' 
 function notHas(s, k, msg) { if (s.indexOf(k) >= 0) throw new Error((msg || '') + ' 不应出现 ' + JSON.stringify(k)); }
 
 t('① 两端轮数 60000 同步 + 250000 绝迹', () => {
-  has(html, 'const PBKDF2_ROUNDS = 60000;', '老师端 60k');
-  has(portal, 'var PBKDF2_ROUNDS = 60000;', '学生端 60k');
+  has(html, 'const PBKDF2_ROUNDS = 30000;', '老师端 30k（v3.7.9 再降半）');
+  has(portal, 'var PBKDF2_ROUNDS = 30000;', '学生端 30k');
   notHas(html, 'PBKDF2_ROUNDS = 250000', '老师端旧轮数');
   notHas(portal, 'PBKDF2_ROUNDS = 250000', '学生端旧轮数');
-  has(portal, "var ALG_LABEL = 'PBKDF2-SHA256(60000)/AES-GCM-256';", '学生端 ALG 60k');
+  has(portal, "var ALG_LABEL = 'PBKDF2-SHA256(30000)/AES-GCM-256';", '学生端 ALG 30k');
   has(html, "alg: 'PBKDF2-SHA256(' + PBKDF2_ROUNDS + ')/AES-GCM-256'", '老师端 alg 动态拼（随轮数）');
   notHas(html.match(/const PBKDF2_ROUNDS[\s\S]{0,200}/)[0].replace('const PBKDF2_ROUNDS = 60000;', ''), '250000', '轮数注释残留检查');
 });
@@ -43,8 +43,8 @@ t('③ 既有契约抽检（学生页核心路径未动）+ 版本 v3.7.8', () =
   has(portal, 'redeemCanonical', '兑换凭据');
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
-  ok(m && v && m[1] === v[1] && m[1] === 'v3.7.8', 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同为 v3.7.8');
-  has(html, '查询提速 4 倍（v3.7.8）', '速览当版条目');
+  ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同版（动态跟版）');
+  has(html, '查询提速 4 倍（v3.7.8）', '速览历史条目（v3.7.8）仍在');
   ok(html.includes('改完请点「重新发布」才生效'), '速览含重新发布提醒');
 });
 
