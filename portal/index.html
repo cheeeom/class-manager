@@ -10,7 +10,7 @@
   规格见 ../SPEC_学生查询端.md（v3.7.0 基础）与 ../PROGRESS.md v3.7.1 章节。铁律：
   ① 外部零依赖零 CDN —— QR 生成器为同仓自带的 qrcode.js / qrcode_utf8.js（MIT，kazuhikoarase）；
   ② 只解密自己那一片，页面里不存在任何「解全部」的代码路径；
-  ③ 加密参数必须与 ../index.html 完全一致（PBKDF2 250000 / SHA-256 / AES-GCM 256 /
+  ③ 加密参数必须与 ../index.html 完全一致（PBKDF2 60000 / SHA-256 / AES-GCM 256 /
      12 字节 IV / 密钥材料 = 去掉横线的大写码），不同步 = 全班当场解不开。守卫 _v370/_v371 会比对两端常量；
   ④ 兑换二维码 = 一次性「带签名的申请单」：HMAC-SHA256 密钥与查询分片同源派生，
      10 分钟时效 + 一次性 nonce，老师端验签后才入账——学生端永远不直接写账。
@@ -221,15 +221,15 @@
 
   /* ==================== 与 ../index.html 必须一致的常量 ====================
      ⚠️ 改这里必须同步改老师端，否则全班解不开。守卫 _v370_test.js 会比对两端字面量。 */
-  var PBKDF2_ROUNDS = 250000;
+  var PBKDF2_ROUNDS = 60000;   // v3.7.8 250k→60k：手机派生 10-20s→3-4s；安全账见老师端同款注释
   var CODE_LEN = 8;
-  var ALG_LABEL = 'PBKDF2-SHA256(250000)/AES-GCM-256';
+  var ALG_LABEL = 'PBKDF2-SHA256(60000)/AES-GCM-256';
 
   var FAIL_KEY = 'cm_portal_fail';
   var FAIL_MAX = 5;
   var FAIL_LOCK_MS = 60000;
   var CACHE_KEY = 'cm_portal_cache';
-  var CACHE_TTL_MS = 10 * 60 * 1000;   // 发布包 10 分钟内复用，避免反复拉取
+  var CACHE_TTL_MS = 30 * 60 * 1000;   // v3.7.8 10→30 分钟：上课扫码全程走缓存（页脚「数据截至」可见发布时点；改轮数时代次校验会自动作废旧包）
   var RM_KEY = 'cm_portal_remember';   // v3.7.6 记住我（仅存本机，明文学号+码；公共设备不勾不存）
   /* v3.7.1 兑换凭据（与老师端 index.html 的 PORTAL_REDEEM_* 同步，守卫 _v371 比对） */
   var REDEEM_VER = 'CM1';
@@ -303,7 +303,8 @@
     var now = Date.now();
     try{
       var c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-      if(c && c.owner === OWNER && c.gist === GIST && (now - (c.at || 0)) < CACHE_TTL_MS && c.payload){
+      if(c && c.owner === OWNER && c.gist === GIST && (now - (c.at || 0)) < CACHE_TTL_MS && c.payload &&
+         (!c.payload.alg || c.payload.alg === ALG_LABEL)){   // v3.7.8 算法代次不匹配的旧缓存包作废重拉
         return Promise.resolve(c.payload);
       }
     }catch(e){}
@@ -706,7 +707,7 @@
       if(_ml.indexOf('decrypt') >= 0 || _ml.indexOf('operation') >= 0 || _ml.indexOf('dataerror') >= 0){
         var s3 = bumpFail();
         var rest = FAIL_MAX - s3.n;
-        msg('查询码不正确。' + (rest > 0 ? '还可以试 ' + rest + ' 次。' : '已锁定 60 秒。'));
+        msg('查询码不正确。' + (rest > 0 ? '还可以试 ' + rest + ' 次。' : '已锁定 60 秒。') + '<span style="font-size:12px">（若班主任刚更新过系统，请先刷新页面再试）</span>');
       } else if(m.indexOf('HTTP 404') >= 0 || m.indexOf('bad payload') >= 0){
         msg('查询服务未开放。<br>可能班主任尚未发布，或已撤销。请联系班主任。');
       } else if(m.indexOf('TIMEOUT') >= 0 || m.indexOf('abort') >= 0 || m.indexOf('AbortError') >= 0){
