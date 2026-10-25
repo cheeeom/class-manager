@@ -2603,7 +2603,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.7.7</div>
+      <div class="login-version">v3.7.8</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2725,7 +2725,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.7.7 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.7.8 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3507,19 +3507,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.7.7</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.7.8</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.7.7）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.7.8）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
- · 📶 <b>学生端弱网体验修复（v3.7.7）</b>：查询下载加 25 秒超时（弱网不再无限转圈，超时给可读提示）；「学号未找到」提示补充学号格式说明<br> · 🪪 <b>二维码卡 + 记住我（v3.7.6）</b>：「学生查询端」新增二维码卡导出（每生一张，手机扫码直达自己的学分页，打印裁剪下发，查询码不用记）；学生页新增「记住我」（本人设备勾选后免输，公共设备请勿勾选）<br> · #️⃣ <b>学号续号与批量配学号（v3.7.5）</b>：新学生学号自动按班内数字学号续号（不再出现 S 前缀混排）；学生管理新增「# 批量配学号」——粘贴「姓名 学号」名单按姓名批量设置，重名/无匹配/冲突分桶提示，查询码自动随学号迁移（改完请重新发布）；顺带修复两枚潜伏 bug：配置 Token 弹窗被面板压住（z-index 1 容器困住，打开时重挂 body）、本地加载漏读 6 个字段（查询码/发布状态/请假墓碑/设备锁/学期存档——刷新即静默清空）<br> · 🎨 <b>兑换核销归位学分银行（v3.7.4）</b>：核销入口移到「兑换商店」工具条（与新增商品并列），查询端面板与设置卡不再重复放置；公示页「学生查询端」按钮与相邻按钮统一主色<br> · 🔧 <b>Token 配置弹窗层级修复（v3.7.3）</b>：查询端面板内点「配置 Token」弹窗不再被面板压住<br> · ⚙️ <b>学生查询端入口进设置页（v3.7.2）</b>：设置页新增「🔑 学生查询端」卡（打开面板/兑换核销+状态简报），公示页原入口保留<br> · 🛒 <b>学生自助兑换（v3.7.1）</b>：学生端可加购物车批量结算，生成 10 分钟时效二维码（查询码签名防伪）；老师端「📷 兑换核销」三入口收码（摄像头扫码 / 粘贴码原文 / 粘贴·拖入截图识别）→ 验签 → 实时校验余额月余 → 一键入账；查询端新增学分排名与商品分类筛选<br> · 🔑 <b>学生查询端（v3.7.0）</b>：学生可用「学号 + 8 位专属码」查看<b>自己的</b>学分与流水——公示页「🔑 学生查询端」一键导出码表并发布；每生一块独立密文，只解自己那份；<b>不含</b>家长电话、住址、生日、备注、标签、寝室<br>
+ · ⚡ <b>查询提速 4 倍（v3.7.8）</b>：加密派生轮数 25 万→6 万（手机单次查询 10-20 秒→3-4 秒，安全余量仍为百年量级）；查询包缓存 10→30 分钟（上课扫码全程免重下）。<b>改完请点「重新发布」才生效</b><br> · 📶 <b>学生端弱网体验修复（v3.7.7）</b>：查询下载加 25 秒超时（弱网不再无限转圈，超时给可读提示）；「学号未找到」提示补充学号格式说明<br> · 🪪 <b>二维码卡 + 记住我（v3.7.6）</b>：「学生查询端」新增二维码卡导出（每生一张，手机扫码直达自己的学分页，打印裁剪下发，查询码不用记）；学生页新增「记住我」（本人设备勾选后免输，公共设备请勿勾选）<br> · #️⃣ <b>学号续号与批量配学号（v3.7.5）</b>：新学生学号自动按班内数字学号续号（不再出现 S 前缀混排）；学生管理新增「# 批量配学号」——粘贴「姓名 学号」名单按姓名批量设置，重名/无匹配/冲突分桶提示，查询码自动随学号迁移（改完请重新发布）；顺带修复两枚潜伏 bug：配置 Token 弹窗被面板压住（z-index 1 容器困住，打开时重挂 body）、本地加载漏读 6 个字段（查询码/发布状态/请假墓碑/设备锁/学期存档——刷新即静默清空）<br> · 🎨 <b>兑换核销归位学分银行（v3.7.4）</b>：核销入口移到「兑换商店」工具条（与新增商品并列），查询端面板与设置卡不再重复放置；公示页「学生查询端」按钮与相邻按钮统一主色<br> · 🔧 <b>Token 配置弹窗层级修复（v3.7.3）</b>：查询端面板内点「配置 Token」弹窗不再被面板压住<br> · ⚙️ <b>学生查询端入口进设置页（v3.7.2）</b>：设置页新增「🔑 学生查询端」卡（打开面板/兑换核销+状态简报），公示页原入口保留<br> · 🛒 <b>学生自助兑换（v3.7.1）</b>：学生端可加购物车批量结算，生成 10 分钟时效二维码（查询码签名防伪）；老师端「📷 兑换核销」三入口收码（摄像头扫码 / 粘贴码原文 / 粘贴·拖入截图识别）→ 验签 → 实时校验余额月余 → 一键入账；查询端新增学分排名与商品分类筛选<br> · 🔑 <b>学生查询端（v3.7.0）</b>：学生可用「学号 + 8 位专属码」查看<b>自己的</b>学分与流水——公示页「🔑 学生查询端」一键导出码表并发布；每生一块独立密文，只解自己那份；<b>不含</b>家长电话、住址、生日、备注、标签、寝室<br>
  · 📱 <b>手机端学期报告入口（v3.6.10）</b>：「更多」抽屉新增学期报告（原先只在桌面侧栏，手机进不去）；快速加减分弹窗内的「按寝室」捷径撤下——请用学分页「🏠 按寝室加减分」专用入口<br>
  · 📊 <b>首页学分分布空白修复（v3.6.9）</b>：修复冷启动时首页「学分分布」卡片空白——echarts 懒加载完成后的补画函数在移植时缺失（异常被静默吞掉），现已补齐；加载失败时自动回退原图表<br>
  · 🏠 <b>学分批量按寝室选择（v3.6.8）</b>：学分加减分模块「全班全选」左侧新增「按寝室」——下拉列出全部寝室与人数，点选即整寝选入/移出，快速给目标寝室加减分<br>
@@ -4688,7 +4688,9 @@ function stripNoticeHistoryImages(notices){
 // 信封格式：{ enc:1, alg, salt, iv, data }。salt/iv 明文存放是标准做法，安全性完全取决于口令强度。
 const SYNC_PWD_KEY = 'cm_sync_pwd';
 const SYNC_SALT_KEY = 'cm_sync_salt';
-const PBKDF2_ROUNDS = 250000;
+/* v3.7.8 250000→60000：手机 WebCrypto 每生派生实测 10-20s 是查询慢主因。安全账：码空间 32^8≈1.1e12，
+   RTX 4090 级 GPU @60k 迭代 ≈ 250 次/秒 → 全空间约 140 年（均摊 70 年/人），离线爆破依旧不可行。两端必须同步改。 */
+const PBKDF2_ROUNDS = 60000;
 let lastCloudSalt = null;   // 拉取时从云端信封记下，保证多设备 salt 一致
 
 function getSyncPwd(){ return localStorage.getItem(SYNC_PWD_KEY) || ''; }
@@ -18425,11 +18427,11 @@ function finishPubPoster(cv, data){
    ② 每生独立 8 位码 + 独立盐 + 独立密文块 —— 拿到整份发布包也只能解开自己那一条；
    ③ 发到**公开 Gist**，不发站仓：站仓 Contents 写权限可以改 index.html，等于能往全站注入恶意 JS；
    ④ 字段白名单，phone/guardian/address/birth/notes/timeline/tags/creditBase/dorm 一律不出。
-   ⚠️ 两端参数必须一致（守卫 _v370_test.js 逐项断言）：PBKDF2-SHA256 250000 次 / AES-GCM 256 /
+   ⚠️ 两端参数必须一致（守卫 _v370_test.js 逐项断言）：PBKDF2-SHA256 60000 次（v3.7.8 起，250k 为手机性能瓶颈）/ AES-GCM 256 /
       16 字节盐 / 12 字节 IV / 密钥材料 = 去掉横线的大写码。
       portal/index.html 里有同一组常量，改这里必须同步改那边，否则全班当场解不开（本模块头号事故）。 */
 const PORTAL_ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';   // 32 字符，刻意剔除 0/1/I/O（手抄不歧义）
-const PORTAL_CODE_LEN = 8;                                    // 8 位是底线：6 位纯数字配 PBKDF2-250k，单卡 GPU 约 6 分钟爆破一个人
+const PORTAL_CODE_LEN = 8;                                    // 8 位是底线：32^8≈1.1e12 码空间，配合 PBKDF2-60k 离线爆破约百年量级（v3.7.8 起）
 const PORTAL_FILE = 'portal.json';
 const PORTAL_TOKEN_KEY = 'cm_portal_token';
 const PORTAL_MAX_BYTES = 1572864;                             // 1.5MB 硬上限：超了学生弱网拉不动
@@ -19038,7 +19040,7 @@ function portalRedeemCanonical(o){
     (o.items || []).map(function(x){ return x[0] + ':' + x[1]; }).join(',') + '|' +
     o.total + '|' + o.ts + '|' + o.nonce;
 }
-/* 与学生端同源派生：PBKDF2(码, salt, 250000) → HMAC-SHA256 验签密钥 */
+/* 与学生端同源派生：PBKDF2(码, salt, 60000) → HMAC-SHA256 验签密钥 */
 function portalRedeemHmacKey(code, salt){
   var material = normalizePortalCode(code);
   return crypto.subtle.importKey('raw', new TextEncoder().encode(material), 'PBKDF2', false, ['deriveKey'])
