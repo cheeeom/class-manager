@@ -308,8 +308,15 @@
       }
     }catch(e){}
 
+    /* v3.7.7 超时保护：手机弱网/CDN 慢时不再无限转圈（25s 后中止并报可读错误） */
+    function fetchWithTimeout(url, ms){
+      if(typeof AbortController === 'undefined') return fetch(url, { cache:'no-store' });
+      var ctl = new AbortController();
+      var timer = setTimeout(function(){ try{ ctl.abort(); }catch(e){} }, ms || 25000);
+      return fetch(url, { cache:'no-store', signal: ctl.signal }).finally(function(){ clearTimeout(timer); });
+    }
     var tryFetch = function(url){
-      return fetch(url, { cache:'no-store' }).then(function(r){
+      return fetchWithTimeout(url).then(function(r){
         if(!r.ok) throw new Error('HTTP ' + r.status);
         return r.text();
       }).then(function(t){
@@ -324,9 +331,7 @@
               encodeURIComponent(GIST) + '/raw/' + 'portal.json';
     return tryFetch(cdn).catch(function(){
       /* 备用：Gist API（匿名 60 次/小时，仅作兜底） */
-      return fetch('https://api.github.com/gists/' + encodeURIComponent(GIST), {
-        headers:{ 'Accept':'application/vnd.github.v3+json' }
-      }).then(function(r){
+      return fetchWithTimeout('https://api.github.com/gists/' + encodeURIComponent(GIST), 25000).then(function(r){
         if(!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
       }).then(function(j){
@@ -334,7 +339,7 @@
         if(!f) throw new Error('no file');
         if(f.truncated){ throw new Error('truncated'); }
         return f.content ? JSON.parse(f.content)
-          : fetch(f.raw_url, { cache:'no-store' }).then(function(r){ return r.text(); }).then(JSON.parse);
+          : fetchWithTimeout(f.raw_url).then(function(r){ return r.text(); }).then(JSON.parse);
       });
     });
   }
@@ -676,7 +681,7 @@
       if(!blk){
         setBusy(false);
         var s2 = bumpFail();
-        msg('学号未找到，请核对后重试。' + (s2.n >= FAIL_MAX ? '<br>已连续出错 ' + s2.n + ' 次，将暂时锁定。' : ''));
+        msg('学号未找到，请核对后重试。<span style="font-size:12px">（学号以班主任发的查询卡为准，通常为 7 位数字如 2602001）</span>' + (s2.n >= FAIL_MAX ? '<br>已连续出错 ' + s2.n + ' 次，将暂时锁定。' : ''));
         return;
       }
       return openBlock(blk, code).then(function(data){
@@ -697,12 +702,15 @@
     }).catch(function(e){
       setBusy(false);
       var m = String(e && e.message || e);
-      if(m.indexOf('decrypt') >= 0 || m.indexOf('operation') >= 0 || m.indexOf('DataError') >= 0){
+      var _ml = m.toLowerCase();   // v3.7.7 大小写不敏感——Chrome 解密失败抛 OperationError（大写 O），原小写匹配永远落空显示英文原始错误
+      if(_ml.indexOf('decrypt') >= 0 || _ml.indexOf('operation') >= 0 || _ml.indexOf('dataerror') >= 0){
         var s3 = bumpFail();
         var rest = FAIL_MAX - s3.n;
         msg('查询码不正确。' + (rest > 0 ? '还可以试 ' + rest + ' 次。' : '已锁定 60 秒。'));
       } else if(m.indexOf('HTTP 404') >= 0 || m.indexOf('bad payload') >= 0){
         msg('查询服务未开放。<br>可能班主任尚未发布，或已撤销。请联系班主任。');
+      } else if(m.indexOf('TIMEOUT') >= 0 || m.indexOf('abort') >= 0 || m.indexOf('AbortError') >= 0){
+        msg('网络较慢，数据包没能在 25 秒内下载完。<br>请移到信号好的地方稍后重试；多次失败请联系班主任。');
       } else if(m.indexOf('HTTP') >= 0){
         msg('网络异常（' + esc(m) + '）。请检查网络后重试。');
       } else {
