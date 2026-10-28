@@ -2761,7 +2761,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.9.5</div>
+      <div class="login-version">v3.9.6</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2883,7 +2883,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.9.5 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.9.6 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3669,19 +3669,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.9.5</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.9.6</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.9.5）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.9.6）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
- · 🛠 <b>请假与预警修复（v3.9.5）</b>：请假销假/续假/登记现在都记「修改时间」，云同步按时间判新旧（同一时刻则<b>已销假优先</b>），<b>销假后立即上传</b>（原来有 2 秒延迟，销完马上关页面会丢这次上传）——换台设备或刷新不再变回「待销假」；学分预警在<b>红色/深红档（40 分以下）办结后不再自动重开</b>（此前按了等于没按、删了也删不掉），只有学分真的再恶化一档才重新提醒，备注也会写清从哪档升到哪档<br>
+ · 🎯 <b>点名预览栏定格名常驻（v3.9.6）</b>：课堂点名抽中的姓名在右上角预览栏<b>不再自动消失</b>——原来定格 0.9 秒就收起（多人连抽时仅 0.3～0.4 秒就被下一位清掉，一眼没看清就没了），现在一直是琥珀金大字留在那儿，<b>直到你点「开始抽取」开下一轮才收起</b>；连带修掉多人连抽时「定格 → 闪一下白 → 再滚」的断档，名字由下一位的滚动直接接管<br> · 🛠 <b>请假与预警修复（v3.9.5）</b>：请假销假/续假/登记现在都记「修改时间」，云同步按时间判新旧（同一时刻则<b>已销假优先</b>），<b>销假后立即上传</b>（原来有 2 秒延迟，销完马上关页面会丢这次上传）——换台设备或刷新不再变回「待销假」；学分预警在<b>红色/深红档（40 分以下）办结后不再自动重开</b>（此前按了等于没按、删了也删不掉），只有学分真的再恶化一档才重新提醒，备注也会写清从哪档升到哪档<br>
  · 🎬 <b>座次表与点名升级（v3.9.4）</b>：座次表加「第几排第几列」标尺（左侧排号、顶部列号），讲台条去掉图标、改成「讲　　台」两字加宽间距居中；导出改为<b>先预览再导出</b>，可在「俯视图（讲台在上）」与「讲台视角（讲台在下、第 1 排贴讲台往上递增，整张图是俯视图旋转 180°、<b>左右也镜像</b>）」之间切换；请假页顶栏四个统计数补上滚动动画；课堂点名抽取时卡片边框改为呼吸式闪动，右上角预览栏同步滚动名字，抽中瞬间与卡片黄框<b>同一帧</b>定格；🪪 修复二维码卡<b>缺二维码图片</b>（导出整版从未加载 QR 组件且空捕获静默丢图，现已统一懒加载、失败必报）<br> · 🎨 <b>三套新皮肤（v3.9.0）</b>：外观卡新增「藤黄·杏坛」（暖金）、「紫檀·暮山」（深紫）、「松烟·墨池」（极简水墨）——各配暗色形态与专属签名细节，对比度全项达标<br> · 🛒 <b>兑换体验优化（v3.8.1）</b>：兑换二维码有效期 10 分钟→<b>3 天</b>；商品卡片直接加减数量、点底部浮条即可弹出购物车核对（币不足也能进）；新增「补印单张」（丢卡按姓名补打一张）<br> · 🛠 <b>云同步解密修复（v3.8.0）</b>：修复刷新后「解密失败：同步口令不正确」——云同步加密轮数被查询端提速误改（两套参数曾共用常量），现已解耦恢复 25 万轮并加守卫钉死；你的本地数据与云端密文均完好<br> · ✨ <b>按压反馈与阴影跟肤（v3.9.1）</b>：按钮/导航/页签补回按压缩放反馈（v3.1.0 动效语言）；19 处朱砂色调阴影改用 --tone-rgb 令牌，六套皮肤下阴影色全部跟肤<br> · 🚀 <b>查询再提速至 1-2 秒（v3.7.9）</b>：派生轮数 6 万→3 万（安全余量均摊 1.3 GPU 年/人）；解密与兑换签名共用一次派生（出兑换码零等待）。<b>请再点一次「重新发布」</b><br> · ⚡ <b>查询提速 4 倍（v3.7.8）</b>：加密派生轮数 25 万→6 万（手机单次查询 10-20 秒→3-4 秒，安全余量仍为百年量级）；查询包缓存 10→30 分钟（上课扫码全程免重下）。<b>改完请点「重新发布」才生效</b><br> · 📶 <b>学生端弱网体验修复（v3.7.7）</b>：查询下载加 25 秒超时（弱网不再无限转圈，超时给可读提示）；「学号未找到」提示补充学号格式说明<br> · 🪪 <b>二维码卡 + 记住我（v3.7.6）</b>：「学生查询端」新增二维码卡导出（每生一张，手机扫码直达自己的学分页，打印裁剪下发，查询码不用记）；学生页新增「记住我」（本人设备勾选后免输，公共设备请勿勾选）<br> · #️⃣ <b>学号续号与批量配学号（v3.7.5）</b>：新学生学号自动按班内数字学号续号（不再出现 S 前缀混排）；学生管理新增「# 批量配学号」——粘贴「姓名 学号」名单按姓名批量设置，重名/无匹配/冲突分桶提示，查询码自动随学号迁移（改完请重新发布）；顺带修复两枚潜伏 bug：配置 Token 弹窗被面板压住（z-index 1 容器困住，打开时重挂 body）、本地加载漏读 6 个字段（查询码/发布状态/请假墓碑/设备锁/学期存档——刷新即静默清空）<br> · 🎨 <b>兑换核销归位学分银行（v3.7.4）</b>：核销入口移到「兑换商店」工具条（与新增商品并列），查询端面板与设置卡不再重复放置；公示页「学生查询端」按钮与相邻按钮统一主色<br> · 🔧 <b>Token 配置弹窗层级修复（v3.7.3）</b>：查询端面板内点「配置 Token」弹窗不再被面板压住<br> · ⚙️ <b>学生查询端入口进设置页（v3.7.2）</b>：设置页新增「🔑 学生查询端」卡（打开面板/兑换核销+状态简报），公示页原入口保留<br> · 🛒 <b>学生自助兑换（v3.7.1）</b>：学生端可加购物车批量结算，生成 10 分钟时效二维码（查询码签名防伪）；老师端「📷 兑换核销」三入口收码（摄像头扫码 / 粘贴码原文 / 粘贴·拖入截图识别）→ 验签 → 实时校验余额月余 → 一键入账；查询端新增学分排名与商品分类筛选<br> · 🔑 <b>学生查询端（v3.7.0）</b>：学生可用「学号 + 8 位专属码」查看<b>自己的</b>学分与流水——公示页「🔑 学生查询端」一键导出码表并发布；每生一块独立密文，只解自己那份；<b>不含</b>家长电话、住址、生日、备注、标签、寝室<br>
  · 📱 <b>手机端学期报告入口（v3.6.10）</b>：「更多」抽屉新增学期报告（原先只在桌面侧栏，手机进不去）；快速加减分弹窗内的「按寝室」捷径撤下——请用学分页「🏠 按寝室加减分」专用入口<br>
  · 📊 <b>首页学分分布空白修复（v3.6.9）</b>：修复冷启动时首页「学分分布」卡片空白——echarts 懒加载完成后的补画函数在移植时缺失（异常被静默吞掉），现已补齐；加载失败时自动回退原图表<br>
@@ -17366,8 +17366,8 @@ function rcReset(){
 /* v3.9.2 预览栏「滚动名字」控制器（老板要求：右上角预览栏也要滚，且与卡片同帧）。
    复用同一个 span、不 innerHTML 重画 —— 滚动态每 70~220ms 调一次，
    重建节点既费，又容易在触摸端触发 hover 重算闪一下。
-   name 传空 = 收起；lock=true = 已定格（琥珀金 + 回弹），与卡片黄框同一拍。 */
-var _rcNameTimer = 0;
+   name 传空 = 收起；lock=true = 已定格（琥珀金 + 回弹），与卡片黄框同一拍。
+   v3.9.6 定格的姓名**不再自动收起**（老板要求）：一直留到下次点「开始抽取」才清。 */
 function rcSetRollName(name, lock){
   var box = document.getElementById('rcRollName');
   if(!box) return;
@@ -17387,7 +17387,6 @@ function rcSetRollName(name, lock){
 
 function rcCancelRoll(){
   if(RC.raf){ cancelAnimationFrame(RC.raf); RC.raf = 0; }
-  if(_rcNameTimer){ clearTimeout(_rcNameTimer); _rcNameTimer = 0; }
   rcSetRollName('');
   var wall = document.getElementById('rcWall');
   if(wall){
@@ -17406,6 +17405,10 @@ function rcReducedMotion(){
 }
 function rcStartDraw(){
   if(RC.phase !== 'idle') return;
+  /* v3.9.6 老板口径：上一轮定格的姓名一直留在预览栏，**点这里**才收起、开始新动画。
+     必须放在最前面 —— phase 守卫之后、任何早期 return（池空走 rcReset）之前，
+     否则「池空 → 重置」那条路会先闪一下旧名字再清。 */
+  rcSetRollName('');
   rcEnsureToday();
   var cands = rcCandidates();
   if(cands.length === 0){ rcReset(); return; }   // 池空 ⇒ 按钮本身就是「重置」
@@ -17430,9 +17433,9 @@ function rcStartDraw(){
 
 function rcDrawNext(){
   if(RC.idx >= RC.queue.length){ rcFinish(); return; }
-  // 与上一次的定格名收尾解耦：新一个人开滚之前先清掉上一轮残留
-  if(_rcNameTimer){ clearTimeout(_rcNameTimer); _rcNameTimer = 0; }
-  rcSetRollName('');
+  /* v3.9.6 这里**不再**先把预览栏清空：上一位的定格名要一直留到这一位的滚动把它接管。
+     原来清一下会让「定格 → 空白 → 再滚」在多人抽取时闪一帧白，正是老板说的「马上就消失」。
+     lock 类由 rcSetRollName 内部 toggle 掉，颜色/字号会自动回落到滚动态，不用手动清。 */
   var stu = RC.queue[RC.idx];
   var poolN = rcCandidates().length;
   var base = RC.idx === 0 ? 1600 : (RC.idx === 1 ? 1300 : 1000);
@@ -17501,9 +17504,9 @@ function rcReveal(){
     rcPaintCard(stu.id);
     // 与黄框同一帧：名字切琥珀金 + 回弹（rcNameLock 与卡片 rcPop 用同一条缓动语言）
     rcSetRollName(stu.name, true);
-    // 名字在预览栏多停 900ms（与黄框 rcPop 同节奏），让眼睛有个落点再收起
-    if(_rcNameTimer){ clearTimeout(_rcNameTimer); }
-    _rcNameTimer = setTimeout(function(){ rcSetRollName(''); _rcNameTimer = 0; }, 900);
+    /* v3.9.6 老板口径：定格名**不再 900ms 后自动收起**，一直留在预览栏，
+       直到下次点「开始抽取」才清（清的动作在 rcStartDraw 最前面）。
+       原来收得太快，一眼没看清就没了；现在它同时充当「本轮最后抽中」的常驻展示。 */
   }
   var justIdx = RC.idx;
   RC.idx++;
