@@ -153,6 +153,22 @@
   .spinner{display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.35); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; vertical-align:-2px; margin-right:6px}
   @keyframes spin{to{transform:rotate(360deg)}}
   @media (prefers-reduced-motion: reduce){ .spinner{animation:none} }
+  /* 自助领取：学号 + 姓名 → 生成自己的二维码（2026-10-28 新增，学生端独立功能） */
+  #claimCard{margin-top:2px}
+  .cl-title{font-size:14.5px;font-weight:600;margin:0 0 5px;color:var(--ink)}
+  .cl-sub{font-size:12.5px;color:var(--ink3);line-height:1.75;margin:0 0 15px}
+  #claimOut{margin-top:14px;display:none}
+  .cl-box{border:1px solid var(--border);border-radius:14px;padding:16px 14px 14px;background:var(--bg);text-align:center}
+  .cl-who{font-size:14px;color:var(--ink2);margin-bottom:11px}
+  .cl-who b{color:var(--ink);font-weight:600}
+  .cl-qr{width:250px;height:250px;display:block;margin:0 auto;border-radius:8px;image-rendering:pixelated;background:#fff}
+  .cl-code{font-family:Consolas,monospace;font-size:16px;font-weight:700;letter-spacing:1.5px;color:var(--primary);margin:11px 0 0}
+  .cl-tip{font-size:12px;color:var(--ink3);line-height:1.85;margin-top:9px}
+  .cl-act{display:flex;gap:9px;margin-top:14px}
+  .cl-act button{flex:1;padding:11px;font-size:13.5px;font-weight:600;border-radius:11px;border:1px solid var(--border);background:var(--card);color:var(--ink);font-family:inherit;cursor:pointer}
+  .cl-act button.pri{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .cl-act button:active{opacity:.8}
+  .msg.ok{background:rgba(47,125,91,.08); color:var(--up); border:1px solid rgba(47,125,91,.2)}
 </style>
 </head>
 <body>
@@ -180,6 +196,22 @@
   </div>
 
   <div id="result"></div>
+
+    <div class="card" id="claimCard">
+    <div class="cl-title">还没存二维码？</div>
+    <div class="cl-sub">输学号和姓名，生成属于你自己的查询二维码。长按图片存进相册，以后打开相册扫一扫就能看学分，不用再记查询码。</div>
+    <div class="field">
+      <label for="cSid">学号</label>
+      <input id="cSid" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="例如 2602001">
+    </div>
+    <div class="field">
+      <label for="cName">姓名</label>
+      <input id="cName" type="text" autocomplete="off" spellcheck="false" placeholder="例如 张三">
+    </div>
+    <button class="go" id="claimBtn" onclick="doClaim()">生成我的二维码</button>
+    <div class="msg" id="claimMsg"></div>
+    <div id="claimOut"></div>
+  </div>
 
   <div class="foot" id="foot"></div>
 </div>
@@ -781,6 +813,207 @@
       }
     });
   }
+  /* ---------- 自助领取：学号 + 姓名 → 自己的二维码（2026-10-28 新增） ----------
+     数据源 claim.json（与 portal.json 同一个 Gist）：每人一块 AES-GCM 密文，
+     密钥 = PBKDF2-SHA256(学号 + '|' + 姓名)。Gist 里没有任何明文查询码。
+     ⚠️ 安全边界（老板拍板）：钥匙是班里半公开信息，防"顺手翻看"，防不住"存心逐个试"。
+        要收紧只改 claimMaterial() 的钥匙与 claimRounds 两处，改完重新发布 claim.json 即可。 */
+  var CLAIM_FILE = 'claim.json';
+  var CLAIM_ROUNDS_FALLBACK = 100000;
+  var CLAIM_CACHE_KEY = 'cm_portal_claim_cache';
+  var CLAIM_FAIL_KEY = 'cm_portal_claim_fail';
+  var claimCache = null, _claimBusy = false, _lastClaim = null;
+
+  function claimNormSid(s){ return String(s == null ? '' : s).toUpperCase().replace(/[^0-9A-Z]/g, ''); }
+  function claimNormName(s){
+    return String(s == null ? '' : s).replace(/[\s\u3000]+/g, '').replace(/[（(][^）)]*[）)]/g, '');
+  }
+  function claimMaterial(sid, name){ return claimNormSid(sid) + '|' + claimNormName(name); }
+  function claimFmtCode(code){
+    var c = normCode(code);
+    return c.length > 4 ? c.slice(0, 4) + '-' + c.slice(4) : c;
+  }
+  function claimMsg(text, kind){
+    var el = $('claimMsg');
+    el.className = 'msg show ' + (kind || 'err');
+    el.innerHTML = text;
+    el.style.display = 'block';
+  }
+  function claimHideMsg(){ var el = $('claimMsg'); el.className = 'msg'; el.style.display = 'none'; }
+  function claimFailState(){
+    try{
+      var raw = localStorage.getItem(CLAIM_FAIL_KEY);
+      if(!raw) return { n:0, at:0 };
+      var o = JSON.parse(raw);
+      if(!o || typeof o.n !== 'number') return { n:0, at:0 };
+      if(Date.now() - (o.at || 0) > FAIL_LOCK_MS) return { n:0, at:0 };
+      return o;
+    }catch(e){ return { n:0, at:0 }; }
+  }
+  function claimBumpFail(){
+    var s = claimFailState();
+    s.n = (s.n || 0) + 1; s.at = Date.now();
+    try{ localStorage.setItem(CLAIM_FAIL_KEY, JSON.stringify(s)); }catch(e){}
+    return s;
+  }
+  function claimClearFail(){ try{ localStorage.removeItem(CLAIM_FAIL_KEY); }catch(e){} }
+
+  function fetchClaimPayload(){
+    if(claimCache) return Promise.resolve(claimCache);
+    try{
+      var c = JSON.parse(localStorage.getItem(CLAIM_CACHE_KEY) || 'null');
+      if(c && c.owner === OWNER && c.gist === GIST && (Date.now() - (c.at || 0)) < CACHE_TTL_MS && c.payload && c.payload.students){
+        claimCache = c.payload;
+        return Promise.resolve(claimCache);
+      }
+    }catch(e){}
+    function grab(url, parse){
+      if(typeof AbortController === 'undefined') return fetch(url, { cache:'no-store' }).then(parse);
+      var ctl = new AbortController();
+      var timer = setTimeout(function(){ try{ ctl.abort(); }catch(e){} }, 25000);
+      return fetch(url, { cache:'no-store', signal:ctl.signal }).finally(function(){ clearTimeout(timer); }).then(parse);
+    }
+    function asJson(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.text().then(JSON.parse); }
+    var cdn = 'https://gist.githubusercontent.com/' + encodeURIComponent(OWNER) + '/' +
+              encodeURIComponent(GIST) + '/raw/' + CLAIM_FILE;
+    return grab(cdn, asJson).catch(function(){
+      return grab('https://api.github.com/gists/' + encodeURIComponent(GIST), function(r){
+        if(!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function(j){
+        var f = j.files && j.files[CLAIM_FILE];
+        if(!f) throw new Error('NOFILE');
+        if(f.truncated) throw new Error('NOFILE');
+        return f.content ? JSON.parse(f.content)
+          : grab(f.raw_url, function(r){ return r.text().then(JSON.parse); });
+      });
+    }).then(function(p){
+      if(!p || !p.students) throw new Error('NOFILE');
+      claimCache = p;
+      try{ localStorage.setItem(CLAIM_CACHE_KEY, JSON.stringify({ owner:OWNER, gist:GIST, at:Date.now(), payload:p })); }catch(e){}
+      return p;
+    });
+  }
+
+  function claimDerive(material, salt, rounds){
+    return crypto.subtle.importKey('raw', new TextEncoder().encode(material), 'PBKDF2', false, ['deriveKey'])
+      .then(function(base){
+        return crypto.subtle.deriveKey(
+          { name:'PBKDF2', salt:salt, iterations:rounds, hash:'SHA-256' },
+          base, { name:'AES-GCM', length:256 }, false, ['decrypt']);
+      });
+  }
+
+  function claimTargetUrl(sid, code){
+    var dir = location.pathname.replace(/[^/]*$/, '');
+    return location.origin + dir +
+      '?o=' + encodeURIComponent(OWNER) + '&g=' + encodeURIComponent(GIST) +
+      '&s=' + encodeURIComponent(sid) + '&c=' + encodeURIComponent(normCode(code));
+  }
+
+  window.doClaim = function(){
+    if(_claimBusy) return;
+    var sid = claimNormSid($('cSid').value);
+    var name = claimNormName($('cName').value);
+    if(!sid){ claimMsg('请填写学号。'); return; }
+    if(!name){ claimMsg('请填写姓名。'); return; }
+    if(!OWNER || !GIST){ claimMsg('请通过班主任发来的链接打开本页。'); return; }
+    if(!hasCrypto()){
+      claimMsg('当前打开方式不支持加密，请用系统浏览器（Safari / Chrome）打开本链接。', 'warn');
+      return;
+    }
+    var fs = claimFailState();
+    if(fs.n >= FAIL_MAX){
+      var left = Math.ceil((FAIL_LOCK_MS - (Date.now() - fs.at)) / 1000);
+      if(left > 0){ claimMsg('试错次数过多，请 <b>' + left + '</b> 秒后再试。'); return; }
+      claimClearFail();
+    }
+    _claimBusy = true;
+    var btn = $('claimBtn');
+    btn.disabled = true; btn.textContent = '正在生成…';
+    $('claimOut').style.display = 'none';
+    claimHideMsg();
+
+    fetchClaimPayload().then(function(p){
+      var blk = p.students && p.students[sid];
+      if(!blk) throw new Error('NOMATCH');
+      var rounds = p.rounds || CLAIM_ROUNDS_FALLBACK;
+      return claimDerive(claimMaterial(sid, name), b64dec(blk.salt), rounds)
+        .then(function(key){
+          return crypto.subtle.decrypt({ name:'AES-GCM', iv:b64dec(blk.iv) }, key, b64dec(blk.data));
+        })
+        .then(function(pt){ return JSON.parse(new TextDecoder().decode(pt)); });
+    }).then(function(o){
+      claimClearFail();
+      renderClaim(o);
+    }).catch(function(e){
+      var m = String(e && e.message || e);
+      if(m === 'NOMATCH' || (e && e.name === 'OperationError')){
+        var s2 = claimBumpFail();
+        claimMsg('学号和姓名对不上，请核对后再试。' +
+          (s2.n >= FAIL_MAX ? '<br>已连续出错 ' + s2.n + ' 次，将暂时锁定。' : ''));
+      } else if(m === 'NOFILE' || m.indexOf('404') >= 0){
+        claimMsg('班主任还没开启「自助领取」。请先用纸质查询卡，或联系班主任。', 'warn');
+      } else {
+        claimMsg('生成失败：' + esc(m) + '<br>请检查网络后重试。');
+      }
+    }).finally(function(){
+      _claimBusy = false;
+      btn.disabled = false; btn.textContent = '生成我的二维码';
+    });
+  };
+
+  function renderClaim(o){
+    var sid = String(o.sid || '').trim();
+    var code = normCode(o.code || '');
+    var url = claimTargetUrl(sid, code);
+    var qr = window.qrcode(0, 'M');
+    qr.addData(url, 'Byte');
+    qr.make();
+    var dataUrl = qr.createDataURL(6, 10);
+    var nm = claimNormName(o.name || '') || claimNormName($('cName').value);
+    $('claimOut').innerHTML =
+      '<div class="cl-box">' +
+        '<div class="cl-who"><b>' + esc(nm) + '</b> · ' + esc(sid) + '</div>' +
+        '<img class="cl-qr" alt="我的查询二维码" src="' + dataUrl + '">' +
+        '<div class="cl-code">' + esc(claimFmtCode(code)) + '</div>' +
+        '<div class="cl-tip">长按图片保存到相册 · 以后扫这张码直接看学分<br>也可以把这张图发给家长，家长扫码同样能看</div>' +
+        '<div class="cl-act">' +
+          '<button class="pri" onclick="claimGo()">直接查看</button>' +
+          '<button onclick="claimSave()">保存图片</button>' +
+        '</div>' +
+      '</div>';
+    $('claimOut').style.display = 'block';
+    _lastClaim = { sid: sid, code: code, dataUrl: dataUrl, name: nm };
+    try{ saveRemember(sid, code); }catch(e){}
+    claimMsg('已生成，记得存图。', 'ok');
+    try{ $('claimOut').scrollIntoView({ behavior:'smooth', block:'center' }); }catch(e){}
+  }
+
+  window.claimGo = function(){
+    if(!_lastClaim) return;
+    $('sidInput').value = _lastClaim.sid;
+    $('codeInput').value = claimFmtCode(_lastClaim.code);
+    try{ $('rmChk').checked = true; }catch(e){}
+    try{ window.scrollTo({ top:0, behavior:'smooth' }); }catch(e){ window.scrollTo(0, 0); }
+    setTimeout(submit, 260);
+  };
+
+  window.claimSave = function(){
+    if(!_lastClaim) return;
+    try{
+      var a = document.createElement('a');
+      a.href = _lastClaim.dataUrl;
+      a.download = '查询二维码-' + _lastClaim.sid + '.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      claimMsg('已保存到下载目录。手机端如果没反应，直接长按图片保存。', 'ok');
+    }catch(e){
+      claimMsg('这个浏览器不支持直接保存，请长按图片保存到相册。', 'warn');
+    }
+  };
+
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
