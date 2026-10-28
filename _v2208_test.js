@@ -258,7 +258,9 @@ console.log('\n【6】真跑 seatExportImage：导出的几何');
 
   const texts = ops.filter(o => o.t === 'text').map(o => o.s);
   assert(texts.some(s => s.indexOf('\u5ea7\u6b21\u8868') >= 0 && s.indexOf('\u5e7c\u4fdd') >= 0), '标题含班级名 + 座次表');
-  assert(texts.indexOf('\u8bb2 \u53f0') >= 0, '画出讲台');
+  // v3.9.3 老板要求去掉讲台图标 ⇒ 主字改成「讲　　台」（中间两个全角空格）且不再画图标笔画
+  assert(texts.indexOf('\u8bb2\u3000\u3000\u53f0') >= 0, '画出讲台（两字中间留全角空格）');
+  assert(!texts.some(s => s === '\u8bb2 \u53f0'), '旧的「讲 台」单空格写法已不再出现');
   assert(texts.some(s => s.indexOf('\u5df2\u5165\u5ea7 ' + N + ' \u4eba') >= 0), '标题条写明已入座人数');
   assert(texts.some(s => s.indexOf('3\u7ec4') >= 0), '标题条写明分几组（过道分组的直接产物）');
   for (let c = 1; c <= COLS; c++) assert(texts.indexOf('\u7b2c' + c + '\u5217') >= 0, '有「第' + c + '列」列号');

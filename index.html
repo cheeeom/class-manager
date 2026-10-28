@@ -1503,7 +1503,7 @@ tbody tr.highlight{
   display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;
 }
 .seating-teacher{
-  display:flex;align-items:center;justify-content:center;gap:9px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
   background:linear-gradient(135deg,var(--primary-dark),var(--primary));
   color:#fff;
   text-align:center;
@@ -1513,18 +1513,16 @@ tbody tr.highlight{
   box-shadow:0 6px 18px rgba(var(--tone-rgb),0.22);
   position:relative;overflow:hidden;
 }
-/* v3.9.2 讲台条重做：原来就是「📚 讲 台 📚」两坨 emoji，丑。
-   现在改成图标 + 主字 + 副标题，顶部一道高光，形状收成 14px 圆角。 */
+/* v3.9.3 讲台条：老板要求去掉图标，只留「讲　　台」两字中间留几个空格、整体居中。
+   横幅居中只在「讲台」自己那一行做——副标题另起一行居中，别并排（并排会把主字挤到偏左）。 */
 .seating-teacher::after{
   content:'';position:absolute;inset:0 0 auto 0;height:52%;
   background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,0));
   pointer-events:none;
 }
-.seating-teacher .st-icon{width:22px;height:22px;stroke:currentColor;stroke-width:1.8}
-.seating-teacher .st-text{font-size:16px;font-weight:700;letter-spacing:4px;text-indent:4px}
+.seating-teacher .st-text{font-size:17px;font-weight:700;letter-spacing:0;line-height:1.2}
 .seating-teacher .st-sub{
-  font-size:11px;opacity:.8;margin-left:4px;padding-left:11px;
-  border-left:1px solid rgba(255,255,255,.3);line-height:1.25;text-align:left;
+  font-size:11px;opacity:.82;line-height:1.25;text-align:center;margin-top:3px;
 }
 @media(max-width:768px){
   .seating-teacher .st-sub{display:none}
@@ -2722,7 +2720,6 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <symbol id="i-badge" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="2"/><circle cx="12" cy="10" r="2.4"/><path d="M8.5 16.5c.6-1.8 1.9-2.7 3.5-2.7s2.9.9 3.5 2.7"/></symbol>
 <symbol id="i-note" viewBox="0 0 24 24"><path d="M6 3.5h8.5L19 8v12.5H6z"/><path d="M14 3.5V8h5"/><path d="M9 12.5h6M9 16h6"/></symbol>
 <symbol id="i-seat" viewBox="0 0 24 24"><path d="M7 3.5V13h10V3.5"/><path d="M7 13v7"/><path d="M17 13v7"/><path d="M7 16.5h10"/></symbol>
-<symbol id="i-podium" viewBox="0 0 24 24"><path d="M3 6.5h18"/><path d="M6 6.5v11"/><path d="M18 6.5v11"/><path d="M4 17.5h16"/></symbol>
 <symbol id="i-duty" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/><path d="m9 15.5 2 2 4-4"/></symbol>
 <symbol id="i-leave" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4.5 7 7.5 6 7.5-6"/></symbol>
 <symbol id="i-grades" viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="M8.5 16.5V11"/><path d="M13 16.5V7.5"/><path d="M17.5 16.5v-6"/></symbol>
@@ -2764,7 +2761,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.9.2</div>
+      <div class="login-version">v3.9.3</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2886,7 +2883,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.9.2 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.9.3 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3116,7 +3113,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <button class="btn btn-outline btn-sm" id="seatCloseExitBtn" onclick="toggleSeatCloseMode()">退出关闭模式</button>
         </div>
         <div style="font-size:12px;color:var(--text-muted);text-align:center;margin:2px 0 8px">💡 点座位卡片即可安排 / 更换学生；按住卡片拖到别的座位即可换座（拖到已占座位＝两人互换，拖到空位＝直接移动，触屏需长按约 0.5 秒才开始拖动，直接滑动＝滚动页面；手机端左右滑动可看全所有列）；已占座卡片右上角 ✕ 可移除；点「🚫 关闭座位」进入关闭模式后，可把格子设为非座位（关闭的格子不排人、不可点选、不接受拖拽）</div>
-        <div class="seating-teacher"><svg class="ic st-icon"><use href="#i-podium"/></svg><span class="st-text">讲 台</span><span class="st-sub">教师位置<br>学生面向此处</span></div>
+        <div class="seating-teacher"><span class="st-text">讲　　台</span><span class="st-sub">教师位置 · 学生面向此处</span></div>
         <div class="seating-scroll" id="seatingScroll">
           <div class="seating-grid" id="seatingGrid"></div>
         </div>
@@ -3672,19 +3669,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.9.2</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.9.3</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.9.2）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.9.3）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
- · 🎬 <b>座次表与点名升级（v3.9.2）</b>：座次表加「第几排第几列」标尺（左侧排号、顶部列号），讲台从两个 emoji 换成图标条；导出改为<b>先预览再导出</b>，可在「俯视图（讲台在上）」与「讲台视角（讲台在下、第 1 排贴讲台往上递增）」之间切换；请假页顶栏四个统计数补上滚动动画；课堂点名抽取时卡片边框改为呼吸式闪动，右上角预览栏同步滚动名字，抽中瞬间与卡片黄框<b>同一帧</b>定格；🪪 修复二维码卡<b>缺二维码图片</b>（导出整版从未加载 QR 组件且空捕获静默丢图，现已统一懒加载、失败必报）<br> · 🎨 <b>三套新皮肤（v3.9.0）</b>：外观卡新增「藤黄·杏坛」（暖金）、「紫檀·暮山」（深紫）、「松烟·墨池」（极简水墨）——各配暗色形态与专属签名细节，对比度全项达标<br> · 🛒 <b>兑换体验优化（v3.8.1）</b>：兑换二维码有效期 10 分钟→<b>3 天</b>；商品卡片直接加减数量、点底部浮条即可弹出购物车核对（币不足也能进）；新增「补印单张」（丢卡按姓名补打一张）<br> · 🛠 <b>云同步解密修复（v3.8.0）</b>：修复刷新后「解密失败：同步口令不正确」——云同步加密轮数被查询端提速误改（两套参数曾共用常量），现已解耦恢复 25 万轮并加守卫钉死；你的本地数据与云端密文均完好<br> · ✨ <b>按压反馈与阴影跟肤（v3.9.1）</b>：按钮/导航/页签补回按压缩放反馈（v3.1.0 动效语言）；19 处朱砂色调阴影改用 --tone-rgb 令牌，六套皮肤下阴影色全部跟肤<br> · 🚀 <b>查询再提速至 1-2 秒（v3.7.9）</b>：派生轮数 6 万→3 万（安全余量均摊 1.3 GPU 年/人）；解密与兑换签名共用一次派生（出兑换码零等待）。<b>请再点一次「重新发布」</b><br> · ⚡ <b>查询提速 4 倍（v3.7.8）</b>：加密派生轮数 25 万→6 万（手机单次查询 10-20 秒→3-4 秒，安全余量仍为百年量级）；查询包缓存 10→30 分钟（上课扫码全程免重下）。<b>改完请点「重新发布」才生效</b><br> · 📶 <b>学生端弱网体验修复（v3.7.7）</b>：查询下载加 25 秒超时（弱网不再无限转圈，超时给可读提示）；「学号未找到」提示补充学号格式说明<br> · 🪪 <b>二维码卡 + 记住我（v3.7.6）</b>：「学生查询端」新增二维码卡导出（每生一张，手机扫码直达自己的学分页，打印裁剪下发，查询码不用记）；学生页新增「记住我」（本人设备勾选后免输，公共设备请勿勾选）<br> · #️⃣ <b>学号续号与批量配学号（v3.7.5）</b>：新学生学号自动按班内数字学号续号（不再出现 S 前缀混排）；学生管理新增「# 批量配学号」——粘贴「姓名 学号」名单按姓名批量设置，重名/无匹配/冲突分桶提示，查询码自动随学号迁移（改完请重新发布）；顺带修复两枚潜伏 bug：配置 Token 弹窗被面板压住（z-index 1 容器困住，打开时重挂 body）、本地加载漏读 6 个字段（查询码/发布状态/请假墓碑/设备锁/学期存档——刷新即静默清空）<br> · 🎨 <b>兑换核销归位学分银行（v3.7.4）</b>：核销入口移到「兑换商店」工具条（与新增商品并列），查询端面板与设置卡不再重复放置；公示页「学生查询端」按钮与相邻按钮统一主色<br> · 🔧 <b>Token 配置弹窗层级修复（v3.7.3）</b>：查询端面板内点「配置 Token」弹窗不再被面板压住<br> · ⚙️ <b>学生查询端入口进设置页（v3.7.2）</b>：设置页新增「🔑 学生查询端」卡（打开面板/兑换核销+状态简报），公示页原入口保留<br> · 🛒 <b>学生自助兑换（v3.7.1）</b>：学生端可加购物车批量结算，生成 10 分钟时效二维码（查询码签名防伪）；老师端「📷 兑换核销」三入口收码（摄像头扫码 / 粘贴码原文 / 粘贴·拖入截图识别）→ 验签 → 实时校验余额月余 → 一键入账；查询端新增学分排名与商品分类筛选<br> · 🔑 <b>学生查询端（v3.7.0）</b>：学生可用「学号 + 8 位专属码」查看<b>自己的</b>学分与流水——公示页「🔑 学生查询端」一键导出码表并发布；每生一块独立密文，只解自己那份；<b>不含</b>家长电话、住址、生日、备注、标签、寝室<br>
+ · 🎬 <b>座次表与点名升级（v3.9.3）</b>：座次表加「第几排第几列」标尺（左侧排号、顶部列号），讲台条去掉图标、改成「讲　　台」两字加宽间距居中；导出改为<b>先预览再导出</b>，可在「俯视图（讲台在上）」与「讲台视角（讲台在下、第 1 排贴讲台往上递增）」之间切换；请假页顶栏四个统计数补上滚动动画；课堂点名抽取时卡片边框改为呼吸式闪动，右上角预览栏同步滚动名字，抽中瞬间与卡片黄框<b>同一帧</b>定格；🪪 修复二维码卡<b>缺二维码图片</b>（导出整版从未加载 QR 组件且空捕获静默丢图，现已统一懒加载、失败必报）<br> · 🎨 <b>三套新皮肤（v3.9.0）</b>：外观卡新增「藤黄·杏坛」（暖金）、「紫檀·暮山」（深紫）、「松烟·墨池」（极简水墨）——各配暗色形态与专属签名细节，对比度全项达标<br> · 🛒 <b>兑换体验优化（v3.8.1）</b>：兑换二维码有效期 10 分钟→<b>3 天</b>；商品卡片直接加减数量、点底部浮条即可弹出购物车核对（币不足也能进）；新增「补印单张」（丢卡按姓名补打一张）<br> · 🛠 <b>云同步解密修复（v3.8.0）</b>：修复刷新后「解密失败：同步口令不正确」——云同步加密轮数被查询端提速误改（两套参数曾共用常量），现已解耦恢复 25 万轮并加守卫钉死；你的本地数据与云端密文均完好<br> · ✨ <b>按压反馈与阴影跟肤（v3.9.1）</b>：按钮/导航/页签补回按压缩放反馈（v3.1.0 动效语言）；19 处朱砂色调阴影改用 --tone-rgb 令牌，六套皮肤下阴影色全部跟肤<br> · 🚀 <b>查询再提速至 1-2 秒（v3.7.9）</b>：派生轮数 6 万→3 万（安全余量均摊 1.3 GPU 年/人）；解密与兑换签名共用一次派生（出兑换码零等待）。<b>请再点一次「重新发布」</b><br> · ⚡ <b>查询提速 4 倍（v3.7.8）</b>：加密派生轮数 25 万→6 万（手机单次查询 10-20 秒→3-4 秒，安全余量仍为百年量级）；查询包缓存 10→30 分钟（上课扫码全程免重下）。<b>改完请点「重新发布」才生效</b><br> · 📶 <b>学生端弱网体验修复（v3.7.7）</b>：查询下载加 25 秒超时（弱网不再无限转圈，超时给可读提示）；「学号未找到」提示补充学号格式说明<br> · 🪪 <b>二维码卡 + 记住我（v3.7.6）</b>：「学生查询端」新增二维码卡导出（每生一张，手机扫码直达自己的学分页，打印裁剪下发，查询码不用记）；学生页新增「记住我」（本人设备勾选后免输，公共设备请勿勾选）<br> · #️⃣ <b>学号续号与批量配学号（v3.7.5）</b>：新学生学号自动按班内数字学号续号（不再出现 S 前缀混排）；学生管理新增「# 批量配学号」——粘贴「姓名 学号」名单按姓名批量设置，重名/无匹配/冲突分桶提示，查询码自动随学号迁移（改完请重新发布）；顺带修复两枚潜伏 bug：配置 Token 弹窗被面板压住（z-index 1 容器困住，打开时重挂 body）、本地加载漏读 6 个字段（查询码/发布状态/请假墓碑/设备锁/学期存档——刷新即静默清空）<br> · 🎨 <b>兑换核销归位学分银行（v3.7.4）</b>：核销入口移到「兑换商店」工具条（与新增商品并列），查询端面板与设置卡不再重复放置；公示页「学生查询端」按钮与相邻按钮统一主色<br> · 🔧 <b>Token 配置弹窗层级修复（v3.7.3）</b>：查询端面板内点「配置 Token」弹窗不再被面板压住<br> · ⚙️ <b>学生查询端入口进设置页（v3.7.2）</b>：设置页新增「🔑 学生查询端」卡（打开面板/兑换核销+状态简报），公示页原入口保留<br> · 🛒 <b>学生自助兑换（v3.7.1）</b>：学生端可加购物车批量结算，生成 10 分钟时效二维码（查询码签名防伪）；老师端「📷 兑换核销」三入口收码（摄像头扫码 / 粘贴码原文 / 粘贴·拖入截图识别）→ 验签 → 实时校验余额月余 → 一键入账；查询端新增学分排名与商品分类筛选<br> · 🔑 <b>学生查询端（v3.7.0）</b>：学生可用「学号 + 8 位专属码」查看<b>自己的</b>学分与流水——公示页「🔑 学生查询端」一键导出码表并发布；每生一块独立密文，只解自己那份；<b>不含</b>家长电话、住址、生日、备注、标签、寝室<br>
  · 📱 <b>手机端学期报告入口（v3.6.10）</b>：「更多」抽屉新增学期报告（原先只在桌面侧栏，手机进不去）；快速加减分弹窗内的「按寝室」捷径撤下——请用学分页「🏠 按寝室加减分」专用入口<br>
  · 📊 <b>首页学分分布空白修复（v3.6.9）</b>：修复冷启动时首页「学分分布」卡片空白——echarts 懒加载完成后的补画函数在移植时缺失（异常被静默吞掉），现已补齐；加载失败时自动回退原图表<br>
  · 🏠 <b>学分批量按寝室选择（v3.6.8）</b>：学分加减分模块「全班全选」左侧新增「按寝室」——下拉列出全部寝室与人数，点选即整寝选入/移出，快速给目标寝室加减分<br>
@@ -12186,37 +12183,19 @@ function seatDrawPodium(ctx, x, y, w, h, mode){
   ctx.fillStyle = hi;
   seatRoundRect(ctx, x, y, w, h / 2, 12); ctx.fill();
 
-  // 图标 + 主字 + 方位说明 作为一个整体水平居中（原来图标钉死在 x+34，跟居中的文字离得远，看着像两个孤立元素）
-  // ⚠️ 别往图标里加抽屉方框 —— 22px 缩放下会和桌面、两腿凑成一个「回」字，认不出来。
-  const label = '讲 台';
+  // v3.9.3 按老板要求去掉图标：只留「讲　　台」（中间几个全角空格）居中，副标题另起一行也居中。
+  // ⚠️ 别再往图标位置塞图形 —— 22px 缩放下任何小图标都容易糊成一团认不出来。
+  const label = '讲　　台';
   const sub = mode === 'teacher' ? '教师位置 · 面对学生' : '教师位置 · 学生面向此处';
-  ctx.font = 'bold 20px "Microsoft YaHei",sans-serif';
-  const labelW = ctx.measureText(label).width;
-  ctx.font = '12px "Microsoft YaHei",sans-serif';
-  const subW = ctx.measureText(sub).width;
-  const blockW = Math.max(labelW, subW);
-  const iconW = 24, iconGap = 11;
-  const startX = x + (w - (iconW + iconGap + blockW)) / 2;
-  const cx = startX + iconW + iconGap + blockW / 2;
-
-  const ix = startX + iconW / 2, iy = y + h / 2;
-  ctx.strokeStyle = 'rgba(255,255,255,.94)';
-  ctx.lineCap = 'round';
-  ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(ix - 12, iy - 8); ctx.lineTo(ix + 12, iy - 8); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(ix - 9, iy - 8); ctx.lineTo(ix - 9, iy + 9); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(ix + 9, iy - 8); ctx.lineTo(ix + 9, iy + 9); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(ix - 12, iy + 9); ctx.lineTo(ix + 12, iy + 9); ctx.stroke();
-
-  // 主字 + 方位说明
+  const cx = x + w / 2;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = '#FFFFFF';
   ctx.font = 'bold 20px "Microsoft YaHei",sans-serif';
-  ctx.fillText(label, cx, y + h / 2 - 3);
+  ctx.fillText(label, cx, y + h / 2 - 6);
   ctx.font = '12px "Microsoft YaHei",sans-serif';
   ctx.fillStyle = 'rgba(255,255,255,.84)';
-  ctx.fillText(sub, cx, y + h / 2 + 14);
+  ctx.fillText(sub, cx, y + h / 2 + 15);
   ctx.textBaseline = 'alphabetic';
   ctx.textAlign = 'left';
 }
