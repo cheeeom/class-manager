@@ -280,6 +280,58 @@ console.log('\n【6】真跑 seatExportImage：导出的几何');
   assert(last.toasts.length === 1 && String(last.toasts[0][0]).indexOf('座次表已导出') >= 0, '桌面端只弹一次成功提示（实得 ' + JSON.stringify(last.toasts) + '）');
 }
 
+console.log('\n【6·5】讲台视角 = 俯视图旋转 180°（行序、列序都必须翻）');
+{
+  // v3.9.4 老板实测报错：上一版只翻了行序（第1排挪到下方），列序没翻，
+  // 于是教师照图找「第 3 列」会摸到对称的另一边。这条断层必须用几何断言钉死。
+  const COLS = 9, ROWS = 7, N = 59, CELLH = 66;
+  const api = runExport(makeState(COLS, ROWS, N));
+  const fOps = last.ops.slice();
+  api.seatBuildCanvas('teacher');
+  const tOps = last.ops.slice(fOps.length);
+  assert(tOps.length > 200, '讲台视角确实画出了整张图（实得 ' + tOps.length + ' 个绘制操作）');
+
+  const one = (ops, s) => {
+    const hit = ops.filter(o => o.t === 'text' && o.s === s);
+    assert(hit.length === 1, '\u300c' + s + '\u300d在图中恰好出现 1 次（实得 ' + hit.length + '）');
+    return hit[0];
+  };
+  const colF = c => one(fOps, '\u7b2c' + c + '\u5217').x;
+  const colT = c => one(tOps, '\u7b2c' + c + '\u5217').x;
+
+  // ① 方向：俯视图第 1 列在最左；讲台视角第 1 列必须跑到最右（教师面向学生，左右相反）
+  assert(colF(1) < colF(COLS), '俯视图：第 1 列在左、第 ' + COLS + ' 列在右（实得 ' +
+    colF(1).toFixed(1) + ' / ' + colF(COLS).toFixed(1) + '）');
+  assert(colT(1) > colT(COLS), '讲台视角：第 1 列翻到右侧、第 ' + COLS + ' 列在左侧（实得 ' +
+    colT(1).toFixed(1) + ' / ' + colT(COLS).toFixed(1) + '）');
+
+  // ② 关于网格中线严格对称 —— 只看方向不够，还得位置是镜像点（间距/过道都要跟着翻）
+  const cells = fOps.filter(o => o.t === 'stroke' && o.bbox && near(o.bbox.y1 - o.bbox.y0, CELLH));
+  const mid = (Math.min.apply(null, cells.map(o => o.bbox.x0)) +
+    Math.max.apply(null, cells.map(o => o.bbox.x1))) / 2;
+  const bad = [];
+  for (let c = 1; c <= COLS; c++) if (!near(colF(c) + colT(c), mid * 2, 1.2)) bad.push(c);
+  assert(bad.length === 0, '每列在两种视图里都关于网格中线严格对称（不成立 ' + bad.length + ' 列' +
+    (bad.length ? '：第 ' + bad.join('、') + ' 列' : '') + '）');
+
+  // ③ 行序：第 1 排永远贴着讲台，讲台条永远在第 1 排那一侧
+  const tCells = tOps.filter(o => o.t === 'stroke' && o.bbox && near(o.bbox.y1 - o.bbox.y0, CELLH));
+  assert(tCells.length === COLS * ROWS, '讲台视角格子数仍是 ' + (COLS * ROWS) + '（实得 ' + tCells.length + '）');
+  assert(tCells.filter(o => o.style === '#A63A2B').length === N, '讲台视角入座格子仍是 ' + N + ' 格');
+  const rowF = r => one(fOps, '\u7b2c' + r + '\u6392').y;
+  const rowT = r => one(tOps, '\u7b2c' + r + '\u6392').y;
+  assert(rowF(1) < rowF(ROWS), '俯视图：第 1 排在上（贴讲台）');
+  assert(rowT(1) > rowT(ROWS), '讲台视角：第 1 排在下（贴讲台）');
+  const podF = one(fOps, '\u8bb2\u3000\u3000\u53f0').y;
+  const podT = one(tOps, '\u8bb2\u3000\u3000\u53f0').y;
+  assert(podF < Math.min.apply(null, cells.map(o => o.bbox.y0)), '俯视图：讲台条在网格上方');
+  assert(podT > Math.max.apply(null, tCells.map(o => o.bbox.y1)), '讲台视角：讲台条在网格下方');
+
+  // ④ 落款必须写明是镜像，否则打印出来贴墙没人分得清哪张是教师视角
+  assert(tOps.some(o => o.t === 'text' && String(o.s).indexOf('\u8bb2\u53f0\u89c6\u89d2\uff08\u8bb2\u53f0\u5728\u4e0b\u00b7\u5de6\u53f3\u955c\u50cf\uff09') >= 0),
+    '讲台视角落款写明「讲台视角（讲台在下·左右镜像）」');
+}
+
 console.log('\n【7】真跑：逐格重建姓名，必须与原文逐字一致（不丢字、不截断）');
 {
   const COLS = 9, ROWS = 7, N = 59, CELLH = 66;
