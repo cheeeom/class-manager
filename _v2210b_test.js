@@ -93,9 +93,12 @@ const RC_SLICE = sliceFrom('var RC_SESSION_KEY', '/* ==================== \u6210
 
 function elStub() {
   return {
-    textContent: '', innerHTML: '', value: '1', disabled: false,
+    textContent: '', innerHTML: '', value: '1', disabled: false, className: '',
+    // v3.9.2 预览栏「名字滚动」行要用 firstElementChild 复用同一个 span + 读 offsetWidth 强制回流
+    firstElementChild: null, offsetWidth: 0,
     classList: { add() {}, remove() {}, toggle() {} },
     querySelector() { return null; }, querySelectorAll() { return []; },
+    appendChild(c) { this.firstElementChild = c; return c; },
     scrollIntoView() {}, dataset: {}
   };
 }
@@ -105,6 +108,7 @@ function mkSandbox(st, opts) {
   const els = {};
   const doc = {
     getElementById(id) { if (!els[id]) els[id] = elStub(); return els[id]; },
+    createElement() { return elStub(); },
     querySelectorAll() { return []; },
     addEventListener() {},
     hidden: false

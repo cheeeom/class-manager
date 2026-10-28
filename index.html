@@ -1503,16 +1503,50 @@ tbody tr.highlight{
   display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;
 }
 .seating-teacher{
+  display:flex;align-items:center;justify-content:center;gap:9px;
   background:linear-gradient(135deg,var(--primary-dark),var(--primary));
   color:#fff;
   text-align:center;
-  padding:12px;
-  border-radius:12px;
-  font-size:16px;
-  font-weight:600;
+  padding:13px 14px;
+  border-radius:14px;
   margin-bottom:16px;
-  box-shadow:0 4px 12px rgba(var(--tone-rgb),0.2);
+  box-shadow:0 6px 18px rgba(var(--tone-rgb),0.22);
+  position:relative;overflow:hidden;
 }
+/* v3.9.2 讲台条重做：原来就是「📚 讲 台 📚」两坨 emoji，丑。
+   现在改成图标 + 主字 + 副标题，顶部一道高光，形状收成 14px 圆角。 */
+.seating-teacher::after{
+  content:'';position:absolute;inset:0 0 auto 0;height:52%;
+  background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,0));
+  pointer-events:none;
+}
+.seating-teacher .st-icon{width:22px;height:22px;stroke:currentColor;stroke-width:1.8}
+.seating-teacher .st-text{font-size:16px;font-weight:700;letter-spacing:4px;text-indent:4px}
+.seating-teacher .st-sub{
+  font-size:11px;opacity:.8;margin-left:4px;padding-left:11px;
+  border-left:1px solid rgba(255,255,255,.3);line-height:1.25;text-align:left;
+}
+@media(max-width:768px){
+  .seating-teacher .st-sub{display:none}
+  .seating-teacher{padding:11px 12px}
+}
+/* v3.9.2 座次表导出预览（老板要求：先看再导）+ 两种排版切换。
+   ⚠️ 刻意不给 .seat-exp-tab 写 :hover —— 触摸端 innerHTML/类切换 + hover 会闪，
+      选中态只由 .active 表达。 */
+.seat-exp-tabs{display:flex;gap:8px;margin:0 0 10px;flex-wrap:wrap}
+.seat-exp-tab{
+  flex:1 1 140px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;
+  background:var(--card-bg);color:var(--text-secondary);font-size:13px;font-weight:500;
+  cursor:pointer;text-align:center;line-height:1.3;
+  transition:background-color .18s,border-color .18s,color .18s;
+}
+.seat-exp-tab.active{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
+.seat-exp-hint{font-size:12px;color:var(--text-muted);margin-bottom:8px;line-height:1.6}
+.seat-exp-imgwrap{
+  max-height:58vh;overflow:auto;border:1px solid var(--border);border-radius:10px;
+  background:#fff;padding:6px;-webkit-overflow-scrolling:touch;
+}
+.seat-exp-imgwrap img{width:100%;display:block;border-radius:6px}
 .seat-config-inline{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary)}
 .seat-config-inline label{font-weight:600;white-space:nowrap}
 .seat-config-inline .seat-total{color:var(--text-muted);font-size:12px;min-width:60px}
@@ -1531,6 +1565,24 @@ tbody tr.highlight{
   gap:8px;
   --seat-aisle:26px;
   --seat-cell-min:0px;
+  --seat-axis:26px;
+}
+/* v3.9.2 座次表行列标尺（老板要求：方便快速定位「第几排第几列」）。
+   网格第一列固定为「排号」轴，表头行第一格为「排\列」角标，表头其余格为「列号」。
+   轴格不参与任何交互（pointer-events:none），也不挂 data-seat-* ——
+   拖拽落点判定只看 data-seat-row，所以轴格天然不会成为落点。 */
+.seat-axis{
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;line-height:1;color:var(--text-secondary);
+  font-variant-numeric:tabular-nums;
+  pointer-events:none;user-select:none;-webkit-user-select:none;
+}
+.seat-axis-corner{font-size:10px;font-weight:600;opacity:.72;letter-spacing:0}
+.seat-axis-col{padding-bottom:4px}
+@media(max-width:768px){
+  .seating-grid{--seat-axis:20px}
+  .seat-axis{font-size:10px}
+  .seat-axis-corner{display:none}
 }
 /* v2.20.8 过道：每 3 列一组，组与组之间留一条走道；最左 / 最右是墙，不留过道。
    用一条居中虚线示意「这里是可以走人的通道」，空着不占座位语义。 */
@@ -2508,6 +2560,25 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .rc-picked-names{display:flex;flex-wrap:wrap;gap:6px;min-height:30px;align-items:center}
 .rc-picked-chip{padding:4px 11px;border-radius:8px;background:rgba(47,125,91,.1);border:1px solid rgba(47,125,91,.32);color:var(--success);font-size:13px;font-weight:600}
 .rc-picked-empty{font-size:13px;color:var(--text-muted)}
+/* v3.9.2 预览栏的「名字滚动」行（老板要求：右上角预览栏也要有滚动动画，且与卡片同步）。
+   高度恒定占位（min-height），否则抽取时面板一长一短会把整条工具栏一起拉高再缩回，
+   视觉上就是「工具栏在跳」。字号比卡片名大得多，远远就能看清正在滚的是谁。 */
+.rc-roll-name{
+  display:block;min-height:28px;line-height:28px;text-align:center;
+  font-size:21px;font-weight:700;letter-spacing:2px;color:var(--success);
+  overflow:hidden;margin:-2px 0 6px;
+}
+.rc-roll-name .rn-txt{display:inline-block;will-change:transform,opacity}
+.rc-roll-name.flip .rn-txt{animation:rcNameIn .13s ease-out}
+@keyframes rcNameIn{from{opacity:.2;transform:translateY(62%)}to{opacity:1;transform:translateY(0)}}
+/* 定格瞬间（与卡片变黄框同一帧）：换成琥珀金 + 放大回弹，和「抽中」的黄框同一套语言 */
+.rc-roll-name.lock{color:var(--warning);font-size:23px}
+.rc-roll-name.lock .rn-txt{animation:rcNameLock .34s cubic-bezier(.34,1.56,.64,1)}
+@keyframes rcNameLock{0%{transform:scale(.86)}60%{transform:scale(1.14)}100%{transform:scale(1)}}
+@media(max-width:768px){
+  .rc-roll-name{font-size:18px;min-height:24px;line-height:24px}
+  .rc-roll-name.lock{font-size:20px}
+}
 .rc-wall{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));
   gap:10px;margin-bottom:14px;padding:2px;
@@ -2532,7 +2603,18 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 .rc-card.rc-done{background:var(--bg-secondary);color:var(--text-muted)}
 .rc-card.rc-done .rc-name{opacity:.6}
 .rc-card.rc-leave{background:var(--bg-secondary);color:var(--text-muted);cursor:default}
-.rc-card.rc-roll{border-color:var(--success);box-shadow:0 0 0 3px rgba(47,125,91,.20);transform:scale(1.06);z-index:2}
+/* v3.9.2 滚动中的卡片：老板反馈「看不清哪张在滚」。
+   原来只有一圈静态绿框 + 20% 透明度，白底卡上几乎看不出来；
+   现在改成边框加粗到 2px + 呼吸式外发光脉冲（rcFlash），一眼能锁定。 */
+.rc-card.rc-roll{
+  border-color:var(--success);border-width:2px;
+  transform:scale(1.07);z-index:2;
+  animation:rcFlash .26s ease-in-out infinite alternate;
+}
+@keyframes rcFlash{
+  from{box-shadow:0 0 0 2px rgba(47,125,91,.20),0 0 0 0 rgba(47,125,91,0);border-color:rgba(47,125,91,.62)}
+  to{box-shadow:0 0 0 5px rgba(47,125,91,.34),0 0 16px 3px rgba(47,125,91,.48);border-color:var(--success)}
+}
 .rc-card.rc-pick{
   border-color:var(--warning);box-shadow:0 0 0 4px rgba(192,138,45,.32);
   transform:scale(1.08);background:var(--card-bg);color:var(--text);opacity:1;z-index:3;
@@ -2601,6 +2683,9 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 @media(prefers-reduced-motion:reduce){
   .rc-card{transition:none}
   .rc-card.rc-pick{animation:none}
+  .rc-card.rc-roll{animation:none}
+  .rc-roll-name.flip .rn-txt{animation:none}
+  .rc-roll-name.lock .rn-txt{animation:none}
 }
 
 /* ==================== v3.5.6 侧栏折叠 rail（三态：展开固定 / 折叠 rail / 临时浮层展开） ==================== */
@@ -2637,6 +2722,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <symbol id="i-badge" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="2"/><circle cx="12" cy="10" r="2.4"/><path d="M8.5 16.5c.6-1.8 1.9-2.7 3.5-2.7s2.9.9 3.5 2.7"/></symbol>
 <symbol id="i-note" viewBox="0 0 24 24"><path d="M6 3.5h8.5L19 8v12.5H6z"/><path d="M14 3.5V8h5"/><path d="M9 12.5h6M9 16h6"/></symbol>
 <symbol id="i-seat" viewBox="0 0 24 24"><path d="M7 3.5V13h10V3.5"/><path d="M7 13v7"/><path d="M17 13v7"/><path d="M7 16.5h10"/></symbol>
+<symbol id="i-podium" viewBox="0 0 24 24"><path d="M3 6.5h18"/><path d="M6 6.5v11"/><path d="M18 6.5v11"/><path d="M4 17.5h16"/></symbol>
 <symbol id="i-duty" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/><path d="m9 15.5 2 2 4-4"/></symbol>
 <symbol id="i-leave" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4.5 7 7.5 6 7.5-6"/></symbol>
 <symbol id="i-grades" viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="M8.5 16.5V11"/><path d="M13 16.5V7.5"/><path d="M17.5 16.5v-6"/></symbol>
@@ -2678,7 +2764,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.9.1</div>
+      <div class="login-version">v3.9.2</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2800,7 +2886,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.9.1 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.9.2 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3030,7 +3116,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <button class="btn btn-outline btn-sm" id="seatCloseExitBtn" onclick="toggleSeatCloseMode()">退出关闭模式</button>
         </div>
         <div style="font-size:12px;color:var(--text-muted);text-align:center;margin:2px 0 8px">💡 点座位卡片即可安排 / 更换学生；按住卡片拖到别的座位即可换座（拖到已占座位＝两人互换，拖到空位＝直接移动，触屏需长按约 0.5 秒才开始拖动，直接滑动＝滚动页面；手机端左右滑动可看全所有列）；已占座卡片右上角 ✕ 可移除；点「🚫 关闭座位」进入关闭模式后，可把格子设为非座位（关闭的格子不排人、不可点选、不接受拖拽）</div>
-        <div class="seating-teacher">📚 讲 台 📚</div>
+        <div class="seating-teacher"><svg class="ic st-icon"><use href="#i-podium"/></svg><span class="st-text">讲 台</span><span class="st-sub">教师位置<br>学生面向此处</span></div>
         <div class="seating-scroll" id="seatingScroll">
           <div class="seating-grid" id="seatingGrid"></div>
         </div>
@@ -3245,6 +3331,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           </div>
           <div class="rc-picked-panel">
             <div class="rc-picked-title">本轮抽中<span class="rc-picked-cnt" id="rcPickedCnt"></span></div>
+            <div class="rc-roll-name" id="rcRollName"></div>
             <div class="rc-picked-names" id="rcPickedNames"></div>
           </div>
         </div>
@@ -3585,19 +3672,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.9.1</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.9.2</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.9.1）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.9.2）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
- · 🎨 <b>三套新皮肤（v3.9.0）</b>：外观卡新增「藤黄·杏坛」（暖金）、「紫檀·暮山」（深紫）、「松烟·墨池」（极简水墨）——各配暗色形态与专属签名细节，对比度全项达标<br> · 🛒 <b>兑换体验优化（v3.8.1）</b>：兑换二维码有效期 10 分钟→<b>3 天</b>；商品卡片直接加减数量、点底部浮条即可弹出购物车核对（币不足也能进）；新增「补印单张」（丢卡按姓名补打一张）<br> · 🛠 <b>云同步解密修复（v3.8.0）</b>：修复刷新后「解密失败：同步口令不正确」——云同步加密轮数被查询端提速误改（两套参数曾共用常量），现已解耦恢复 25 万轮并加守卫钉死；你的本地数据与云端密文均完好<br> · ✨ <b>按压反馈与阴影跟肤（v3.9.1）</b>：按钮/导航/页签补回按压缩放反馈（v3.1.0 动效语言）；19 处朱砂色调阴影改用 --tone-rgb 令牌，六套皮肤下阴影色全部跟肤<br> · 🚀 <b>查询再提速至 1-2 秒（v3.7.9）</b>：派生轮数 6 万→3 万（安全余量均摊 1.3 GPU 年/人）；解密与兑换签名共用一次派生（出兑换码零等待）。<b>请再点一次「重新发布」</b><br> · ⚡ <b>查询提速 4 倍（v3.7.8）</b>：加密派生轮数 25 万→6 万（手机单次查询 10-20 秒→3-4 秒，安全余量仍为百年量级）；查询包缓存 10→30 分钟（上课扫码全程免重下）。<b>改完请点「重新发布」才生效</b><br> · 📶 <b>学生端弱网体验修复（v3.7.7）</b>：查询下载加 25 秒超时（弱网不再无限转圈，超时给可读提示）；「学号未找到」提示补充学号格式说明<br> · 🪪 <b>二维码卡 + 记住我（v3.7.6）</b>：「学生查询端」新增二维码卡导出（每生一张，手机扫码直达自己的学分页，打印裁剪下发，查询码不用记）；学生页新增「记住我」（本人设备勾选后免输，公共设备请勿勾选）<br> · #️⃣ <b>学号续号与批量配学号（v3.7.5）</b>：新学生学号自动按班内数字学号续号（不再出现 S 前缀混排）；学生管理新增「# 批量配学号」——粘贴「姓名 学号」名单按姓名批量设置，重名/无匹配/冲突分桶提示，查询码自动随学号迁移（改完请重新发布）；顺带修复两枚潜伏 bug：配置 Token 弹窗被面板压住（z-index 1 容器困住，打开时重挂 body）、本地加载漏读 6 个字段（查询码/发布状态/请假墓碑/设备锁/学期存档——刷新即静默清空）<br> · 🎨 <b>兑换核销归位学分银行（v3.7.4）</b>：核销入口移到「兑换商店」工具条（与新增商品并列），查询端面板与设置卡不再重复放置；公示页「学生查询端」按钮与相邻按钮统一主色<br> · 🔧 <b>Token 配置弹窗层级修复（v3.7.3）</b>：查询端面板内点「配置 Token」弹窗不再被面板压住<br> · ⚙️ <b>学生查询端入口进设置页（v3.7.2）</b>：设置页新增「🔑 学生查询端」卡（打开面板/兑换核销+状态简报），公示页原入口保留<br> · 🛒 <b>学生自助兑换（v3.7.1）</b>：学生端可加购物车批量结算，生成 10 分钟时效二维码（查询码签名防伪）；老师端「📷 兑换核销」三入口收码（摄像头扫码 / 粘贴码原文 / 粘贴·拖入截图识别）→ 验签 → 实时校验余额月余 → 一键入账；查询端新增学分排名与商品分类筛选<br> · 🔑 <b>学生查询端（v3.7.0）</b>：学生可用「学号 + 8 位专属码」查看<b>自己的</b>学分与流水——公示页「🔑 学生查询端」一键导出码表并发布；每生一块独立密文，只解自己那份；<b>不含</b>家长电话、住址、生日、备注、标签、寝室<br>
+ · 🎬 <b>座次表与点名升级（v3.9.2）</b>：座次表加「第几排第几列」标尺（左侧排号、顶部列号），讲台从两个 emoji 换成图标条；导出改为<b>先预览再导出</b>，可在「俯视图（讲台在上）」与「讲台视角（讲台在下、第 1 排贴讲台往上递增）」之间切换；请假页顶栏四个统计数补上滚动动画；课堂点名抽取时卡片边框改为呼吸式闪动，右上角预览栏同步滚动名字，抽中瞬间与卡片黄框<b>同一帧</b>定格；🪪 修复二维码卡<b>缺二维码图片</b>（导出整版从未加载 QR 组件且空捕获静默丢图，现已统一懒加载、失败必报）<br> · 🎨 <b>三套新皮肤（v3.9.0）</b>：外观卡新增「藤黄·杏坛」（暖金）、「紫檀·暮山」（深紫）、「松烟·墨池」（极简水墨）——各配暗色形态与专属签名细节，对比度全项达标<br> · 🛒 <b>兑换体验优化（v3.8.1）</b>：兑换二维码有效期 10 分钟→<b>3 天</b>；商品卡片直接加减数量、点底部浮条即可弹出购物车核对（币不足也能进）；新增「补印单张」（丢卡按姓名补打一张）<br> · 🛠 <b>云同步解密修复（v3.8.0）</b>：修复刷新后「解密失败：同步口令不正确」——云同步加密轮数被查询端提速误改（两套参数曾共用常量），现已解耦恢复 25 万轮并加守卫钉死；你的本地数据与云端密文均完好<br> · ✨ <b>按压反馈与阴影跟肤（v3.9.1）</b>：按钮/导航/页签补回按压缩放反馈（v3.1.0 动效语言）；19 处朱砂色调阴影改用 --tone-rgb 令牌，六套皮肤下阴影色全部跟肤<br> · 🚀 <b>查询再提速至 1-2 秒（v3.7.9）</b>：派生轮数 6 万→3 万（安全余量均摊 1.3 GPU 年/人）；解密与兑换签名共用一次派生（出兑换码零等待）。<b>请再点一次「重新发布」</b><br> · ⚡ <b>查询提速 4 倍（v3.7.8）</b>：加密派生轮数 25 万→6 万（手机单次查询 10-20 秒→3-4 秒，安全余量仍为百年量级）；查询包缓存 10→30 分钟（上课扫码全程免重下）。<b>改完请点「重新发布」才生效</b><br> · 📶 <b>学生端弱网体验修复（v3.7.7）</b>：查询下载加 25 秒超时（弱网不再无限转圈，超时给可读提示）；「学号未找到」提示补充学号格式说明<br> · 🪪 <b>二维码卡 + 记住我（v3.7.6）</b>：「学生查询端」新增二维码卡导出（每生一张，手机扫码直达自己的学分页，打印裁剪下发，查询码不用记）；学生页新增「记住我」（本人设备勾选后免输，公共设备请勿勾选）<br> · #️⃣ <b>学号续号与批量配学号（v3.7.5）</b>：新学生学号自动按班内数字学号续号（不再出现 S 前缀混排）；学生管理新增「# 批量配学号」——粘贴「姓名 学号」名单按姓名批量设置，重名/无匹配/冲突分桶提示，查询码自动随学号迁移（改完请重新发布）；顺带修复两枚潜伏 bug：配置 Token 弹窗被面板压住（z-index 1 容器困住，打开时重挂 body）、本地加载漏读 6 个字段（查询码/发布状态/请假墓碑/设备锁/学期存档——刷新即静默清空）<br> · 🎨 <b>兑换核销归位学分银行（v3.7.4）</b>：核销入口移到「兑换商店」工具条（与新增商品并列），查询端面板与设置卡不再重复放置；公示页「学生查询端」按钮与相邻按钮统一主色<br> · 🔧 <b>Token 配置弹窗层级修复（v3.7.3）</b>：查询端面板内点「配置 Token」弹窗不再被面板压住<br> · ⚙️ <b>学生查询端入口进设置页（v3.7.2）</b>：设置页新增「🔑 学生查询端」卡（打开面板/兑换核销+状态简报），公示页原入口保留<br> · 🛒 <b>学生自助兑换（v3.7.1）</b>：学生端可加购物车批量结算，生成 10 分钟时效二维码（查询码签名防伪）；老师端「📷 兑换核销」三入口收码（摄像头扫码 / 粘贴码原文 / 粘贴·拖入截图识别）→ 验签 → 实时校验余额月余 → 一键入账；查询端新增学分排名与商品分类筛选<br> · 🔑 <b>学生查询端（v3.7.0）</b>：学生可用「学号 + 8 位专属码」查看<b>自己的</b>学分与流水——公示页「🔑 学生查询端」一键导出码表并发布；每生一块独立密文，只解自己那份；<b>不含</b>家长电话、住址、生日、备注、标签、寝室<br>
  · 📱 <b>手机端学期报告入口（v3.6.10）</b>：「更多」抽屉新增学期报告（原先只在桌面侧栏，手机进不去）；快速加减分弹窗内的「按寝室」捷径撤下——请用学分页「🏠 按寝室加减分」专用入口<br>
  · 📊 <b>首页学分分布空白修复（v3.6.9）</b>：修复冷启动时首页「学分分布」卡片空白——echarts 懒加载完成后的补画函数在移植时缺失（异常被静默吞掉），现已补齐；加载失败时自动回退原图表<br>
  · 🏠 <b>学分批量按寝室选择（v3.6.8）</b>：学分加减分模块「全班全选」左侧新增「按寝室」——下拉列出全部寝室与人数，点选即整寝选入/移出，快速给目标寝室加减分<br>
@@ -3693,6 +3780,28 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
     <div class="modal-body" id="creditAuditBody" style="padding:4px 0 8px"></div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('creditAuditModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- v3.9.2 Modal: 座次表导出预览（两种排版可切换，先看再导） -->
+<div class="modal-overlay" id="seatExportModal">
+  <div class="modal" style="width:96%;max-width:700px">
+    <div class="modal-header">
+      <h3 style="margin:0">🖼️ 座次表预览</h3>
+      <button class="modal-close" onclick="closeModal('seatExportModal')">×</button>
+    </div>
+    <div class="modal-body" style="padding:2px 0 0">
+      <div class="seat-exp-tabs">
+        <button class="seat-exp-tab active" id="seatExpTabFront" onclick="seatSwitchMode('front')">俯视图 · 讲台在上</button>
+        <button class="seat-exp-tab" id="seatExpTabTeacher" onclick="seatSwitchMode('teacher')">讲台视角 · 讲台在下</button>
+      </div>
+      <div class="seat-exp-hint" id="seatExpHint"></div>
+      <div class="seat-exp-imgwrap"><img id="seatExportPreview" alt="座次表预览"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('seatExportModal')">取消</button>
+      <button class="btn btn-primary" onclick="seatConfirmExport()">⬇ 导出这张</button>
     </div>
   </div>
 </div>
@@ -10506,9 +10615,18 @@ function renderSeating(){
   const { cols, rows, seats } = state.seating;
   // v2.20.8 过道：列序列由 seatLayoutSlots 统一给出（座位与过道相间），屏幕与导出图同源
   const slots = seatLayoutSlots(cols);
-  grid.style.gridTemplateColumns = slots.map(s => s.type === 'aisle' ? 'var(--seat-aisle)' : 'minmax(var(--seat-cell-min,0px),1fr)').join(' ');
-  let html = '';
+  // v3.9.2 首列改为「排号」轴（固定宽），其后再接座位 / 过道轨道
+  grid.style.gridTemplateColumns = 'var(--seat-axis) ' +
+    slots.map(s => s.type === 'aisle' ? 'var(--seat-aisle)' : 'minmax(var(--seat-cell-min,0px),1fr)').join(' ');
+  // 表头行：左上角「排\列」角标 + 各列列号（过道处放空占位，保持列对齐）
+  let html = '<div class="seat-axis seat-axis-corner">排\\列</div>';
+  slots.forEach(sl => {
+    html += sl.type === 'aisle'
+      ? '<div class="seat-axis"></div>'
+      : '<div class="seat-axis seat-axis-col">' + (sl.c + 1) + '</div>';
+  });
   for(let r = 0; r < rows; r++){
+    html += '<div class="seat-axis seat-axis-row">' + (r + 1) + '</div>';
     for(const slot of slots){
       if(slot.type === 'aisle'){ html += '<div class="seat-aisle"></div>'; continue; }
       const c = slot.c;
@@ -11911,12 +12029,17 @@ function closeImgSave(){
   _releaseExportUrl();                                      // 关闭时才释放，否则图会裂
 }
 
-function seatExportImage(){
+/* v3.9.2 拆成「画布构建」+「导出流程」两段：预览要先出图、还要能切排版重画。
+   mode: 'front'   = 俯视图，讲台在上、第 1 排紧贴讲台（原有排版，逐像素不变）
+         'teacher' = 讲台视角，讲台在下、第 1 排紧贴讲台 —— 老师拿着这张纸站讲台时，
+                     图上离自己最近的那一排，就是眼前最近的那一排。 */
+function seatBuildCanvas(mode){
+  mode = mode === 'teacher' ? 'teacher' : 'front';
   const { cols, rows, seats } = state.seating;
   // v2.20.11 关闭的格子：导出图里也必须画出来（贴墙打印时「这里不是座位」要一眼可见）
   const closedKeys = Array.isArray(state.seating.closed) ? state.seating.closed : [];
   const inRange = seats.filter(s => s.row < rows && s.col < cols && closedKeys.indexOf(s.row + '-' + s.col) < 0);
-  if(inRange.length === 0){ showToast('请先安排座位再导出','error'); return; }
+  if(inRange.length === 0) return null;
   const seatMap = {}, nameMap = {};
   inRange.forEach(s => { seatMap[s.row + '-' + s.col] = s.studentId; });
   state.students.forEach(st => { nameMap[st.id] = st.name; });
@@ -11949,18 +12072,19 @@ function seatExportImage(){
   ctx.fillText(cols + '列 × ' + rows + '行 · ' + (aisleN ? (aisleN + 1) + '组 · ' : '') + '已入座 ' + inRange.length + ' 人'
     + (closedKeys.length ? ' · 已关闭 ' + closedKeys.length + ' 格' : ''), W / 2, pad + 82);
 
-  // 讲台（虚线框）
-  const py = pad + titleH;
-  ctx.fillStyle = 'rgba(166,58,43,0.06)';
-  seatRoundRect(ctx, pad, py, W - pad * 2, podiumH - 20, 10); ctx.fill();
-  ctx.strokeStyle = 'rgba(166,58,43,0.35)'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 6]);
-  seatRoundRect(ctx, pad, py, W - pad * 2, podiumH - 20, 10); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle = '#A63A2B'; ctx.font = 'bold 22px "Microsoft YaHei",sans-serif';
-  ctx.fillText('讲 台', W / 2, py + podiumH - 22);
-
   const gx0 = pad + rowLabelW;
-  const gy0 = pad + titleH + podiumH + colLabelH;
+  /* 两种排版只差三件事：网格起点、讲台条位置、行序方向。
+     front   = 讲台条在标题下方，网格再往下（原样）
+     teacher = 网格紧贴标题（列号仍在网格上方，不跟讲台挤），讲台条挪到网格下方 */
+  const gy0 = mode === 'teacher'
+    ? pad + titleH + colLabelH
+    : pad + titleH + podiumH + colLabelH;
+  const podiumY = mode === 'teacher' ? gy0 + gridH + 10 : pad + titleH;
+  /* teacher 模式：第 1 排（r=0）画在最下面，越往后越往上 */
+  const rowY = function(r){
+    return gy0 + (mode === 'teacher' ? (rows - 1 - r) : r) * (cellH + gap);
+  };
+  seatDrawPodium(ctx, pad, podiumY, W - pad * 2, podiumH - 20, mode);
 
   // 记录每个座位/过道的 x 起点（屏幕与图共用 seatLayoutSlots，顺序必然一致）
   const xs = [];
@@ -11995,7 +12119,7 @@ function seatExportImage(){
   // 行号
   ctx.textAlign = 'right';
   for(let r = 0; r < rows; r++){
-    const cy = gy0 + r * (cellH + gap) + cellH / 2;
+    const cy = rowY(r) + cellH / 2;
     ctx.fillText('第' + (r + 1) + '排', pad + rowLabelW - 12, cy + 5);
   }
 
@@ -12004,7 +12128,7 @@ function seatExportImage(){
     if(sl.type !== 'seat') return;
     const x = xs[i];
     for(let r = 0; r < rows; r++){
-      const y = gy0 + r * (cellH + gap);
+      const y = rowY(r);
       const k = r + '-' + sl.c;
       if(closedKeys.indexOf(k) >= 0){
         ctx.fillStyle = '#EFEBE3';
@@ -12038,11 +12162,112 @@ function seatExportImage(){
   // 落款
   ctx.fillStyle = '#8A8172'; ctx.font = '13px "Microsoft YaHei",sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText((state.className || '班级') + ' · ' + rows + '排 × ' + cols + '列 · 打印张贴 · 生成于 ' + localDateStr(), W - pad, H - 22);
+  ctx.fillText((state.className || '班级') + ' · ' + rows + '排 × ' + cols + '列 · '
+    + (mode === 'teacher' ? '讲台视角（讲台在下）' : '俯视图（讲台在上）')
+    + ' · 打印张贴 · 生成于 ' + localDateStr(), W - pad, H - 22);
   ctx.textAlign = 'left';
 
-  pngExport(canvas, (state.className || '班级') + '-座次表.png',
-            '座次表已导出（' + rows + '排 × ' + cols + '列，已入座 ' + inRange.length + ' 人）');
+  return canvas;
+}
+
+/* ---------- v3.9.2 讲台条（屏幕与导出同一套视觉语言） ----------
+   原来是导出图里一个虚线空框 + 「讲 台」两个字、屏幕上两个 📚 emoji —— 两处都丑。
+   现在统一成「主色渐变底 + 讲桌图标 + 主字 + 一句方位说明」。 */
+function seatDrawPodium(ctx, x, y, w, h, mode){
+  const g = ctx.createLinearGradient(x, y, x, y + h);
+  g.addColorStop(0, '#B44334'/*肤免*/);
+  g.addColorStop(1, '#8C2F22'/*肤免*/);
+  ctx.fillStyle = g;
+  seatRoundRect(ctx, x, y, w, h, 12); ctx.fill();
+  // 顶部高光：与屏幕端 .seating-teacher::after 那道渐变对应
+  const hi = ctx.createLinearGradient(x, y, x, y + h / 2);
+  hi.addColorStop(0, 'rgba(255,255,255,.16)');
+  hi.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = hi;
+  seatRoundRect(ctx, x, y, w, h / 2, 12); ctx.fill();
+
+  // 图标 + 主字 + 方位说明 作为一个整体水平居中（原来图标钉死在 x+34，跟居中的文字离得远，看着像两个孤立元素）
+  // ⚠️ 别往图标里加抽屉方框 —— 22px 缩放下会和桌面、两腿凑成一个「回」字，认不出来。
+  const label = '讲 台';
+  const sub = mode === 'teacher' ? '教师位置 · 面对学生' : '教师位置 · 学生面向此处';
+  ctx.font = 'bold 20px "Microsoft YaHei",sans-serif';
+  const labelW = ctx.measureText(label).width;
+  ctx.font = '12px "Microsoft YaHei",sans-serif';
+  const subW = ctx.measureText(sub).width;
+  const blockW = Math.max(labelW, subW);
+  const iconW = 24, iconGap = 11;
+  const startX = x + (w - (iconW + iconGap + blockW)) / 2;
+  const cx = startX + iconW + iconGap + blockW / 2;
+
+  const ix = startX + iconW / 2, iy = y + h / 2;
+  ctx.strokeStyle = 'rgba(255,255,255,.94)';
+  ctx.lineCap = 'round';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(ix - 12, iy - 8); ctx.lineTo(ix + 12, iy - 8); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ix - 9, iy - 8); ctx.lineTo(ix - 9, iy + 9); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ix + 9, iy - 8); ctx.lineTo(ix + 9, iy + 9); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ix - 12, iy + 9); ctx.lineTo(ix + 12, iy + 9); ctx.stroke();
+
+  // 主字 + 方位说明
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = 'bold 20px "Microsoft YaHei",sans-serif';
+  ctx.fillText(label, cx, y + h / 2 - 3);
+  ctx.font = '12px "Microsoft YaHei",sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,.84)';
+  ctx.fillText(sub, cx, y + h / 2 + 14);
+  ctx.textBaseline = 'alphabetic';
+  ctx.textAlign = 'left';
+}
+
+/* ---------- v3.9.2 先预览、再选排版、最后导出 ---------- */
+var _seatMode = 'front';
+var _seatCanvas = null;
+
+function seatExportImage(){
+  if(!state.seating || !(state.seating.seats || []).length){
+    showToast('请先安排座位再导出','error'); return;
+  }
+  _seatMode = 'front';
+  if(!seatPreviewRender()){ showToast('请先安排座位再导出','error'); return; }
+  openModal('seatExportModal');
+}
+
+function seatPreviewRender(){
+  var cv = seatBuildCanvas(_seatMode);
+  if(!cv) return false;
+  _seatCanvas = cv;
+  var img = document.getElementById('seatExportPreview');
+  if(img) img.src = cv.toDataURL('image/png');
+  var f = document.getElementById('seatExpTabFront');
+  var t = document.getElementById('seatExpTabTeacher');
+  if(f) f.classList.toggle('active', _seatMode === 'front');
+  if(t) t.classList.toggle('active', _seatMode === 'teacher');
+  var hint = document.getElementById('seatExpHint');
+  if(hint){
+    hint.textContent = _seatMode === 'teacher'
+      ? '讲台在下、第 1 排紧贴讲台往上递增 —— 拿着这张纸站讲台，图上离你最近的一排就是眼前最近的那一排。'
+      : '讲台在上、第 1 排紧贴讲台（俯视全教室），贴墙、贴讲台都通用。';
+  }
+  return true;
+}
+
+function seatSwitchMode(mode){
+  if(mode !== 'teacher' && mode !== 'front') return;
+  if(_seatMode === mode) return;
+  _seatMode = mode;
+  seatPreviewRender();
+}
+
+function seatConfirmExport(){
+  var canvas = _seatCanvas || seatBuildCanvas(_seatMode);
+  if(!canvas){ showToast('请先安排座位再导出','error'); return; }
+  var rows = state.seating.rows, cols = state.seating.cols;
+  var tag = _seatMode === 'teacher' ? '讲台视角' : '俯视图';
+  closeModal('seatExportModal');
+  pngExport(canvas, (state.className || '班级') + '-座次表-' + tag + '.png',
+    '座次表已导出（' + rows + '排 × ' + cols + '列' + (_seatMode === 'teacher' ? '，讲台视角' : '') + '）');
 }
 
 /* ==================== 值日表导出（组别制，打印贴墙用） ====================
@@ -16798,11 +17023,13 @@ function renderAttendance(){
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const monthTotal = state.leaves.filter(l=>new Date(l.createdAt) >= monthStart).length;
-  const pe = document.getElementById('leavePending'); if(pe) pe.textContent = pending;
+  /* v3.9.2 顶栏四个统计数补上滚动动画（老板反馈：新增请假时数字是硬跳的）。
+     统一走 countUp —— 它以上一次显示值为起点，重复渲染只会「补差值」，不会从 0 重滚。 */
+  const pe = document.getElementById('leavePending'); if(pe) countUp(pe, pending);
   renderDashPresence();   // v3.2.0 请假有任何变动（登记/续假/销假/删除都会走到这）→ 首页实到数即时刷新
-  const re = document.getElementById('leaveReturned'); if(re) re.textContent = returned;
-  const ex = document.getElementById('leaveExtended'); if(ex) ex.textContent = extended;
-  const to = document.getElementById('leaveTotal'); if(to) to.textContent = monthTotal;
+  const re = document.getElementById('leaveReturned'); if(re) countUp(re, returned);
+  const ex = document.getElementById('leaveExtended'); if(ex) countUp(ex, extended);
+  const to = document.getElementById('leaveTotal'); if(to) countUp(to, monthTotal);
 }
 
 
@@ -17091,8 +17318,32 @@ function rcReset(){
   renderRollCall();
   showToast('已重置，全班重新开始（顺序已恢复按姓名）','info');
 }
+/* v3.9.2 预览栏「滚动名字」控制器（老板要求：右上角预览栏也要滚，且与卡片同帧）。
+   复用同一个 span、不 innerHTML 重画 —— 滚动态每 70~220ms 调一次，
+   重建节点既费，又容易在触摸端触发 hover 重算闪一下。
+   name 传空 = 收起；lock=true = 已定格（琥珀金 + 回弹），与卡片黄框同一拍。 */
+var _rcNameTimer = 0;
+function rcSetRollName(name, lock){
+  var box = document.getElementById('rcRollName');
+  if(!box) return;
+  if(!name){
+    box.classList.remove('lock', 'flip');
+    box.textContent = '';
+    return;
+  }
+  var sp = box.firstElementChild;
+  if(!sp){ sp = document.createElement('span'); sp.className = 'rn-txt'; box.appendChild(sp); }
+  if(sp.textContent !== name) sp.textContent = name;
+  box.classList.toggle('lock', !!lock);
+  box.classList.remove('flip');
+  void box.offsetWidth;          // 强制回流，否则连续同名不会重播动画
+  box.classList.add('flip');
+}
+
 function rcCancelRoll(){
   if(RC.raf){ cancelAnimationFrame(RC.raf); RC.raf = 0; }
+  if(_rcNameTimer){ clearTimeout(_rcNameTimer); _rcNameTimer = 0; }
+  rcSetRollName('');
   var wall = document.getElementById('rcWall');
   if(wall){
     Array.prototype.forEach.call(wall.querySelectorAll('.rc-roll'), function(el){
@@ -17134,6 +17385,9 @@ function rcStartDraw(){
 
 function rcDrawNext(){
   if(RC.idx >= RC.queue.length){ rcFinish(); return; }
+  // 与上一次的定格名收尾解耦：新一个人开滚之前先清掉上一轮残留
+  if(_rcNameTimer){ clearTimeout(_rcNameTimer); _rcNameTimer = 0; }
+  rcSetRollName('');
   var stu = RC.queue[RC.idx];
   var poolN = rcCandidates().length;
   var base = RC.idx === 0 ? 1600 : (RC.idx === 1 ? 1300 : 1000);
@@ -17167,6 +17421,9 @@ function rcTick(ts){
       if(RC.cur) RC.cur.classList.remove('rc-roll');
       nx.classList.add('rc-roll');
       RC.cur = nx;
+      // 与卡片高亮同一帧更新预览栏那边的名字，二者节奏绑死，不许有前后错位
+      var nmEl = nx.querySelector('.rc-name');
+      rcSetRollName(nmEl ? nmEl.textContent : '');
     }
   }
   if(el < RC.dur){ RC.raf = requestAnimationFrame(rcTick); }
@@ -17176,7 +17433,14 @@ function rcTick(ts){
 function rcSettle(){
   RC.raf = 0;
   if(RC.cur) RC.cur.classList.remove('rc-roll');
-  if(RC.targetEl){ RC.targetEl.classList.add('rc-roll'); RC.cur = RC.targetEl; }
+  if(RC.targetEl){
+    RC.targetEl.classList.add('rc-roll'); RC.cur = RC.targetEl;
+    // 定格那一刻先把名字钉到目标学生，但仍是绿字 —— 这 140ms 里卡片是绿框脉冲，
+    // 名字也用绿，两处颜色语言一致。琥珀金留到 rcReveal 黄框出现那一帧再切，
+    // 绝不提前（提前就会出现「名字已变金、卡片还是绿」的脱节感）。
+    var t = RC.targetEl.querySelector('.rc-name');
+    rcSetRollName(t ? t.textContent : '');
+  }
   setTimeout(rcReveal, 140);        // 绿框定格 140ms 后交给黄框
 }
 
@@ -17190,6 +17454,11 @@ function rcReveal(){
     rcSave();
     showToast('抽中：' + stu.name, 'success');
     rcPaintCard(stu.id);
+    // 与黄框同一帧：名字切琥珀金 + 回弹（rcNameLock 与卡片 rcPop 用同一条缓动语言）
+    rcSetRollName(stu.name, true);
+    // 名字在预览栏多停 900ms（与黄框 rcPop 同节奏），让眼睛有个落点再收起
+    if(_rcNameTimer){ clearTimeout(_rcNameTimer); }
+    _rcNameTimer = setTimeout(function(){ rcSetRollName(''); _rcNameTimer = 0; }, 900);
   }
   var justIdx = RC.idx;
   RC.idx++;
@@ -18893,6 +19162,30 @@ function exportPortalCodes(){
    二维码内容 = 学生入口链接 + &s=学号&c=查询码 → 学生手机扫码自动填充并直接查询。
    查询码本身印在卡上，二维码不增加暴露面（凭证即卡，卡丢找班主任重置码）。
    QR 生成复用 portal/qrcode.js（已在 SW 离线清单），老师端懒加载，零新依赖。 */
+/* v3.9.2 修 bug（老板报「二维码卡上的二维码不见了」）：
+   导出整版从来没加载过 portal/qrcode.js —— 只有补印单张会注入，而 portalCardsHtml 里
+   那段 try{...}catch(e){} 是空捕获，于是二维码整块被静默跳过，卡片上只剩姓名/学号/查询码。
+   现在两条路径统一走这里懒加载；加载失败必须出声，不许再静默出缺图卡片。 */
+var _qrLibLoading = false, _qrLibWait = [];
+function cmLoadQrLib(ok, fail){
+  if(window.qrcode){ ok(); return; }
+  _qrLibWait.push({ ok: ok, fail: fail });
+  if(_qrLibLoading) return;          // 并发点击只注入一次
+  _qrLibLoading = true;
+  var sc = document.createElement('script');
+  sc.src = './portal/qrcode.js';
+  function flush(hit){
+    _qrLibLoading = false;
+    var ws = _qrLibWait; _qrLibWait = [];
+    ws.forEach(function(w){
+      if(hit && w.ok) w.ok();
+      else if(!hit && w.fail) w.fail();
+    });
+  }
+  sc.onload = function(){ flush(!!window.qrcode); };
+  sc.onerror = function(){ flush(false); };
+  document.head.appendChild(sc);
+}
 function exportPortalQrCards(){
   if(window.__cmRole === 'committee'){ showToast('班委无此权限', 'error'); return; }
   var studs = (state.students || []).filter(function(s){ return String(s.sid || '').trim(); });
@@ -18900,8 +19193,10 @@ function exportPortalQrCards(){
   var pub = state.portalPublish;
   if(!pub || !pub.gistId || pub.revoked){ showToast('请先「发布」——二维码卡需要学生入口链接', 'error'); return; }
   ensurePortalCodes(true);   // 补缺码（导卡人人要有码；导出码表同款语义）
-  openPortalPrint(portalCardsHtml(studs));
-  showToast('已生成 ' + studs.length + ' 张二维码卡（新窗口），点打印即可', 'success');
+  cmLoadQrLib(function(){
+    openPortalPrint(portalCardsHtml(studs));
+    showToast('已生成 ' + studs.length + ' 张二维码卡（新窗口），点打印即可', 'success');
+  }, function(){ showToast('二维码组件加载失败（portal/qrcode.js），请刷新后重试', 'error'); });
 }
 /* v3.8.1 补印单张：按姓名打印一张二维码卡（丢卡补发，不用整版重印） */
 function reprintPortalCard(){
@@ -18921,12 +19216,7 @@ function reprintPortalCard(){
       if(!String(s.sid || '').trim()){ showToast('该生没有学号，请先在学生页补齐', 'error'); return; }
       ensurePortalCodes(false);
       var run = function(){ openPortalPrint(portalCardsHtml([s])); showToast('已生成 ' + s.name + ' 的二维码卡（新窗口）', 'success'); };
-      if(window.qrcode){ run(); return; }
-      var sc = document.createElement('script');
-      sc.src = './portal/qrcode.js';
-      sc.onload = run;
-      sc.onerror = function(){ showToast('二维码组件加载失败（portal/qrcode.js）', 'error'); };
-      document.head.appendChild(sc);
+      cmLoadQrLib(run, function(){ showToast('二维码组件加载失败（portal/qrcode.js），请刷新后重试', 'error'); });
     }
   });
 }
@@ -18944,13 +19234,17 @@ function portalCardsHtml(studs){
         q.addData(url, 'Byte');
         q.make();
         qr = q.createDataURL(3, 6);
-      }catch(e){}
+      }catch(e){
+        // 绝不空捕获：至少报到控制台，纸面上也会留一块「未生成」占位（见下方 qi-fail）
+        console.warn('[portal QR] 生成失败', sid, e);
+      }
       return '<div class="pcard">' +
         '<div class="cls">' + portalEsc(state.className || '') + '</div>' +
         '<div class="nm">' + portalEsc(String(s.name || '')) + '</div>' +
         '<div class="sid">学号 ' + portalEsc(sid) + '</div>' +
         '<div class="cd">' + portalEsc(code) + '</div>' +
-        (qr ? '<div class="qi"><img src="' + qr + '" alt="QR"></div>' : '') +
+        (qr ? '<div class="qi"><img src="' + qr + '" alt="QR"></div>'
+            : '<div class="qi qi-fail">二维码未生成<br>请刷新页面后重新导出</div>') +
         '<div class="tip">手机扫码 · 查我的学分</div>' +
         '</div>';
   });
@@ -18967,6 +19261,7 @@ function portalCardsHtml(studs){
       '.pcard .cd{font-size:12pt;font-weight:700;letter-spacing:1px;color:#A63A2B;margin:1mm 0 2mm;font-family:Consolas,monospace}' +
       '.pcard .qi{width:34mm;height:34mm;margin:0 auto}' +
       '.pcard .qi img{width:100%;height:100%}' +
+      '.pcard .qi-fail{display:flex;align-items:center;justify-content:center;border:1px dashed #c33;border-radius:6px;color:#c33;font-size:8pt;line-height:1.4}' +
       '.pcard .tip{font-size:8.5pt;color:#999;margin-top:1.5mm}' +
       '@media print{.bar{display:none}.grid{gap:5mm;margin-top:0}}' +
       '@page{margin:10mm}' +

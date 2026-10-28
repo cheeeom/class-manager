@@ -33,10 +33,14 @@ t('③ 朱砂阴影全换绑 + 危险红保留', () => {
   ok(html.includes('肤免'), '肤免标记仍在');
 });
 
-t('④ 版本 v3.9.1 一致性 + 速览条目', () => {
+t('④ 版本一致性 + 速览条目', () => {
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
-  ok(m && v && m[1] === v[1] && m[1] === 'v3.9.1', 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同为 v3.9.1');
+  // 版本无关：只要求 CACHE_NAME 与登录页、侧栏、徽标三处一致，不钉具体版本号
+  ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应一致');
+  const sv = html.match(/sidebar-footer">(v[0-9.]+) ·/);
+  ok(sv && m && sv[1] === m[1], '侧栏版本 ' + (sv && sv[1]) + ' 应与 CACHE 一致');
+
   has(html, '按压反馈与阴影跟肤（v3.9.1）', '速览当版条目');
 });
 

@@ -73,16 +73,18 @@ eq(slotsApi.seatLayoutSlots(8).length, 10, '8 列 = 8 个座位 + 2 条过道 = 
 
 // 注意：必须捕整条语句（含等号左边）。只捕右边那截的话，抽出来的是个光棍表达式，
 // 赋值根本不会发生，读回来永远是 undefined —— 那样测的就是一句空话。
-const mTpl = html.match(/grid\.style\.gridTemplateColumns = [^\n]+;/);
+// v3.9.2 起赋值语句变成两行（首轨是排号轴 + 换行接 slots.map），正则必须跨行抓。
+const mTpl = html.match(/grid\.style\.gridTemplateColumns = [\s\S]*?join\(' '\);/);
 assert(!!mTpl, '能抓到 gridTemplateColumns 赋值语句');
 assert(mTpl[0].indexOf('=') >= 0, '捕到的是完整赋值语句（含等号左边），不是光棍表达式');
 const tplOf = new Function('slots', 'grid', mTpl[0] + '\nreturn grid.style.gridTemplateColumns;');
 const tpl = tplOf(slotsApi.seatLayoutSlots(8), { style: {} });
 const parts = tpl.split(' ');
-eq(parts.length, 10, '模板生成 10 个轨道');
-eq(parts[3], 'var(--seat-aisle)', '第 4 轨是过道（第 3 列之后）');
-eq(parts[7], 'var(--seat-aisle)', '第 8 轨是过道（第 6 列之后）');
-const seatTracks = parts.filter((p, i) => i !== 3 && i !== 7);
+eq(parts.length, 11, '模板生成 11 个轨道（1 条排号轴 + 10 个槽位）');
+eq(parts[0], 'var(--seat-axis)', '第 1 轨是排号轴（v3.9.2 行列标注）');
+eq(parts[4], 'var(--seat-aisle)', '第 5 轨是过道（第 3 列之后）');
+eq(parts[8], 'var(--seat-aisle)', '第 9 轨是过道（第 6 列之后）');
+const seatTracks = parts.filter((p, i) => i !== 0 && i !== 4 && i !== 8);
 assert(seatTracks.every(p => p === 'minmax(var(--seat-cell-min,0px),1fr)'),
   '其余 8 轨都是带最小宽度的座位轨道');
 

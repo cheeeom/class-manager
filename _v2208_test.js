@@ -53,7 +53,8 @@ has(html, '\ud83d\uddbc\ufe0f \u5bfc\u51fa\u5ea7\u6b21\u8868', '按钮文案');
   //   ① data: URL 实测长 171,170 字符，iOS Safari 不认它上面的 download 属性；
   //   ② <a> 从没插进 DOM，游离节点的 click() 在 WebKit / 安卓 WebView 上不保证生效。
   // ⇒ 断言改钉新实现，别再钉旧代码。
-  has(html, "pngExport(canvas, (state.className || '\u73ed\u7ea7') + '-\u5ea7\u6b21\u8868.png'", '导出为 PNG 并带班级名文件名（统一出口 pngExport）');
+  // v3.9.2 起文件名多一个排版后缀（-俯视图 / -讲台视角）
+  has(html, "pngExport(canvas, (state.className || '\u73ed\u7ea7') + '-\u5ea7\u6b21\u8868-' + tag + '.png'", '导出为 PNG 并带班级名文件名（统一出口 pngExport）');
   has(html, 'canvas.toBlob(', '走 canvas.toBlob 出图（不再拼超长 data: URL）');
   // toDataURL 只允许留在「没有 toBlob」的极老浏览器兜底分支里，且那条分支也必须先 appendChild 再 click。
   // （别写成「全文不许出现 toDataURL」—— 兜底分支留着它是对的，那不是旧写法。）
@@ -96,6 +97,13 @@ function makeCanvas() {
     get font() { return this._font; }, set font(v) { this._font = v; },
     get textAlign() { return this._align; }, set textAlign(v) { this._align = v; },
     fillRect(x, y, w, h) { ops.push({ t: 'fillRect', x, y, w, h }); },
+    // v3.9.2 讲台条改用 createLinearGradient（原来是纯色填充）⇒ 沙箱必须补这个宿主 API
+    createLinearGradient() { return { addColorStop() {} }; },
+    // 讲桌抽屉用 strokeRect 画（7px 高，不会被「高度≈CELLH」的格子统计误抓）
+    strokeRect(x, y, w, h) {
+      pts = []; pts.push([x, y], [x + w, y + h]);
+      ops.push({ t: 'stroke', bbox: bbox(), style: this.strokeStyle, lw: this.lineWidth });
+    },
     beginPath() { pts = []; }, closePath() {},
     moveTo(x, y) { pts.push([x, y]); }, lineTo(x, y) { pts.push([x, y]); },
     arcTo(x1, y1, x2, y2) { pts.push([x1, y1], [x2, y2]); },
@@ -161,10 +169,12 @@ function runExport(state) {
     revokeObjectURL(u) { this.revoked.push(u); } };
   // 桌面：matchMedia 命中 (hover:hover) ⇒ _isTouchOnly() === false ⇒ 走直接下载、不弹图
   const win = { matchMedia() { return { matches: true }; } };
-  const fn = new Function('document', 'state', 'showToast', 'localDateStr', 'window', 'URL',
-    srcLayout + '\n' + srcExport + '\nreturn { seatLayoutSlots, seatAisleCount, seatAisleAfter, seatCellName, seatExportImage };');
-  const api = fn(doc, state, function (msg, type) { toasts.push([msg, type]); }, function () { return '\u0032\u0030\u0032\u0036-09-25'; }, win, urlApi);
-  api.seatExportImage();
+  // v3.9.2：座次表导出拆成 seatBuildCanvas（画图）+ seatConfirmExport（导出），
+  // 所以这里直接跑导出入口，一次调用同时完成「绘制」与「下载管线」两条链路。
+  const fn = new Function('document', 'state', 'showToast', 'localDateStr', 'window', 'URL', 'closeModal',
+    srcLayout + '\n' + srcExport + '\nreturn { seatLayoutSlots, seatAisleCount, seatAisleAfter, seatCellName, seatBuildCanvas, seatConfirmExport };');
+  const api = fn(doc, state, function (msg, type) { toasts.push([msg, type]); }, function () { return '\u0032\u0030\u0032\u0036-09-25'; }, win, urlApi, function () {});
+  api.seatConfirmExport();
   last = { ops: mock.ops, canvas: mock.canvas, links, attached, everAttached, toasts, urlApi };
   return api;
 }
@@ -259,7 +269,7 @@ console.log('\n【6】真跑 seatExportImage：导出的几何');
   const a0 = last.links[0];
   assert(/^blob:/.test(a0.href), 'a.href 是 blob: 短链（实得 ' + String(a0.href).slice(0, 24) + '…）');
   assert(a0.href.length < 200, 'a.href 只有 ' + a0.href.length + ' 字符（旧写法是 171,170 字符的 data: URL）');
-  assert(a0.download === '26级幼保2班-座次表.png', 'a.download 带班级名文件名（实得 ' + a0.download + '）');
+  assert(a0.download === '26级幼保2班-座次表-俯视图.png', 'a.download 带班级名文件名（实得 ' + a0.download + '）');
   assert(last.everAttached.length === 1 && last.everAttached[0] === a0, 'a 真的被插进 DOM 才 click（游离节点的 click() 在 WebKit / 安卓 WebView 上不生效）');
   assert(a0.clicked === true, '确实调用了 click()');
   assert(last.attached.length === 0, 'click 完立刻 remove()，DOM 不留垃圾');

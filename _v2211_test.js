@@ -282,7 +282,8 @@ has(html, 'if(!Array.isArray(state.seating.closed)) state.seating.closed = [];',
 has(html, 'state.seating.closed=pruneSeatClosed(state.seating.closed,rows,cols);', '改行列时同步收缩关闭标记');
 has(html, 'el.textContent=`共 ${c*r} 座位` + (cn ? ` · 已关闭 ${cn}` : \'\');', '座位总数显示里带「已关闭 N」');
 {
-  const exp = sliceFrom('function seatExportImage(){', '/* ==================== 值日表导出（组别制，打印贴墙用）');
+  // v3.9.2：座次表导出拆成 seatBuildCanvas（画图）+ 导出流程，绘图代码在 seatBuildCanvas 里
+  const exp = sliceFrom('function seatBuildCanvas(mode){', '/* ==================== 值日表导出（组别制，打印贴墙用）');
   has(exp, 'closedKeys.indexOf(k) >= 0', '导出图里单独处理关闭格');
   has(exp, "ctx.fillText('已关闭'", '导出图里把关闭格写成「已关闭」');
   has(exp, "· 已关闭 ' + closedKeys.length + ' 格", '导出图副标题写明关闭几格');

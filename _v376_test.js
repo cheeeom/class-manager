@@ -18,6 +18,7 @@ function t(name, fn) {
 }
 function ok(c, msg) { if (!c) throw new Error(msg || '断言失败'); }
 function has(s, k, msg) { if (s.indexOf(k) < 0) throw new Error((msg || '') + ' 缺少 ' + JSON.stringify(k)); }
+function notHas(s, k, msg) { if (s.indexOf(k) >= 0) throw new Error((msg || '') + ' 不该出现 ' + JSON.stringify(k)); }
 
 t('① B：二维码卡导出（老师端）', () => {
   has(html, 'function exportPortalQrCards()', '导出函数');
@@ -27,7 +28,11 @@ t('① B：二维码卡导出（老师端）', () => {
   has(html, '请先「发布」——二维码卡需要学生入口链接', '未发布拦截');
   has(html, 'window.print()', '打印按钮');
   has(html, 'break-inside:avoid;page-break-inside:avoid', '卡片不跨页');
-  has(html, "if(window.qrcode){ run(); return; }", '已加载直建（补印同款懒加载）');
+  // v3.9.2 修 bug：导出整版原先根本没加载 qrcode.js，卡片静默缺图 —— 两条路径必须共用懒加载
+  has(html, 'function cmLoadQrLib(ok, fail){', '共用 QR 库懒加载（单一入口）');
+  has(html, 'cmLoadQrLib(function(){\n    openPortalPrint(portalCardsHtml(studs));', '导出整版走懒加载后再建卡');
+  has(html, 'cmLoadQrLib(run, function()', '补印单张同款懒加载');
+  notHas(html, '}catch(e){}\n      return \'<div class="pcard">\'', '构造二维码不得空捕获');
 });
 
 t('② C：学生页记住我 + 直达参数', () => {
