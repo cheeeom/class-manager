@@ -149,7 +149,9 @@
   }
   .btn2{display:block; width:100%; padding:14px; border:0; border-radius:12px; background:var(--primary); color:#fff; font-size:16px; font-weight:600; letter-spacing:4px; cursor:pointer; min-height:50px; font-family:inherit}
   .btn2:active{transform:scale(.98)}
-  .btn2[disabled]{opacity:.45; letter-spacing:2px}
+  /* 余额不足时「生成兑换二维码」置灰（2026-10-28）：红条已在合计下方常显，按钮灰掉即可，不再需要点击反馈 */
+  .btn2[disabled]{opacity:.45; letter-spacing:2px; cursor:not-allowed; background:var(--ink3)}
+  .btn2[disabled]:active{transform:none}
   .ghost{display:block; width:100%; margin-top:9px; padding:11px; border:1px solid var(--border); border-radius:12px; background:transparent; color:var(--ink2); font-size:14px; cursor:pointer; font-family:inherit}
   /* 二维码屏 */
   #qrpage{position:fixed; inset:0; background:var(--bg); z-index:70; display:none; overflow-y:auto}
@@ -568,8 +570,13 @@
   };
   function renderCartWarn(shake){
     var el = $('cartwarn');
-    if(!el) return;
+    var btn = $('makqr');
     var lack = cartLack();
+    /* 余额不足（或清单为空 / 还没查到数据）→ 按钮置灰。原因由上方红条负责说明，
+       学生不必再点一下才能知道差多少。⚠️ 置灰仅在本清单内部，不影响浮条（浮条必须可点）。 */
+    var blocked = !_data || !cartCount() || lack > 0;
+    if(btn) btn.disabled = blocked;
+    if(!el) return;
     if(!_data || !cartCount() || lack <= 0){
       el.className = 'cwarn';
       el.innerHTML = '';
@@ -578,7 +585,7 @@
     el.className = 'cwarn show';
     el.innerHTML = '<span class="wt">余额不足，无法兑换</span>' +
       '当前余额 ' + cartCoins() + ' 币，清单合计 ' + cartTotal() + ' 币，还差 <b>' + lack + '</b> 币。' +
-      '请点清单里的「−」减少商品，或清空后重选。';
+      '请点清单里的「−」减少商品，或「清空」后重选；余额够了按钮才会恢复。';
     if(shake){
       el.classList.remove('shake');
       void el.offsetWidth;          /* 强制回流，否则连点不会重放动画 */
@@ -742,6 +749,7 @@
     fh += '如与班主任记录不一致，请以班主任处为准<br>由班主任工作台生成';
     var rf = $('resultFoot'); if(rf) rf.innerHTML = fh;
     renderCartBar();
+    renderCartWarn();      /* 让「生成兑换二维码」的置灰状态只有一个来源（余额/清单是否为空），查询成功后也同步一次 */
     try{ window.scrollTo(0, 0); }catch(e){}
   }
 
