@@ -175,6 +175,50 @@ t('冷却中恶化到深红：同样点亮', () => {
   eq(state.creditBank.alerts[1].level, 'dark');
 });
 
+console.log('=== ③·5 v3.9.5 办结就真闭嘴：冷却线改为「相对办结时的档位」 ===');
+/* 老板实测报错：「学分预警模块，我点击办结后，偶尔会再次出现」。
+   旧口径 sevNow < red 才静默 ⇒ 红色(30-39)/深红(0-29)档办结后被判「恶化升级」立刻重开，
+   按了等于没按、删了也删不掉，而且备注写着「较办结时恶化升级」——学分根本一动没动。
+   新口径：必须同时满足「真的恶化了一档」+「已在红色及以上」才重新点亮。 */
+t('★ 红色档办结后不再重开（老板报的那个 bug）', () => {
+  state = freshState([{ id: 1, sid: 'S0001', name: '甲', credit: 35 }]);
+  eq(cbScanAlerts(), 1, '35 分应先建 1 条红档预警');
+  eq(state.creditBank.alerts[0].level, 'red');
+  state.creditBank.alerts[0].status = 'resolved';        // 人工办结（红档）
+  state.creditBank.alerts[0].resolvedAt = Date.now();
+  eq(cbScanAlerts(), 0, '★ 红档办结后又重开了单');
+  eq(state.creditBank.alerts.length, 1, '★ 不该多出一条');
+});
+t('★ 深红档办结后不再重开', () => {
+  state = freshState([{ id: 1, sid: 'S0001', name: '甲', credit: 20 }]);
+  eq(cbScanAlerts(), 1, '20 分应先建 1 条深红预警');
+  state.creditBank.alerts[0].status = 'resolved';
+  state.creditBank.alerts[0].resolvedAt = Date.now();
+  eq(cbScanAlerts(), 0, '★ 深红档办结后又重开了单');
+});
+t('★ 深红档删除后不再重开（删除要真的删得掉）', () => {
+  state = freshState([{ id: 1, sid: 'S0001', name: '甲', credit: 20 }]);
+  eq(cbScanAlerts(), 1, '先建单');
+  state.creditBank.alerts[0].status = 'deleted';
+  state.creditBank.alerts[0].deletedAt = Date.now();
+  state.creditBank.alerts[0].resolvedAt = Date.now();
+  eq(cbScanAlerts(), 0, '★ 深红档删除后又重开了单');
+});
+t('红档办结后真的恶化到深红：仍然重新点亮', () => {
+  state = freshState([{ id: 1, sid: 'S0001', name: '甲', credit: 35 }]);
+  cbScanAlerts();
+  state.creditBank.alerts[0].status = 'resolved';
+  state.creditBank.alerts[0].resolvedAt = Date.now();
+  state.students[0].credit = 18;
+  eq(cbScanAlerts(), 1, '红→深红属真恶化，应点亮');
+  eq(state.creditBank.alerts.length, 2);
+  eq(state.creditBank.alerts[1].level, 'dark');
+  has(state.creditBank.alerts[1].note, '较办结时恶化升级', 'note 仍标注恶化');
+});
+t('「较办结时恶化升级」文案写明档位走向（旧档 → 新档）', () => {
+  has(html, "(last.label || '预警') + ' → ' + tier.label", 'note 应写清从哪档升到哪档');
+});
+
 console.log('=== ④ 回升自动办结与冷却解除 ===');
 t('回升 ≥60：自动办结 + 解除冷却；再回落 = 新一轮（relapse 递增）', () => {
   state = freshState([{ id: 1, sid: 'S0001', name: '甲', credit: 62 }]);

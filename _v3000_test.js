@@ -71,6 +71,53 @@ t('正常合并不受影响：云端独有请假照常并入；无墓碑时行�
   eq(merged.leaves.length, 2, '两条都在');
   eq(merged.leaveDeleted && Object.keys(merged.leaveDeleted).length, 0, '无墓碑产生');
 });
+console.log('\n=== ①·5 v3.9.5 请假状态回传（老板报「已销假刷新成待销假」）===');
+/* 根因两条：
+   ① 销假/续假从不写 updatedAt，合并仲裁只能退回 createdAt —— 两边永远相等 ⇒ 本地永远赢，
+      另一台设备（或另一个标签）上的「已销假」永远传不过来，刷新也只认自己那份；
+   ② 推送有 2000ms 防抖，销完假立刻关页面/切走，这次上传就永远没发出去，云端停在旧状态。
+   修：三处状态变更打 updatedAt + 合并做时间戳归一与「状态终局度」兜底 + 关键变更立即推送。 */
+const mkLeave = (status, extra) => Object.assign(
+  { id: 8, studentId: 3, type: 'sick', status, createdAt: '2026-10-28T01:00:00.000Z', history: [] }, extra || {});
+function mergeLeaves(local, remote) {
+  const merged = JSON.parse(JSON.stringify(local));   // 与 smartMergeData 同构：merged 以本机为底
+  MERGE_ST.leaves(merged, local, remote);
+  return merged.leaves[0];
+}
+t('★ 本机待销假 + 云端已销假（老数据无 updatedAt）→ 必须取已销假', () => {
+  const a = mergeLeaves({ leaves: [mkLeave('pending')], leaveDeleted: {} },
+                        { leaves: [mkLeave('returned', { returnDate: '2026-10-28' })], leaveDeleted: {} });
+  eq(a.status, 'returned', '★ 已销假被待销假顶回了（就是老板报的「刷新又变待销假」）');
+});
+t('★ 反向同样成立：本机已销假 + 云端待销假 → 保持已销假', () => {
+  const a = mergeLeaves({ leaves: [mkLeave('returned', { returnDate: '2026-10-28' })], leaveDeleted: {} },
+                        { leaves: [mkLeave('pending')], leaveDeleted: {} });
+  eq(a.status, 'returned', '本地已销假被云端待销假顶回');
+});
+t('updatedAt 更新者胜：云端销假时间更晚 → 取云端', () => {
+  const a = mergeLeaves({ leaves: [mkLeave('pending', { updatedAt: 1000 })], leaveDeleted: {} },
+                        { leaves: [mkLeave('returned', { updatedAt: 2000 })], leaveDeleted: {} });
+  eq(a.status, 'returned', '时间更新的云端状态没被采纳');
+});
+t('时间戳归一：数字 updatedAt 与字符串 createdAt 混比不会退化成 NaN', () => {
+  // 旧数据的 createdAt 是 ISO 字符串、新数据有毫秒数 updatedAt。
+  // 不归一直接比（"2026-…" > 1761606000000）两边都转 NaN ⇒ 恒 false ⇒ 永远本地赢，仲裁静默失效。
+  const local = { leaves: [mkLeave('pending', { updatedAt: Date.parse('2026-10-28T01:00:00.000Z') })], leaveDeleted: {} };
+  const remote = { leaves: [mkLeave('returned', { createdAt: '2026-10-28T02:00:00.000Z' })], leaveDeleted: {} };
+  const a = mergeLeaves(local, remote);
+  eq(a.status, 'returned', '云端更晚的已销假（只有字符串 createdAt）没被采纳 —— 时间戳归一失效');
+});
+t('三处状态变更都打了 updatedAt（否则合并永远打平）', () => {
+  ['confirmAddLeave', 'extendLeaveApply', 'returnLeave'].forEach(fn => {
+    has(extractFn(fn), 'updatedAt', fn + ' 未写状态版本戳');
+  });
+});
+t('关键变更立即推送：withImmediatePush 包装 saveData / cbPersist', () => {
+  has(html, 'function withImmediatePush(fn)', '缺立即推送包装');
+  has(html, 'withImmediatePush(function(){ saveData(); });', '请假/删除未接立即推送');
+  has(html, 'withImmediatePush(function(){ cbPersist(); });', '预警办结未接立即推送');
+  has(html, '}, _pushDelayMs);', '推送防抖窗口未改成可调');
+});
 t('deleteLeave：写墓碑 + 过滤 + 班委拦截', () => {
   const src = extractFn('deleteLeave');
   has(src, 'state.leaveDeleted[id] = Date.now();', '删除未写墓碑');
