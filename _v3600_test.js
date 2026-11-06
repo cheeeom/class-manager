@@ -79,7 +79,10 @@ t('③ 接管契约：四大渲染接管 + 启动五接线 + echarts 懒加载�
 });
 
 t('④ index.html：注入位置正确 + 停更横幅已摘除', () => {
-  const inj = html.indexOf('src="./cmgx.js"');
+  /* v3.9.8 起脚本地址带版本串（./cmgx.js?v=x.y.z，修「页面已新版、脚本还吃旧缓存」），
+     故这里只匹配到 src="./cmgx.js 为止，把 ?v= 交给 _v398_test.js 去校验。
+     本项要守的是「标签存在且位置正确」，不是「地址里不许有查询串」。 */
+  const inj = html.indexOf('src="./cmgx.js');
   ok(inj > 0, '缺少 cmgx script 标签');
   ok(html.slice(0, inj).lastIndexOf('</script>') > 0, '主脚本必须先于 cmgx 加载（cmgx 接管其函数）');
   ok(html.indexOf('<script', inj) < 0, 'cmgx 标签之后不应再出现脚本（它必须是最后一个）');
