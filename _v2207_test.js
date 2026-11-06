@@ -244,8 +244,15 @@ await t("CORE_ASSETS 里没有 './data.json'，但核心资源一个没少", () 
   ok(m, '缺 CORE_ASSETS');
   const body = m[1].split('\n').filter(l => !l.trim().startsWith('//')).join('\n');
   notHas(body, "'./data.json'", '仍预缓存数据文件 —— addAll 是全成全败，删文件后 SW 安装会整体 reject');
-  for (const must of ["'./'", "'./index.html'", "'./manifest.json'", "'./icon_192.png'", "'./icon_512.png'"]) {
+  for (const must of ["'./'", "'./index.html'", "'./manifest.json'"]) {
     has(body, must, '核心资源被误删：' + must);
+  }
+  // v3.9.10 起图标 URL 带 ?v= 破 HTTP 缓存（文件同名、内容换了，裸 URL 会命中旧缓存）。
+  // 断言语义不变：仍要求这两张核心图标在 CORE_ASSETS 里，只是允许可选版本串，
+  // 不允许换成别的文件名，也不允许整条消失。
+  for (const icon of ['icon_192.png', 'icon_512.png']) {
+    const re = new RegExp("'\\./" + icon.replace('.', '\\.') + "(\\?v=[^']*)?'");
+    ok(re.test(body), '核心图标在 CORE_ASSETS（允许 ?v= 破缓存）：' + icon);
   }
 });
 
