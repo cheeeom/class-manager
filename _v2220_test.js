@@ -81,7 +81,10 @@ console.log('\n\u30103\u3011请假卡一行三张（三列 + 两档断点）');
 has(html, '.leave-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))', '三列网格（minmax(0,1fr) 防内容撑破）');
 has(html, '@media(max-width:1100px){.leave-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}', '≤1100px 降两列');
 has(html, '@media(max-width:680px){.leave-grid{grid-template-columns:minmax(0,1fr);gap:8px}}', '≤680px 降一列（本版由裸 1fr 改为 minmax(0,1fr)：1fr = minmax(auto,1fr)，auto 下限取 grid item 的最小内容宽度，会被 nowrap 的长文本撑破容器 ⇒ 手机端横向滚动）');
-has(html, "'<div class=\"leave-grid\">' + sorted.map(l => {", '渲染时用 leave-grid 包裹');
+// v3.9.7：卡片模板抽成 lvCardHtml()（筛选列表与「已销假」归档两处共用一份，避免抄第二套模板）。
+// 契约意图不变：列表仍由 leave-grid 包裹、每张卡仍走同一个模板函数。
+has(html, "'<div class=\"leave-grid\">' + picked.map(l => lvCardHtml(l, isCm)).join('') + '</div>'", '渲染时用 leave-grid 包裹（卡片模板走 lvCardHtml）');
+has(html, 'function lvCardHtml(l, isCm){', '卡片模板收敛成单个函数（筛选与归档共用）');
 has(html, ".join('') + '</div>';", 'grid 容器正确闭合');
 
 // ============================================================

@@ -18,7 +18,7 @@
   /* ---------- 样式注入（源自桌面 wizard.css 对应规则） ---------- */
   (function () {
     var s = el('style');
-    s.textContent = "\n.cmDesk-modal-overlay{position:fixed;inset:0;z-index:2147483400;background:rgba(43,35,24,.45);display:flex;align-items:center;justify-content:center;animation:cmDeskGuideIn .2s ease}\n.cmDesk-donate-card{position:relative;background:var(--card-bg,#FFFDF7);border:1px solid var(--border,#E6DECD);border-radius:16px;box-shadow:0 24px 64px rgba(60,40,20,.28);padding:22px 26px;max-width:440px;width:min(440px,92vw);text-align:center}\n.cmDesk-donate-card h3{font-family:var(--font-display);font-size:16px;color:var(--primary,#A63A2B);margin-bottom:14px}\n.cmDesk-donate-card p{font-size:12.5px;color:var(--text-secondary,#5F5E5A);line-height:1.8;margin:0}\n.cmDesk-donate-close{position:absolute;top:8px;right:12px;border:0;background:none;font-size:22px;line-height:1;color:var(--text-muted,#8C8577);cursor:pointer;padding:4px}\n.cmDesk-report-panel{max-width:640px;width:min(640px,94vw);text-align:left}\n.cmDesk-rp-tabs{display:flex;gap:8px;margin-bottom:12px}\n.cmDesk-rp-tab{border:1px solid var(--border,#E6DECD);background:var(--row-bg,#FBF8F1);color:var(--text-secondary,#5F5E5A);border-radius:10px;padding:7px 18px;font-size:13px;cursor:pointer}\n.cmDesk-rp-tab.active{background:var(--primary,#A63A2B);border-color:var(--primary,#A63A2B);color:#fff;font-weight:600}\n.cmDesk-rp-row{margin-bottom:10px}\n.cmDesk-rp-row label{display:block;font-size:12px;color:var(--text-secondary,#5F5E5A);margin-bottom:4px}\n.cmDesk-rp-row select{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border,#E6DECD);border-radius:8px;background:var(--row-bg,#FBF8F1);font-size:13px}\n.cmDesk-rp-row textarea{width:100%;box-sizing:border-box;margin-top:8px;padding:8px 10px;border:1px solid var(--border,#E6DECD);border-radius:8px;font-size:12.5px;resize:vertical;font-family:inherit}\n.cmDesk-rp-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}\n.cmDesk-rp-preview{max-height:52vh;overflow:auto;border:1px solid var(--border,#E6DECD);border-radius:10px;background:var(--row-bg,#FBF8F1);padding:10px}\n.cmDesk-rp-preview canvas{display:block;width:100%;height:auto;border-radius:8px;box-shadow:0 2px 10px rgba(60,40,20,.12)}\n.cmDesk-rp-empty{font-size:12px;color:var(--text-muted,#8C8577);text-align:center;padding:26px 10px}\n.cmDesk-rp-msg{font-size:11.5px;color:var(--text-muted,#8C8577);line-height:1.7;margin-top:8px;word-break:break-all}\n.cmDesk-navreport .nav-icon{font-size:15px;display:flex;align-items:center;justify-content:center}\n.cmGx-loading{padding:46px;text-align:center;color:var(--text-muted,#8C8577);font-size:13px}\n.cmGx-empty{padding:30px 10px;text-align:center;color:var(--text-muted,#8C8577);font-size:12.5px}\n.cmGx-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:12px}\n.cmGx-kpi{position:relative;overflow:hidden;background:var(--card-bg,#FFFDF7);border:1px solid var(--border,#E6DECD);border-radius:14px;padding:13px 15px}\n.cmGx-kpi::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--primary,#A63A2B);opacity:.85}\n.cmGx-klabel{font-size:11px;color:var(--text-muted,#8C8577);letter-spacing:1px}\n.cmGx-kvalue{font-size:26px;font-weight:700;line-height:1.15;margin:3px 0 2px;font-variant-numeric:tabular-nums;color:var(--text,#2B2B33)}\n.cmGx-kvalue small{font-size:12px;font-weight:400;color:var(--text-muted,#8C8577);margin-left:3px}\n.cmGx-ktrend{font-size:10.5px;font-weight:600;border-radius:999px;display:inline-block;padding:2px 8px;margin-top:2px}\n.cmGx-up{color:var(--success,#2F7D5B);background:rgba(47,125,91,.10)}\n.cmGx-down{color:var(--danger,#B42318);background:rgba(180,35,24,.09)}\n.cmGx-flat{color:var(--text-muted,#8C8577);background:rgba(140,133,119,.10)}\n.cmGx-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:0}\n.cmGx-card{background:var(--card-bg,#FFFDF7);border:1px solid var(--border,#E6DECD);border-radius:14px;padding:14px 16px 10px;margin-bottom:12px}\n.cmGx-grid2 .cmGx-card{margin-bottom:0}\n.cmGx-title{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:7px;color:var(--text,#2B2B33)}\n.cmGx-title i{width:8px;height:8px;background:var(--primary,#A63A2B);border-radius:2px;transform:rotate(45deg);flex:none}\n.cmGx-cap{font-size:11px;color:var(--text-muted,#8C8577);margin:2px 0 4px;padding-left:15px}\n.cmGx-chart{height:250px;width:100%}\n.cmGx-chart.tall{height:300px}\n.cmGx-chart .cmGx-empty{display:flex;align-items:center;justify-content:center;height:100%;box-sizing:border-box}\n.cmGx-warn{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;margin-bottom:6px;background:rgba(180,35,24,.05);border:1px solid rgba(180,35,24,.12)}\n.cmGx-warn.amber{background:rgba(192,138,45,.06);border-color:rgba(192,138,45,.18)}\n.cmGx-chip{font-size:10px;padding:2px 7px;border-radius:6px;background:rgba(180,35,24,.10);color:var(--danger,#B42318);font-weight:600;flex:none;white-space:nowrap}\n.cmGx-chip.amber{background:rgba(192,138,45,.13);color:var(--warning,#C08A2D)}\n.cmGx-rank{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:10px}\n.cmGx-rank:hover{background:rgba(166,58,43,.04)}\n.cmGx-rnum{width:23px;height:23px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;color:#fff;flex:none}\n.cmGx-rnum.r1{background:var(--gold,#C9A227)}\n.cmGx-rnum.r2{background:#A8A29A}\n.cmGx-rnum.r3{background:#C08A2D}\n.cmGx-rnum.rn{background:var(--bg,#F6F2E9);color:var(--text-secondary,#5C574F);border:1px solid var(--border,#E6DECD)}\n.cmGx-rmain{flex:1;min-width:0}\n.cmGx-rname{font-size:12.5px;font-weight:600;color:var(--text,#2B2B33)}\n.cmGx-rbar{height:4.5px;border-radius:3px;background:var(--bg,#F6F2E9);margin-top:3px;overflow:hidden}\n.cmGx-rbar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--primary-light,#C25B4A),var(--primary,#A63A2B))}\n.cmGx-rsubs{font-size:10px;color:var(--text-muted,#8C8577);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.cmGx-rscore{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;min-width:40px;text-align:right;color:var(--text,#2B2B33)}\n.cmGx-kpis.cols6{grid-template-columns:repeat(6,minmax(0,1fr))}\n.cmGx-card{transition:transform .18s var(--gx-ease),box-shadow .18s var(--gx-ease),border-color .18s var(--gx-ease)}\n.cmGx-card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(25,22,19,.08)}\n.cmGx-rank,.gxSec-row{transition:background .15s var(--gx-ease)}\n";
+    s.textContent = "\n.cmDesk-modal-overlay{position:fixed;inset:0;z-index:2147483400;background:rgba(43,35,24,.45);display:flex;align-items:center;justify-content:center;animation:cmDeskGuideIn .2s ease}\n.cmDesk-donate-card{position:relative;background:var(--card-bg,#FFFDF7);border:1px solid var(--border,#E6DECD);border-radius:16px;box-shadow:0 24px 64px rgba(60,40,20,.28);padding:22px 26px;max-width:440px;width:min(440px,92vw);text-align:center}\n.cmDesk-donate-card h3{font-family:var(--font-display);font-size:16px;color:var(--primary,#A63A2B);margin-bottom:14px}\n.cmDesk-donate-card p{font-size:12.5px;color:var(--text-secondary,#5F5E5A);line-height:1.8;margin:0}\n.cmDesk-donate-close{position:absolute;top:8px;right:12px;border:0;background:none;font-size:22px;line-height:1;color:var(--text-muted,#8C8577);cursor:pointer;padding:4px}\n.cmDesk-report-panel{max-width:640px;width:min(640px,94vw);text-align:left}\n.cmDesk-rp-tabs{display:flex;gap:8px;margin-bottom:12px}\n.cmDesk-rp-tab{border:1px solid var(--border,#E6DECD);background:var(--row-bg,#FBF8F1);color:var(--text-secondary,#5F5E5A);border-radius:10px;padding:7px 18px;font-size:13px;cursor:pointer}\n.cmDesk-rp-tab.active{background:var(--primary,#A63A2B);border-color:var(--primary,#A63A2B);color:#fff;font-weight:600}\n.cmDesk-rp-row{margin-bottom:10px}\n.cmDesk-rp-row label{display:block;font-size:12px;color:var(--text-secondary,#5F5E5A);margin-bottom:4px}\n.cmDesk-rp-row select{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border,#E6DECD);border-radius:8px;background:var(--row-bg,#FBF8F1);font-size:13px}\n.cmDesk-rp-row textarea{width:100%;box-sizing:border-box;margin-top:8px;padding:8px 10px;border:1px solid var(--border,#E6DECD);border-radius:8px;font-size:12.5px;resize:vertical;font-family:inherit}\n.cmDesk-rp-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}\n.cmDesk-rp-preview{max-height:52vh;overflow:auto;border:1px solid var(--border,#E6DECD);border-radius:10px;background:var(--row-bg,#FBF8F1);padding:10px}\n.cmDesk-rp-preview canvas{display:block;width:100%;height:auto;border-radius:8px;box-shadow:0 2px 10px rgba(60,40,20,.12)}\n.cmDesk-rp-empty{font-size:12px;color:var(--text-muted,#8C8577);text-align:center;padding:26px 10px}\n.cmDesk-rp-msg{font-size:11.5px;color:var(--text-muted,#8C8577);line-height:1.7;margin-top:8px;word-break:break-all}\n.cmDesk-navreport .nav-icon{font-size:15px;display:flex;align-items:center;justify-content:center}\n.cmGx-loading{padding:46px;text-align:center;color:var(--text-muted,#8C8577);font-size:13px}\n.cmGx-empty{padding:30px 10px;text-align:center;color:var(--text-muted,#8C8577);font-size:12.5px}\n.cmGx-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:12px}\n.cmGx-kpi{position:relative;overflow:hidden;background:var(--card-bg,#FFFDF7);border:1px solid var(--border,#E6DECD);border-radius:14px;padding:13px 15px}\n.cmGx-kpi::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--primary,#A63A2B);opacity:.85}\n.cmGx-klabel{font-size:11px;color:var(--text-muted,#8C8577);letter-spacing:1px}\n.cmGx-kvalue{font-size:26px;font-weight:700;line-height:1.15;margin:3px 0 2px;font-variant-numeric:tabular-nums;color:var(--text,#2B2B33)}\n.cmGx-kvalue small{font-size:12px;font-weight:400;color:var(--text-muted,#8C8577);margin-left:3px}\n.cmGx-ktrend{font-size:10.5px;font-weight:600;border-radius:999px;display:inline-block;padding:2px 8px;margin-top:2px}\n.cmGx-up{color:var(--success,#2F7D5B);background:rgba(47,125,91,.10)}\n.cmGx-down{color:var(--danger,#B42318);background:rgba(180,35,24,.09)}\n.cmGx-flat{color:var(--text-muted,#8C8577);background:rgba(140,133,119,.10)}\n.cmGx-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:0}\n.cmGx-card{background:var(--card-bg,#FFFDF7);border:1px solid var(--border,#E6DECD);border-radius:14px;padding:14px 16px 10px;margin-bottom:12px}\n.cmGx-grid2 .cmGx-card{margin-bottom:0}\n.cmGx-title{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:7px;color:var(--text,#2B2B33)}\n.cmGx-title i{width:8px;height:8px;background:var(--primary,#A63A2B);border-radius:2px;transform:rotate(45deg);flex:none}\n.cmGx-cap{font-size:11px;color:var(--text-muted,#8C8577);margin:2px 0 4px;padding-left:15px}\n.cmGx-chart{height:250px;width:100%}\n.cmGx-chart.tall{height:300px}\n.cmGx-chart .cmGx-empty{display:flex;align-items:center;justify-content:center;height:100%;box-sizing:border-box}\n.cmGx-warn{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;margin-bottom:6px;background:rgba(180,35,24,.05);border:1px solid rgba(180,35,24,.12)}\n.cmGx-warn.amber{background:rgba(192,138,45,.06);border-color:rgba(192,138,45,.18)}\n.cmGx-chip{font-size:10px;padding:2px 7px;border-radius:6px;background:rgba(180,35,24,.10);color:var(--danger,#B42318);font-weight:600;flex:none;white-space:nowrap}\n.cmGx-chip.amber{background:rgba(192,138,45,.13);color:var(--warning,#C08A2D)}\n.cmGx-rank{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:10px}\n.cmGx-rank:hover{background:rgba(166,58,43,.04)}\n.cmGx-rnum{width:23px;height:23px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;color:#fff;flex:none}\n.cmGx-rnum.r1{background:var(--gold,#C9A227)}\n.cmGx-rnum.r2{background:#A8A29A}\n.cmGx-rnum.r3{background:#C08A2D}\n.cmGx-rnum.rn{background:var(--bg,#F6F2E9);color:var(--text-secondary,#5C574F);border:1px solid var(--border,#E6DECD)}\n.cmGx-rmain{flex:1;min-width:0}\n.cmGx-rname{font-size:12.5px;font-weight:600;color:var(--text,#2B2B33)}\n.cmGx-rbar{height:4.5px;border-radius:3px;background:var(--bg,#F6F2E9);margin-top:3px;overflow:hidden}\n.cmGx-rbar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--primary-light,#C25B4A),var(--primary,#A63A2B))}\n.cmGx-rsubs{font-size:10px;color:var(--text-muted,#8C8577);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.cmGx-rscore{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;min-width:40px;text-align:right;color:var(--text,#2B2B33)}\n.cmGx-kpis.cols6{grid-template-columns:repeat(6,minmax(0,1fr))}\n.cmGx-card{transition:transform .18s var(--gx-ease),box-shadow .18s var(--gx-ease),border-color .18s var(--gx-ease)}\n.cmGx-card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(25,22,19,.08)}\n.cmGx-rank,.gxSec-row{transition:background .15s var(--gx-ease)}\n.cmLvChip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-secondary,#5C574F);background:var(--bg,#F6F2E9);border:1px solid var(--border,#E6DECD);border-radius:999px;padding:4px 11px;line-height:1.5}\n.cmLvChip b{color:var(--text,#2B2B33);font-weight:700}\n";
     document.head.appendChild(s);
   })();
 
@@ -1412,6 +1412,9 @@ function gxPlayCounters(root) {
       window.drawPubDist('pubDistChart', st.students || []);
       window.drawPubReason('pubReasonChart', 'pubReasonLegend', st.operations || []);
     }
+    /* v3.9.7 请假分析：换肤/亮暗时若正停在该页签上，整块重绘（图表色是运行时读变量的，不重绘会留在旧皮肤） */
+    var lvTab = document.getElementById('tab-leave');
+    if (lvTab && lvTab.classList.contains('active')) { try { cmLvRender(); } catch (e) {} }
   }
 
   /* ---------- v3.6.9 首访竞态补画（echarts 懒加载完成后：补画排队图表 + 可见页图表；移植切片漏带桌面启动段实现，此前调用未定义函数被 try/catch 吞掉致首页分布冷启动空白） ---------- */
@@ -1455,6 +1458,272 @@ function gxPlayCounters(root) {
     new MutationObserver(gxInjectReportNav).observe(document.body, { childList: true, subtree: true });
   } catch (e) {}
 
+/* ---------- v3.9.7 请假分析页签（网页版）----------
+     老板要求：加进「数据分析」栏目、顶部页签切换、图表跟学分/成绩分析同一套语言。
+     实现要点：
+     · 页签与面板**由本文件运行时注入**，不写进 index.html —— 桌面版构建会摘掉 cmgx.js
+       并挂自带引擎（app.patch.js），若把页签写死在 index.html，桌面端就会出现一个点了没反应的
+       空页签。注入式的好处：本文件不加载 ⇒ 页签根本不存在，桌面端行为零变化。
+     · 数据口径全部走网页版 index.html 的 lvAggregate()（纯函数），这里只画图，绝不另算一套。
+     · 「已超时」是派生状态（lvStateOf），不是 l.status —— 与请假页同一套判据。 */
+  var CM_LV_COLORS = null;
+  function cmLvPal() {
+    return {
+      sick: cmGxIsDark() ? '#D45A4A' : '#B42318',      // 病假：朱
+      personal: cmGxIsDark() ? '#D08A45' : '#C0762B',  // 事假：赭
+      official: cmGxIsDark() ? '#4F9E77' : '#2F7D5B',  // 公假：青
+      other: cmGxIsDark() ? '#93A5B3' : '#7A8B99',     // 其它：灰
+      overdue: cmGxIsDark() ? '#D9604F' : '#B42318'
+    };
+  }
+  function cmLvAgg() {
+    try {
+      if (typeof lvAggregate === 'function') {
+        var st = cmGxState() || {};
+        return lvAggregate(st.leaves || [], st.students || []);
+      }
+    } catch (e) { console.warn('[cmgx] 请假聚合失败', e); }
+    return null;
+  }
+  function cmLvInject() {
+    var tabs = document.querySelector('.analytics-tabs');
+    if (tabs && !document.getElementById('tab-leave')) {
+      var t = el('div', 'analytics-tab');
+      t.id = 'tab-leave';
+      t.innerHTML = '<svg class="ic"><use href="#i-chart-cal"/></svg>请假分析';
+      t.addEventListener('click', function () { try { switchAnalyticsTab('leave'); } catch (e) {} });
+      tabs.appendChild(t);
+    }
+    var page = document.getElementById('page-analytics');
+    if (page && !document.getElementById('analyticsLeavePanel')) {
+      var p = el('div');
+      p.id = 'analyticsLeavePanel';
+      p.style.display = 'none';
+      page.appendChild(p);
+    }
+  }
+  function cmLvDispose() {
+    for (var id in cmGradeCharts) {
+      if (id.indexOf('cmGxLv') === 0) { try { cmGradeCharts[id].dispose(); } catch (e) {} delete cmGradeCharts[id]; }
+    }
+  }
+  function cmLvRender() {
+    cmLvInject();
+    var panel = document.getElementById('analyticsLeavePanel');
+    if (!panel) return;
+    var agg = cmLvAgg();
+    if (!agg) { panel.innerHTML = '<div class="cmGx-empty" style="padding:60px 10px">请假数据引擎未就绪</div>'; return; }
+    if (!agg.total) {
+      panel.innerHTML = '<div class="cmGx-empty" style="padding:60px 10px">还没有请假记录 —— 去「请假」页登记一条，这里就有数据了</div>';
+      cmLvDispose();
+      return;
+    }
+    cmLvDispose();
+    var c = cmLvPal();
+    var stus = ((cmGxState() || {}).students || []).length || 1;
+    var perCap = agg.people ? (agg.total / agg.people) : 0;
+    var involvePct = Math.round(agg.people / stus * 100);
+    var last6 = agg.byMonth.reduce(function (s, m) { return s + m.count; }, 0);
+    var topType = agg.byType.slice().sort(function (a, b) { return b.count - a.count; })[0] || { label: '—', pct: 0 };
+
+    var h = '';
+    h += '<div class="cmGx-kpis cols6">';
+    h += '<div class="cmGx-kpi"><div class="cmGx-klabel">请假总次数</div><div class="cmGx-kvalue">' + agg.total + '<small>次</small></div><span class="cmGx-ktrend cmGx-flat">近 6 个月 ' + last6 + ' 次</span></div>';
+    h += '<div class="cmGx-kpi"><div class="cmGx-klabel">涉及学生</div><div class="cmGx-kvalue">' + agg.people + '<small>人</small></div><span class="cmGx-ktrend cmGx-flat">占全班 ' + involvePct + '%</span></div>';
+    h += '<div class="cmGx-kpi"><div class="cmGx-klabel">累计请假天数</div><div class="cmGx-kvalue">' + (Math.round(agg.days * 10) / 10) + '<small>天</small></div><span class="cmGx-ktrend cmGx-flat">人均 ' + (Math.round(agg.avgGapDays * 10) / 10) + ' 天</span></div>';
+    h += '<div class="cmGx-kpi"><div class="cmGx-klabel">人均请假次数</div><div class="cmGx-kvalue">' + perCap.toFixed(1) + '<small>次</small></div><span class="cmGx-ktrend cmGx-flat">按有请假的学生算</span></div>';
+    h += '<div class="cmGx-kpi"><div class="cmGx-klabel">平均单次时长</div><div class="cmGx-kvalue">' + (Math.round(agg.avgDur * 10) / 10) + '<small>天</small></div><span class="cmGx-ktrend cmGx-flat">' + (topType.label || '—') + ' 最多</span></div>';
+    h += '<div class="cmGx-kpi"><div class="cmGx-klabel">当前在假</div><div class="cmGx-kvalue">' + agg.active + '<small>人</small></div><span class="cmGx-ktrend ' + (agg.overdue ? 'cmGx-down' : 'cmGx-up') + '">超时未销 ' + agg.overdue + ' 条</span></div>';
+    h += '</div>';
+
+    /* 高频画像：把「最常发生在哪天 / 哪类 / 哪个月」三句话直接摆出来，比让人自己在图上找更快 */
+    h += '<div class="cmGx-card"><div class="cmGx-title"><i></i>高频画像</div><div class="cmGx-cap">一眼看清请假最集中的时段与类型</div>';
+    h += '<div style="display:flex;gap:8px;flex-wrap:wrap;padding:2px 0 6px">';
+    h += '<span class="cmLvChip">高峰星期 <b>' + (agg.peakWeekday || '—') + '</b></span>';
+    h += '<span class="cmLvChip">首要类型 <b>' + (agg.peakType || '—') + '</b>（' + topType.pct + '%）</span>';
+    h += '<span class="cmLvChip">高峰月份 <b>' + (agg.peakMonth || '—') + '</b></span>';
+    h += '<span class="cmLvChip">最频繁学生 <b>' + (agg.top[0] ? cmGxEsc(agg.top[0].name) : '—') + '</b>' + (agg.top[0] ? '（' + agg.top[0].count + ' 次）' : '') + '</span>';
+    h += '</div></div>';
+
+    h += '<div class="cmGx-grid2 gx-stagger">';
+    h += '<div class="cmGx-card"><div class="cmGx-title"><i></i>请假类型占比</div><div class="cmGx-cap">病假 / 事假 / 公假 按登记条数</div><div id="cmGxLvType" class="cmGx-chart"></div></div>';
+    h += '<div class="cmGx-card"><div class="cmGx-title"><i></i>近 6 个月请假次数</div><div class="cmGx-cap">按请假开始日期归月 · 悬停看当月天数</div><div id="cmGxLvMonth" class="cmGx-chart"></div></div>';
+    h += '</div>';
+    h += '<div class="cmGx-grid2 gx-stagger">';
+    h += '<div class="cmGx-card"><div class="cmGx-title"><i></i>星期分布</div><div class="cmGx-cap">哪天最容易请假 · 按开始日期归星期</div><div id="cmGxLvWeek" class="cmGx-chart"></div></div>';
+    h += '<div class="cmGx-card"><div class="cmGx-title"><i></i>请假时长分布</div><div class="cmGx-cap">短假为主还是长假为主，一眼分得出</div><div id="cmGxLvDur" class="cmGx-chart"></div></div>';
+    h += '</div>';
+    h += '<div class="cmGx-grid2 gx-stagger">';
+    h += '<div class="cmGx-card"><div class="cmGx-title"><i></i>请假次数排行</div><div class="cmGx-cap">前 8 名 · 次数相同看天数</div><div id="cmGxLvTop" class="cmGx-chart tall"></div></div>';
+    h += '<div class="cmGx-card"><div class="cmGx-title"><i></i>需跟进：超时未销假</div><div class="cmGx-cap">过了结束日仍未销假 · 共 ' + agg.overdue + ' 条</div><div id="cmGxLvOver" style="max-height:250px;overflow:auto">' + cmLvOverdueHtml(agg) + '</div></div>';
+    h += '</div>';
+    h += '<div class="cmGx-grid2 gx-stagger">';
+    h += '<div class="cmGx-card"><div class="cmGx-title"><i></i>请假起始时段</div><div class="cmGx-cap">上午走 / 下午走 / 整天不在</div><div id="cmGxLvPeriod" class="cmGx-chart"></div></div>';
+    h += '<div class="cmGx-card"><div class="cmGx-title"><i></i>最长 5 次请假</div><div class="cmGx-cap">按登记时长排序</div><div id="cmGxLvLong" style="padding:2px 0">' + cmLvLongHtml(agg) + '</div></div>';
+    h += '</div>';
+
+    panel.innerHTML = h;
+    gxCountAnnotate(panel);
+    cmLvDraw(agg, c);
+    gxPlayCounters(panel);
+  }
+  function cmLvOverdueHtml(agg) {
+    if (!agg.overdueList.length) return '<div class="cmGx-empty">没有超时未销假的记录</div>';
+    return agg.overdueList.map(function (o) {
+      return '<div class="cmGx-rank"><div class="cmGx-rnum rn" style="color:' + cmLvPal().overdue + '">!</div>' +
+        '<div class="cmGx-rmain"><div class="cmGx-rname">' + cmGxEsc(o.name) + '</div>' +
+        '<div class="cmGx-rsubs">应于 ' + cmGxEsc(o.endDate) + ' 结束</div></div>' +
+        '<div class="cmGx-rscore" style="color:' + cmLvPal().overdue + '">超 ' + o.days + ' 天</div></div>';
+    }).join('');
+  }
+  function cmLvLongHtml(agg) {
+    if (!agg.longest.length) return '<div class="cmGx-empty">暂无数据</div>';
+    var mx = agg.longest[0].days || 1;
+    return agg.longest.map(function (o, i) {
+      return '<div class="cmGx-rank"><div class="cmGx-rnum ' + (i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : 'rn') + '">' + (i + 1) + '</div>' +
+        '<div class="cmGx-rmain"><div class="cmGx-rname">' + cmGxEsc(o.name) + '</div>' +
+        '<div class="cmGx-rbar"><i style="width:' + (o.days / mx * 100).toFixed(1) + '%"></i></div>' +
+        '<div class="cmGx-rsubs">' + cmGxEsc(o.startDate) + ' → ' + cmGxEsc(o.endDate) + '</div></div>' +
+        '<div class="cmGx-rscore">' + o.days + ' 天</div></div>';
+    }).join('');
+  }
+  function cmLvDraw(agg, c) {
+    if (!cmEchartsReady()) {
+      cmLoadEcharts(function (okFlag) {
+        if (okFlag) { try { cmLvRender(); } catch (e) {} }
+      });
+      return;
+    }
+    var pal = c || cmLvPal();
+    var muted = cmCssVar('--text-muted', '#8C8577');
+    var text2 = cmCssVar('--text-secondary', '#5C574F');
+    var typeCol = { sick: pal.sick, personal: pal.personal, official: pal.official, other: pal.other };
+
+    /* 类型占比：环形 + 中心总数（与学分五档构成同一手法） */
+    cmGxChart('cmGxLvType', {
+      tooltip: cmGxTT(),
+      legend: { bottom: 0, icon: 'circle', itemWidth: 8, itemHeight: 8, textStyle: { color: text2, fontSize: 11, fontFamily: cmGxFont() }, itemGap: 12 },
+      title: { text: String(agg.total), subtext: '次请假', left: 'center', top: '38%',
+        textStyle: { fontSize: 26, fontWeight: 700, color: cmCssVar('--text', '#2B2B33'), fontFamily: cmGxFont() },
+        subtextStyle: { color: muted, fontSize: 11 } },
+      series: [{ type: 'pie', radius: ['52%', '72%'], center: ['50%', '44%'],
+        data: agg.byType.filter(function (t) { return t.count > 0; }).map(function (t) {
+          return { name: t.label + '（' + t.count + '次）', value: t.count, itemStyle: { color: typeCol[t.key] || pal.other } };
+        }),
+        itemStyle: { borderRadius: 5, borderColor: cmCssVar('--card-bg', '#FFFDF7'), borderWidth: 2 },
+        label: { show: false }, emphasis: { scaleSize: 4 }, animationDuration: 900, animationEasing: 'cubicOut' }]
+    });
+
+    /* 近 6 个月次数 */
+    cmGxChart('cmGxLvMonth', {
+      tooltip: cmGxTT('axis'), grid: cmGxGrid({ left: 34 }),
+      xAxis: cmGxAxisX({ data: agg.byMonth.map(function (m) { return m.label; }), boundaryGap: true }),
+      yAxis: cmGxAxisY({ minInterval: 1 }),
+      series: [{ type: 'bar', barWidth: '46%',
+        data: agg.byMonth.map(function (m) {
+          return { value: m.count, itemStyle: { borderRadius: [6, 6, 0, 0], color: cmGxVGrad(cmGxShade(cmCssVar('--primary', '#A63A2B'), 0.2), cmCssVar('--primary', '#A63A2B')) } };
+        }),
+        label: { show: true, position: 'top', color: text2, fontSize: 11, fontWeight: 600 },
+        animationDuration: 900, animationDelay: function (i) { return i * 70; } }]
+    });
+
+    /* 星期分布 */
+    var wmax = Math.max.apply(null, agg.byWeekday.map(function (w) { return w.count; }).concat([1]));
+    cmGxChart('cmGxLvWeek', {
+      tooltip: cmGxTT('axis'), grid: cmGxGrid({ left: 34 }),
+      xAxis: cmGxAxisX({ data: agg.byWeekday.map(function (w) { return w.label.replace('周', ''); }), boundaryGap: true }),
+      yAxis: cmGxAxisY({ minInterval: 1 }),
+      series: [{ type: 'bar', barWidth: '50%',
+        data: agg.byWeekday.map(function (w) {
+          var hot = w.count === wmax && w.count > 0;
+          var col = hot ? pal.overdue : cmCssVar('--text-secondary', '#5C574F');
+          return { value: w.count, itemStyle: { borderRadius: [6, 6, 0, 0], color: cmGxVGrad(cmGxShade(col, 0.28), col) } };
+        }),
+        label: { show: true, position: 'top', color: text2, fontSize: 11, fontWeight: 600 },
+        animationDuration: 900, animationDelay: function (i) { return i * 60; } }]
+    });
+
+    /* 时长分布 */
+    cmGxChart('cmGxLvDur', {
+      tooltip: cmGxTT('axis'), grid: cmGxGrid({ left: 34 }),
+      xAxis: cmGxAxisX({ data: agg.byDur.map(function (d) { return d.label; }), axisLabel: { color: muted, fontSize: 10.5, interval: 0 }, boundaryGap: true }),
+      yAxis: cmGxAxisY({ minInterval: 1 }),
+      series: [{ type: 'bar', barWidth: '46%',
+        data: agg.byDur.map(function (d) {
+          return { value: d.count, itemStyle: { borderRadius: [6, 6, 0, 0], color: cmGxVGrad(cmGxShade(pal.personal, 0.3), pal.personal) } };
+        }),
+        label: { show: true, position: 'top', color: text2, fontSize: 11, fontWeight: 600 },
+        animationDuration: 900, animationDelay: function (i) { return i * 70; } }]
+    });
+
+    /* 起始时段 */
+    cmGxChart('cmGxLvPeriod', {
+      tooltip: cmGxTT('axis'), grid: cmGxGrid({ left: 34 }),
+      xAxis: cmGxAxisX({ data: agg.byPeriod.map(function (p) { return p.label; }), boundaryGap: true }),
+      yAxis: cmGxAxisY({ minInterval: 1 }),
+      series: [{ type: 'bar', barWidth: '44%',
+        data: agg.byPeriod.map(function (p) {
+          var col = p.key === 'am' ? pal.official : p.key === 'pm' ? pal.personal : pal.other;
+          return { value: p.count, itemStyle: { borderRadius: [6, 6, 0, 0], color: cmGxVGrad(cmGxShade(col, 0.3), col) } };
+        }),
+        label: { show: true, position: 'top', color: text2, fontSize: 11, fontWeight: 600 },
+        animationDuration: 900 }]
+    });
+
+    /* 次数排行（前 8，横条自下而上：最多的在顶） */
+    if (agg.top.length) {
+      var tp = agg.top.slice().reverse();
+      var tmax = Math.max.apply(null, agg.top.map(function (t) { return t.count; }).concat([1]));
+      cmGxChart('cmGxLvTop', {
+        tooltip: { trigger: 'item', backgroundColor: cmCssVar('--card-bg', '#FFFDF7'), borderColor: cmCssVar('--border', '#E6DECD'), borderWidth: 1,
+          padding: [9, 13], textStyle: { color: cmCssVar('--text', '#2B2B33'), fontSize: 12, fontFamily: cmGxFont() },
+          extraCssText: 'box-shadow:0 8px 24px rgba(25,22,19,.14);border-radius:10px;',
+          formatter: function (p) { var t = tp[p.dataIndex]; return cmGxEsc(t.name) + '<br>' + t.count + ' 次 · 共 ' + (Math.round(t.days * 10) / 10) + ' 天'; } },
+        grid: cmGxGrid({ left: 20, right: 46, top: 10, bottom: 10 }),
+        xAxis: cmGxAxisY({ show: false }),
+        yAxis: cmGxAxisX({ type: 'category', data: tp.map(function (t) { return t.name; }), axisLine: { show: false } }),
+        series: [{ type: 'bar', barWidth: 12,
+          data: tp.map(function (t) {
+            var hot = t.count >= tmax;
+            var col = hot ? pal.overdue : cmCssVar('--primary', '#A63A2B');
+            return { value: t.count, itemStyle: { borderRadius: 6, color: cmGxVGrad(col, cmGxShade(col, 0.25), true) } };
+          }),
+          label: { show: true, position: 'right', formatter: '{c} 次', color: text2, fontSize: 11, fontWeight: 600 },
+          animationDuration: 900, animationDelay: function (i) { return i * 60; } }]
+      });
+    } else {
+      document.getElementById('cmGxLvTop').innerHTML = '<div class="cmGx-empty">暂无数据</div>';
+    }
+  }
+  function cmWrapLvRender() {
+    var prev = window.renderAnalytics;
+    if (typeof prev !== 'function' || prev.__cmGxLv) return;
+    var w = function () {
+      var tl = document.getElementById('tab-leave');
+      if (tl && tl.classList.contains('active')) { cmLvRender(); return; }
+      return prev.apply(this, arguments);
+    };
+    w.__cmGxLv = true;
+    window.renderAnalytics = w;
+  }
+  function cmWrapLvTab() {
+    var prev = window.switchAnalyticsTab;
+    if (typeof prev !== 'function' || prev.__cmGxLvTab) return;
+    var w = function (tab) {
+      var r = prev.apply(this, arguments);   // 先让底层把 credit/grade 两个面板与页签摆正
+      try {
+        var lp = document.getElementById('analyticsLeavePanel');
+        var tl = document.getElementById('tab-leave');
+        if (lp) lp.style.display = (tab === 'leave') ? '' : 'none';
+        if (tl) tl.classList.toggle('active', tab === 'leave');
+        if (tab === 'leave') cmLvRender();
+      } catch (e) {}
+      return r;
+    };
+    w.__cmGxLvTab = true;
+    window.switchAnalyticsTab = w;
+  }
+
   /* ---------- 切页补播 KPI 滚动数字（网页版导航钩子，v1.5.1 同源逻辑） ---------- */
   (function () {
     var prev = window.navigateTo;
@@ -1469,6 +1738,10 @@ function gxPlayCounters(root) {
     try { cmWrapGradeDetail(); } catch (e) { console.warn('[cmgx] 成绩图表接管失败', e); }
     try { cmWrapCreditRender(); } catch (e) { console.warn('[cmgx] 学分图表接管失败', e); }
     try { cmWrapCreditTabSwitch(); } catch (e) {}
+    /* v3.9.7 请假分析：必须在 credit 的两层包装之后再包（本级最外层先跑，底层先把面板摆正） */
+    try { cmLvInject(); } catch (e) { console.warn('[cmgx] 请假页签注入失败', e); }
+    try { cmWrapLvRender(); } catch (e) {}
+    try { cmWrapLvTab(); } catch (e) {}
     try { cmWrapDistChart(); } catch (e) {}
     try { cmWrapPubCharts(); } catch (e) {}
     gxInjectReportNav();

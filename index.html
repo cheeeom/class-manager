@@ -1169,6 +1169,10 @@ tbody tr.highlight{
   margin-bottom:-2px;
   transition:background-color .2s,color .2s,border-color .2s;
   user-select:none;
+  /* v3.9.7 页签图标替掉 emoji 后需要一条基线：flex + gap 让 18px 图标与文字光学居中对齐 */
+  display:flex;
+  align-items:center;
+  gap:7px;
 }
 .analytics-tab:hover{color:var(--primary);}
 .analytics-tab.active{
@@ -2225,6 +2229,37 @@ html.dark .tl-body{background:var(--bg)}
 .leave-badge.pending{background:#F5EBD8/*肤免*/;color:#9A5A14/*肤免*/}
 .leave-badge.returned{background:#EAF0E6/*肤免*/;color:var(--success)}
 .leave-badge.extended{background:#EFEAF5/*肤免*/;color:#584A82/*肤免*/}
+/* v3.9.7 请假状态色条（老板口径）：在假未超时=绿 · 已续假=紫 · 已超时=红 · 已销假=淡出
+   ⚠️ 必须写在 .status-pending / .status-extended 之后 —— 同为 2 个类选择器，靠源序取胜；
+      写在前面会被上面那两条同特异度规则原样盖回去（症状：颜色怎么改都不生效）。 */
+.leave-card.lv-live{border-left-color:var(--success)}
+.leave-card.lv-extended{border-left-color:var(--purple)}
+.leave-card.lv-overdue{border-left-color:var(--danger);box-shadow:0 2px 10px rgba(180,35,24,.10)}
+.leave-card.lv-returned{border-left-color:var(--success);opacity:.72}
+.leave-badge.overdue{background:rgba(180,35,24,.10);color:var(--danger)}
+/* v3.9.7 顶部筛选卡：整块可点，命中态用内描边（不换底，避免跟 ::after 的纸角渐变打架） */
+.lv-filter{cursor:pointer;user-select:none}
+.lv-filter .lv-hint{font-size:11.5px;color:var(--text-muted);margin-top:5px;letter-spacing:.2px;line-height:1.4}
+.lv-filter.active{box-shadow:inset 0 0 0 2px var(--primary),var(--shadow-card)}
+.lv-filter.active .stat-label{color:var(--primary);font-weight:700}
+.lv-filter:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--primary)}
+/* 列表小标题：左边说「现在筛的是哪一档」，右边挂本月口径 */
+.lv-listhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--text-muted);margin:0 2px 10px}
+.lv-listhead b{color:var(--text);font-variant-numeric:tabular-nums}
+.lv-empty-filter{padding:38px 16px;text-align:center;color:var(--text-muted);font-size:13px}
+/* 已销假归档条：默认折叠，点一下才铺开（老板要求「默认折叠、点卡片可看」） */
+.leave-archive{display:flex;align-items:center;gap:8px;margin:14px 0 10px;padding:11px 14px;border:1px dashed var(--border);border-radius:var(--radius);background:var(--bg-secondary);color:var(--text-secondary);font-size:13px;cursor:pointer;user-select:none;transition:background-color .18s,border-color .18s}
+.leave-archive:hover{border-color:var(--primary-light);background:var(--row-bg,var(--bg-secondary))}
+.leave-archive .lv-arc-arrow{display:inline-block;transition:transform .2s;color:var(--text-muted);font-size:11px}
+.leave-archive.open .lv-arc-arrow{transform:rotate(90deg)}
+.leave-archive b{color:var(--text);font-variant-numeric:tabular-nums}
+.lv-arc-hint{margin-left:auto;font-size:11.5px;color:var(--text-muted)}
+/* 触摸端：归档条被 innerHTML 重画后 Blink 会重算 hover，手指停在哪就判成悬停 ⇒ 边框闪一下。
+   守卫必须写在 :hover 之后，回落成基线（硬规则：@media(hover:none) 守卫永远排在选中态之前也成立，
+   这里没有选中态需要保护，只是把悬停效果在无 hover 设备上关掉）。 */
+@media(hover:none){
+  .leave-archive:hover{border-color:var(--border);background:var(--bg-secondary)}
+}
 .leave-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:14px;font-weight:500;color:var(--text);background:var(--bg-secondary);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:9px;font-variant-numeric:tabular-nums}
 .leave-meta .lv-arrow{color:var(--text-muted);flex-shrink:0}
 .leave-meta .lv-dur{margin-left:auto;display:inline-flex;align-items:baseline;gap:2px;color:var(--primary);white-space:nowrap;flex-shrink:0}
@@ -2232,6 +2267,7 @@ html.dark .tl-body{background:var(--bg)}
 .leave-meta .lv-dur i{font-size:12px;font-style:normal;font-weight:600}
 .leave-reason{font-size:13.5px;line-height:1.55;color:var(--text-secondary);margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
 .leave-hist{font-size:11.5px;color:var(--text-muted);margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.leave-overdue-tip{font-size:12px;font-weight:600;color:var(--danger);margin:-2px 0 8px;letter-spacing:.2px}
 .leave-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:4px}
 .leave-created{font-size:12px;color:var(--text-muted);white-space:nowrap}
 .leave-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
@@ -2723,6 +2759,10 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <symbol id="i-duty" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/><path d="m9 15.5 2 2 4-4"/></symbol>
 <symbol id="i-leave" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4.5 7 7.5 6 7.5-6"/></symbol>
 <symbol id="i-grades" viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="M8.5 16.5V11"/><path d="M13 16.5V7.5"/><path d="M17.5 16.5v-6"/></symbol>
+<!-- v3.9.7 分析页签图标（替掉 📊 / 📝 emoji）：与侧栏同套 24px 线性描边、1.7 线宽的同一视觉语言 -->
+<symbol id="i-chart-bars" viewBox="0 0 24 24"><path d="M4 3.8v16.4h16.2"/><rect x="7" y="12.4" width="3.2" height="5.6" rx="1"/><rect x="12.1" y="8.4" width="3.2" height="9.6" rx="1"/><rect x="17.2" y="5" width="3.2" height="13" rx="1"/></symbol>
+<symbol id="i-chart-doc" viewBox="0 0 24 24"><path d="M6 3.5h8L18.5 8v12.5h-12.5z"/><path d="M14 3.5V8h4.5"/><path d="M9 16.6v-2.8"/><path d="M12 16.6v-5.8"/><path d="M15 16.6v-3.8"/></symbol>
+<symbol id="i-chart-cal" viewBox="0 0 24 24"><rect x="3.6" y="5.4" width="16.8" height="14.2" rx="2.4"/><path d="M8 3.4v3.6M16 3.4v3.6M3.6 9.8h16.8"/><path d="m7.4 17.2 2.6-2.7 2.2 1.8 3.5-3.9"/></symbol>
 <symbol id="i-todo" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8.5 12.5 2.5 2.5 5-5.5"/></symbol>
 <symbol id="i-horn" viewBox="0 0 24 24"><path d="M14 5 6.5 9H4a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h2.5L14 19z"/><path d="M17.5 9.7a4 4 0 0 1 0 4.6"/><path d="M20 8a7.5 7.5 0 0 1 0 8"/></symbol>
 <symbol id="i-pen" viewBox="0 0 24 24"><path d="m15 5 4 4L8.5 19.5 4 20.5l1-4.5z"/><path d="m13 7 4 4"/></symbol>
@@ -2761,7 +2801,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
       <div class="login-vertical">厚德博学 · 敬业爱生</div>
       <div class="login-credit">开发者 · chee</div>
-      <div class="login-version">v3.9.6</div>
+      <div class="login-version">v3.9.7</div>
       <div class="login-particles">
         <span style="left:15%;top:30%;animation-delay:0s"></span>
         <span style="left:75%;top:20%;animation-delay:2s"></span>
@@ -2883,7 +2923,7 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       </div>
     </nav>
     <button class="rail-toggle" id="railToggle" onclick="cmRailToggle()" title="收起 / 展开侧栏（折叠后悬停可临时展开）" aria-label="收起或展开侧栏">‹</button>
-    <div class="sidebar-footer">v3.9.6 · 班主任工作台</div>
+    <div class="sidebar-footer">v3.9.7 · 班主任工作台</div>
   </aside>
 
   <!-- Main -->
@@ -3261,8 +3301,8 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
       <!-- Analytics Page -->
       <div class="page" id="page-analytics">
         <div class="analytics-tabs">
-          <div class="analytics-tab active" id="tab-credit" onclick="switchAnalyticsTab('credit')">📊 学分分析</div>
-          <div class="analytics-tab" id="tab-grade" onclick="switchAnalyticsTab('grade')">📝 成绩分析</div>
+          <div class="analytics-tab active" id="tab-credit" onclick="switchAnalyticsTab('credit')"><svg class="ic"><use href="#i-chart-bars"/></svg>学分分析</div>
+          <div class="analytics-tab" id="tab-grade" onclick="switchAnalyticsTab('grade')"><svg class="ic"><use href="#i-chart-doc"/></svg>成绩分析</div>
         </div>
         <div id="analyticsCreditPanel">
           <div class="analytics-grid" id="analyticsSummary"></div>
@@ -3297,11 +3337,38 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
           <h3 style="margin:0">请假记录</h3>
           <button class="btn btn-primary btn-sm" id="addLeaveBtn" onclick="openLeaveModal()">+ 新增请假</button>
         </div>
-        <div class="stat-grid" id="leaveStats" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
-          <div class="stat-card"><div class="stat-label">待销假</div><div class="stat-value" id="leavePending" style="color:#B96A1F">0</div></div>
-          <div class="stat-card"><div class="stat-label">已销假</div><div class="stat-value" id="leaveReturned" style="color:#2F7D5B">0</div></div>
-          <div class="stat-card"><div class="stat-label">续假中</div><div class="stat-value" id="leaveExtended" style="color:#6B5B95">0</div></div>
-          <div class="stat-card"><div class="stat-label">本月总计</div><div class="stat-value" id="leaveTotal">0</div></div>
+        <!-- v3.9.7 五张筛选卡（整块可点）：默认落在「待销假」= 在假合计（未销假 + 已续假 + 已超时），
+             已销假默认不出现在列表里，只在底部归档条里折叠着。 -->
+        <div class="stat-grid" id="leaveStats" style="grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:16px">
+          <div class="stat-card lv-filter active" id="lvf-inleave" data-lv="inleave" onclick="setLeaveFilter('inleave')" title="在假合计：未销假 + 已续假 + 已超时">
+            <div class="stat-label">待销假</div>
+            <div class="stat-value" id="leavePending" style="color:var(--primary)">0</div>
+            <div class="lv-hint">在假合计 · 未销假 + 已续假 + 已超时</div>
+          </div>
+          <div class="stat-card lv-filter" id="lvf-fresh" data-lv="fresh" onclick="setLeaveFilter('fresh')" title="未销假且未超时">
+            <div class="stat-label">未销假</div>
+            <div class="stat-value" id="leaveFresh" style="color:var(--success)">0</div>
+            <div class="lv-hint">在假中 · 未到结束日</div>
+          </div>
+          <div class="stat-card lv-filter" id="lvf-extended" data-lv="extended" onclick="setLeaveFilter('extended')" title="续假顺延中">
+            <div class="stat-label">已续假</div>
+            <div class="stat-value" id="leaveExtended" style="color:var(--purple)">0</div>
+            <div class="lv-hint">顺延中 · 未到新结束日</div>
+          </div>
+          <div class="stat-card lv-filter" id="lvf-overdue" data-lv="overdue" onclick="setLeaveFilter('overdue')" title="过了结束日仍未销假">
+            <div class="stat-label">已超时</div>
+            <div class="stat-value" id="leaveOverdue" style="color:var(--danger)">0</div>
+            <div class="lv-hint">需跟进 · 该销假还没销</div>
+          </div>
+          <div class="stat-card lv-filter" id="lvf-returned" data-lv="returned" onclick="setLeaveFilter('returned')" title="已销假归档">
+            <div class="stat-label">已销假</div>
+            <div class="stat-value" id="leaveReturned" style="color:var(--text-secondary)">0</div>
+            <div class="lv-hint">已归档 · 默认折叠</div>
+          </div>
+        </div>
+        <div class="lv-listhead">
+          <span id="leaveListHint"></span>
+          <span>本月共 <b id="leaveTotal">0</b> 条</span>
         </div>
         <div id="leaveList"></div>
       </div>
@@ -3669,19 +3736,19 @@ svg.ic-sm{width:15px;height:15px;vertical-align:-2.5px}
 <div class="settings-section" id="settingsAbout">
                     <h3>ℹ️ 关于本系统</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.9.6</span>
+            <span style="display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;background:rgba(166,58,43,0.08);border:1px solid rgba(166,58,43,0.28);color:var(--primary);font-weight:700;font-size:13px;letter-spacing:0.5px">🏷️ v3.9.7</span>
             <span style="font-size:13px;color:var(--text-secondary)">开发作者：<b style="color:var(--primary)">chee</b> · 联系：<a href="mailto:chee777@agent.qq.com" style="color:var(--primary);text-decoration:none">chee777@agent.qq.com</a></span>
           </div>
           <div style="padding:10px 12px;background:rgba(166,58,43,0.05);border:1px dashed rgba(166,58,43,0.3);border-radius:10px">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleReleaseNotes()">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
               <span id="releaseNotesArrow" style="font-size:13px;color:var(--text-muted);width:16px;text-align:center">▶</span>
-              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.9.6）</div>
+              <div style="font-size:12px;font-weight:600;color:var(--primary)">📝 近版更新速览（v3.9.7）</div>
             </div>
             <span style="font-size:12px;color:var(--text-muted)">默认收起 · 点击展开</span>
           </div>
             <div id="settingsReleaseNotes" style="display:none;margin-top:8px;font-size:12.5px;color:var(--text-secondary);line-height:1.9">
- · 🎯 <b>点名预览栏定格名常驻（v3.9.6）</b>：课堂点名抽中的姓名在右上角预览栏<b>不再自动消失</b>——原来定格 0.9 秒就收起（多人连抽时仅 0.3～0.4 秒就被下一位清掉，一眼没看清就没了），现在一直是琥珀金大字留在那儿，<b>直到你点「开始抽取」开下一轮才收起</b>；连带修掉多人连抽时「定格 → 闪一下白 → 再滚」的断档，名字由下一位的滚动直接接管<br> · 🛠 <b>请假与预警修复（v3.9.5）</b>：请假销假/续假/登记现在都记「修改时间」，云同步按时间判新旧（同一时刻则<b>已销假优先</b>），<b>销假后立即上传</b>（原来有 2 秒延迟，销完马上关页面会丢这次上传）——换台设备或刷新不再变回「待销假」；学分预警在<b>红色/深红档（40 分以下）办结后不再自动重开</b>（此前按了等于没按、删了也删不掉），只有学分真的再恶化一档才重新提醒，备注也会写清从哪档升到哪档<br>
+ · 🗂 <b>请假页改版 + 请假分析（v3.9.7）</b>：请假列表默认只列<b>在假</b>的三类（未销假 / 已续假 / 已超时），卡片左边框按状态上色——<b>绿=在假未超时、紫=已续假、红=已超时</b>；顶部五张卡片可直接点，点哪张下面就筛哪一档（<b>待销假</b>=在假合计、未销假、已续假、已超时、已销假），<b>已销假默认折叠</b>在列表下方，点一下才铺开。数据分析新增<b>「请假分析」页签</b>：请假总次数 / 涉及人数 / 累计天数 / 人均次数 / 平均单次时长 / 当前在假，外加病、事、公占比、近 6 个月趋势、星期分布、时长分布、次数排行、超时未销跟进；三个分析页签的 emoji 图标全部换成与侧栏同套的线性图标<br> · 🎯 <b>点名预览栏定格名常驻（v3.9.6）</b>：课堂点名抽中的姓名在右上角预览栏<b>不再自动消失</b>——原来定格 0.9 秒就收起（多人连抽时仅 0.3～0.4 秒就被下一位清掉，一眼没看清就没了），现在一直是琥珀金大字留在那儿，<b>直到你点「开始抽取」开下一轮才收起</b>；连带修掉多人连抽时「定格 → 闪一下白 → 再滚」的断档，名字由下一位的滚动直接接管<br> · 🛠 <b>请假与预警修复（v3.9.5）</b>：请假销假/续假/登记现在都记「修改时间」，云同步按时间判新旧（同一时刻则<b>已销假优先</b>），<b>销假后立即上传</b>（原来有 2 秒延迟，销完马上关页面会丢这次上传）——换台设备或刷新不再变回「待销假」；学分预警在<b>红色/深红档（40 分以下）办结后不再自动重开</b>（此前按了等于没按、删了也删不掉），只有学分真的再恶化一档才重新提醒，备注也会写清从哪档升到哪档<br>
  · 🎬 <b>座次表与点名升级（v3.9.4）</b>：座次表加「第几排第几列」标尺（左侧排号、顶部列号），讲台条去掉图标、改成「讲　　台」两字加宽间距居中；导出改为<b>先预览再导出</b>，可在「俯视图（讲台在上）」与「讲台视角（讲台在下、第 1 排贴讲台往上递增，整张图是俯视图旋转 180°、<b>左右也镜像</b>）」之间切换；请假页顶栏四个统计数补上滚动动画；课堂点名抽取时卡片边框改为呼吸式闪动，右上角预览栏同步滚动名字，抽中瞬间与卡片黄框<b>同一帧</b>定格；🪪 修复二维码卡<b>缺二维码图片</b>（导出整版从未加载 QR 组件且空捕获静默丢图，现已统一懒加载、失败必报）<br> · 🎨 <b>三套新皮肤（v3.9.0）</b>：外观卡新增「藤黄·杏坛」（暖金）、「紫檀·暮山」（深紫）、「松烟·墨池」（极简水墨）——各配暗色形态与专属签名细节，对比度全项达标<br> · 🛒 <b>兑换体验优化（v3.8.1）</b>：兑换二维码有效期 10 分钟→<b>3 天</b>；商品卡片直接加减数量、点底部浮条即可弹出购物车核对（币不足也能进）；新增「补印单张」（丢卡按姓名补打一张）<br> · 🛠 <b>云同步解密修复（v3.8.0）</b>：修复刷新后「解密失败：同步口令不正确」——云同步加密轮数被查询端提速误改（两套参数曾共用常量），现已解耦恢复 25 万轮并加守卫钉死；你的本地数据与云端密文均完好<br> · ✨ <b>按压反馈与阴影跟肤（v3.9.1）</b>：按钮/导航/页签补回按压缩放反馈（v3.1.0 动效语言）；19 处朱砂色调阴影改用 --tone-rgb 令牌，六套皮肤下阴影色全部跟肤<br> · 🚀 <b>查询再提速至 1-2 秒（v3.7.9）</b>：派生轮数 6 万→3 万（安全余量均摊 1.3 GPU 年/人）；解密与兑换签名共用一次派生（出兑换码零等待）。<b>请再点一次「重新发布」</b><br> · ⚡ <b>查询提速 4 倍（v3.7.8）</b>：加密派生轮数 25 万→6 万（手机单次查询 10-20 秒→3-4 秒，安全余量仍为百年量级）；查询包缓存 10→30 分钟（上课扫码全程免重下）。<b>改完请点「重新发布」才生效</b><br> · 📶 <b>学生端弱网体验修复（v3.7.7）</b>：查询下载加 25 秒超时（弱网不再无限转圈，超时给可读提示）；「学号未找到」提示补充学号格式说明<br> · 🪪 <b>二维码卡 + 记住我（v3.7.6）</b>：「学生查询端」新增二维码卡导出（每生一张，手机扫码直达自己的学分页，打印裁剪下发，查询码不用记）；学生页新增「记住我」（本人设备勾选后免输，公共设备请勿勾选）<br> · #️⃣ <b>学号续号与批量配学号（v3.7.5）</b>：新学生学号自动按班内数字学号续号（不再出现 S 前缀混排）；学生管理新增「# 批量配学号」——粘贴「姓名 学号」名单按姓名批量设置，重名/无匹配/冲突分桶提示，查询码自动随学号迁移（改完请重新发布）；顺带修复两枚潜伏 bug：配置 Token 弹窗被面板压住（z-index 1 容器困住，打开时重挂 body）、本地加载漏读 6 个字段（查询码/发布状态/请假墓碑/设备锁/学期存档——刷新即静默清空）<br> · 🎨 <b>兑换核销归位学分银行（v3.7.4）</b>：核销入口移到「兑换商店」工具条（与新增商品并列），查询端面板与设置卡不再重复放置；公示页「学生查询端」按钮与相邻按钮统一主色<br> · 🔧 <b>Token 配置弹窗层级修复（v3.7.3）</b>：查询端面板内点「配置 Token」弹窗不再被面板压住<br> · ⚙️ <b>学生查询端入口进设置页（v3.7.2）</b>：设置页新增「🔑 学生查询端」卡（打开面板/兑换核销+状态简报），公示页原入口保留<br> · 🛒 <b>学生自助兑换（v3.7.1）</b>：学生端可加购物车批量结算，生成 10 分钟时效二维码（查询码签名防伪）；老师端「📷 兑换核销」三入口收码（摄像头扫码 / 粘贴码原文 / 粘贴·拖入截图识别）→ 验签 → 实时校验余额月余 → 一键入账；查询端新增学分排名与商品分类筛选<br> · 🔑 <b>学生查询端（v3.7.0）</b>：学生可用「学号 + 8 位专属码」查看<b>自己的</b>学分与流水——公示页「🔑 学生查询端」一键导出码表并发布；每生一块独立密文，只解自己那份；<b>不含</b>家长电话、住址、生日、备注、标签、寝室<br>
  · 📱 <b>手机端学期报告入口（v3.6.10）</b>：「更多」抽屉新增学期报告（原先只在桌面侧栏，手机进不去）；快速加减分弹窗内的「按寝室」捷径撤下——请用学分页「🏠 按寝室加减分」专用入口<br>
  · 📊 <b>首页学分分布空白修复（v3.6.9）</b>：修复冷启动时首页「学分分布」卡片空白——echarts 懒加载完成后的补画函数在移植时缺失（异常被静默吞掉），现已补齐；加载失败时自动回退原图表<br>
@@ -17009,6 +17076,152 @@ function deleteLeave(id){
   showToast('已删除','info');
 }
 
+/* ==================== v3.9.7 请假状态派生 + 顶部卡片筛选 ==================== */
+/* 🔴「已超时」是**派生状态**，绝不写进 l.status。
+   status 只有 pending / extended / returned 三值，云合并（msLeaves 的 leaveStatusRank）与
+   首页实到数（renderDashPresence 的 pending/extended 判定）都在读它 —— 多插一档会把
+   仲裁规则和「今日实到」整条打歪，而且旧数据没有这一档，升级当即出错。 */
+var leaveFilter = 'inleave';    // inleave（在假合计） | fresh | extended | overdue | returned
+var leaveArchiveOpen = false;   // 已销假归档条是否展开（默认折叠）
+
+/* 过了结束日还没销假 = 超时。
+   · 结束日已过 → 超时（无争议）
+   · 结束日就是今天：只把「上午结束」的假在中午 12 点后算超时 —— 下午/全天的假到当天
+     24:00 才算结束，中午就标红等于冤枉人。
+   · 日期一律字符串比（'YYYY-MM-DD' 字典序即时间序），不 new Date 解析，避免 UTC 掉一天。 */
+function lvIsOverdue(l){
+  if(!l || l.status === 'returned') return false;
+  var end = l.endDate;
+  if(!end || typeof end !== 'string' || end.length < 10) return false;
+  var today = localDateStr();
+  if(end < today) return true;
+  if(end > today) return false;
+  if(l.endPeriod === 'am') return new Date().getHours() >= 12;
+  return false;
+}
+/* 状态键与筛选键同名，省一层映射：fresh=未销假未超时 / extended=已续假未超时 / overdue / returned */
+function lvStateOf(l){
+  if(!l) return 'fresh';
+  if(l.status === 'returned') return 'returned';
+  if(lvIsOverdue(l)) return 'overdue';
+  if(l.status === 'extended') return 'extended';
+  return 'fresh';
+}
+function lvStateClass(st){
+  if(st === 'overdue') return 'lv-overdue';
+  if(st === 'extended') return 'lv-extended';
+  if(st === 'returned') return 'lv-returned';
+  return 'lv-live';
+}
+function lvMatchFilter(l, f){
+  var st = lvStateOf(l);
+  if(f === 'returned') return st === 'returned';
+  if(st === 'returned') return false;       // 其余四档一律不含已销假
+  if(f === 'fresh') return st === 'fresh';
+  if(f === 'extended') return st === 'extended';
+  if(f === 'overdue') return st === 'overdue';
+  return true;                              // inleave = 在假合计
+}
+/* 超时天数（只用于提示文案，取整不取负） */
+function lvOverdueDays(l){
+  if(!l || !l.endDate) return 0;
+  var p = String(l.endDate).split('-');
+  if(p.length < 3) return 0;
+  var e = new Date(+p[0], +p[1] - 1, +p[2]).getTime();
+  var n = new Date();
+  var t = new Date(n.getFullYear(), n.getMonth(), n.getDate()).getTime();
+  var d = Math.round((t - e) / 86400000);
+  return d > 0 ? d : 0;
+}
+function lvCountAll(){
+  var c = { inleave: 0, fresh: 0, extended: 0, overdue: 0, returned: 0 };
+  var arr = (state && state.leaves) || [];
+  for(var i = 0; i < arr.length; i++){
+    var st = lvStateOf(arr[i]);
+    c[st]++;
+    if(st !== 'returned') c.inleave++;
+  }
+  return c;
+}
+function setLeaveFilter(f){
+  if(['inleave','fresh','extended','overdue','returned'].indexOf(f) < 0) return;
+  leaveFilter = f;
+  if(f === 'returned') leaveArchiveOpen = true;   // 点了「已销假」卡 = 明确要看归档，顺手展开
+  renderAttendance();
+}
+function toggleLeaveArchive(){
+  leaveArchiveOpen = !leaveArchiveOpen;
+  renderAttendance();
+}
+
+var LV_FILTER_TIP = {
+  inleave: '在假合计',
+  fresh: '未销假（未到结束日）',
+  extended: '已续假（顺延中）',
+  overdue: '已超时（需跟进）',
+  returned: '已销假（归档）'
+};
+var LV_FILTER_EMPTY = {
+  inleave: '当前没有在假记录 —— 全班都在校',
+  fresh: '没有「未销假」的记录',
+  extended: '没有续假记录',
+  overdue: '没有超时未销假的记录',
+  returned: '归档里还没有已销假记录'
+};
+
+/* 单张请假卡（从 renderAttendance 里抽出来：筛选/归档两处都要用，避免抄第二份模板） */
+function lvCardHtml(l, isCm){
+  const stu = state.students.find(s=>s.id===l.studentId);
+  const stuName = stu ? stu.name : '已删除学生';
+  const typeText = LEAVE_TYPES[l.type] || l.type;
+  const st = lvStateOf(l);
+  const statusMap = {
+    pending:'<span class="leave-badge pending">待销假</span>',
+    returned:'<span class="leave-badge returned">已销假</span>',
+    extended:'<span class="leave-badge extended">已续假</span>',
+    overdue:'<span class="leave-badge overdue">已超时</span>'
+  };
+  const badgeKey = (st === 'fresh') ? 'pending' : st;
+  const actions = (l.status !== 'returned' && !isCm)
+    ? `<button class="btn btn-outline btn-sm" onclick="extendLeave(${l.id})">续假</button><button class="btn btn-primary btn-sm" onclick="returnLeave(${l.id})">销假</button>`
+    : '';
+  const histText = (l.history || []).map(h=>{
+    if(h.action==='extend') return `续假 ${h.from} → ${h.to}`;
+    if(h.action==='return') return `于 ${h.date} 销假`;
+    return '';
+  }).filter(Boolean).join(' · ');
+  const history = histText ? `<div class="leave-hist" title="${histText}">${histText}</div>` : '';
+  const overdueTip = (st === 'overdue' && lvOverdueDays(l) > 0)
+    ? '<div class="leave-overdue-tip">已超时 ' + lvOverdueDays(l) + ' 天未销假</div>' : '';
+  var spText = l.startPeriod==='am'?'上午':l.startPeriod==='pm'?'下午':'全天';
+  var epText = l.endPeriod==='am'?'上午':l.endPeriod==='pm'?'下午':'全天';
+  var rangeFull = l.startDate + ' ' + spText + ' ~ ' + l.endDate + ' ' + epText;
+  var cd = new Date(l.createdAt);
+  var createdTxt = isNaN(cd.getTime()) ? '' : ((cd.getMonth()+1) + '/' + cd.getDate());
+  return '<div class="leave-card status-'+l.status+' '+lvStateClass(st)+'">'+
+          '<div class="leave-card-header">'+
+            '<div style="min-width:0;display:flex;align-items:center;overflow:hidden">'+
+              '<span class="leave-student">'+escapeHtml(stuName)+'</span>'+
+              '<span class="leave-type '+l.type+'">'+typeText+'</span>'+
+            '</div>'+
+            (statusMap[badgeKey]||'')+
+          '</div>'+
+          '<div class="leave-meta" title="'+rangeFull+'">'+
+            '<span>'+lvShortDate(l.startDate)+' '+spText+'</span>'+
+            '<span class="lv-arrow">→</span>'+
+            '<span>'+lvShortDate(l.endDate)+' '+epText+'</span>'+
+            (lvDurNum(l.duration)?'<span class="lv-dur"><b>'+lvDurNum(l.duration)+'</b><i>天</i></span>':'')+
+          '</div>'+
+          '<div class="leave-reason" title="'+escapeHtml(l.reason||'—')+'">'+(escapeHtml(l.reason)||'—')+'</div>'+
+          overdueTip+
+          history+
+          '<div class="leave-foot">'+
+            '<span class="leave-created">'+createdTxt+' 登记</span>'+
+            '<span class="leave-actions">'+actions+(isCm?'':'<button class="todo-btn" onclick="deleteLeave('+l.id+')" title="删除"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button>')+'</span>'+
+          '</div>'+
+        '</div>';
+}
+
 function renderAttendance(){
   const list = document.getElementById('leaveList');
   if(!list) return;
@@ -17019,64 +17232,183 @@ function renderAttendance(){
   } else {
     const isCm = window.__cmRole === 'committee';   // v3.0.0 班委只读：不渲染续假/销假/删除
     const sorted = [...state.leaves].sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
-    list.innerHTML = '<div class="leave-grid">' + sorted.map(l => {
-      const stu = state.students.find(s=>s.id===l.studentId);
-      const stuName = stu ? stu.name : '已删除学生';
-      const typeText = LEAVE_TYPES[l.type] || l.type;
-      const statusMap = {pending:'<span class="leave-badge pending">待销假</span>',returned:'<span class="leave-badge returned">已销假</span>',extended:'<span class="leave-badge extended">已续假</span>'};
-      const actions = (l.status !== 'returned' && !isCm)
-        ? `<button class="btn btn-outline btn-sm" onclick="extendLeave(${l.id})">续假</button><button class="btn btn-primary btn-sm" onclick="returnLeave(${l.id})">销假</button>`
-        : '';
-      const histText = (l.history || []).map(h=>{
-        if(h.action==='extend') return `续假 ${h.from} → ${h.to}`;
-        if(h.action==='return') return `于 ${h.date} 销假`;
-        return '';
-      }).filter(Boolean).join(' · ');
-      const history = histText ? `<div class="leave-hist" title="${histText}">${histText}</div>` : '';
-      var spText = l.startPeriod==='am'?'上午':l.startPeriod==='pm'?'下午':'全天';
-      var epText = l.endPeriod==='am'?'上午':l.endPeriod==='pm'?'下午':'全天';
-      var rangeFull = l.startDate + ' ' + spText + ' ~ ' + l.endDate + ' ' + epText;
-      var cd = new Date(l.createdAt);
-      var createdTxt = isNaN(cd.getTime()) ? '' : ((cd.getMonth()+1) + '/' + cd.getDate());
-      return '<div class="leave-card status-'+l.status+'">'+
-              '<div class="leave-card-header">'+
-                '<div style="min-width:0;display:flex;align-items:center;overflow:hidden">'+
-                  '<span class="leave-student">'+escapeHtml(stuName)+'</span>'+
-                  '<span class="leave-type '+l.type+'">'+typeText+'</span>'+
-                '</div>'+
-                (statusMap[l.status]||'')+
-              '</div>'+
-              '<div class="leave-meta" title="'+rangeFull+'">'+
-                '<span>'+lvShortDate(l.startDate)+' '+spText+'</span>'+
-                '<span class="lv-arrow">→</span>'+
-                '<span>'+lvShortDate(l.endDate)+' '+epText+'</span>'+
-                (lvDurNum(l.duration)?'<span class="lv-dur"><b>'+lvDurNum(l.duration)+'</b><i>天</i></span>':'')+
-              '</div>'+
-              '<div class="leave-reason" title="'+escapeHtml(l.reason||'—')+'">'+(escapeHtml(l.reason)||'—')+'</div>'+
-              history+
-              '<div class="leave-foot">'+
-                '<span class="leave-created">'+createdTxt+' 登记</span>'+
-                '<span class="leave-actions">'+actions+(isCm?'':'<button class="todo-btn" onclick="deleteLeave('+l.id+')" title="删除"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button>')+'</span>'+
-              '</div>'+
-            '</div>';
-    }).join('') + '</div>';
+    const picked = sorted.filter(l => lvMatchFilter(l, leaveFilter));
+    let body = picked.length
+      ? '<div class="leave-grid">' + picked.map(l => lvCardHtml(l, isCm)).join('') + '</div>'
+      : '<div class="lv-empty-filter">' + (LV_FILTER_EMPTY[leaveFilter] || '没有符合条件的记录') + '</div>';
+    /* 已销假默认折叠：除「已销假」档之外，都在列表下方留一条归档条，点一下才铺开。
+       老板的原话是「已销假的请假条默认折叠起来」——所以它不是不显示，是不主动占屏。 */
+    if(leaveFilter !== 'returned'){
+      const archived = sorted.filter(l => lvStateOf(l) === 'returned');
+      if(archived.length){
+        body += '<div class="leave-archive' + (leaveArchiveOpen ? ' open' : '') + '" onclick="toggleLeaveArchive()" role="button" tabindex="0">' +
+                  '<span class="lv-arc-arrow">▶</span><span>已销假 <b>' + archived.length + '</b> 条</span>' +
+                  '<span class="lv-arc-hint">' + (leaveArchiveOpen ? '点一下收起' : '默认折叠，点一下展开') + '</span>' +
+                '</div>';
+        if(leaveArchiveOpen) body += '<div class="leave-grid">' + archived.map(l => lvCardHtml(l, isCm)).join('') + '</div>';
+      }
+    }
+    list.innerHTML = body;
   }
   // stats
-  const pending = state.leaves.filter(l=>l.status==='pending').length;
-  const returned = state.leaves.filter(l=>l.status==='returned').length;
-  const extended = state.leaves.filter(l=>l.status==='extended').length;
+  const cnt = lvCountAll();
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const monthTotal = state.leaves.filter(l=>new Date(l.createdAt) >= monthStart).length;
-  /* v3.9.2 顶栏四个统计数补上滚动动画（老板反馈：新增请假时数字是硬跳的）。
+  /* v3.9.2 顶栏统计数补上滚动动画（老板反馈：新增请假时数字是硬跳的）。
      统一走 countUp —— 它以上一次显示值为起点，重复渲染只会「补差值」，不会从 0 重滚。 */
-  const pe = document.getElementById('leavePending'); if(pe) countUp(pe, pending);
-  renderDashPresence();   // v3.2.0 请假有任何变动（登记/续假/销假/删除都会走到这）→ 首页实到数即时刷新
-  const re = document.getElementById('leaveReturned'); if(re) countUp(re, returned);
-  const ex = document.getElementById('leaveExtended'); if(ex) countUp(ex, extended);
+  const pe = document.getElementById('leavePending'); if(pe) countUp(pe, cnt.inleave);
+  const fr = document.getElementById('leaveFresh'); if(fr) countUp(fr, cnt.fresh);
+  const ex = document.getElementById('leaveExtended'); if(ex) countUp(ex, cnt.extended);
+  const ov = document.getElementById('leaveOverdue'); if(ov) countUp(ov, cnt.overdue);
+  const re = document.getElementById('leaveReturned'); if(re) countUp(re, cnt.returned);
   const to = document.getElementById('leaveTotal'); if(to) countUp(to, monthTotal);
+  /* 顶部筛卡片高亮 + 列表小标题（同一处更新，避免两处状态各说各话） */
+  document.querySelectorAll('.lv-filter').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('data-lv') === leaveFilter);
+  });
+  const hint = document.getElementById('leaveListHint');
+  if(hint){
+    hint.innerHTML = '正在看：<b>' + (LV_FILTER_TIP[leaveFilter] || '') + '</b>'
+      + ' · <b>' + (leaveFilter === 'inleave' ? cnt.inleave : (cnt[leaveFilter] || 0)) + '</b> 条'
+      + (leaveFilter === 'inleave' ? '（未销假 ' + cnt.fresh + ' · 已续假 ' + cnt.extended + ' · 已超时 ' + cnt.overdue + '）' : '');
+  }
+  renderDashPresence();   // v3.2.0 请假有任何变动（登记/续假/销假/删除都会走到这）→ 首页实到数即时刷新
 }
 
+
+/* ==================== v3.9.7 请假数据分析（纯聚合，口径唯一来源） ==================== */
+/* 只吃 leaves + students，不碰 DOM —— 回归可以直接喂假数据真跑。
+   分析面板（cmgx.js 的「请假分析」页签）只负责把这里的结果画成图，不得自己另算一套，
+   否则「图上说 42 次、列表数出 45 条」这种对不上的场面迟早出现。 */
+function lvYmd(ds){
+  if(!ds || typeof ds !== 'string' || ds.length < 10) return null;
+  var p = ds.split('-');
+  var y = +p[0], m = +p[1], d = +p[2];
+  if(!y || !m || !d) return null;
+  return new Date(y, m - 1, d);       // 本地构造：new Date('YYYY-MM-DD') 会被当 UTC，东八区以西整体掉一天
+}
+function lvAggregate(leaves, students){
+  var arr = Array.isArray(leaves) ? leaves : [];
+  var stus = Array.isArray(students) ? students : [];
+  var nameOf = {};
+  for(var i = 0; i < stus.length; i++){
+    if(stus[i] && stus[i].id != null) nameOf[stus[i].id] = stus[i].name;
+  }
+  var out = {
+    total: 0, days: 0, people: 0, avgDur: 0, avgGapDays: 0,
+    active: 0, returned: 0, overdue: 0,
+    byType: [], byMonth: [], byWeekday: [], byPeriod: [], byDur: [],
+    top: [], overdueList: [], longest: [],
+    peakWeekday: '', peakType: '', peakMonth: ''
+  };
+  var TYPE_ORDER = ['sick', 'personal', 'official'];
+  var typeAgg = { sick: { count: 0, days: 0 }, personal: { count: 0, days: 0 }, official: { count: 0, days: 0 }, other: { count: 0, days: 0 } };
+  var perStu = {}, perStuDays = {}, weekday = [0, 0, 0, 0, 0, 0, 0];
+  var period = { am: 0, pm: 0, day: 0 };
+  var durB = [0, 0, 0, 0, 0];      // 半天及以内 / 1 天 / 2-3 天 / 4-7 天 / 7 天以上
+  var monthMap = {};
+  var months = [];                  // 近 6 个月（含当月），按本地月份倒推
+  var today = new Date();
+  for(var k = 5; k >= 0; k--){
+    var mh = new Date(today.getFullYear(), today.getMonth() - k, 1);
+    months.push({ key: mh.getFullYear() + '-' + String(mh.getMonth() + 1).padStart(2, '0'),
+                  label: (mh.getMonth() + 1) + '月' });
+  }
+  for(var mi = 0; mi < months.length; mi++) monthMap[months[mi].key] = 0;
+
+  for(var n = 0; n < arr.length; n++){
+    var l = arr[n];
+    if(!l) continue;
+    var st = lvStateOf(l);
+    var dur = Number(l.duration);
+    if(!isFinite(dur) || dur <= 0){
+      dur = calcLeaveDuration(l.startDate, l.startPeriod, l.endDate, l.endPeriod);
+      if(dur === null || !isFinite(dur)) dur = 0;
+    }
+    out.total++;
+    out.days += dur;
+    if(st === 'returned') out.returned++; else out.active++;
+    if(st === 'overdue') out.overdue++;
+
+    var tk = TYPE_ORDER.indexOf(l.type) >= 0 ? l.type : 'other';
+    typeAgg[tk].count++;
+    typeAgg[tk].days += dur;
+
+    if(l.studentId != null){
+      perStu[l.studentId] = (perStu[l.studentId] || 0) + 1;
+      perStuDays[l.studentId] = (perStuDays[l.studentId] || 0) + dur;
+    }
+
+    var sd = lvYmd(l.startDate);
+    if(sd){
+      weekday[(sd.getDay() + 6) % 7]++;                       // 0=周一 … 6=周日
+      var mk = l.startDate.slice(0, 7);
+      if(mk in monthMap) monthMap[mk]++;
+    }
+    period[(l.startPeriod === 'am' || l.startPeriod === 'pm') ? l.startPeriod : 'day']++;
+
+    if(dur <= 0.5) durB[0]++;
+    else if(dur <= 1) durB[1]++;
+    else if(dur <= 3) durB[2]++;
+    else if(dur <= 7) durB[3]++;
+    else durB[4]++;
+
+    if(st === 'overdue'){
+      out.overdueList.push({ id: l.id, studentId: l.studentId, name: nameOf[l.studentId] || '已删除学生',
+                             endDate: l.endDate, days: lvOverdueDays(l), type: l.type });
+    }
+  }
+
+  out.people = Object.keys(perStu).length;
+  out.avgDur = out.total ? (out.days / out.total) : 0;
+
+  for(var t = 0; t < TYPE_ORDER.length; t++){
+    var key = TYPE_ORDER[t];
+    out.byType.push({ key: key, label: LEAVE_TYPES[key] || key, count: typeAgg[key].count, days: typeAgg[key].days,
+                      pct: out.total ? Math.round(typeAgg[key].count / out.total * 100) : 0 });
+  }
+  if(typeAgg.other.count){
+    out.byType.push({ key: 'other', label: '其它', count: typeAgg.other.count, days: typeAgg.other.days,
+                      pct: out.total ? Math.round(typeAgg.other.count / out.total * 100) : 0 });
+  }
+  out.byMonth = months.map(function(m){ return { key: m.key, label: m.label, count: monthMap[m.key] || 0 }; });
+  var WK = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+  out.byWeekday = WK.map(function(w, i){ return { label: w, count: weekday[i] }; });
+  out.byPeriod = [
+    { key: 'am', label: '上午起', count: period.am },
+    { key: 'pm', label: '下午起', count: period.pm },
+    { key: 'day', label: '全天起', count: period.day }
+  ];
+  var DURL = ['半天及以内', '1 天', '2-3 天', '4-7 天', '7 天以上'];
+  out.byDur = DURL.map(function(d, i){ return { label: d, count: durB[i] }; });
+
+  var stusArr = Object.keys(perStu).map(function(id){
+    return { studentId: id, name: nameOf[id] || '已删除学生', count: perStu[id], days: perStuDays[id] || 0 };
+  });
+  stusArr.sort(function(a, b){ return b.count - a.count || b.days - a.days || (a.name > b.name ? 1 : -1); });
+  out.top = stusArr.slice(0, 8);
+
+  /* 高频画像：哪一天最多、哪一类最多、哪个月最多。并列取先出现的（稳定，不会每次刷新换一个） */
+  var pick = function(list, key){
+    var best = null;
+    for(var i = 0; i < list.length; i++){ if(!best || list[i][key] > best[key]) best = list[i]; }
+    return best;
+  };
+  var pw = pick(out.byWeekday, 'count');  out.peakWeekday = (pw && pw.count) ? pw.label : '';
+  var pt = pick(out.byType, 'count');     out.peakType = (pt && pt.count) ? pt.label : '';
+  var pm2 = pick(out.byMonth, 'count');   out.peakMonth = (pm2 && pm2.count) ? pm2.label : '';
+  out.overdueList.sort(function(a, b){ return b.days - a.days; });
+  out.longest = arr.slice().sort(function(a, b){
+    var da = Number(a.duration) || 0, db = Number(b.duration) || 0;
+    return db - da;
+  }).slice(0, 5).map(function(l){
+    return { name: nameOf[l.studentId] || '已删除学生', days: Number(l.duration) || 0,
+             startDate: l.startDate, endDate: l.endDate, type: l.type };
+  });
+  out.avgGapDays = out.total ? (out.days / Math.max(out.people, 1)) : 0;   // 人均请假天数
+  return out;
+}
 
 /* ==================== v2.21.0 课堂点名（随机抽人） ==================== */
 /* 设计要点：

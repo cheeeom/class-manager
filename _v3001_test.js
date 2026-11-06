@@ -99,7 +99,9 @@ t('卡片排版没被顺手改坏（flex column / foot margin-top:auto / 原因�
   has(html, '.leave-student{font-size:16px}', '移动端姓名未收字号');
 });
 t('请假卡渲染结构未动（leave-grid 包裹 + 历史用具名类）', () => {
-  has(html, "'<div class=\"leave-grid\">' + sorted.map(l => {");
+  // v3.9.7：模板抽成 lvCardHtml()（筛选列表 + 已销假归档共用一份），grid 包裹与转义仍在
+  has(html, "'<div class=\"leave-grid\">' + picked.map(l => lvCardHtml(l, isCm)).join('') + '</div>'");
+  has(html, 'function lvCardHtml(l, isCm){');
   has(html, 'class="leave-hist"');
 });
 
