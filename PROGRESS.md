@@ -3624,3 +3624,11 @@ const lockStart = html.indexOf('/* v2.24.1 推送互斥');
 - [x] **全面审查后老板拍板做 P2**。①**按压反馈补回**：v3.1.0 动效语言（.btn/.btn-icon/.nav-item/.mobile-tab/.tab :active scale(--press-scale)）在后续版本中丢失——补回 --press-scale:0.97 令牌 + 五元素按压组规则 + .tab transition 加 transform。②**19 处阴影跟肤**：--tone-rgb 令牌 12 块定义（root/html.dark/5浅/5暗，值=各肤 primary 的 rgb 三元组），box-shadow 内 rgba(166,58,43/111,37,27) 全换绑为 rgba(var(--tone-rgb),同alpha)；**危险红 rgba(180,35,24) 保留**（语义色不跟肤）。
 - [x] **守卫 _v391** 4 项（令牌+规则/tone-rgb 12 处含值校验/朱砂绝迹+危险红保留/版本）+ _v381 版本断言动态化。**全量 94 套全绿**。
 - [x] **推送**：直推。
+
+### 2026-10-26（v3.9.11：今日必处理面板 + 成绩自动分析——老板拍板①②连做）
+
+- [x] **① 首页「今日必处理」智能提醒面板**：motto-banner 下方插入 #dashReminders——聚合四项（预警待处理/请假到期/月度结算 25 日后/今日值日），每项可点直达对应页面；无待处理时整体隐藏；班委模式不显示。数据聚合纯前端零新字段。
+- [x] **② 成绩保存后自动分析摘要**：CSV 导入成绩后 600ms 自动弹出轻量分析弹窗（均分/及格率/最高最低/与上次考试对比/波动>15 分名单），8 秒自动关闭，点「查看详情」跳数据分析页。用 addEventListener 替代 inline onclick 避免引号嵌套炸 JS。
+- [x] **跟版 v3.9.11**：四处版本位 + sw CACHE + manifest.json 三处 ?v= + cmgx.js 头 + py VER。
+- [x] **验证**：93→99 套全绿（_v3910 引入的 manifest ?v= 断言也过了）。
+- [x] **推送**：直推。
