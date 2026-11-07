@@ -3662,3 +3662,11 @@ const lockStart = html.indexOf('/* v2.24.1 推送互斥');
 - [x] **今日实到补算超时请假**：studentsOnLeaveToday 原来只查 startDate≤today≤endDate，改为 startDate≤today 即算在假（endDate 已过的也计——老师未销假=人还没回来）
 - [x] **今日请假名单弹窗**：新函数 showTodayLeaveList()，显示每人姓名/起止日期/事由/是否超时
 - [x] **推送**：gh API（git 网络断）。
+
+### 2026-10-26（v3.9.15：评语面板改内容区嵌入 + 评语同步到查询端）
+
+- [x] **老板反馈**：评语助手全屏覆盖侧栏不可见；评语要同步到学生查询端
+- [x] **面板改嵌入**：position:fixed;inset:0 → position:absolute;inset:0 + appendChild 从 body 改 .content——侧栏保持可见，面板只覆盖内容区
+- [x] **评语同步到查询端**：buildPortalPayload 加 comment 字段（从 state.comments 按 studentId 取），portal 页显示班主任寄语卡片
+- [x] **验证**：99 套全绿
+- [x] **推送**：直推
