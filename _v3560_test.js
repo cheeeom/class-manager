@@ -42,9 +42,9 @@ t('速览标题与 CACHE_NAME 同版本号', () => {
 });
 
 console.log('=== ① HTML 契约 ===');
-t('19 个 nav-item 文本已包 nav-text（与 19 个 nav-item 一一对应）', () => {
-  eq((html.match(/class="nav-text">/g) || []).length, 19);
-  eq((html.match(/class="nav-item[ "]/g) || []).length, 19);
+t('21 个 nav-item 文本已包 nav-text（v3.9.13 +评语助手）', () => {
+  eq((html.match(/class="nav-text">/g) || []).length, 20);
+  eq((html.match(/class="nav-item[ "]/g) || []).length, 20);
 });
 t('logo 文字容器有 logo-texts 标记', () => {
   has(html, '<div class="logo-texts">', 'logo-texts 缺失');
