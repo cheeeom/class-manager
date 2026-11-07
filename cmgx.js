@@ -416,7 +416,7 @@ function gxPlayCounters(root) {
   }
   /* 报告面板 */
   var CM_RPT_LS_CMT = 'cmReportCmt';
-  function cmReportComments() { try { return JSON.parse(lsGet(CM_RPT_LS_CMT) || '{}'); } catch (e) { return {}; } }
+  function cmReportComments() { return state.comments || {}; }
   function cmReportOpen() {
     /* 网页版：免费开放，无 Pro 闸 */
     if (document.getElementById('cmDeskReport')) return;

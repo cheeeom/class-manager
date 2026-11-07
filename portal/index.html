@@ -681,6 +681,12 @@
     h += '</div>';
     if(typeof data.coins === 'number'){
       h += '<div class="coin-line">学分币 <b>' + data.coins + '</b> 币 · 可在兑换商店使用</div>';
+    if(data.comment && data.comment.length > 5){
+      h += '<div style="margin-top:14px;padding:12px 14px;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;text-align:left">';
+      h += '<div style="font-size:11px;color:var(--ink3);margin-bottom:6px">📝 班主任寄语</div>';
+      h += '<div style="font-size:13.5px;color:var(--ink);line-height:1.8">' + esc(data.comment) + '</div>';
+      h += '</div>';
+    }
     }
     h += '</div>';
 

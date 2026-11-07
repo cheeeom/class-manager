@@ -3670,3 +3670,10 @@ const lockStart = html.indexOf('/* v2.24.1 推送互斥');
 - [x] **评语同步到查询端**：buildPortalPayload 加 comment 字段（从 state.comments 按 studentId 取），portal 页显示班主任寄语卡片
 - [x] **验证**：99 套全绿
 - [x] **推送**：直推
+
+### 2026-10-26（v3.9.15 补充：评语同步到查询端 + 学期报告统一数据源）
+
+- [x] **评语同步到学生查询端**：buildPortalPayload 加 comment 字段，portal 页在学分币下方显示「📝 班主任寄语」卡片（暗色主题适配）；发布后学生扫码即可看到班主任写的评语
+- [x] **学期报告评语统一**：cmReportComments() 从 localStorage 独立存储改为读 state.comments（与评语助手共用同一数据源）——学期报告的「老师寄语」文本框自动填入评语助手写的评语
+- [x] **关键发现**：comments 的 key 是学生内部 id（非 sid），buildPortalPayload 按 s.id 查——测试种数据时误用 sid 做键导致 comment 为空
+- [x] **推送**：直推
