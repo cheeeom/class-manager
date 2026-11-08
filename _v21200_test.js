@@ -175,6 +175,7 @@ global.showToast = () => {};
 global.cbScanAlerts = () => 0;
 global.cbExpireCoupons = () => 0;
 global.autoPushToCloud = () => {};
+global.portalAutoPubMarkDirty = () => {};   /* v4.0 自动跟发挂钩（行为不属于本套件） */
 const saveData = eval('(' + (function(){
   const s = html.indexOf('function saveData');
   const lines = html.slice(s).split('\n');

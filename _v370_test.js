@@ -79,6 +79,8 @@ const sandbox = new Function([
   /* 币余额走独立实现（cbCoinsOf 另有守卫），这里只要证明字段存在且是数字 */
   'function cbCoinsOf(){ return 0; }',
   extractFn(html, 'buildPortalPayload'),
+  extractFn(html, 'portalGradesOpt'),   /* v4.0 成绩发布开关（沙盒内默认关） */
+  extractFn(html, 'portalProfileOf'),   /* v4.0 档案派生助手 */
   'return { buildPortalPayload, genPortalCode, formatPortalCode, normalizePortalCode, portalMaskName, portalLevelText, PORTAL_ALPHABET, PORTAL_CODE_LEN, PORTAL_OPS_CAP, PORTAL_BLACKLIST };'
 ].join('\n') + ';')();
 

@@ -38,6 +38,7 @@ const scope = {
 };
 scope.renderTable = function (...a) { return run('renderTable', ...a); };
 scope.updateSortUi = function (...a) { return run('updateSortUi', ...a); };
+scope.sidCmp = function (...a) { return run('sidCmp', ...a); };   // v3.9.16 renderTable 排序改走 sidCmp（numeric 感知）
 
 function run(name, ...args) {
   const src = extractFn(name);
@@ -56,6 +57,22 @@ t('默认（index 模式）表格按序号升序：甲→乙→丙', () => {
   const body = el('studentTableBody').innerHTML;
   const idx = ['甲', '乙', '丙'].map(n => body.indexOf(n));
   eq(idx.every((v, i) => v >= 0 && (i === 0 || v > idx[i - 1])), true);
+});
+t('v3.9.16 数字感知排序：2602009 排在 2602010 前（纯 localeCompare 会把 10 排到 9 前）；缺学号垫底', () => {
+  const saved = scope.state.students;   // 共享沙盒，测完还原（后面的用例依赖原种子）
+  set('sortMode', 'index');
+  scope.state.students = [
+    { id: 10, sid: '2602010', name: '十号', credit: 1, tags: [] },
+    { id: 9, sid: '2602009', name: '九号', credit: 1, tags: [] },
+    { id: 100, sid: '2602100', name: '百号', credit: 1, tags: [] },
+    { id: 4, sid: '', name: '无号', credit: 1, tags: [] },
+  ];
+  run('renderTable');
+  const body = el('studentTableBody').innerHTML;
+  const i9 = body.indexOf('九号'), i10 = body.indexOf('十号'), i100 = body.indexOf('百号'), iNone = body.indexOf('无号');
+  eq(i9 < i10 && i10 < i100 && i100 < iNone, true);
+  scope.state.students = saved;
+  set('sortMode', 'index');
 });
 t('学分模式降序：丙(30)→乙(20)→甲(10)', () => {
   set('sortMode', 'credit'); set('sortDir', 'desc');

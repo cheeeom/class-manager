@@ -26,3 +26,45 @@ _read*.ps1
 
 # 诊断临时件
 _remote_index.html
+
+# 会话脚手架（一次性补丁/推送/验证/复现脚本与日志）
+_patch_*.py
+_push_*.py
+_push_*.log
+_push_*.txt
+_verify_*
+_run*.log
+_run*.py
+_runall_*.log
+_repro_*
+_probe*.js
+_probe*.py
+_probe*.txt
+_portal_probe.txt
+_audit_*
+_tmp_*
+_bak_*
+_live_*
+_inspect_*
+_ui_audit_*
+_press_*
+_cb_store.txt
+_cleanup.*
+_seed_asserts.txt
+_tier.txt
+_len.js
+_gf2.js
+_red_shadow_sel.txt
+_progress_tail.txt
+_remote_commit.json
+_v*_test.log
+_v*_test.log.*
+_trash_*/
+
+# 回滚备份（保留在盘，不入库）
+_backup/
+_rev_*.py
+_fix_*.py
+_add_note_*.py
+_probe_git.py
+_main.js

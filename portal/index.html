@@ -171,22 +171,60 @@
   .spinner{display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.35); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; vertical-align:-2px; margin-right:6px}
   @keyframes spin{to{transform:rotate(360deg)}}
   @media (prefers-reduced-motion: reduce){ .spinner{animation:none} }
-  /* 自助领取：学号 + 姓名 → 生成自己的二维码（2026-10-28 新增，学生端独立功能） */
-  #claimCard{margin-top:2px}
-  .cl-title{font-size:14.5px;font-weight:600;margin:0 0 5px;color:var(--ink)}
-  .cl-sub{font-size:12.5px;color:var(--ink3);line-height:1.75;margin:0 0 15px}
-  #claimOut{margin-top:14px;display:none}
-  .cl-box{border:1px solid var(--border);border-radius:14px;padding:16px 14px 14px;background:var(--bg);text-align:center}
-  .cl-who{font-size:14px;color:var(--ink2);margin-bottom:11px}
-  .cl-who b{color:var(--ink);font-weight:600}
-  .cl-qr{width:250px;height:250px;display:block;margin:0 auto;border-radius:8px;image-rendering:pixelated;background:#fff}
-  .cl-code{font-family:Consolas,monospace;font-size:16px;font-weight:700;letter-spacing:1.5px;color:var(--primary);margin:11px 0 0}
-  .cl-tip{font-size:12px;color:var(--ink3);line-height:1.85;margin-top:9px}
-  .cl-act{display:flex;gap:9px;margin-top:14px}
-  .cl-act button{flex:1;padding:11px;font-size:13.5px;font-weight:600;border-radius:11px;border:1px solid var(--border);background:var(--card);color:var(--ink);font-family:inherit;cursor:pointer}
-  .cl-act button.pri{background:var(--primary);color:#fff;border-color:var(--primary)}
-  .cl-act button:active{opacity:.8}
   .msg.ok{background:rgba(47,125,91,.08); color:var(--up); border:1px solid rgba(47,125,91,.2)}
+/* ===== v4.0 四页底部导航 ===== */
+#pnav{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-around;align-items:stretch;
+  background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-top:1px solid var(--border);
+  padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));z-index:50}
+.pni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;cursor:pointer;
+  color:var(--ink3);font-size:10.5px;-webkit-tap-highlight-color:transparent}
+.pni span{font-size:19px;line-height:1;filter:grayscale(1);opacity:.55;transition:transform .18s,filter .18s,opacity .18s}
+.pni b{font-weight:600}
+.pni.on{color:var(--primary)}
+.pni.on span{filter:none;opacity:1;transform:translateY(-1px)}
+body{padding-bottom:76px}
+/* ===== v4.0 成绩页 ===== */
+.gtitle{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px}
+.gdate{font-size:11.5px;color:var(--ink3);font-weight:400;margin-left:6px}
+.grank{display:inline-block;margin-left:8px;padding:2px 9px;border-radius:8px;background:rgba(166,58,43,.08);
+  color:var(--primary);font-weight:600;font-size:11.5px;vertical-align:2px}
+.grow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--border);
+  font-size:13.5px;color:var(--ink2)}
+.grow:last-of-type{border-bottom:0}
+.grow .gl{flex:1}
+.grow b{font-size:15px;color:var(--ink)}
+.gdelta{font-size:12px;font-weight:700;border-radius:8px;padding:2px 8px;white-space:nowrap}
+.gdelta.up{background:rgba(47,125,91,.1);color:#2F7D5B}
+.gdelta.down{background:rgba(180,35,24,.08);color:#B42318}
+.gdelta.flat{background:rgba(0,0,0,.05);color:var(--ink3)}
+.gavg{font-size:11.5px;color:var(--ink3);white-space:nowrap}
+.gnote{font-size:11.5px;color:var(--ink3);padding-top:9px}
+.gtitle2{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:10px}
+.gbars{display:flex;gap:10px;align-items:flex-end;height:118px;padding:0 4px}
+.gbar{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;min-width:0}
+.gbar i{width:72%;max-width:36px;background:var(--primary);opacity:.85;border-radius:6px 6px 2px 2px;display:block}
+.gbar b{font-size:11px;color:var(--ink2)}
+.gbar span{font-size:10px;color:var(--ink3);white-space:nowrap;overflow:hidden;max-width:100%;text-overflow:ellipsis}
+/* ===== v4.0 教师端预览 ===== */
+.pvbadge{margin:0 0 12px;padding:9px 12px;border-radius:12px;background:rgba(166,58,43,.07);
+  border:1px dashed rgba(166,58,43,.35);color:var(--primary);font-size:12.5px;line-height:1.7}
+.pvlist{max-height:46vh;overflow-y:auto;margin:10px 0 6px}
+.pvstu{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;
+  border:1px solid var(--border);border-radius:12px;margin-bottom:7px;cursor:pointer}
+.pvstu:active{background:rgba(166,58,43,.05)}
+.pvstu b{font-size:14px;color:var(--ink)}
+.pvstu span{font-size:12px;color:var(--ink3)}
+/* ===== v4.0 我的页 ===== */
+.mebadge{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:999px;
+  background:rgba(166,58,43,.07);color:var(--primary);font-size:12px;font-weight:600;margin:0 6px 6px 0}
+.merow{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+  padding:9px 0;border-bottom:1px dashed var(--border);font-size:13px;line-height:1.7}
+.merow:last-of-type{border-bottom:0}
+.merow .mk{flex-shrink:0;color:var(--ink3);font-size:12px}
+.merow .mv{flex:1;color:var(--ink);text-align:right}
+.plogout{width:100%;margin-top:14px;padding:12px;border-radius:12px;border:1px solid var(--border);
+  background:var(--card-bg);color:#B42318;font-size:14px;font-weight:600;cursor:pointer}
+.plogout:active{opacity:.7}
 </style>
 </head>
 <body>
@@ -215,21 +253,14 @@
 
   <div id="result"></div>
 
-    <div class="card" id="claimCard">
-    <div class="cl-title">还没存二维码？</div>
-    <div class="cl-sub">输学号和姓名，生成属于你自己的查询二维码。长按图片存进相册，以后打开相册扫一扫就能看学分，不用再记查询码。</div>
-    <div class="field">
-      <label for="cSid">学号</label>
-      <input id="cSid" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="例如 2602001">
-    </div>
-    <div class="field">
-      <label for="cName">姓名</label>
-      <input id="cName" type="text" autocomplete="off" spellcheck="false" placeholder="例如 张三">
-    </div>
-    <button class="go" id="claimBtn" onclick="doClaim()">生成我的二维码</button>
-    <div class="msg" id="claimMsg"></div>
-    <div id="claimOut"></div>
+  <!-- v4.0 四页底部导航（查询成功 / 预览进入后出现） -->
+  <div id="pnav" style="display:none">
+    <div class="pni on" data-v="home" onclick="pview('home')"><span>🏠</span><b>学分</b></div>
+    <div class="pni" data-v="grades" onclick="pview('grades')"><span>📊</span><b>成绩</b></div>
+    <div class="pni" data-v="shop" onclick="pview('shop')"><span>🛍</span><b>商店</b></div>
+    <div class="pni" data-v="me" onclick="pview('me')"><span>👤</span><b>我的</b></div>
   </div>
+
 
   <div class="foot" id="foot"></div>
 </div>
@@ -610,6 +641,7 @@
   var _qrTimer = null;
   window.makeQr = function(){
     if(!_data || !cartCount()) return;
+    if(_previewMode){ alert('预览模式不生成兑换二维码（正式入口才有）'); return; }
     var items = Object.keys(CART).map(function(k){ return [k, CART[k]]; });
     var total = cartTotal();
     if(total > cartCoins()){
@@ -665,8 +697,46 @@
     renderResult();
   };
 
-  /* ---------- 结果渲染（含 v3.7.1 排名/筛选/商品） ---------- */
+  /* ---------- v4.0 结果渲染：四页视图（学分 / 成绩 / 商店 / 我的） ----------
+     renderResult() 保持原名成为视图分发器——购物车/筛选等旧调用点零改动。
+     未发布 grades/honors/profile 的旧包自动落到各页空态，不报错。 */
+  var _view = 'home', _previewMode = false, _previewData = null, _gIdx = -1;
+
+  function footHtml(){
+    var footAt = window.__pubMeta && window.__pubMeta.publishedAt ? new Date(window.__pubMeta.publishedAt) : null;
+    var fh = '';
+    if(footAt) fh += '数据截至 ' + footAt.getFullYear() + '年' + (footAt.getMonth() + 1) + '月' + footAt.getDate() +
+                    '日 ' + ('0' + footAt.getHours()).slice(-2) + ':' + ('0' + footAt.getMinutes()).slice(-2) + '<br>';
+    fh += '如与班主任记录不一致，请以班主任处为准<br>由班主任工作台生成';
+    return fh;
+  }
+  function deltaBadge(d){
+    var cls = d > 0 ? 'up' : (d < 0 ? 'down' : 'flat');
+    var ico = d > 0 ? '📈 +' : (d < 0 ? '📉 ' : '➖ ');
+    return '<span class="gdelta ' + cls + '">' + ico + d + '</span>';
+  }
+
+  window.pview = function(v){
+    _view = v;
+    renderResult();
+  };
+
   function renderResult(){
+    var nav = $('pnav');
+    if(nav) nav.style.display = 'flex';
+    var btns = document.querySelectorAll('#pnav .pni');
+    for(var i = 0; i < btns.length; i++) btns[i].classList.toggle('on', btns[i].dataset.v === _view);
+    if(_view === 'grades') renderGrades();
+    else if(_view === 'shop') renderShop();
+    else if(_view === 'me') renderMe();
+    else renderHome();
+    renderCartBar();
+    renderCartWarn();
+    try{ window.scrollTo(0, 0); }catch(e){}
+  }
+
+  /* ===== 🏠 学分（默认页）：大数字 + 排名 + 周/月 + 流水筛选 ===== */
+  function renderHome(){
     var data = _data;
     var h = '';
     h += '<div class="card hero">';
@@ -678,16 +748,10 @@
     h += '<div class="trend">';
     h += '<div><span class="k">本周</span><span class="v ' + trendCls(data.weekNet) + '">' + signed(data.weekNet) + '</span></div>';
     h += '<div><span class="k">本月</span><span class="v ' + trendCls(data.monthNet) + '">' + signed(data.monthNet) + '</span></div>';
-    h += '</div>';
     if(typeof data.coins === 'number'){
-      h += '<div class="coin-line">学分币 <b>' + data.coins + '</b> 币 · 可在兑换商店使用</div>';
-    if(data.comment && data.comment.length > 5){
-      h += '<div style="margin-top:14px;padding:12px 14px;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;text-align:left">';
-      h += '<div style="font-size:11px;color:var(--ink3);margin-bottom:6px">📝 班主任寄语</div>';
-      h += '<div style="font-size:13.5px;color:var(--ink);line-height:1.8">' + esc(data.comment) + '</div>';
-      h += '</div>';
+      h += '<div><span class="k">学分币</span><span class="v flat">' + data.coins + '</span></div>';
     }
-    }
+    h += '</div>';
     h += '</div>';
 
     var ops = data.ops || [];
@@ -713,10 +777,84 @@
              '</div>';
       });
     }
+    h += '<div class="foot" id="resultFoot">' + footHtml() + '</div>';
+    $('result').innerHTML = h;
+    renderOpsChips(ops);
+  }
 
+  /* ===== 📊 成绩：每科 vs 上一场（📈进步 / 📉退步 / ➖持平）+ 总分趋势条 ===== */
+  function renderGrades(){
+    var gs = (_data && _data.grades) || [];
+    var h = '';
+    if(!gs.length){
+      h += '<div class="empty" style="margin-top:16px">老师还没有发布成绩<br>' +
+           '<span style="font-size:12px">考试出分并发布后，这里能看每科分数和与上一场比的进退步</span></div>';
+      $('result').innerHTML = h;
+      return;
+    }
+    if(_gIdx < 0 || _gIdx >= gs.length) _gIdx = gs.length - 1;
+    var cur = gs[_gIdx], prev = _gIdx > 0 ? gs[_gIdx - 1] : null;
+    var subs = Object.keys(cur.s || {});
+    var myTot = 0; subs.forEach(function(k){ myTot += cur.s[k]; });
+    var prevTot = null;
+    if(prev){
+      var pk = Object.keys(prev.s || {});
+      if(pk.length){ prevTot = 0; pk.forEach(function(k){ prevTot += prev.s[k]; }); }
+    }
+    /* 考试切换 chips（新→旧） */
+    h += '<div class="chips" style="margin-top:14px">';
+    for(var i = gs.length - 1; i >= 0; i--){
+      h += '<span class="chip' + (i === _gIdx ? ' on' : '') + '" onclick="gsel(' + i + ')">' + esc(gs[i].n || ('第' + (i+1) + '场')) + '</span>';
+    }
+    h += '</div>';
+    h += '<div class="card" style="margin-top:10px">';
+    h += '<div class="gtitle">' + esc(cur.n || '未命名考试') +
+         (cur.d ? ' <span class="gdate">' + esc(cur.d) + '</span>' : '') +
+         (cur.r ? '<span class="grank">班级第 ' + cur.r + ' 名</span>' : '') + '</div>';
+    if(subs.length){
+      h += '<div class="grow"><span class="gl">总分</span>' +
+           (cur.a != null ? '<span class="gavg">班均 ' + cur.a + '</span>' : '') +
+           '<b>' + myTot + '</b>' + (prevTot != null ? deltaBadge(myTot - prevTot) : '') + '</div>';
+    }
+    subs.forEach(function(k){
+      var v = cur.s[k];
+      var p = (prev && prev.s) ? (prev.s[k] != null ? prev.s[k] : null) : null;
+      h += '<div class="grow"><span class="gl">' + esc(k) + '</span><b>' + v + '</b>' + (p != null ? deltaBadge(v - p) : '') + '</div>';
+    });
+    if(!subs.length) h += '<div class="gnote">这场考试暂无你的分数记录</div>';
+    else if(prevTot == null) h += '<div class="gnote">这是第一场，还没有对比基准；再考一场就能看进退步</div>';
+    h += '</div>';
+    if(gs.length >= 2){
+      var tots = gs.map(function(g){ var t = 0; Object.keys(g.s || {}).forEach(function(k){ t += g.s[k]; }); return t; });
+      var mx = Math.max.apply(null, tots), mn = Math.min.apply(null, tots);
+      var span = Math.max(1, mx - mn);
+      h += '<div class="card"><div class="gtitle2">总分走势（' + tots.length + ' 场）</div><div class="gbars">';
+      tots.forEach(function(t, i){
+        var pct = 24 + Math.round((t - mn) / span * 60);
+        h += '<div class="gbar"><b>' + t + '</b><i style="height:' + pct + '%"></i><span>' + esc(String(gs[i].n || '').slice(0, 5)) + '</span></div>';
+      });
+      h += '</div></div>';
+    }
+    h += '<div class="foot">' + footHtml() + '</div>';
+    $('result').innerHTML = h;
+  }
+  window.gsel = function(i){ _gIdx = i; renderGrades(); };
+
+  /* ===== 🛍 商店：学分币余额 + 商品架 + 购物车（申请二维码流程原样保留） ===== */
+  function renderShop(){
+    var data = _data;
+    var h = '';
+    if(typeof data.coins === 'number'){
+      h += '<div class="card" style="margin-top:14px;padding:14px 16px;display:flex;align-items:center;gap:10px">';
+      h += '<span style="font-size:13px;color:var(--ink2)">学分币余额</span><span style="flex:1"></span>';
+      h += '<span style="font-size:22px;font-weight:800;color:var(--primary)">' + data.coins + '</span>';
+      h += '<span style="font-size:12px;color:var(--ink3)">币</span></div>';
+    }
     var goods = data.goods || [];
-    if(goods.length){
-      h += '<div class="sec-title">可兑换商品<span>点 ＋ 加入兑换清单 · 一起结算</span></div>';
+    if(!goods.length){
+      h += '<div class="empty" style="margin-top:14px">商店暂未上架商品</div>';
+    } else {
+      h += '<div class="sec-title">可兑换商品<span>点 ＋ 加入清单 · 一起结算</span></div>';
       var cats = [''].concat(Object.keys(goods.reduce(function(a, g){ a[g.cat || '其他'] = 1; return a; }, {})));
       h += '<div class="chips" id="catChips">' + cats.map(function(c){
         var n = c ? goods.filter(function(g){ return (g.cat || '其他') === c; }).length : goods.length;
@@ -727,7 +865,6 @@
       h += '<div class="goods">' + list.map(function(g){
         var inCart = cartQty(g.key), dim = !g.remain;
         var canAdd = (g.remain - inCart) > 0;
-        /* v3.8.1 已加购的卡片直接给 −/＋ 微调（不用进购物车也能改数量）；币不足时也能减 */
         var ctl;
         if(dim){
           ctl = '<button class="addbtn" disabled>已兑满</button>';
@@ -743,21 +880,93 @@
           '<span class="gc">' + esc(g.cat || '') + ' · ' + (dim ? '本月已兑满' : '本月余 ' + g.remain + '/' + g.limit) + '</span>' +
           '<span class="gp"><b>' + g.cost + '</b> 币</span>' + ctl + '</div>';
       }).join('') + '</div>';
+      h += '<div class="foot">实际兑换以班主任核销时的最新数据为准</div>';
     }
-
-    h += '<div class="foot" id="resultFoot"></div>';
     $('result').innerHTML = h;
-    renderOpsChips(ops);
-    var footAt = window.__pubMeta && window.__pubMeta.publishedAt ? new Date(window.__pubMeta.publishedAt) : null;
-    var fh = '';
-    if(footAt) fh += '数据截至 ' + footAt.getFullYear() + '年' + (footAt.getMonth() + 1) + '月' + footAt.getDate() +
-                    '日 ' + ('0' + footAt.getHours()).slice(-2) + ':' + ('0' + footAt.getMinutes()).slice(-2) + '<br>';
-    fh += '如与班主任记录不一致，请以班主任处为准<br>由班主任工作台生成';
-    var rf = $('resultFoot'); if(rf) rf.innerHTML = fh;
-    renderCartBar();
-    renderCartWarn();      /* 让「生成兑换二维码」的置灰状态只有一个来源（余额/清单是否为空），查询成功后也同步一次 */
-    try{ window.scrollTo(0, 0); }catch(e){}
   }
+
+  /* ===== 👤 我的：档案徽章 / 荣誉 / 班主任寄语 / 退出登录 ===== */
+  function renderMe(){
+    var data = _data;
+    var h = '';
+    h += '<div class="card hero" style="margin-top:14px">';
+    h += '<div class="nm">' + esc(data.name || '') + '　<span style="color:var(--ink3);font-size:12.5px">' + esc(data.sid || '') + '</span></div>';
+    var pf = data.profile || {};
+    if(pf.dorm) h += '<span class="mebadge">🏠 ' + esc(pf.dorm) + ' 寝室</span>';
+    if(pf.pos) h += '<span class="mebadge">🏅 ' + esc(pf.pos) + '</span>';
+    if(!pf.dorm && !pf.pos) h += '<div style="font-size:12px;color:var(--ink3)">暂无寝室 / 职位信息</div>';
+    h += '</div>';
+    var hs = data.honors || [];
+    h += '<div class="sec-title">我的荣誉<span>' + (hs.length ? hs.length + ' 项' : '') + '</span></div>';
+    if(!hs.length){
+      h += '<div class="empty">还没有获得荣誉，继续加油！</div>';
+    } else {
+      h += '<div class="card" style="padding:4px 16px">';
+      hs.slice().reverse().forEach(function(x){
+        h += '<div class="merow"><span class="mk">🏅</span><span style="flex:1">' + esc(x.t || '') +
+             (x.l ? '<span style="font-size:11px;color:var(--ink3);margin-left:6px">' + esc(x.l) + '</span>' : '') + '</span>' +
+             '<span class="mv" style="color:var(--ink3);font-size:12px">' + esc(x.d || '') + '</span></div>';
+      });
+      h += '</div>';
+    }
+    h += '<div class="sec-title">班主任寄语</div>';
+    if(data.comment && data.comment.length > 5){
+      h += '<div class="card"><div style="font-size:13.5px;color:var(--ink);line-height:1.9">' + esc(data.comment) + '</div></div>';
+    } else {
+      h += '<div class="empty">班主任还没有给你写寄语</div>';
+    }
+    h += '<button class="plogout" onclick="plogout()">🚪 退出登录</button>';
+    h += '<div class="foot">' + footHtml() + '</div>';
+    $('result').innerHTML = h;
+  }
+  window.plogout = function(){
+    _data = null;
+    CART = {};
+    _view = 'home'; _curOpsFilter = 'recent'; _curCat = ''; _gIdx = -1;
+    var nav = $('pnav');
+    if(nav) nav.style.display = 'none';
+    $('result').innerHTML = '';
+    $('foot').innerHTML = '';
+    $('formCard').classList.remove('hidden');
+    msg('已退出登录。', 'ok');
+    try{ window.scrollTo(0, 0); }catch(e){}
+  };
+
+  /* ===== 教师端预览（?preview=1 + 同源 localStorage 注入，零网络零加密） ===== */
+  function initPreview(){
+    if(qsp('preview') !== '1') return false;
+    var pp = null;
+    try{ pp = JSON.parse(localStorage.getItem('cm_portal_preview') || 'null'); }catch(e){}
+    if(!pp || !pp.students || (Date.now() - (pp.at || 0)) > 30 * 60 * 1000) return false;
+    _previewMode = true;
+    _previewData = pp;
+    var sids = Object.keys(pp.students);
+    var h = '<div class="pvbadge">📱 教师端实机预览 · 数据直接来自本机工作台（不经过网络，30 分钟内有效）。<br>正式入口仍是班主任发的查询链接。</div>';
+    h += '<div class="card"><div class="cl-title">选择要预览的学生身份</div><div class="pvlist">';
+    sids.forEach(function(sid){
+      var b = pp.students[sid];
+      h += '<div class="pvstu" onclick="previewEnter(\'' + esc(sid) + '\')"><b>' + esc(b.name || '') + '</b><span>' + esc(sid) + '</span></div>';
+    });
+    h += '</div><div class="gnote">四个页签（学分/成绩/商店/我的）都能点；预览模式不生成兑换二维码</div></div>';
+    $('formCard').style.display = 'none';
+    var rb = $('rmBanner'); if(rb) rb.style.display = 'none';
+    if(pp.className) $('clsName').textContent = pp.className + ' · 学分查询（预览）';
+    $('result').innerHTML = h;
+    return true;
+  }
+  window.previewEnter = function(sid){
+    var b = (_previewData && _previewData.students) ? _previewData.students[sid] : null;
+    if(!b) return;
+    _data = b;
+    _blkSalt = 'preview';
+    window.__pubMeta = { className: _previewData.className, publishedAt: _previewData.publishedAt };
+    window.__lastCode = 'preview';
+    _view = 'home'; _curOpsFilter = 'recent'; _curCat = ''; _gIdx = -1;
+    CART = {};
+    $('formCard').style.display = 'none';
+    $('foot').innerHTML = '<a href="javascript:location.reload()">返回学生选择</a>';
+    renderResult();
+  };
 
   function setBusy(busy){
     var b = $('goBtn');
@@ -880,6 +1089,7 @@
       el.value = raw.length > 4 ? raw.slice(0, 4) + '-' + raw.slice(4) : raw;
     });
 
+    if(initPreview()) return;   /* v4.0 教师端预览：短路掉正式查询流程 */
     renderRememberBanner();
     if(PSID && PCODE){
       $('sidInput').value = String(PSID).trim();
@@ -906,201 +1116,6 @@
       }
     });
   }
-  /* ---------- 自助领取：学号 + 姓名 → 自己的二维码（2026-10-28 新增） ----------
-     数据源 claim.json（与 portal.json 同一个 Gist）：每人一块 AES-GCM 密文，
-     密钥 = PBKDF2-SHA256(学号 + '|' + 姓名)。Gist 里没有任何明文查询码。
-     ⚠️ 安全边界（老板拍板）：钥匙是班里半公开信息，防"顺手翻看"，防不住"存心逐个试"。
-        要收紧只改 claimMaterial() 的钥匙与 claimRounds 两处，改完重新发布 claim.json 即可。 */
-  var CLAIM_FILE = 'claim.json';
-  var CLAIM_ROUNDS_FALLBACK = 100000;
-  var CLAIM_CACHE_KEY = 'cm_portal_claim_cache';
-  var CLAIM_FAIL_KEY = 'cm_portal_claim_fail';
-  var claimCache = null, _claimBusy = false, _lastClaim = null;
-
-  function claimNormSid(s){ return String(s == null ? '' : s).toUpperCase().replace(/[^0-9A-Z]/g, ''); }
-  function claimNormName(s){
-    return String(s == null ? '' : s).replace(/[\s\u3000]+/g, '').replace(/[（(][^）)]*[）)]/g, '');
-  }
-  function claimMaterial(sid, name){ return claimNormSid(sid) + '|' + claimNormName(name); }
-  function claimFmtCode(code){
-    var c = normCode(code);
-    return c.length > 4 ? c.slice(0, 4) + '-' + c.slice(4) : c;
-  }
-  function claimMsg(text, kind){
-    var el = $('claimMsg');
-    el.className = 'msg show ' + (kind || 'err');
-    el.innerHTML = text;
-    el.style.display = 'block';
-  }
-  function claimHideMsg(){ var el = $('claimMsg'); el.className = 'msg'; el.style.display = 'none'; }
-  function claimFailState(){
-    try{
-      var raw = localStorage.getItem(CLAIM_FAIL_KEY);
-      if(!raw) return { n:0, at:0 };
-      var o = JSON.parse(raw);
-      if(!o || typeof o.n !== 'number') return { n:0, at:0 };
-      if(Date.now() - (o.at || 0) > FAIL_LOCK_MS) return { n:0, at:0 };
-      return o;
-    }catch(e){ return { n:0, at:0 }; }
-  }
-  function claimBumpFail(){
-    var s = claimFailState();
-    s.n = (s.n || 0) + 1; s.at = Date.now();
-    try{ localStorage.setItem(CLAIM_FAIL_KEY, JSON.stringify(s)); }catch(e){}
-    return s;
-  }
-  function claimClearFail(){ try{ localStorage.removeItem(CLAIM_FAIL_KEY); }catch(e){} }
-
-  function fetchClaimPayload(){
-    if(claimCache) return Promise.resolve(claimCache);
-    try{
-      var c = JSON.parse(localStorage.getItem(CLAIM_CACHE_KEY) || 'null');
-      if(c && c.owner === OWNER && c.gist === GIST && (Date.now() - (c.at || 0)) < CACHE_TTL_MS && c.payload && c.payload.students){
-        claimCache = c.payload;
-        return Promise.resolve(claimCache);
-      }
-    }catch(e){}
-    function grab(url, parse){ return fetchWithTimeout(url).then(parse); }
-    function asJson(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.text().then(JSON.parse); }
-    var cdn = 'https://gist.githubusercontent.com/' + encodeURIComponent(OWNER) + '/' +
-              encodeURIComponent(GIST) + '/raw/' + CLAIM_FILE;
-    return grab(cdn, asJson).catch(function(){
-      return grab('https://api.github.com/gists/' + encodeURIComponent(GIST), function(r){
-        if(!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      }).then(function(j){
-        var f = j.files && j.files[CLAIM_FILE];
-        if(!f) throw new Error('NOFILE');
-        if(f.truncated) throw new Error('NOFILE');
-        return f.content ? JSON.parse(f.content)
-          : grab(f.raw_url, function(r){ return r.text().then(JSON.parse); });
-      });
-    }).then(function(p){
-      if(!p || !p.students) throw new Error('NOFILE');
-      claimCache = p;
-      try{ localStorage.setItem(CLAIM_CACHE_KEY, JSON.stringify({ owner:OWNER, gist:GIST, at:Date.now(), payload:p })); }catch(e){}
-      return p;
-    });
-  }
-
-  function claimDerive(material, salt, rounds){
-    return crypto.subtle.importKey('raw', new TextEncoder().encode(material), 'PBKDF2', false, ['deriveKey'])
-      .then(function(base){
-        return crypto.subtle.deriveKey(
-          { name:'PBKDF2', salt:salt, iterations:rounds, hash:'SHA-256' },
-          base, { name:'AES-GCM', length:256 }, false, ['decrypt']);
-      });
-  }
-
-  function claimTargetUrl(sid, code){
-    var dir = location.pathname.replace(/[^/]*$/, '');
-    return location.origin + dir +
-      '?o=' + encodeURIComponent(OWNER) + '&g=' + encodeURIComponent(GIST) +
-      '&s=' + encodeURIComponent(sid) + '&c=' + encodeURIComponent(normCode(code));
-  }
-
-  window.doClaim = function(){
-    if(_claimBusy) return;
-    var sid = claimNormSid($('cSid').value);
-    var name = claimNormName($('cName').value);
-    if(!sid){ claimMsg('请填写学号。'); return; }
-    if(!name){ claimMsg('请填写姓名。'); return; }
-    if(!OWNER || !GIST){ claimMsg('请通过班主任发来的链接打开本页。'); return; }
-    if(!hasCrypto()){
-      claimMsg('当前打开方式不支持加密，请用系统浏览器（Safari / Chrome）打开本链接。', 'warn');
-      return;
-    }
-    var fs = claimFailState();
-    if(fs.n >= FAIL_MAX){
-      var left = Math.ceil((FAIL_LOCK_MS - (Date.now() - fs.at)) / 1000);
-      if(left > 0){ claimMsg('试错次数过多，请 <b>' + left + '</b> 秒后再试。'); return; }
-      claimClearFail();
-    }
-    _claimBusy = true;
-    var btn = $('claimBtn');
-    btn.disabled = true; btn.textContent = '正在生成…';
-    $('claimOut').style.display = 'none';
-    claimHideMsg();
-
-    fetchClaimPayload().then(function(p){
-      var blk = p.students && p.students[sid];
-      if(!blk) throw new Error('NOMATCH');
-      var rounds = p.rounds || CLAIM_ROUNDS_FALLBACK;
-      return claimDerive(claimMaterial(sid, name), b64dec(blk.salt), rounds)
-        .then(function(key){
-          return crypto.subtle.decrypt({ name:'AES-GCM', iv:b64dec(blk.iv) }, key, b64dec(blk.data));
-        })
-        .then(function(pt){ return JSON.parse(new TextDecoder().decode(pt)); });
-    }).then(function(o){
-      claimClearFail();
-      renderClaim(o);
-    }).catch(function(e){
-      var m = String(e && e.message || e);
-      if(m === 'NOMATCH' || (e && e.name === 'OperationError')){
-        var s2 = claimBumpFail();
-        claimMsg('学号和姓名对不上，请核对后再试。' +
-          (s2.n >= FAIL_MAX ? '<br>已连续出错 ' + s2.n + ' 次，将暂时锁定。' : ''));
-      } else if(m === 'NOFILE' || m.indexOf('404') >= 0){
-        claimMsg('班主任还没开启「自助领取」。请先用纸质查询卡，或联系班主任。', 'warn');
-      } else {
-        claimMsg('生成失败：' + esc(m) + '<br>请检查网络后重试。');
-      }
-    }).finally(function(){
-      _claimBusy = false;
-      btn.disabled = false; btn.textContent = '生成我的二维码';
-    });
-  };
-
-  function renderClaim(o){
-    var sid = String(o.sid || '').trim();
-    var code = normCode(o.code || '');
-    var url = claimTargetUrl(sid, code);
-    var qr = window.qrcode(0, 'M');
-    qr.addData(url, 'Byte');
-    qr.make();
-    var dataUrl = qr.createDataURL(6, 10);
-    var nm = claimNormName(o.name || '') || claimNormName($('cName').value);
-    $('claimOut').innerHTML =
-      '<div class="cl-box">' +
-        '<div class="cl-who"><b>' + esc(nm) + '</b> · ' + esc(sid) + '</div>' +
-        '<img class="cl-qr" alt="我的查询二维码" src="' + dataUrl + '">' +
-        '<div class="cl-code">' + esc(claimFmtCode(code)) + '</div>' +
-        '<div class="cl-tip">长按图片保存到相册 · 以后扫这张码直接看学分<br>也可以把这张图发给家长，家长扫码同样能看</div>' +
-        '<div class="cl-act">' +
-          '<button class="pri" onclick="claimGo()">直接查看</button>' +
-          '<button onclick="claimSave()">保存图片</button>' +
-        '</div>' +
-      '</div>';
-    $('claimOut').style.display = 'block';
-    _lastClaim = { sid: sid, code: code, dataUrl: dataUrl, name: nm };
-    try{ saveRemember(sid, code); }catch(e){}
-    claimMsg('已生成，记得存图。', 'ok');
-    try{ $('claimOut').scrollIntoView({ behavior:'smooth', block:'center' }); }catch(e){}
-  }
-
-  window.claimGo = function(){
-    if(!_lastClaim) return;
-    $('sidInput').value = _lastClaim.sid;
-    $('codeInput').value = claimFmtCode(_lastClaim.code);
-    try{ $('rmChk').checked = true; }catch(e){}
-    try{ window.scrollTo({ top:0, behavior:'smooth' }); }catch(e){ window.scrollTo(0, 0); }
-    setTimeout(submit, 260);
-  };
-
-  window.claimSave = function(){
-    if(!_lastClaim) return;
-    try{
-      var a = document.createElement('a');
-      a.href = _lastClaim.dataUrl;
-      a.download = '查询二维码-' + _lastClaim.sid + '.png';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      claimMsg('已保存到下载目录。手机端如果没反应，直接长按图片保存。', 'ok');
-    }catch(e){
-      claimMsg('这个浏览器不支持直接保存，请长按图片保存到相册。', 'warn');
-    }
-  };
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

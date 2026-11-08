@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<!-- 学生查询端口 · 查询页设计预览（v3611 设计稿配套，假数据可交互，非功能实现）
+     视觉基调：极简 + 主站朱砂色系呼应；手机优先；无 SW 无存储（公共设备友好）
+     升级2：流水筛选（最近/本周/本月/学期）+ 商品分类筛选（对齐网页版四栏）
+     升级3：自助兑换演示——购物车（＋加购/数量/币预算）→ 结算 → 兑换二维码（占位图） -->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>我的学分 · 学生查询（设计预览）</title>
+<style>
+:root{
+  --paper:#FAF6EE; --card:#FFFDF7; --ink:#2B2B33; --muted:#8C8577; --faint:#5C574F;
+  --primary:#A63A2B; --primary-deep:#8C2F22; --border:#E6DECD; --row:#FBF8F1;
+  --green:#2F7D5B; --red:#B42318; --gold:#C08A2D;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--paper);color:var(--ink);min-height:100vh;line-height:1.6;
+  background-image:radial-gradient(ellipse at 12% -4%,rgba(166,58,43,.05),transparent 42%);
+}
+.wrap{max-width:420px;margin:0 auto;padding:20px 16px 120px}
+.serif{font-family:"Noto Serif SC","STSong","SimSun",serif}
+
+/* ===== 输入页 ===== */
+.brand{text-align:center;padding:26px 0 8px}
+.seal{
+  width:64px;height:64px;margin:0 auto 14px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#B0432F,#8C2F22);color:#FFF6E8;
+  font-family:"Noto Serif SC","STSong",serif;font-size:30px;font-weight:700;
+  box-shadow:0 6px 18px rgba(140,47,34,.28),inset 0 0 0 2px rgba(255,246,232,.25);
+}
+.brand h1{font-size:21px;font-weight:700;letter-spacing:2px}
+.brand p{font-size:12.5px;color:var(--muted);margin-top:4px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 18px;margin-top:18px;box-shadow:0 2px 10px rgba(43,43,51,.03)}
+.fld{margin-bottom:14px}
+.fld label{display:block;font-size:12.5px;color:var(--faint);margin-bottom:6px;letter-spacing:1px}
+.fld input{
+  width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:11px;font-size:16px;
+  background:#fff;color:var(--ink);outline:none;transition:border-color .15s;min-height:48px;
+}
+.fld input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(166,58,43,.08)}
+.fld .hint{font-size:11.5px;color:var(--muted);margin-top:5px}
+#err{display:none;font-size:12.5px;color:var(--red);background:rgba(180,35,24,.06);border:1px dashed rgba(180,35,24,.35);border-radius:9px;padding:9px 12px;margin-top:2px;text-align:center}
+.btn{
+  display:block;width:100%;padding:14px;border:none;border-radius:12px;margin-top:16px;
+  background:linear-gradient(135deg,#8C2F22,#A63A2B);color:#FFF6E8;font-size:16px;font-weight:600;
+  letter-spacing:6px;cursor:pointer;min-height:50px;transition:transform .12s;
+}
+.btn:active{transform:scale(.98)}
+.btn[disabled]{opacity:.45;letter-spacing:2px}
+.legal{text-align:center;font-size:11.5px;color:var(--muted);margin-top:16px;line-height:1.9}
+
+/* ===== 结果页 ===== */
+#result{display:none}
+.stu-head{display:flex;align-items:center;gap:12px;padding:6px 2px 14px}
+.stu-head .avatar{
+  width:46px;height:46px;border-radius:12px;background:rgba(166,58,43,.09);color:var(--primary);
+  display:grid;place-items:center;font-size:20px;font-weight:700;font-family:"Noto Serif SC",serif;
+  border:1px solid rgba(166,58,43,.22);
+}
+.stu-head .nm{flex:1;min-width:0}
+.stu-head .nm b{font-size:17px}
+.stu-head .nm span{display:block;font-size:12px;color:var(--muted)}
+.rankseal{
+  text-align:center;padding:7px 12px;border-radius:11px;border:1.5px solid rgba(166,58,43,.45);
+  background:rgba(166,58,43,.06);color:var(--primary);
+}
+.rankseal b{font-size:19px;font-family:"Noto Serif SC",serif;display:block;line-height:1.2}
+.rankseal i{font-style:normal;font-size:10.5px;color:var(--faint);letter-spacing:1px}
+.bignum{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bignum .cell{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 14px;text-align:center}
+.bignum .cell .k{font-size:12px;color:var(--muted);letter-spacing:2px}
+.bignum .cell .v{font-size:34px;font-weight:700;font-family:"Noto Serif SC",serif;line-height:1.25}
+.bignum .cell .v em{font-style:normal;font-size:13px;font-weight:400;color:var(--muted);margin-left:2px}
+.bignum .c1 .v{color:var(--primary)}
+.bignum .c2 .v{color:var(--gold)}
+.sect{display:flex;align-items:baseline;gap:8px;margin:22px 0 10px}
+.sect b{font-size:15px;letter-spacing:1px}
+.sect span{font-size:11.5px;color:var(--muted)}
+
+/* 筛选 chips */
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.chip{
+  font-size:12px;padding:5px 13px;border-radius:999px;border:1px solid var(--border);
+  background:var(--card);color:var(--faint);cursor:pointer;user-select:none;transition:all .15s;
+}
+.chip:active{transform:scale(.96)}
+.chip.on{background:var(--primary);border-color:var(--primary);color:#FFF6E8}
+.chip .n{font-size:10.5px;opacity:.75;margin-left:2px}
+
+.ops{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.op{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid rgba(230,222,205,.6)}
+.op:last-child{border-bottom:none}
+.op .d{font-size:11px;color:var(--muted);width:44px;flex-shrink:0}
+.op .tag{font-size:10.5px;padding:2px 7px;border-radius:6px;background:rgba(166,58,43,.07);color:var(--primary);flex-shrink:0}
+.op .txt{flex:1;min-width:0;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.op .delta{font-weight:700;font-size:15px;font-family:"Noto Serif SC",serif;flex-shrink:0}
+.op .delta.plus{color:var(--green)} .op .delta.minus{color:var(--red)}
+.opsum{padding:9px 14px;font-size:11.5px;color:var(--muted);background:var(--row);border-top:1px dashed var(--border);display:flex;justify-content:space-between}
+.opsum b{color:var(--faint)}
+.opempty{padding:22px;text-align:center;font-size:13px;color:var(--muted)}
+
+/* 商品 + 加购 */
+.goods{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.good{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px 12px;display:flex;flex-direction:column;gap:5px;position:relative}
+.good .gi{font-size:22px;line-height:1}
+.good .gn{font-size:13.5px;font-weight:600}
+.good .gc{font-size:11px;color:var(--muted)}
+.good .gp{font-size:13px;color:var(--faint);flex:1}
+.good .gp b{font-size:17px;color:var(--primary-deep);font-family:"Noto Serif SC",serif}
+.good .gp .soldout{color:var(--muted);font-weight:400;font-size:11.5px}
+.good.dim{opacity:.5}
+.addbtn{
+  align-self:flex-end;border:1.5px solid rgba(166,58,43,.4);color:var(--primary);background:rgba(166,58,43,.05);
+  border-radius:9px;font-size:12px;padding:5px 12px;cursor:pointer;font-weight:600;
+}
+.addbtn:active{transform:scale(.94)}
+.addbtn[disabled]{border-color:var(--border);color:var(--muted);background:transparent}
+.incart{position:absolute;top:9px;right:9px;background:var(--primary);color:#FFF6E8;font-size:10px;border-radius:999px;padding:1px 7px;display:none}
+
+/* 购物车浮条 */
+.cartbar{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:14px;width:min(388px,calc(100vw - 24px));
+  background:var(--ink);color:#F5EFE2;border-radius:15px;padding:12px 16px;display:none;
+  align-items:center;gap:10px;box-shadow:0 10px 30px rgba(20,17,12,.35);z-index:50;
+}
+.cartbar .ci{flex:1;font-size:13px}
+.cartbar .ci b{color:#E8B96A;font-family:"Noto Serif SC",serif;font-size:16px}
+.cartbar .ci .lack{color:#F0917E;font-size:11.5px;display:block}
+.cartbar button{
+  border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;
+  background:linear-gradient(135deg,#C2543E,#A63A2B);color:#FFF6E8;
+}
+.cartbar button[disabled]{opacity:.4}
+
+/* 购物车抽屉 & 二维码层 */
+.sheetmask{position:fixed;inset:0;background:rgba(30,26,20,.45);z-index:60;display:none}
+.sheet{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(420px,100vw);
+  background:var(--card);border-radius:18px 18px 0 0;padding:18px 18px 26px;z-index:61;display:none;
+  max-height:82vh;overflow-y:auto;
+}
+.sheet h3{font-size:16px;margin-bottom:4px}
+.sheet .sub{font-size:11.5px;color:var(--muted);margin-bottom:12px}
+.crow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px dashed var(--border)}
+.crow .cn{flex:1;min-width:0}
+.crow .cn b{font-size:14px}
+.crow .cn span{display:block;font-size:11px;color:var(--muted)}
+.crow .qty{display:flex;align-items:center;gap:9px}
+.crow .qty i{
+  font-style:normal;width:27px;height:27px;border:1px solid var(--border);border-radius:8px;
+  display:grid;place-items:center;cursor:pointer;font-size:15px;color:var(--faint);user-select:none;
+}
+.crow .qty i[disabled]{opacity:.3}
+.crow .qty b{font-size:15px;min-width:16px;text-align:center}
+.crow .cost{font-size:14px;font-weight:700;color:var(--primary-deep);font-family:"Noto Serif SC",serif;min-width:44px;text-align:right}
+.ctotal{display:flex;justify-content:space-between;align-items:baseline;padding:14px 2px 4px;font-size:14px}
+.ctotal b{font-size:24px;color:var(--gold);font-family:"Noto Serif SC",serif}
+.cnote{font-size:11px;color:var(--muted);line-height:1.8;margin:4px 0 10px}
+.btn2{
+  display:block;width:100%;padding:14px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,#8C2F22,#A63A2B);color:#FFF6E8;font-size:16px;font-weight:600;
+  letter-spacing:4px;cursor:pointer;min-height:50px;
+}
+.ghost{display:block;width:100%;margin-top:9px;padding:11px;border:1px solid var(--border);border-radius:12px;background:transparent;color:var(--faint);font-size:14px;cursor:pointer}
+
+/* 二维码屏 */
+#qrpage{position:fixed;inset:0;background:var(--paper);z-index:70;display:none;overflow-y:auto}
+#qrpage .inner{max-width:420px;margin:0 auto;padding:26px 18px 40px;text-align:center}
+#qrpage h2{font-size:18px;margin-bottom:4px}
+#qrpage .qs{font-size:12.5px;color:var(--muted)}
+.qrbox{
+  width:236px;height:236px;margin:20px auto 8px;background:#fff;border:1.5px solid var(--border);
+  border-radius:14px;padding:14px;box-shadow:0 4px 18px rgba(43,43,51,.06);
+}
+.qrbox svg{width:100%;height:100%;display:block}
+.qr-exp{font-size:12px;color:var(--red);margin-bottom:10px}
+.qr-meta{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;text-align:left;font-size:13px;margin:8px 0 14px}
+.qr-meta .r{display:flex;justify-content:space-between;padding:3px 0}
+.qr-meta .r b{font-family:"Noto Serif SC",serif}
+.qr-code{font-family:Consolas,monospace;font-size:11px;color:var(--muted);word-break:break-all;background:var(--row);border:1px dashed var(--border);border-radius:9px;padding:9px 11px;text-align:left;margin-bottom:14px}
+.foot2{text-align:center;font-size:11.5px;color:var(--muted);margin-top:18px;line-height:2}
+@media(max-width:360px){.bignum .cell .v{font-size:29px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== 屏1：输入 ===== -->
+  <div id="input">
+    <div class="brand">
+      <div class="seal serif">分</div>
+      <h1 class="serif">我的学分</h1>
+      <p>学生查询 · 输入学号与查询码</p>
+    </div>
+    <div class="card">
+      <div class="fld">
+        <label>学 号</label>
+        <input id="inSid" inputmode="numeric" placeholder="如 20260101" autocomplete="off">
+      </div>
+      <div class="fld">
+        <label>查 询 码</label>
+        <input id="inCode" placeholder="XXXX-XXXX" autocomplete="off" style="text-transform:uppercase;letter-spacing:2px;font-family:Consolas,monospace">
+        <div class="hint">查询码由班主任发放（通知书 / 家长群），8 位分两段</div>
+      </div>
+      <div id="err">学号或查询码不正确，请核对后重试（5 次失败将临时锁定）</div>
+      <button class="btn" onclick="go()">查 询</button>
+    </div>
+    <div class="legal">数据由班主任发布更新<br>仅可查看本人信息 · 公共设备查完请关闭页面</div>
+  </div>
+
+  <!-- ===== 屏2：结果 ===== -->
+  <div id="result">
+    <div class="stu-head">
+      <div class="avatar serif">张</div>
+      <div class="nm"><b>张三</b><span>学号 20260101 · 高一（1）班</span></div>
+      <div class="rankseal"><b class="serif">第5</b><i>共 46 人</i></div>
+    </div>
+    <div class="bignum">
+      <div class="cell c1"><div class="k">学 分</div><div class="v serif">128<em>分</em></div></div>
+      <div class="cell c2"><div class="k">学分币</div><div class="v serif">36<em>币</em></div></div>
+    </div>
+
+    <div class="sect"><b class="serif">学分流水</b><span>自 2026-09-01 起</span></div>
+    <div class="chips" id="opChips"></div>
+    <div class="ops" id="opList"></div>
+
+    <div class="sect"><b class="serif">可兑换商品</b><span>点 ＋ 加入兑换清单 · 一起结算</span></div>
+    <div class="chips" id="catChips"></div>
+    <div class="goods" id="goodGrid"></div>
+
+    <div class="foot2">数据截至 2026-10-24 14:30 · 由班主任发布<br>有疑问请找班主任核对</div>
+  </div>
+</div>
+
+<!-- 购物车浮条 -->
+<div class="cartbar" id="cartbar">
+  <div class="ci" id="cartinfo"></div>
+  <button id="cartgo" onclick="openCart()">去结算</button>
+</div>
+
+<!-- 购物车抽屉 -->
+<div class="sheetmask" id="sheetmask" onclick="closeCart()"></div>
+<div class="sheet" id="sheet">
+  <h3 class="serif">🛒 兑换清单</h3>
+  <div class="sub">实际兑换以班主任核销时的最新数据为准</div>
+  <div id="cartrows"></div>
+  <div class="ctotal"><span>合计</span><span><b id="carttotal">0</b> 币</span></div>
+  <div class="cnote" id="cartnote">生成后请于 10 分钟内出示给班主任扫码核销；逾期自动作废，可重新生成。</div>
+  <button class="btn2" id="makqr" onclick="makeQr()">生成兑换二维码</button>
+  <button class="ghost" onclick="closeCart()">继续逛逛</button>
+</div>
+
+<!-- 二维码屏 -->
+<div id="qrpage">
+  <div class="inner">
+    <h2 class="serif">兑换码已生成</h2>
+    <div class="qs">出示本页给班主任 · 扫码即完成核销</div>
+    <div class="qrbox" id="qrbox"></div>
+    <div class="qr-exp">有效期剩余 <b id="qrtimer">09:58</b>（超时作废可重新生成）</div>
+    <div class="qr-meta">
+      <div class="r"><span>学生</span><b>张三 · 20260101</b></div>
+      <div class="r"><span>合计</span><b id="qrtotal2">0 币</b></div>
+      <div class="r" id="qritems"></div>
+    </div>
+    <div class="qr-code" id="qrcodetext">CMGX1|20260101|A3K9|EX2E8K7T…（兑换凭据 · 防伪签名附后）</div>
+    <button class="btn2" onclick="qrDone()">已完成 · 返回</button>
+    <div class="foot2">二维码为一次性凭据 · 核销后即失效<br>凭据由你的查询码签名，他人无法伪造</div>
+  </div>
+</div>
+
+<script>
+/* ---- 假数据 ---- */
+var OPS = [
+  { d:'10-24', cat:'课堂表现', txt:'主动回答问题', v:2 },
+  { d:'10-22', cat:'作业', txt:'作业完成优秀', v:1 },
+  { d:'10-20', cat:'纪律', txt:'自习课讲话', v:-1 },
+  { d:'10-18', cat:'值日', txt:'值日认真负责', v:2 },
+  { d:'10-15', cat:'月度奖励', txt:'勤学档奖励', v:10 },
+  { d:'10-12', cat:'课堂表现', txt:'小组讨论积极', v:2 },
+  { d:'10-09', cat:'作业', txt:'作业迟交', v:-1 },
+  { d:'10-02', cat:'活动', txt:'运动会服务岗', v:3 },
+  { d:'09-28', cat:'课堂表现', txt:'课堂笔记优秀', v:2 },
+  { d:'09-25', cat:'作业', txt:'作业完成', v:1 },
+  { d:'09-22', cat:'值日', txt:'值日合格', v:2 },
+  { d:'09-18', cat:'竞赛', txt:'数学竞赛三等奖', v:5 },
+  { d:'09-15', cat:'纪律', txt:'课间追逐', v:-1 },
+  { d:'09-10', cat:'课堂表现', txt:'积极发言', v:2 },
+  { d:'09-05', cat:'活动', txt:'班费管理协助', v:2 }
+];
+var FILTERS = [
+  { k:'recent', label:'最近', pick:function(){ return OPS.slice(0,8); } },
+  { k:'week',   label:'本周', pick:function(){ return OPS.filter(function(o){ return o.d>='10-18'; }); } },
+  { k:'month',  label:'本月', pick:function(){ return OPS.filter(function(o){ return o.d>='10-01'; }); } },
+  { k:'all',    label:'学期', pick:function(){ return OPS.slice(); } }
+];
+var curFilter = 'recent';
+
+var MYCOIN = 36;
+var GOODS = [
+  { key:'sms',    icon:'📱', name:'报喜短信',       cat:'特权', cost:25, limit:1, used:0 },
+  { key:'song',   icon:'🎵', name:'一周点歌权',     cat:'娱乐', cost:14, limit:1, used:0 },
+  { key:'podium', icon:'🧽', name:'免讲台值日券',   cat:'特权', cost:15, limit:2, used:0 },
+  { key:'pen',    icon:'✏️', name:'随机小文具',     cat:'实物', cost:15, limit:1, used:0 },
+  { key:'lunch',  icon:'🍱', name:'与班主任共进午餐', cat:'餐饮', cost:35, limit:2, used:0 },
+  { key:'tea',    icon:'🧋', name:'奶茶一杯',       cat:'餐饮', cost:40, limit:1, used:1 },
+  { key:'movie',  icon:'🎬', name:'晚自习电影点播', cat:'娱乐', cost:70, limit:1, used:0 },
+  { key:'late',   icon:'🎟', name:'免迟到券',       cat:'特权', cost:10, limit:2, used:1 }
+];
+var curCat = '';
+var CART = {};   // key -> qty
+
+function renderOpChips(){
+  document.getElementById('opChips').innerHTML = FILTERS.map(function(f){
+    return '<div class="chip'+(curFilter===f.k?' on':'')+'" onclick="setFilter(\''+f.k+'\')">'+f.label+'<span class="n">'+f.pick().length+'</span></div>';
+  }).join('');
+}
+function setFilter(k){ curFilter=k; renderOpChips(); renderOps(); }
+function renderOps(){
+  var list = FILTERS.find(function(f){ return f.k===curFilter; }).pick();
+  var plus=0,minus=0; list.forEach(function(o){ o.v>0?plus+=o.v:minus+=Math.abs(o.v); });
+  var html = list.length ? list.map(function(o){
+    return '<div class="op"><span class="d">'+o.d+'</span><span class="tag">'+o.cat+'</span><span class="txt">'+o.txt+'</span><span class="delta '+(o.v>0?'plus':'minus')+'">'+(o.v>0?'+'+o.v:'−'+Math.abs(o.v))+'</span></div>';
+  }).join('') : '<div class="opempty">该时段暂无流水</div>';
+  html += '<div class="opsum"><span>共 '+list.length+' 笔</span><b>＋'+plus+' / −'+minus+'</b></div>';
+  document.getElementById('opList').innerHTML = html;
+}
+function renderCatChips(){
+  var cats = [''].concat(Object.keys(GOODS.reduce(function(a,g){ a[g.cat]=1; return a; },{})));
+  document.getElementById('catChips').innerHTML = cats.map(function(c){
+    var n = c ? GOODS.filter(function(g){ return g.cat===c; }).length : GOODS.length;
+    return '<div class="chip'+(curCat===c?' on':'')+'" onclick="setCat(\''+c+'\')">'+(c||'全部')+'<span class="n">'+n+'</span></div>';
+  }).join('');
+}
+function setCat(c){ curCat=c; renderCatChips(); renderGoods(); }
+function remainOf(g){ return Math.max(0, g.limit - g.used); }
+function cartQty(key){ return CART[key] || 0; }
+function renderGoods(){
+  var list = curCat ? GOODS.filter(function(g){ return g.cat===curCat; }) : GOODS;
+  document.getElementById('goodGrid').innerHTML = list.map(function(g){
+    var remain = remainOf(g), inCart = cartQty(g.key), dim = remain<=0;
+    var canAdd = remain - inCart > 0;
+    var btnTxt = dim ? '已兑满' : (canAdd ? '＋ 加购' : '已加满');
+    return '<div class="good'+(dim?' dim':'')+'">'+
+      (inCart?'<span class="incart">清单×'+inCart+'</span>':'')+
+      '<span class="gi">'+g.icon+'</span><span class="gn">'+g.name+'</span>'+
+      '<span class="gc">'+g.cat+' · '+(dim?'本月已兑满':'本月余 '+remain+'/'+g.limit)+'</span>'+
+      '<span class="gp">'+(dim?'<span class="soldout"><s>'+g.cost+' 币</s> 余 0/'+g.limit+'</span>':'<b>'+g.cost+'</b> 币')+'</span>'+
+      '<button class="addbtn" '+(canAdd?'':'disabled')+' onclick="addToCart(\''+g.key+'\')">'+btnTxt+'</button></div>';
+  }).join('');
+}
+function cartTotal(){ return GOODS.reduce(function(a,g){ return a + g.cost*cartQty(g.key); },0); }
+function cartCount(){ return Object.keys(CART).reduce(function(a,k){ return a+CART[k]; },0); }
+function renderCartBar(){
+  var bar = document.getElementById('cartbar');
+  var n = cartCount(), t = cartTotal();
+  if(!n){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  var lack = t > MYCOIN;
+  document.getElementById('cartinfo').innerHTML = '🛒 已选 '+n+' 件 · 合计 <b>'+t+'</b> 币' +
+    (lack ? '<span class="lack">币不足（还差 '+(t-MYCOIN)+' 币），请减少商品</span>' : '');
+  document.getElementById('cartgo').disabled = lack;
+}
+function addToCart(key){
+  var g = GOODS.find(function(x){ return x.key===key; });
+  if(!g) return;
+  if(remainOf(g) - cartQty(key) <= 0) return;
+  CART[key] = cartQty(key)+1;
+  renderGoods(); renderCartBar();
+}
+function chgQty(key,d){
+  var q = cartQty(key)+d;
+  var g = GOODS.find(function(x){ return x.key===key; });
+  if(q<=0) delete CART[key];
+  else if(g && q<=remainOf(g)) CART[key]=q;
+  renderCartRows(); renderGoods(); renderCartBar();
+}
+function openCart(){ if(!cartCount()) return; renderCartRows(); document.getElementById('sheetmask').style.display='block'; document.getElementById('sheet').style.display='block'; }
+function closeCart(){ document.getElementById('sheetmask').style.display='none'; document.getElementById('sheet').style.display='none'; }
+function renderCartRows(){
+  var html = Object.keys(CART).map(function(k){
+    var g = GOODS.find(function(x){ return x.key===k; });
+    return '<div class="crow"><div class="cn"><b>'+g.icon+' '+g.name+'</b><span>'+g.cost+' 币 · 本月余 '+remainOf(g)+'/'+g.limit+'</span></div>'+
+      '<div class="qty"><i onclick="chgQty(\''+k+'\',-1)">−</i><b>'+CART[k]+'</b><i onclick="chgQty(\''+k+'\',1)" '+(CART[k]>=remainOf(g)?'disabled':'')+'>＋</i></div>'+
+      '<div class="cost">'+(g.cost*CART[k])+'</div></div>';
+  }).join('');
+  document.getElementById('cartrows').innerHTML = html;
+  document.getElementById('carttotal').textContent = cartTotal();
+}
+/* 伪二维码（预览占位 · 正式版为真实可扫二维码） */
+function fakeQr(){
+  var cells = '';
+  var seed = 20261024;
+  function rnd(){ seed = (seed*9301+49297)%233280; return seed/233280; }
+  for(var y=0;y<25;y++)for(var x=0;x<25;x++){
+    var corner = (x<7&&y<7)||(x>17&&y<7)||(x<7&&y>17);
+    var on;
+    if(corner){ var cx=x%24, cy=y%24; var lx=cx>6?cx-18:cx, ly=cy>6?cy-18:cy; on=(lx===0||lx===6||ly===0||ly===6)||(lx>=2&&lx<=4&&ly>=2&&ly<=4); if(x>17)lx=cx-18; }
+    else on = rnd()>0.52;
+    if(on) cells += '<rect x="'+x+'" y="'+y+'" width="1" height="1"/>';
+  }
+  return '<svg viewBox="0 0 25 25" fill="#2B2B33" shape-rendering="crispEdges">'+cells+'</svg>';
+}
+function makeQr(){
+  if(cartTotal()>MYCOIN) return;
+  document.getElementById('qrtotal2').textContent = cartTotal()+' 币';
+  document.getElementById('qritems').innerHTML = '<span>清单</span><b>'+Object.keys(CART).map(function(k){ var g=GOODS.find(function(x){return x.key===k;}); return g.name+'×'+CART[k]; }).join('、')+'</b>';
+  document.getElementById('qrbox').innerHTML = fakeQr();
+  closeCart();
+  document.getElementById('qrpage').style.display='block';
+}
+function qrDone(){ document.getElementById('qrpage').style.display='none'; }
+function go(){
+  var sid = document.getElementById('inSid').value.trim();
+  var code = document.getElementById('inCode').value.trim();
+  if(!sid||!code){ document.getElementById('err').style.display='block'; return; }
+  document.getElementById('input').style.display='none';
+  document.getElementById('result').style.display='block';
+  renderOpChips(); renderOps(); renderCatChips(); renderGoods();
+  window.scrollTo(0,0);
+}
+function back(){
+  document.getElementById('result').style.display='none';
+  document.getElementById('input').style.display='block';
+  document.getElementById('err').style.display='none';
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>

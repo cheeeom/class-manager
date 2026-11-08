@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>班主任工作台 · 皮肤设计预览 v3.4.0（审阅用）</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'MiSans','HarmonyOS Sans SC','PingFang SC','Microsoft YaHei',sans-serif;background:#D8D4CC;padding:26px 22px 40px;color:#2B2B33}
+h1{font-family:'Noto Serif SC','Source Han Serif SC','STZhongsong','SimSun',serif;font-size:24px;margin-bottom:6px}
+.note{font-size:13px;color:#5C574F;margin-bottom:20px;line-height:1.7}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:22px}
+
+/* ---------- 面板与假场景 ---------- */
+.panel{border-radius:16px;padding:16px;border:1px solid rgba(0,0,0,.10);background:var(--bg)}
+.pname{font-weight:700;font-size:14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;color:var(--text)}
+.pname .tag{font-size:11px;font-weight:400;padding:2px 8px;border-radius:20px;background:rgba(0,0,0,.08)}
+.scene{display:flex;gap:10px;align-items:stretch}
+.mside{width:66px;border-radius:10px;background:var(--bg-secondary);padding:10px 6px;display:flex;flex-direction:column;gap:5px;align-items:center;flex:none}
+.seal{width:34px;height:34px;border-radius:8px;background:var(--primary);color:#FFFDF7;font-family:'Noto Serif SC','STZhongsong','SimSun',serif;font-size:16px;display:grid;place-items:center;margin-bottom:6px}
+.mnav{width:100%;height:20px;border-radius:6px;position:relative}
+.mnav.on{background:var(--primary-lighter)}
+.main{flex:1;display:flex;flex-direction:column;gap:10px;min-width:0}
+.cards3{display:flex;gap:8px}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius,14px);box-shadow:var(--shadow-card);padding:12px}
+.stat{flex:1;text-align:center}
+.stat .k{font-size:11px;color:var(--text-muted);margin-bottom:4px}
+.stat .v{font-family:'Noto Serif SC','STZhongsong','SimSun',serif;font-size:20px;font-weight:700;color:var(--primary)}
+.listcard{padding:10px 12px}
+.lh{font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;font-family:'Noto Serif SC','STZhongsong','SimSun',serif}
+.row{display:flex;align-items:center;justify-content:space-between;background:var(--row-bg);border-radius:8px;padding:7px 10px;font-size:12px}
+.row+.row{margin-top:6px}
+.row .who{color:var(--text)}
+.badge{font-size:11px;padding:2px 9px;border-radius:20px;color:#fff}
+.badge.add{background:var(--success)}
+.badge.leave{background:var(--warning)}
+.btnrow{display:flex;gap:8px}
+.btn{flex:1;text-align:center;font-size:12px;padding:8px 0;border-radius:8px;cursor:default}
+.btn.p{background:var(--primary);color:#FFFDF7}
+.btn.o{border:1.5px solid var(--primary);color:var(--primary)}
+.btn.d{border:1.5px solid var(--danger);color:var(--danger)}
+.chiprow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.chip{width:26px;height:26px;border-radius:8px;box-shadow:var(--shadow-card)}
+.medal{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff}
+.m1{background:var(--gold)}.m2{background:var(--silver)}.m3{background:var(--bronze)}
+.sep{width:1px;height:20px;background:var(--border);margin:0 2px}
+.foot{margin-top:10px;font-size:11px;color:var(--text-muted)}
+
+/* ---------- 签名细节 ---------- */
+.sk-qinghua .listcard{position:relative;overflow:hidden}
+.sk-qinghua .listcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--primary-lighter),transparent)}
+.sk-zhuqing .listcard{box-shadow:var(--shadow-card),inset 0 0 0 1px var(--border)}
+.sk-tenghuang .listcard:hover{box-shadow:var(--shadow-hover),0 0 0 4px var(--primary-lighter)}
+
+/* ---------- 皮肤令牌：朱砂·纸墨（=现行） ---------- */
+.sk-zhusha{--primary:#A63A2B;--primary-light:#C25B4A;--primary-lighter:#E5BFB4;--primary-dark:#8C2F22;--primary-darker:#6F251B;--ink:#2B2B33;--bg:#F6F2E9;--bg-secondary:#EFE9DC;--card-bg:#FFFDF7;--row-bg:#FBF8F1;--text:#2B2B33;--text-secondary:#5C574F;--text-muted:#8C8577;--border:#E6DECD;--success:#2F7D5B;--warning:#C08A2D;--danger:#B42318;--gold:#C9A227;--silver:#9BA0A3;--bronze:#A97142;--purple:#6B5B95;--orange:#B96A1F;--red:#B42318;--radius:14px;--shadow:0 4px 24px rgba(43,38,28,0.08);--shadow-hover:0 8px 32px rgba(43,38,28,0.14);--shadow-card:0 2px 12px rgba(43,38,28,0.06)}
+.sk-zhusha.dark{--primary:#CE6B52;--primary-light:#E08B72;--primary-lighter:#8C4A3C;--primary-dark:#E08B72;--primary-darker:#F0A98F;--ink:#EAE4D6;--bg:#191613;--bg-secondary:#26221B;--card-bg:#23201A;--row-bg:#26221B;--text:#EAE4D6;--text-secondary:#B3AA98;--text-muted:#7E776A;--border:#3A352C;--gold:#D9A441;--silver:#9AA0A6;--bronze:#C08552;--purple:#9A8BC4;--orange:#CE8B3F;--red:#D9604F;--shadow:0 4px 24px rgba(0,0,0,0.4);--shadow-hover:0 8px 32px rgba(0,0,0,0.5);--shadow-card:0 2px 12px rgba(0,0,0,0.3)}
+
+/* ---------- 皮肤令牌：青花·月白 ---------- */
+.sk-qinghua{--primary:#2F5D6E;--primary-light:#4E7D8E;--primary-lighter:#C3D6DB;--primary-dark:#234A57;--primary-darker:#193740;--ink:#2A3237;--bg:#EFF3F1;--bg-secondary:#E3EAE7;--card-bg:#FCFDFB;--row-bg:#F5F8F6;--text:#2A3237;--text-secondary:#566360;--text-muted:#7F8A85;--border:#D3DEDA;--success:#2F7D5B;--warning:#C08A2D;--danger:#B42318;--gold:#C9A227;--silver:#9BA0A3;--bronze:#A97142;--purple:#6B5B95;--orange:#B96A1F;--red:#B42318;--radius:14px;--shadow:0 4px 24px rgba(35,50,55,0.08);--shadow-hover:0 8px 32px rgba(35,50,55,0.14);--shadow-card:0 2px 12px rgba(35,50,55,0.06)}
+.sk-qinghua.dark{--primary:#5E93A6;--primary-light:#7FB3C4;--primary-lighter:#3E5E68;--primary-dark:#7FB3C4;--primary-darker:#A9CDD9;--ink:#E6ECEA;--bg:#141A1C;--bg-secondary:#1E2628;--card-bg:#1B2325;--row-bg:#1E2628;--text:#E6ECEA;--text-secondary:#A8B2AE;--text-muted:#6E7975;--border:#313D3F;--success:#5FA98F;--warning:#D0A54E;--danger:#D9604F;--gold:#D9A441;--silver:#9AA0A6;--bronze:#C08552;--purple:#9A8BC4;--orange:#CE8B3F;--red:#D9604F;--shadow:0 4px 24px rgba(0,0,0,0.4);--shadow-hover:0 8px 32px rgba(0,0,0,0.5);--shadow-card:0 2px 12px rgba(0,0,0,0.3)}
+
+/* ---------- 皮肤令牌：竹青·苔痕 ---------- */
+.sk-zhuqing{--primary:#4E6E41;--primary-light:#6C8A5C;--primary-lighter:#C9D6BC;--primary-dark:#3B5631;--primary-darker:#2C4124;--ink:#2B322A;--bg:#F2F4EA;--bg-secondary:#E7EBDA;--card-bg:#FCFDF5;--row-bg:#F6F9EE;--text:#2B322A;--text-secondary:#596152;--text-muted:#848C78;--border:#D8DEC4;--success:#2E6E63;--warning:#C08A2D;--danger:#B42318;--gold:#C9A227;--silver:#9BA0A3;--bronze:#A97142;--purple:#6B5B95;--orange:#B96A1F;--red:#B42318;--radius:14px;--shadow:0 4px 24px rgba(42,52,36,0.08);--shadow-hover:0 8px 32px rgba(42,52,36,0.14);--shadow-card:0 2px 12px rgba(42,52,36,0.06)}
+.sk-zhuqing.dark{--primary:#6F9460;--primary-light:#8FB07F;--primary-lighter:#465C3C;--primary-dark:#8FB07F;--primary-darker:#A9C896;--ink:#E7ECE2;--bg:#161A13;--bg-secondary:#212619;--card-bg:#1E2318;--row-bg:#212619;--text:#E7ECE2;--text-secondary:#ABB2A0;--text-muted:#737B6A;--border:#333B2C;--success:#4FA08D;--warning:#C9A24B;--danger:#D9604F;--gold:#D9A441;--silver:#9AA0A6;--bronze:#C08552;--purple:#9A8BC4;--orange:#CE8B3F;--red:#D9604F;--shadow:0 4px 24px rgba(0,0,0,0.4);--shadow-hover:0 8px 32px rgba(0,0,0,0.5);--shadow-card:0 2px 12px rgba(0,0,0,0.3)}
+
+/* ---------- 皮肤令牌：藤黄·暖秋 ---------- */
+.sk-tenghuang{--primary:#9C6119;--primary-light:#BC8438;--primary-lighter:#EBD5A9;--primary-dark:#7A4C12;--primary-darker:#5B390C;--ink:#332C20;--bg:#F8F2E4;--bg-secondary:#F0E6CF;--card-bg:#FFFCF2;--row-bg:#FAF4E4;--text:#332C20;--text-secondary:#63594A;--text-muted:#8F8574;--border:#E6D9BE;--success:#2F7D5B;--warning:#8C6239;--danger:#B42318;--gold:#C9A227;--silver:#9BA0A3;--bronze:#A97142;--purple:#6B5B95;--orange:#B96A1F;--red:#B42318;--radius:14px;--shadow:0 4px 24px rgba(64,48,28,0.08);--shadow-hover:0 8px 32px rgba(64,48,28,0.14);--shadow-card:0 2px 12px rgba(64,48,28,0.06)}
+.sk-tenghuang.dark{--primary:#B8822F;--primary-light:#D0A054;--primary-lighter:#6E5127;--primary-dark:#D0A054;--primary-darker:#E0BC80;--ink:#F0E9DA;--bg:#1A1611;--bg-secondary:#262016;--card-bg:#241F16;--row-bg:#262016;--text:#F0E9DA;--text-secondary:#B5A992;--text-muted:#7E776A;--border:#3B3426;--success:#4FA08D;--warning:#C99B6A;--danger:#D9604F;--gold:#D9A441;--silver:#9AA0A6;--bronze:#C08552;--purple:#9A8BC4;--orange:#CE8B3F;--red:#D9604F;--shadow:0 4px 24px rgba(0,0,0,0.4);--shadow-hover:0 8px 32px rgba(0,0,0,0.5);--shadow-card:0 2px 12px rgba(0,0,0,0.3)}
+</style>
+</head>
+<body>
+<h1>班主任工作台 · 固有皮肤设计预览</h1>
+<div class="note">
+本页为 v3.4.0 皮肤系统的<strong>设计稿预览</strong>（工作文件，不入库），数据为假数据。每套皮肤 = 「底 / 描边 / 阴影色温」令牌整体换色 + ≤3 条签名细节（青花=卡片顶部釉口线｜竹青=卡内衬一道细篾｜藤黄=悬停暖晕｜朱砂=现状零改动）。字体、圆角、结构全站不变。完整令牌表见 <strong>_SKIN_DESIGN_v340.md</strong>。配合设计稿审阅，选定后 v3.3.0 还债 → v3.4.0 落地。
+</div>
+<div class="grid">
+
+<div class="panel sk-zhusha">
+  <div class="pname">朱砂·纸墨（现行基准）<span class="tag">浅色</span></div>
+  <div class="scene">
+    <div class="mside"><div class="seal">班</div><div class="mnav"></div><div class="mnav on"></div><div class="mnav"></div><div class="mnav"></div></div>
+    <div class="main">
+      <div class="cards3">
+        <div class="card stat"><div class="k">今日实到</div><div class="v">52</div></div>
+        <div class="card stat"><div class="k">班级人数</div><div class="v">58</div></div>
+        <div class="card stat"><div class="k">平均学分</div><div class="v">12.6</div></div>
+      </div>
+      <div class="card listcard"><div class="lh">今日动态</div><div class="row"><span class="who">林晓雨 · 加分</span><span class="badge add">+5 学分</span></div><div class="row"><span class="who">陈子昂 · 请假</span><span class="badge leave">待销假</span></div></div>
+      <div class="btnrow"><div class="btn p">保存更改</div><div class="btn o">重 置</div><div class="btn d">删 除</div></div>
+      <div class="chiprow"><div class="medal m1">1</div><div class="medal m2">2</div><div class="medal m3">3</div><div class="sep"></div><div class="chip" style="background:var(--primary)"></div><div class="chip" style="background:var(--success)"></div><div class="chip" style="background:var(--purple)"></div><div class="chip" style="background:var(--orange)"></div></div>
+      <div class="foot">印章=朱砂印 · 阴影暖褐 · 图表碟：朱砂/石绿/紫藤/藤黄</div>
+    </div>
+  </div>
+</div>
+
+<div class="panel sk-zhusha dark">
+  <div class="pname">朱砂·纸墨<span class="tag">暗色（=现行暗色档）</span></div>
+  <div class="scene">
+    <div class="mside"><div class="seal">班</div><div class="mnav"></div><div class="mnav on"></div><div class="mnav"></div><div class="mnav"></div></div>
+    <div class="main">
+      <div class="cards3">
+        <div class="card stat"><div class="k">今日实到</div><div class="v">52</div></div>
+        <div class="card stat"><div class="k">班级人数</div><div class="v">58</div></div>
+        <div class="card stat"><div class="k">平均学分</div><div class="v">12.6</div></div>
+      </div>
+      <div class="card listcard"><div class="lh">今日动态</div><div class="row"><span class="who">林晓雨 · 加分</span><span class="badge add">+5 学分</span></div><div class="row"><span class="who">陈子昂 · 请假</span><span class="badge leave">待销假</span></div></div>
+      <div class="btnrow"><div class="btn p">保存更改</div><div class="btn o">重 置</div><div class="btn d">删 除</div></div>
+      <div class="chiprow"><div class="medal m1">1</div><div class="medal m2">2</div><div class="medal m3">3</div><div class="sep"></div><div class="chip" style="background:var(--primary)"></div><div class="chip" style="background:var(--success)"></div><div class="chip" style="background:var(--purple)"></div><div class="chip" style="background:var(--orange)"></div></div>
+      <div class="foot">现行暗色零像素变化，仅换归属为「朱砂暗」档</div>
+    </div>
+  </div>
+</div>
+
+<div class="panel sk-qinghua">
+  <div class="pname">青花·月白<span class="tag">浅色</span></div>
+  <div class="scene">
+    <div class="mside"><div class="seal">班</div><div class="mnav"></div><div class="mnav on"></div><div class="mnav"></div><div class="mnav"></div></div>
+    <div class="main">
+      <div class="cards3">
+        <div class="card stat"><div class="k">今日实到</div><div class="v">52</div></div>
+        <div class="card stat"><div class="k">班级人数</div><div class="v">58</div></div>
+        <div class="card stat"><div class="k">平均学分</div><div class="v">12.6</div></div>
+      </div>
+      <div class="card listcard"><div class="lh">今日动态 · 顶部一线为「釉口线」签名</div><div class="row"><span class="who">林晓雨 · 加分</span><span class="badge add">+5 学分</span></div><div class="row"><span class="who">陈子昂 · 请假</span><span class="badge leave">待销假</span></div></div>
+      <div class="btnrow"><div class="btn p">保存更改</div><div class="btn o">重 置</div><div class="btn d">删 除</div></div>
+      <div class="chiprow"><div class="medal m1">1</div><div class="medal m2">2</div><div class="medal m3">3</div><div class="sep"></div><div class="chip" style="background:var(--primary)"></div><div class="chip" style="background:#8C6239"></div><div class="chip" style="background:var(--purple)"></div><div class="chip" style="background:var(--success)"></div></div>
+      <div class="foot">印章=青田石印 · 阴影冷青 · 图表碟：青花/赭石/紫藤/石绿</div>
+    </div>
+  </div>
+</div>
+
+<div class="panel sk-qinghua dark">
+  <div class="pname">青花·月白<span class="tag">暗色</span></div>
+  <div class="scene">
+    <div class="mside"><div class="seal">班</div><div class="mnav"></div><div class="mnav on"></div><div class="mnav"></div><div class="mnav"></div></div>
+    <div class="main">
+      <div class="cards3">
+        <div class="card stat"><div class="k">今日实到</div><div class="v">52</div></div>
+        <div class="card stat"><div class="k">班级人数</div><div class="v">58</div></div>
+        <div class="card stat"><div class="k">平均学分</div><div class="v">12.6</div></div>
+      </div>
+      <div class="card listcard"><div class="lh">今日动态</div><div class="row"><span class="who">林晓雨 · 加分</span><span class="badge add">+5 学分</span></div><div class="row"><span class="who">陈子昂 · 请假</span><span class="badge leave">待销假</span></div></div>
+      <div class="btnrow"><div class="btn p">保存更改</div><div class="btn o">重 置</div><div class="btn d">删 除</div></div>
+      <div class="chiprow"><div class="medal m1">1</div><div class="medal m2">2</div><div class="medal m3">3</div><div class="sep"></div><div class="chip" style="background:var(--primary)"></div><div class="chip" style="background:#8C6239"></div><div class="chip" style="background:var(--purple)"></div><div class="chip" style="background:var(--success)"></div></div>
+      <div class="foot">墨色转冷，暗色档白字对比对齐现行档位</div>
+    </div>
+  </div>
+</div>
+
+<div class="panel sk-zhuqing">
+  <div class="pname">竹青·苔痕<span class="tag">浅色</span></div>
+  <div class="scene">
+    <div class="mside"><div class="seal">班</div><div class="mnav"></div><div class="mnav on"></div><div class="mnav"></div><div class="mnav"></div></div>
+    <div class="main">
+      <div class="cards3">
+        <div class="card stat"><div class="k">今日实到</div><div class="v">52</div></div>
+        <div class="card stat"><div class="k">班级人数</div><div class="v">58</div></div>
+        <div class="card stat"><div class="k">平均学分</div><div class="v">12.6</div></div>
+      </div>
+      <div class="card listcard"><div class="lh">今日动态 · 卡内衬一道细篾（双篾线签名）</div><div class="row"><span class="who">林晓雨 · 加分</span><span class="badge add">+5 学分</span></div><div class="row"><span class="who">陈子昂 · 请假</span><span class="badge leave">待销假</span></div></div>
+      <div class="btnrow"><div class="btn p">保存更改</div><div class="btn o">重 置</div><div class="btn d">删 除</div></div>
+      <div class="chiprow"><div class="medal m1">1</div><div class="medal m2">2</div><div class="medal m3">3</div><div class="sep"></div><div class="chip" style="background:var(--primary)"></div><div class="chip" style="background:#A3671F"></div><div class="chip" style="background:var(--purple)"></div><div class="chip" style="background:#2F5D6E"></div></div>
+      <div class="foot">印章=竹根印 · 阴影绿灰 · success 转青碧防撞 · 图表碟：竹青/藤黄/紫藤/黛青</div>
+    </div>
+  </div>
+</div>
+
+<div class="panel sk-zhuqing dark">
+  <div class="pname">竹青·苔痕<span class="tag">暗色</span></div>
+  <div class="scene">
+    <div class="mside"><div class="seal">班</div><div class="mnav"></div><div class="mnav on"></div><div class="mnav"></div><div class="mnav"></div></div>
+    <div class="main">
+      <div class="cards3">
+        <div class="card stat"><div class="k">今日实到</div><div class="v">52</div></div>
+        <div class="card stat"><div class="k">班级人数</div><div class="v">58</div></div>
+        <div class="card stat"><div class="k">平均学分</div><div class="v">12.6</div></div>
+      </div>
+      <div class="card listcard"><div class="lh">今日动态</div><div class="row"><span class="who">林晓雨 · 加分</span><span class="badge add">+5 学分</span></div><div class="row"><span class="who">陈子昂 · 请假</span><span class="badge leave">待销假</span></div></div>
+      <div class="btnrow"><div class="btn p">保存更改</div><div class="btn o">重 置</div><div class="btn d">删 除</div></div>
+      <div class="chiprow"><div class="medal m1">1</div><div class="medal m2">2</div><div class="medal m3">3</div><div class="sep"></div><div class="chip" style="background:var(--primary)"></div><div class="chip" style="background:#A3671F"></div><div class="chip" style="background:var(--purple)"></div><div class="chip" style="background:#2F5D6E"></div></div>
+      <div class="foot">夜绿底，长时间批改更护眼</div>
+    </div>
+  </div>
+</div>
+
+<div class="panel sk-tenghuang">
+  <div class="pname">藤黄·暖秋<span class="tag">浅色 · 备选</span></div>
+  <div class="scene">
+    <div class="mside"><div class="seal">班</div><div class="mnav"></div><div class="mnav on"></div><div class="mnav"></div><div class="mnav"></div></div>
+    <div class="main">
+      <div class="cards3">
+        <div class="card stat"><div class="k">今日实到</div><div class="v">52</div></div>
+        <div class="card stat"><div class="k">班级人数</div><div class="v">58</div></div>
+        <div class="card stat"><div class="k">平均学分</div><div class="v">12.6</div></div>
+      </div>
+      <div class="card listcard"><div class="lh">今日动态 · 悬停出现暖晕（签名）</div><div class="row"><span class="who">林晓雨 · 加分</span><span class="badge add">+5 学分</span></div><div class="row"><span class="who">陈子昂 · 请假</span><span class="badge leave">待销假</span></div></div>
+      <div class="btnrow"><div class="btn p">保存更改</div><div class="btn o">重 置</div><div class="btn d">删 除</div></div>
+      <div class="chiprow"><div class="medal m1">1</div><div class="medal m2">2</div><div class="medal m3">3</div><div class="sep"></div><div class="chip" style="background:var(--primary)"></div><div class="chip" style="background:#2F5D6E"></div><div class="chip" style="background:var(--purple)"></div><div class="chip" style="background:var(--success)"></div></div>
+      <div class="foot">印章=蜜蜡印 · 主色用深藤黄保对比 · warning 转赭石防撞</div>
+    </div>
+  </div>
+</div>
+
+<div class="panel sk-tenghuang dark">
+  <div class="pname">藤黄·暖秋<span class="tag">暗色 · 备选</span></div>
+  <div class="scene">
+    <div class="mside"><div class="seal">班</div><div class="mnav"></div><div class="mnav on"></div><div class="mnav"></div><div class="mnav"></div></div>
+    <div class="main">
+      <div class="cards3">
+        <div class="card stat"><div class="k">今日实到</div><div class="v">52</div></div>
+        <div class="card stat"><div class="k">班级人数</div><div class="v">58</div></div>
+        <div class="card stat"><div class="k">平均学分</div><div class="v">12.6</div></div>
+      </div>
+      <div class="card listcard"><div class="lh">今日动态</div><div class="row"><span class="who">林晓雨 · 加分</span><span class="badge add">+5 学分</span></div><div class="row"><span class="who">陈子昂 · 请假</span><span class="badge leave">待销假</span></div></div>
+      <div class="btnrow"><div class="btn p">保存更改</div><div class="btn o">重 置</div><div class="btn d">删 除</div></div>
+      <div class="chiprow"><div class="medal m1">1</div><div class="medal m2">2</div><div class="medal m3">3</div><div class="sep"></div><div class="chip" style="background:var(--primary)"></div><div class="chip" style="background:#2F5D6E"></div><div class="chip" style="background:var(--purple)"></div><div class="chip" style="background:var(--success)"></div></div>
+      <div class="foot">琥珀夜灯感</div>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

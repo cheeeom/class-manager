@@ -123,6 +123,22 @@ t('白名单拦截仍在重置之前（越权页提前 return，不会顺手改�
   if (iReset < 0) throw new Error('重置缺失');
   if (!(iGuard < iReset)) throw new Error('拦截未排在重置之前：' + iGuard + '/' + iReset);
 });
+t('v3.9.16 护栏：防 undefined 直接 return + 评语助手为正式导航页（渲染钩子挂在页面链路）', () => {
+  const iUndef = navSrc.indexOf('if(!page) return;');
+  const iCm = navSrc.indexOf("if(page==='comments') renderCommentsPage();");
+  const iGuard = navSrc.indexOf('COMMITTEE_PAGES.indexOf(page) < 0');
+  if (iUndef < 0) throw new Error('缺 undefined 护栏');
+  if (iCm < 0) throw new Error('缺评语助手页渲染钩子（page-comments）');
+  if (!(iUndef < iGuard)) throw new Error('护栏未排在白名单拦截之前');
+  // 评语助手已升级为正式页面：不得再有悬浮层痕迹（z-index 覆盖 / 关闭按钮）
+  if (navSrc.indexOf("getElementById('commentPanel')") >= 0) throw new Error('navigateTo 里残留悬浮层收起逻辑');
+  if (html.indexOf("id='commentPanel'") >= 0 || /id="commentPanel"/.test(html.replace(/id="commentPanelBody"/g, ''))) throw new Error('commentPanel 悬浮层残留');
+});
+t('v3.9.16 护栏：无 data-page 的导航项不绑定页面切换（评语助手/学期报告有自己的 onclick）', () => {
+  const bindSrc = html.slice(html.indexOf("document.querySelectorAll('.nav-item').forEach(item=>{"),
+                             html.indexOf("document.querySelectorAll('.nav-item').forEach(item=>{") + 400);
+  has(bindSrc, 'if(!item.dataset.page) return;', '绑定缺 data-page 守卫 ⇒ navigateTo(undefined) 会误点亮全部无页导航项');
+});
 
 /* ---- 真跑 navigateTo：假 document / 假 window，验「换页重置、同页不动」---- */
 function runNavigateTo(setup) {
@@ -130,7 +146,8 @@ function runNavigateTo(setup) {
   const box = { scrollTop: 0 };
   const noop = () => {};
   const elStub = () => ({ classList: { toggle: noop, add: noop, remove: noop, contains: () => false },
-                          dataset: {}, style: {}, textContent: '', innerHTML: '' });
+                          dataset: {}, style: {}, textContent: '', innerHTML: '',
+                          remove: noop });   // v3.9.16 navigateTo 会收起评语助手覆盖层（getElementById('commentPanel')）
   const doc = {
     querySelector: (sel) => (sel === '.page.active' ? (st.cur ? { id: st.cur } : null) : null),
     querySelectorAll: () => [],

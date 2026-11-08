@@ -105,7 +105,9 @@ t('⑤ 库文件与 sw 资产齐备 + 版本 v3.7.1', () => {
   // v3.7.2：设置页入口卡 + 状态简报
   has(html, 'id="settingsPortal"', '设置页查询端卡片');
   has(html, 'portalSettingsBrief', '设置卡状态简报容器');
-  has(html, '🔑 打开学生查询端面板</button>\n          </div>\n          <div id="portalSettingsBrief"', '设置卡单按钮+简报接线（v3.7.4 核销已归位学分银行）');
+  has(html, '🔑 打开学生查询端面板</button>', '设置卡面板按钮');
+  has(html, '📱 实机预览学生端', '设置卡实机预览入口（v4.0）');
+  has(html, 'portalAutoPubChk', '设置卡自动跟发开关（v4.0）');
   has(html, "if(typeof renderPortalPanel === 'function') renderPortalPanel();", '设置页渲染时刷新简报');
   ok((html.match(/openPortalPanel\(\)">🔑/g) || []).length >= 2, '公示页+设置页双入口（实际 ' + (html.match(/openPortalPanel\(\)">🔑/g) || []).length + ' 处）');
   // v3.7.4：公示页「学生查询端」与相邻按钮统一主色
