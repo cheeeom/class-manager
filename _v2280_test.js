@@ -547,7 +547,7 @@ has(html, 'data-page="duty"', '侧栏入口仍在');
 has(html, 'function dutyMemClick(teamIdx, role, slot){', '换人入口签名未改（_v2172 依赖）');
 {
   const d = braceFn('dutyMemClick');
-  has(d, '_studentPickerPool = state.students.slice()', '换人注入全体候选池');
+  has(d, '_studentPickerPool = bySid(state.students)', '换人注入全体候选池');
   has(d, 'refreshStudentPicker();', '换人刷新选择器列表');
   /* 传参发生在**调用方** renderDuty 的 chips 里（dutyMemClick 自己只是接收 role），
      所以这条锚点必须落在 renderDuty 上，不能落在 dutyMemClick 上。 */

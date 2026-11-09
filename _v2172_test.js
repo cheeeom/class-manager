@@ -155,16 +155,16 @@ t('confirmStudentSelect 改读 _studentPickerId（不再解析下拉）', () => 
 });
 t('三入口都注入候选池并刷新列表（committee / seating / duty）', () => {
   const c = grab('function openCommitteeSelect(key, currentId)');
-  if (!c.includes('_studentPickerPool = state.students.slice()')) throw new Error('任命班委未注入全体候选');
+  if (!c.includes('_studentPickerPool = bySid(state.students)')) throw new Error('任命班委未注入全体候选');
   if (!c.includes('refreshStudentPicker();')) throw new Error('任命班委未刷新列表');
   const s = grab('function seatClick(row, col, studentId)');
-  if (!s.includes('_studentPickerPool = state.students.filter')) throw new Error('座位未注入剔除已占座候选');
+  if (!s.includes('_studentPickerPool = bySid(state.students.filter')) throw new Error('座位未注入剔除已占座候选');
   if (!s.includes('refreshStudentPicker();')) throw new Error('座位未刷新列表');
   // v2.24.0 重定向：值日表改成「小组划分」后，单元格点击入口 dutyCellClick(day, area) 已移除，
   // 换人入口变成 dutyMemClick(teamIdx, role, slot)。断言的不变量不变 ——
   // 「值日换人也必须注入全体候选池 + 刷新选择器列表」，只把锚点挪到新入口上。
   const d = grab('function dutyMemClick(teamIdx, role, slot)');
-  if (!d.includes('_studentPickerPool = state.students.slice()')) throw new Error('值日未注入候选');
+  if (!d.includes('_studentPickerPool = bySid(state.students)')) throw new Error('值日未注入候选');
   if (!d.includes('refreshStudentPicker();')) throw new Error('值日未刷新列表');
 });
 t('样式类就位（ss-row/avatar/name/sub/mark/hint/list/tip）且主题变量驱动', () => {

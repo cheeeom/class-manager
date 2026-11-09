@@ -214,6 +214,11 @@ body{padding-bottom:76px}
 .pvstu:active{background:rgba(166,58,43,.05)}
 .pvstu b{font-size:14px;color:var(--ink)}
 .pvstu span{font-size:12px;color:var(--ink3)}
+.pvsearch{width:100%;box-sizing:border-box;margin:10px 0 4px;padding:9px 12px;border:1px solid var(--border);
+  border-radius:10px;font-size:13px;font-family:inherit;background:var(--card);color:var(--ink)}
+.pvsearch:focus{outline:none;border-color:var(--primary)}
+.pvcount{font-size:11.5px;color:var(--ink3);margin:2px 2px 0}
+.pvempty{text-align:center;padding:18px 10px;color:var(--ink3);font-size:13px}
 /* ===== v4.0 我的页 ===== */
 .mebadge{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:999px;
   background:rgba(166,58,43,.07);color:var(--primary);font-size:12px;font-weight:600;margin:0 6px 6px 0}
@@ -1003,6 +1008,31 @@ body{padding-bottom:76px}
     try{ window.scrollTo(0, 0); }catch(e){}
   };
 
+  /* v3.9.19 教师端预览：身份列表按学号（与主应用 sidCmp 同口径）+ 姓名 / 学号实时搜索 */
+  function pvSidCmp(a, b){
+    var x = String(a == null ? '' : a).trim(), y = String(b == null ? '' : b).trim();
+    if(!x && !y) return 0;
+    if(!x) return 1;
+    if(!y) return -1;
+    return x.localeCompare(y, 'zh-Hans-CN', { numeric: true });
+  }
+  window.previewFilter = function(kw){
+    kw = String(kw == null ? '' : kw).trim().toLowerCase();
+    var box = document.getElementById('pvList');
+    if(!box) return;
+    var rows = box.querySelectorAll('.pvstu'), shown = 0;
+    for(var i = 0; i < rows.length; i++){
+      var r = rows[i];
+      var hit = !kw || String(r.dataset.name || '').toLowerCase().indexOf(kw) >= 0 ||
+                String(r.dataset.sid || '').toLowerCase().indexOf(kw) >= 0;
+      r.style.display = hit ? '' : 'none';
+      if(hit) shown++;
+    }
+    var cnt = document.getElementById('pvCount');
+    if(cnt) cnt.textContent = kw ? ('匹配 ' + shown + ' / ' + rows.length + ' 人') : ('共 ' + rows.length + ' 人');
+    var emp = document.getElementById('pvEmpty');
+    if(emp) emp.style.display = shown ? 'none' : '';
+  };
   /* ===== 教师端预览（?preview=1 + 同源 localStorage 注入，零网络零加密） ===== */
   function initPreview(){
     if(qsp('preview') !== '1') return false;
@@ -1011,14 +1041,18 @@ body{padding-bottom:76px}
     if(!pp || !pp.students || (Date.now() - (pp.at || 0)) > 30 * 60 * 1000) return false;
     _previewMode = true;
     _previewData = pp;
-    var sids = Object.keys(pp.students);
+    var sids = Object.keys(pp.students).sort(pvSidCmp);
     var h = '<div class="pvbadge">📱 教师端实机预览 · 数据直接来自本机工作台（不经过网络，30 分钟内有效）。<br>正式入口仍是班主任发的查询链接。</div>';
-    h += '<div class="card"><div class="cl-title">选择要预览的学生身份</div><div class="pvlist">';
+    h += '<div class="card"><div class="cl-title">选择要预览的学生身份</div>';
+    h += '<input id="pvSearch" class="pvsearch" type="search" autocomplete="off" placeholder="搜索姓名或学号…" oninput="previewFilter(this.value)">';
+    h += '<div id="pvCount" class="pvcount">共 ' + sids.length + ' 人</div>';
+    h += '<div class="pvlist" id="pvList">';
     sids.forEach(function(sid){
       var b = pp.students[sid];
-      h += '<div class="pvstu" onclick="previewEnter(\'' + esc(sid) + '\')"><b>' + esc(b.name || '') + '</b><span>' + esc(sid) + '</span></div>';
+      h += '<div class="pvstu" data-name="' + esc(b.name || '') + '" data-sid="' + esc(sid) + '" onclick="previewEnter(\'' + esc(sid) + '\')"><b>' + esc(b.name || '') + '</b><span>' + esc(sid) + '</span></div>';
     });
-    h += '</div><div class="gnote">四个页签（学分/成绩/商店/我的）都能点；预览模式不生成兑换二维码</div></div>';
+    h += '</div><div id="pvEmpty" class="pvempty" style="display:none">没有匹配的学生</div>';
+    h += '<div class="gnote">四个页签（学分/成绩/商店/我的）都能点；预览模式不生成兑换二维码</div></div>';
     $('formCard').style.display = 'none';
     var rb = $('rmBanner'); if(rb) rb.style.display = 'none';
     if(pp.className) $('clsName').textContent = pp.className + ' · 学分查询（预览）';

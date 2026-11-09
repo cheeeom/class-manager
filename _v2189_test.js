@@ -375,7 +375,7 @@ t('autoSeat 不使用原生 prompt / alert', () => {
 });
 t('seatClick 未被改动（_v2172 / _v2185 断言锚点仍在）', () => {
   const src = fnSrc('seatClick');
-  has(src, '_studentPickerPool = state.students.filter', '候选注入丢失');
+  has(src, '_studentPickerPool = bySid(state.students.filter', '候选注入丢失');
   has(src, '_studentPickerPool.sort((a,b)=>(Number(b.credit)||0)-(Number(a.credit)||0))', '候选学分降序丢失');
   has(src, "modal.dataset.context = 'seating'", '座位上下文丢失');
   notHas(src, 'seatMode', 'seatMode 复活');

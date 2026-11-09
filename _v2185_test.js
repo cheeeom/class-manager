@@ -97,7 +97,7 @@ t('seatClick 去模式门槛：不再引用 seatMode、不弹 toast 后 return',
 });
 t('seatClick 保留编辑链路断言（候选注入剔除已占座 + 学分降序 + 刷新 + 弹窗）', () => {
   const fn = extractFn('seatClick');
-  has(fn.toString(), '_studentPickerPool = state.students.filter', '未注入剔除已占座候选');
+  has(fn.toString(), '_studentPickerPool = bySid(state.students.filter', '未注入剔除已占座候选');
   has(fn.toString(), '_studentPickerPool.sort((a,b)=>(Number(b.credit)||0)-(Number(a.credit)||0))', '候选未按学分降序');
   has(fn.toString(), 'refreshStudentPicker();', '未刷新列表');
   has(fn.toString(), "openModal('studentSelectModal')", '未弹窗');
