@@ -64,13 +64,14 @@ t('登录页 / 侧栏 / SW CACHE_NAME = v2.18.13', () => {
   if (!fs.readFileSync('sw.js', 'utf8').replace(/\r\n/g, '\n').includes('class-manager-' + V + '')) throw new Error('SW CACHE_NAME 未更新');
 });
 
-console.log('\n=== 拼音排序（左侧学生名单） ===');
+console.log('\n=== 排序函数与档案名单（v3.9.20 起按学号） ===');
 t('Intl.Collator zh 拼接 + sortStudentsByPinyin 已就位', () => {
   has(html, "new Intl.Collator('zh-Hans-CN'", '缺拼音 collator');
   has(html, 'function sortStudentsByPinyin(', '缺排序函数');
 });
-t('renderProfileList 改用拼音排序（不再直传 state.students）', () => {
-  if (!/function renderProfileList\(\)[\s\S]*?sortStudentsByPinyin\(state\.students/.test(html)) throw new Error('未接入排序');
+t('renderProfileList 走 bySid（默认排序统一到学号）', () => {
+  if (!/function renderProfileList\(\)[\s\S]*?bySid\(state\.students/.test(html)) throw new Error('未接入 bySid');
+  if (/function renderProfileList\(\)[\s\S]*?sortStudentsByPinyin\(state\.students/.test(html)) throw new Error('档案名单仍在用拼音排序');
 });
 t('拼音排序：陈晨<李雷<孙悦<王小明<张伟<赵敏（按 zh 字典序）', () => {
   const sorted = sortStudentsByPinyin(names.map(n => ({ name: n, sid: '' }))).map(x => x.name);
