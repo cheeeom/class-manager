@@ -716,6 +716,14 @@ body{padding-bottom:76px}
     return '<span class="gdelta ' + cls + '">' + ico + d + '</span>';
   }
 
+  /* v4.0 P3 周起点（周一），接受任意时间戳——学期报告卡曲线分桶用 */
+  function _wsOf(t){
+    var d = new Date(t);
+    var dow = d.getDay();
+    var back = (dow === 0) ? 6 : (dow - 1);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate() - back).getTime();
+  }
+
   window.pview = function(v){
     _view = v;
     renderResult();
@@ -896,6 +904,69 @@ body{padding-bottom:76px}
     if(pf.pos) h += '<span class="mebadge">🏅 ' + esc(pf.pos) + '</span>';
     if(!pf.dorm && !pf.pos) h += '<div style="font-size:12px;color:var(--ink3)">暂无寝室 / 职位信息</div>';
     h += '</div>';
+
+    /* ===== v4.0 P3 学期报告卡：近8周学分曲线 + 名次/最新成绩 + 出勤（老包无字段自动隐藏） ===== */
+    var repData = (data.ops && data.ops.length) || (data.grades && data.grades.length) || data.attend;
+    if(repData){
+      h += '<div class="sec-title">📈 学期报告</div>';
+      h += '<div class="card">';
+      /* 学分曲线：周一开头的 8 个周桶（口径与首页「本周」一致） */
+      if(data.ops && data.ops.length){
+        var wkBuckets = [];
+        var nowT = Date.now();
+        var curWs = _wsOf(nowT);
+        for(var wi = 7; wi >= 0; wi--) wkBuckets.push({ s: curWs - wi * 7 * 86400000, net: 0 });
+        data.ops.forEach(function(o){
+          var t = Number(o.time) || 0;
+          if(t < wkBuckets[0].s) return;
+          var ws = _wsOf(t);
+          for(var wj = 0; wj < wkBuckets.length; wj++){
+            if(ws === wkBuckets[wj].s){ wkBuckets[wj].net += (Number(o.amount) || 0); break; }
+          }
+        });
+        var wkMax = 0;
+        wkBuckets.forEach(function(b){ wkMax = Math.max(wkMax, Math.abs(b.net)); });
+        h += '<div style="font-size:12px;color:var(--ink3);margin-bottom:6px">近 8 周学分净变</div>';
+        h += '<div class="gbars" style="height:92px">';
+        wkBuckets.forEach(function(b){
+          var pct = wkMax > 0 ? (14 + Math.round(Math.abs(b.net) / wkMax * 70)) : 14;
+          var d0 = new Date(b.s);
+          var lbl = b.net === 0 ? '·' : (b.net > 0 ? '+' + b.net : String(b.net));
+          h += '<div class="gbar"><b>' + lbl + '</b>' +
+               '<i style="height:' + pct + '%;background:' + (b.net < 0 ? '#B42318' : 'var(--primary)') + ';opacity:.85"></i>' +
+               '<span>' + (d0.getMonth() + 1) + '/' + d0.getDate() + '</span></div>';
+        });
+        h += '</div>';
+        h += '<div style="height:1px;background:var(--border);margin:10px 0"></div>';
+      }
+      /* 名次 + 出勤（attend 来自老师端学期口径） */
+      var at = data.attend;
+      if(data.rank && data.total){
+        h += '<div class="merow"><span class="mk">🏅 学分排名</span><span class="mv">第 ' + data.rank + ' / ' + data.total + ' 名</span></div>';
+      }
+      var gs = data.grades || [];
+      if(gs.length){
+        var cur = gs[gs.length - 1], prev = gs.length > 1 ? gs[gs.length - 2] : null;
+        var tot = 0, pn = Object.keys(cur.s || {});
+        pn.forEach(function(k){ tot += cur.s[k]; });
+        var pt = null;
+        if(prev){
+          var pk = Object.keys(prev.s || {});
+          if(pk.length){ pt = 0; pk.forEach(function(k){ pt += prev.s[k]; }); }
+        }
+        h += '<div class="merow"><span class="mk">📊 最新成绩</span><span class="mv">' + esc(cur.n || '') +
+             (pn.length ? ' · 总分 <b style="font-size:14px">' + tot + '</b>' : '') +
+             (pt != null ? ' ' + (tot >= pt ? '<span style="color:#2F7D5B;font-weight:700">📈 +' + (tot - pt) + '</span>' : '<span style="color:#B42318;font-weight:700">📉 ' + (tot - pt) + '</span>') : '') +
+             '</span></div>';
+      }
+      if(at){
+        h += '<div class="merow"><span class="mk">🗓 本学期出勤</span><span class="mv">' +
+             (at.lv === 0 ? '<span style="color:#2F7D5B;font-weight:700">全勤 🎉</span>'
+                          : '请假 ' + at.lv + ' 次 · 共 ' + at.ld + ' 天') + '</span></div>';
+      }
+      h += '</div>';
+    }
+
     var hs = data.honors || [];
     h += '<div class="sec-title">我的荣誉<span>' + (hs.length ? hs.length + ' 项' : '') + '</span></div>';
     if(!hs.length){

@@ -169,7 +169,12 @@ function audit(H, S, M, A, L) {
       has(svg, ARC, '落地页 favicon 的 C 弧与印章不同源');
     }
     chk((L.match(/<use href="#seal"\/>/g) || []).length >= 3, '落地页顶栏/首屏/页脚没全部复用 #seal');
-    has(L, 'WINDOWS 桌面版 · V1.7.4', '落地页静态版本兜底没跟到 V1.7.4');
+    /* v3.9.17 动态化：兜底版本从桌面版 package.json 反推（写死版本号第 N 次返工的教训） */
+    const dPkgVer = (() => {
+      try { return JSON.parse(fs.readFileSync(path.join(DIR, '..', 'class-manager-desktop', 'app', 'package.json'), 'utf8')).version; }
+      catch (e) { return null; }
+    })();
+    if (dPkgVer) has(L, 'WINDOWS 桌面版 · V' + dPkgVer, '落地页静态版本兜底没跟到桌面版 v' + dPkgVer);
     chk(L.indexOf('朱砂「班」字印章') < 0, '落地页仍写着「班」字印章的 aria 文案');
   }
 
