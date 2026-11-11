@@ -68,8 +68,10 @@ t('③ 两端凭据契约逐字一致（canonical / 常量 / 派生参数）', (
 t('④ 学生端页面增强 + v3.7.0 守卫锚点全保留', () => {
   // 增强
   has(portal, 'qrcode(0, \'M\')', '真二维码生成');
-  has(portal, '<script src="qrcode.js">', '本地 QR 库（零 CDN）');
-  has(portal, '<script src="qrcode_utf8.js">', 'UTF-8 支持');
+  has(portal, "load('qrcode.js')", '本地 QR 库按需加载（零 CDN）');
+  has(portal, "load('qrcode_utf8.js')", 'UTF-8 扩展按需加载');
+  has(portal, 'function ensureQr()', 'QR 库加载器');
+  has(portal, 'if(!_qrReady){', 'makeQr 首点补加载守卫');
   notHas(portal.match(/<script src="https?:[^"]*"/g) ? portal : '', 'x', '占位');
   ok(!(portal.match(/<script[^>]+src="https?:/g) || []).length, '不得外链 CDN 脚本');
   has(portal, '第 \' + data.rank + \' 名', '排名印章');

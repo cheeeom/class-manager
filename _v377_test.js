@@ -29,7 +29,7 @@ t('① fetchWithTimeout：定义 + 三处接线 + 25s', () => {
 });
 
 t('② 超时可读文案 + 学号格式指路', () => {
-  has(portal, '网络较慢，数据包没能在 25 秒内下载完', '超时文案');
+  has(portal, '网络较慢，数据包没能下载完', '超时文案');
   has(portal, "m.indexOf('TIMEOUT') >= 0 || m.indexOf('abort') >= 0", '超时错误分支');
   has(portal, '（学号以班主任发的查询卡为准，通常为 7 位数字如 2602001）', '格式指路');
   has(portal, 'var _ml = m.toLowerCase();', '错误分支大小写不敏感（OperationError 大写 O 曾永远漏配）');

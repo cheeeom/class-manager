@@ -49,7 +49,7 @@ t('② C：学生页记住我 + 直达参数', () => {
   has(portal, 'if(!_data) return;   // v3.8.1 防御：查询未成功前不可操作', '加购防御');
   has(portal, "var PSID = qsp('s');", '直达参数 s');
   has(portal, "var PCODE = qsp('c');", '直达参数 c');
-  has(portal, 'setTimeout(submit, 150)', '参数齐→自动查询');
+  has(portal, 'setTimeout(submit, 0)', '参数齐→自动查询');
   has(portal, 'renderRememberBanner();\n    if(PSID && PCODE){', 'init 顺序：横幅→参数');
   // 默认不勾（公共设备不存）
   ok(/id="rmChk"\s*>/.test(portal.replace('<input type="checkbox" id="rmChk"', '<input type="checkbox" id="rmChk">')), 'checkbox 无 checked 默认');

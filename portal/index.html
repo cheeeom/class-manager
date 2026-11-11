@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#A63A2B">
+<!-- 2026-11-11 预连接：数据包在 gist 上，真发请求前先把 TLS 建好。
+     手机 4G 下 TLS 要 2–3 个 RTT（约 150–300ms），这段原来全落在「查询中」的转圈里。
+     crossorigin 必须写：fetch 是 CORS 请求，匿名预连接才能被复用。 -->
+<link rel="preconnect" href="https://gist.githubusercontent.com" crossorigin>
+<link rel="preconnect" href="https://api.github.com" crossorigin>
 <title>我的学分 · 班主任工作台</title>
 <!--
   学生查询端（v3.7.1）· 独立只读页 + 自助兑换申请
@@ -307,8 +312,8 @@ body{padding-bottom:76px}
 </div>
 
 <!-- QR 生成器：同仓自带（MIT, kazuhikoarase/qrcode-generator），零外部 CDN -->
-<script src="qrcode.js"></script>
-<script src="qrcode_utf8.js"></script>
+<!-- 2026-11-11 首屏瘦身：QR 库（57 KB）移出关键路径，改为首次「生成兑换码」时按需加载（ensureQr）。
+     查询主流程根本不用二维码，没必要让学生陪它一起等。 -->
 <script>
 (function(){
   'use strict';
@@ -324,6 +329,9 @@ body{padding-bottom:76px}
   var FAIL_LOCK_MS = 60000;
   var CACHE_KEY = 'cm_portal_cache';
   var CACHE_TTL_MS = 30 * 60 * 1000;   // v3.7.8 10→30 分钟：上课扫码全程走缓存（页脚「数据截至」可见发布时点；改轮数时代次校验会自动作废旧包）
+  /* 2026-11-11 陈旧可用期：过期不等于作废。旧包先渲染（后台静默换新），只有超过 7 天才肯阻塞等网络。
+     实测 PBKDF2 30000 轮在 PC 上仅 24ms，热路径的耗时几乎全在「能不能不下载」上，故保缓存比省计算划算。 */
+  var CACHE_STALE_MS = 7 * 24 * 60 * 60 * 1000;
   var RM_KEY = 'cm_portal_remember';   // v3.7.6 记住我（仅存本机，明文学号+码；公共设备不勾不存）
   /* v3.7.1 兑换凭据（与老师端 index.html 的 PORTAL_REDEEM_* 同步，守卫 _v371 比对） */
   var REDEEM_VER = 'CM1';
@@ -402,44 +410,116 @@ body{padding-bottom:76px}
     return fetch(url, { cache:'no-store', signal: ctl.signal }).finally(function(){ clearTimeout(timer); });
   }
 
-  /* ---------- 拉发布包：CDN 优先，失败退 API ---------- */
-  function fetchPayload(){
-    var now = Date.now();
-    try{
-      var c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-      if(c && c.owner === OWNER && c.gist === GIST && (now - (c.at || 0)) < CACHE_TTL_MS && c.payload &&
-         (!c.payload.alg || c.payload.alg === ALG_LABEL)){   // v3.7.8 算法代次不匹配的旧缓存包作废重拉
-        return Promise.resolve(c.payload);
-      }
-    }catch(e){}
+  /* 2026-11-11 竞速参数：单路 8s 封顶（原 25s 串行等），API 给 raw 抢跑 400ms 再放出去 */
+  var NET_RACE_MS = 8000;
+  var API_HEAD_START_MS = 400;
+  var _payloadInflight = null;
 
-    var tryFetch = function(url){
-      return fetchWithTimeout(url).then(function(r){
-        if(!r.ok) throw new Error('HTTP ' + r.status);
-        return r.text();
-      }).then(function(t){
-        var p = JSON.parse(t);
-        if(!p || !p.students) throw new Error('bad payload');
-        try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ owner:OWNER, gist:GIST, at:now, payload:p })); }catch(e){}
-        return p;
+  /* 谁先成功用谁，全失败才报错。不能直接用 Promise.race：先到的 reject 会立刻把整个竞速判死。 */
+  function firstOk(list){
+    return new Promise(function(resolve, reject){
+      var left = list.length, firstErr = null;
+      list.forEach(function(p){
+        p.then(resolve, function(e){
+          if(!firstErr) firstErr = e;
+          if(--left === 0) reject(firstErr || new Error('全部通路失败'));
+        });
+      });
+    });
+  }
+
+  /* QR 库按需加载：57 KB 的 qrcode.js 不再进首屏关键路径（查询解密用不到它），
+     只有点「生成兑换码」才拉。qrcode_utf8.js 依赖前者，按序加载。 */
+  var _qrReady = false, _qrPromise = null;
+  function ensureQr(){
+    if(_qrReady) return Promise.resolve();
+    if(_qrPromise) return _qrPromise;
+    var load = function(src){
+      return new Promise(function(res, rej){
+        var s = document.createElement('script');
+        s.src = src;
+        s.onload = function(){ res(); };
+        s.onerror = function(){ rej(new Error('加载失败：' + src)); };
+        document.head.appendChild(s);
       });
     };
+    _qrPromise = load('qrcode.js').then(function(){ return load('qrcode_utf8.js'); })
+      .then(function(){ _qrReady = true; })
+      .catch(function(e){ _qrPromise = null; throw e; });
+    return _qrPromise;
+  }
 
+  /* ---------- 拉发布包：CDN 与 API 竞速（纯网络，不含缓存判定） ---------- */
+  function netFetchPayload(){
+    var now = Date.now();
+    var accept = function(p){
+      if(!p || !p.students) throw new Error('bad payload');
+      try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ owner:OWNER, gist:GIST, at:now, payload:p })); }catch(e){}
+      return p;
+    };
+
+    /* 2026-11-11 竞速：原来 raw 失败要干等满 25s 才轮到 API（实测 raw 在本网连首字节都没有），
+       现在两条通路同时放出去，谁先回合法包用谁，单路 8s 封顶。 */
     var cdn = 'https://gist.githubusercontent.com/' + encodeURIComponent(OWNER) + '/' +
               encodeURIComponent(GIST) + '/raw/' + 'portal.json';
-    return tryFetch(cdn).catch(function(){
-      /* 备用：Gist API（匿名 60 次/小时，仅作兜底） */
-      return fetchWithTimeout('https://api.github.com/gists/' + encodeURIComponent(GIST), 25000).then(function(r){
+    var fromCdn = fetchWithTimeout(cdn, NET_RACE_MS).then(function(r){
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    }).then(function(t){ return accept(JSON.parse(t)); });
+
+    /* 备用：Gist API（匿名 60 次/小时）。给 raw 抢跑 400ms，raw 能通就不必浪费配额；
+       抢跑到点时若已有人赢，直接放弃，连请求都不发。 */
+    var settled = false;
+    var fromApi = new Promise(function(res){ setTimeout(res, API_HEAD_START_MS); }).then(function(){
+      if(settled) return new Promise(function(){});
+      return fetchWithTimeout('https://api.github.com/gists/' + encodeURIComponent(GIST), NET_RACE_MS).then(function(r){
         if(!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
       }).then(function(j){
         var f = j.files && j.files['portal.json'];
         if(!f) throw new Error('no file');
         if(f.truncated){ throw new Error('truncated'); }
-        return f.content ? JSON.parse(f.content)
-          : fetchWithTimeout(f.raw_url).then(function(r){ return r.text(); }).then(JSON.parse);
+        return f.content ? accept(JSON.parse(f.content))
+          : fetchWithTimeout(f.raw_url).then(function(r){ return r.text(); }).then(JSON.parse).then(accept);
       });
     });
+
+    var p = firstOk([fromCdn, fromApi]);
+    p.then(function(){ settled = true; }, function(){ settled = true; });
+    return p;
+  }
+
+  /* 缓存三层：
+     ① 新鲜期（<30 分钟）→ 直接用，零网络（上课全程）；
+     ② 陈旧可用期（<7 天）→ 旧包立刻渲染，同时后台静默换新，下次扫码即新包；
+     ③ 超期 / 无缓存 / 数据源或算法代次变更 → 阻塞走网络竞速。 */
+  function fetchPayload(){
+    if(_payloadInflight) return _payloadInflight;
+    var now = Date.now();
+    var usable = function(c){
+      return c && c.owner === OWNER && c.gist === GIST && c.payload &&
+             (!c.payload.alg || c.payload.alg === ALG_LABEL);   // v3.7.8 算法代次不匹配的旧缓存包作废重拉
+    };
+    var cached = null;
+    try{ cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null'); }catch(e){}
+
+    if(usable(cached)){
+      var age = now - (cached.at || 0);
+      if(age < CACHE_TTL_MS) return Promise.resolve(cached.payload);
+      if(age < CACHE_STALE_MS){
+        /* 后台刷新：成功则改写缓存（下一次生效），失败静默——旧包已经能把页面撑起来，不该因此报错 */
+        netFetchPayload().then(function(){}, function(){});
+        return Promise.resolve(cached.payload);
+      }
+    }
+
+    /* 2026-11-11 单例：扫码直达（&s=&c=）时 init 预取与 150ms 后 submit 会各调一次，
+       原来两个请求并发重复拉 192–265 KB。在途期间复用同一份 promise。 */
+    var inflight = netFetchPayload();
+    _payloadInflight = inflight;
+    var clear = function(){ _payloadInflight = null; };
+    inflight.then(clear, clear);
+    return inflight;
   }
 
   /* ---------- 解密自己那一片 ---------- */
@@ -647,6 +727,12 @@ body{padding-bottom:76px}
   window.makeQr = function(){
     if(!_data || !cartCount()) return;
     if(_previewMode){ alert('预览模式不生成兑换二维码（正式入口才有）'); return; }
+    /* 2026-11-11 QR 库已移出首屏：首次点击时先补加载，到位后重入本函数（_qrReady 后照走原逻辑） */
+    if(!_qrReady){
+      ensureQr().then(function(){ window.makeQr(); })
+        .catch(function(){ alert('二维码组件加载失败，请检查网络后重试'); });
+      return;
+    }
     var items = Object.keys(CART).map(function(k){ return [k, CART[k]]; });
     var total = cartTotal();
     if(total > cartCoins()){
@@ -1174,7 +1260,7 @@ body{padding-bottom:76px}
       } else if(m.indexOf('HTTP 404') >= 0 || m.indexOf('bad payload') >= 0){
         msg('查询服务未开放。<br>可能班主任尚未发布，或已撤销。请联系班主任。');
       } else if(m.indexOf('TIMEOUT') >= 0 || m.indexOf('abort') >= 0 || m.indexOf('AbortError') >= 0){
-        msg('网络较慢，数据包没能在 25 秒内下载完。<br>请移到信号好的地方稍后重试；多次失败请联系班主任。');
+        msg('网络较慢，数据包没能下载完。<br>请移到信号好的地方稍后重试；多次失败请联系班主任。');
       } else if(m.indexOf('HTTP') >= 0){
         msg('网络异常（' + esc(m) + '）。请检查网络后重试。');
       } else {
@@ -1200,7 +1286,9 @@ body{padding-bottom:76px}
       $('sidInput').value = String(PSID).trim();
       var _pc = normCode(PCODE);
       $('codeInput').value = _pc.length > 4 ? _pc.slice(0, 4) + '-' + _pc.slice(4) : _pc;
-      setTimeout(submit, 150);   // 等首屏渲染一拍再查（fetchPayload 已在预取）
+      /* 2026-11-11 150→0：预取在 init 里已同步发出，这 150ms 纯属白等（陈旧缓存实测 1ms 就能返回）。
+         保留 setTimeout 只是为了让首帧先画出来，不必真的等 150ms。 */
+      setTimeout(submit, 0);
     }
 
     if(!OWNER || !GIST){
