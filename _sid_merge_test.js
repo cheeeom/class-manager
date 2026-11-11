@@ -148,6 +148,63 @@ t('⑭ msStudents 两个分支都走 pickStudentSid（不能只改一处）', ()
   if (n < 2) throw new Error('pickStudentSid 只被调用 ' + n + ' 次，两个仲裁分支都要覆盖');
 });
 
+console.log('\n=== 长期收敛性：反复同步后学号是否还会自己漂移 ===');
+
+t('⑯ 旧客户端（不认识 sidAt）反复推旧学号 50 轮 → 零漂移', () => {
+  const T1 = 1790000000000;
+  let local = wrap([stu(7, '2602047', { sidAt: T1, updatedAt: T1 - 5000 })]);
+  for (let i = 1; i <= 50; i++) {
+    /* 桌面版 v1.7.7 / 没刷新的标签页：整条没有 sidAt，updatedAt 每轮都变新（模拟连续加分） */
+    const cloud = wrap([stu(7, '2026045', { updatedAt: T1 + i * 1000, credit: 100 + i })]);
+    local = smartMergeData(local, cloud);
+    const got = String(sidOf(local, 7));
+    if (got !== '2602047') throw new Error('第 ' + i + ' 轮漂移成 ' + got);
+  }
+});
+
+t('⑰ 全班 60 人 × 100 轮（每轮约 1/3 人加分、云端学号是错的）→ 全班学号零变动', () => {
+  const T1 = 1790000000000, N = 60;
+  const right = [], wrong = [];
+  for (let i = 0; i < N; i++) {
+    const sid = '2602' + String(i + 1).padStart(3, '0');
+    right.push({ id: i + 1, sid: sid, name: '学生' + (i + 1), credit: 100, sidAt: T1, updatedAt: T1 });
+    wrong.push({ id: i + 1, sid: (i === 46 ? '2026045' : sid), name: '学生' + (i + 1), credit: 100 });
+  }
+  let local = wrap(JSON.parse(JSON.stringify(right)));
+  for (let r = 1; r <= 100; r++) {
+    const cloud = wrap(JSON.parse(JSON.stringify(wrong)).map(s => {
+      if (Math.random() < 0.34) { s.credit += 1; s.updatedAt = T1 + r * 1000; }
+      return s;
+    }));
+    local = smartMergeData(local, cloud);
+    for (let i = 0; i < N; i++) {
+      const want = '2602' + String(i + 1).padStart(3, '0');
+      const got = String(sidOf(local, i + 1));
+      if (got !== want) throw new Error('第 ' + r + ' 轮，id=' + (i + 1) + ' 从 ' + want + ' 变成 ' + got);
+    }
+  }
+});
+
+t('⑱ 带新戳把学号改成空 → 必须生效（防止修成"永远改不掉"）', () => {
+  const T1 = 1790000000000;
+  const local  = wrap([stu(7, '2602047', { sidAt: T1, updatedAt: T1 })]);
+  const remote = wrap([stu(7, '', { sidAt: T1 + 1000, updatedAt: T1 })]);
+  eq(sidOf(smartMergeData(local, remote), 7), '');
+});
+
+t('⑲ students 仍在云同步白名单（cfs）且无字段清洗 → sidAt 能随包上传/下载', () => {
+  const schema = eval('(' + html.slice(html.indexOf('const STATE_SCHEMA'),
+    html.indexOf('\n];', html.indexOf('const STATE_SCHEMA')) + 3)
+    .replace('const STATE_SCHEMA = ', '').replace(/;\s*$/, '') + ')');
+  const f = schema.find(x => x.key === 'students');
+  if (!f) throw new Error('STATE_SCHEMA 里找不到 students');
+  if (!f.cfs) throw new Error('students 不在云同步白名单，sidAt 推不上云端');
+  if (f.nosv) throw new Error('students 被标 nosv（不进本地快照），会丢 sidAt');
+  /* 云负载是字段级整体搬运，不得对 students 内部字段做白名单裁剪 */
+  const bp = html.slice(html.indexOf('function buildCloudPayload'), html.indexOf('function buildCloudPayload') + 900);
+  if (/students[^\n]*\.map\(|students[^\n]*filter\(/.test(bp)) throw new Error('buildCloudPayload 对 students 做了内部裁剪，sidAt 可能被剥离');
+});
+
 t('⑮ 合并引擎段能独立编译（切片完整性）', () => {
   new Function(MERGE_SEG);
 });
