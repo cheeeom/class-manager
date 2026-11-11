@@ -56,7 +56,10 @@ has(html, '<div class="login-version">' + VER + '</div>', '登录页徽标同版
 has(html, '<div class="sidebar-footer">' + VER + ' · 班主任工作台</div>', '侧栏页脚同版');
 has(html, '近版更新速览（' + VER + '）', '速览标题同版');
 has(html, '🏷️ ' + VER + '</span>', '关于页徽标同版');
-has(html, '档案名单也按学号（' + VER + '）', '速览有本版说明');
+/* v3.9.21 修锚点自伤：原断言把 v3.9.20 的速览历史条目（「档案名单也按学号（v3.9.20）」）
+   绑成了当版号，一跟版就必然红——而历史条目是史实，绝不回改。
+   改为版本无关判据：速览区里当版号至少出现 2 次（标题 1 次 + 正文本版条目 1 次）。 */
+ok(count(html, '（' + VER + '）') >= 2, '速览有本版说明（标题+正文条目，历史条目不受牵连）');
 has(sw, "'./cmgx.js" + Q + "'", 'sw CORE_ASSETS 脚本同版');
 eq(count(sw, Q), 3, 'sw CORE_ASSETS 三处 ?v= 全同版');
 eq(count(mani, Q), 3, 'manifest 三处 ?v= 全同版');
