@@ -39,6 +39,9 @@ const scope = {
 scope.renderTable = function (...a) { return run('renderTable', ...a); };
 scope.updateSortUi = function (...a) { return run('updateSortUi', ...a); };
 scope.sidCmp = function (...a) { return run('sidCmp', ...a); };   // v3.9.16 renderTable 排序改走 sidCmp（numeric 感知）
+// v3.9.22 rosterBuildPlan 学号不再硬编码 '2026'，改调 sidTemplateOf/sidByNo 推断本班格式
+scope.sidTemplateOf = function (...a) { return run('sidTemplateOf', ...a); };
+scope.sidByNo = function (...a) { return run('sidByNo', ...a); };
 
 function run(name, ...args) {
   const src = extractFn(name);

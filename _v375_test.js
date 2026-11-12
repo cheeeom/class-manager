@@ -18,16 +18,41 @@ function ok(c, msg) { if (!c) throw new Error(msg || '断言失败'); }
 function has(s, k, msg) { if (s.indexOf(k) < 0) throw new Error((msg || '') + ' 缺少 ' + JSON.stringify(k)); }
 
 // 与实现同构的纯逻辑（用于行为仿真）
-function nextSidFromList(list) {
-  var maxN = null, width = 4;
+function sidTemplateOf(list) {
+  var groups = {}, order = [];
   (list || []).forEach(function (s) {
     var v = String((s && s.sid) == null ? '' : s.sid).trim();
-    if (/^\d+$/.test(v)) {
-      var n = parseInt(v, 10);
-      if (maxN === null || n > maxN) { maxN = n; width = Math.max(width, v.length); }
-    }
+    var m = v.match(/^(.*?)(\d+)$/);
+    if (!m) return;
+    var head = m[1], num = m[2];
+    var g = groups[head];
+    if (!g) { g = groups[head] = { head: head, n: 0, max: -1, lens: {}, sample: '' }; order.push(head); }
+    g.n++;
+    if (!g.sample) g.sample = v;
+    var nv = parseInt(num, 10);
+    if (nv > g.max) g.max = nv;
+    g.lens[num.length] = (g.lens[num.length] || 0) + 1;
   });
-  return (maxN === null) ? null : String(maxN + 1).padStart(width, '0');
+  var best = null;
+  order.forEach(function (h) {
+    var g = groups[h];
+    if (!best) { best = g; return; }
+    if (g.n > best.n) { best = g; return; }
+    if (g.n === best.n && best.head !== '' && g.head === '') { best = g; }
+  });
+  if (!best) return null;
+  var width = 0, wn = 0;
+  Object.keys(best.lens).forEach(function (w) {
+    var k = parseInt(w, 10), c = best.lens[w];
+    if (c > wn || (c === wn && k > width)) { width = k; wn = c; }
+  });
+  if (width < 1) width = 1;
+  return { head: best.head, width: width, len: best.head.length + width, sample: best.sample,
+           next: best.head + String(best.max + 1).padStart(width, '0') };
+}
+function nextSidFromList(list) {
+  var t = sidTemplateOf(list);
+  return t ? t.next : null;
 }
 function parseBulkSidLines(text) {
   var rows = [], errs = [];
@@ -54,7 +79,11 @@ t('① genSid 数字续号 + 导入同口径', () => {
   // 行为仿真
   ok(nextSidFromList([{ sid: '2602001' }, { sid: '2602060' }]) === '2602061', '数字续号 2602061');
   ok(nextSidFromList([{ sid: '2602001' }, { sid: 'S0003' }]) === '2602002', '混排时按数字最大续');
-  ok(nextSidFromList([{ sid: 'S0001' }]) === null, '纯 S 班级回退');
+  // v3.9.22：带字母头的班不再回退 S0001，而是接着本班格式续号（别的老师用 A001 也自洽）
+  ok(nextSidFromList([{ sid: 'S0001' }]) === 'S0002', 'S 班续号 S0002（不再回退）');
+  ok(nextSidFromList([{ sid: 'A001' }, { sid: 'A060' }]) === 'A061', 'A 班续号 A061');
+  ok(nextSidFromList([{ sid: '2026-001' }, { sid: '2026-060' }]) === '2026-061', '带连字符续号 2026-061');
+  ok(nextSidFromList([]) === null, '空班级模板为 null');
 });
 
 t('② 批量配学号：解析/计划/应用/迁移', () => {
@@ -76,7 +105,7 @@ t('② 批量配学号：解析/计划/应用/迁移', () => {
   const afn = html.slice(a, html.indexOf('\n}', a) + 2);
   has(afn, 'codes[x.sid] = codes[oldSid];', 'portalCodes 键迁移');
   has(afn, 'delete codes[oldSid];', '旧键删除');
-  has(afn, 'state.nextSid = parseInt(next, 10);', 'nextSid 同步');
+  has(afn, 'if(isFinite(nextNum)) state.nextSid = nextNum;', 'nextSid 同步（v3.9.22 带字母头学号 parseInt 会 NaN，必须守住）');
   has(afn, 'saveData();', '落账');
   has(afn, 'renderStudents();', '重渲染');
   has(afn, '请重新发布学生查询端', '提醒重新发布');

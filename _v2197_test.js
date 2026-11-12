@@ -46,6 +46,7 @@ const readXlsxGrid = extractFn('readXlsxGrid');
 const normHeader = extractFn('normHeader');
 const detectStudentCols = extractFn('detectStudentCols');
 const planStudentImport = extractFn('planStudentImport');
+const sidTemplateOf = extractFn('sidTemplateOf');       // v3.9.22 续号改为「跟着本班格式」推断
 const nextSidFromList = extractFn('nextSidFromList');   // v3.7.5 导入新建走数字续号
 
 console.log('=== 语法检查 ===');
@@ -145,7 +146,9 @@ t('新增/更新/跳过/寝室归一化 全链路', () => {
   const qian = plan.creates.find(c => c.name === '钱七');
   eq(qian.tags.length, 0, '非法寝室不进标签');
   eq(plan.nextId, 13, 'id 计数推进');
-  eq(plan.nextSid, 9, 'sid 计数推进（赵六/钱七各占一个）');
+  eq(plan.nextSid, 7, 'sid 计数不推进（v3.9.22 起新建学号走本班模板 S004/S005，不再消耗 S+4位 兜底计数）');
+  eq(zhao.sid, 'S004', '赵六按本班 S 格式续号');
+  eq(qian.sid, 'S005', '钱七接着续号（同一批内不自撞）');
 });
 t('计划阶段不改 existing（取消导入零副作用）', () => {
   const existing = [{ id: 1, name: '张三', sid: 'S001', credit: 100, tags: [], profile: { gender: '', phone: '', guardian: '', birth: '', address: '', notes: '', timeline: [] } }];
