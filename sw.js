@@ -1,5 +1,5 @@
 /* Service Worker - 班主任工作台 PWA */
-const CACHE_NAME = 'class-manager-v3.9.22';
+const CACHE_NAME = 'class-manager-v3.9.23';
 // v2.20.7 移除 './data.json'：数据已搬到私有仓，站仓这份稍后会删除。
 // 注意 addAll 是全成全败 —— 清单里只要有一个请求 404，整套预缓存就整体 reject，
 // SW 安装直接失败（PWA 离线与后续缓存更新全废）。所以必须在删文件之前先摘掉它。
@@ -12,9 +12,9 @@ const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icon_192.png?v=3.9.22',
-  './icon_512.png?v=3.9.22',
-  './cmgx.js?v=3.9.22',   // v3.9.10 必须与 index.html 的 <script src> 完全一致，否则预缓存落空
+  './icon_192.png?v=3.9.23',
+  './icon_512.png?v=3.9.23',
+  './cmgx.js?v=3.9.23',   // v3.9.10 必须与 index.html 的 <script src> 完全一致，否则预缓存落空
   './echarts.min.js',
   './jsqr.min.js',
   './portal/',
