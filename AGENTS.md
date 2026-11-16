@@ -180,6 +180,7 @@ salt / iv 明文存放是标准做法，安全性 100% 取决于口令强度。*
 
 ### 技术债
 
+- **`index.html` 头部授权声明与 `LICENSE` 已不一致（2026-11-16 起，待清）**：根目录 `LICENSE` 已升级到 v2.0 双轨制（社区版免费 + 商业版授权，2026-12-01 生效），但 `index.html` 开头那个注释块仍写着「保留所有权利 · 非商业使用许可（All Rights Reserved · Non-Commercial）」，连"禁止商业使用"那一行也还是旧口径。**已决定不单独为此发版，等下一次功能发版一起改**——改 `index.html` 就必须跟版，为一句注释付全套发版成本不划算。**清账入口：`skills/release-checklist/` 的步骤 3 与验收第 7 条**，发版时强制检查。改时注意把"允许/禁止"两行一并改成双轨制口径，只改标题会更糟。
 - **`escapeHtml` 覆盖不全**：早期模块仍有未转义点（统计卡姓名、Top5、学生表格、`<option>` 姓名、档案列表、todo 文本）。姓名会流入 `title`/`onclick` 等**属性上下文**，建议统一转义。自查时对比 `grep -c "innerHTML" index.html` 与 `grep -c "escapeHtml(" index.html` 的数量差。
 
 ### 已解决，别再翻旧账
