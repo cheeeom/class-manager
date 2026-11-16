@@ -53,7 +53,8 @@ t('③ 首页分布失败回退：恢复原 canvas + 调原实现', () => {
 });
 
 t('④ 移植器同步（重跑不回退）+ 版本 v3.6.9 一致性', () => {
-  const py = fs.readFileSync(require('path').join(__dirname, '..', 'class-manager-desktop', 'app', '_port_to_web.py'), 'utf8');
+  /* 移植器已于 v1.7.8 归档进 app/_archive/，路径跟着走，断言强度不变 */
+  const py = fs.readFileSync(require('path').join(__dirname, '..', 'class-manager-desktop', 'app', '_archive', '_port_to_web.py'), 'utf8');
   has(py, 'cmGxPendingById[id] = option;', '4e 排队适配');
   has(py, '回退原 canvas 实现（加载失败/超时）', '4f 回退适配');
   has(py, 'function cmEchartsAfterLoad()', 'NAV 模板补函数');

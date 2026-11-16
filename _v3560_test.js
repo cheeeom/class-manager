@@ -89,13 +89,13 @@ t('rail 态单击图标立即展开（capture 监听，不阻断跳页）', () =
 console.log('=== ③ CSS 契约 ===');
 t('rail 68px / rail-open 浮层（width + 负 margin 占位恒 68）', () => {
   has(html, '.sidebar.rail{width:68px}', 'rail 宽度缺失');
-  has(html, '.sidebar.rail-open{width:var(--sidebar-w);margin-right:calc(68px - var(--sidebar-w));', '浮层宽度+负边距缺失');
+  has(html, '.sidebar.rail.rail-open{width:var(--sidebar-w);margin-right:calc(68px - var(--sidebar-w));', '浮层宽度+负边距缺失');
   has(html, 'box-shadow:8px 0 28px', '浮层卡片阴影缺失');
   has(html, 'cubic-bezier(.22,1,.36,1)', '丝滑缓动缺失');
 });
 t('分段文字动画 + 首帧防动画 + reduced-motion', () => {
   has(html, '.sidebar.rail .nav-text,.sidebar.rail .logo-texts{position:absolute;opacity:0;transform:translateX(-6px);pointer-events:none;transition-delay:0s;transition-duration:.12s}', '折叠淡出编排缺失');
-  has(html, '.sidebar.rail-open .nav-text,.sidebar.rail-open .logo-texts{position:static;opacity:1;transform:translateX(0);transition-delay:.12s}', '展开淡入编排缺失');
+  has(html, '.sidebar.rail.rail-open .nav-text,.sidebar.rail.rail-open .logo-texts{position:static;opacity:1;transform:translateX(0);transition-delay:.12s}', '展开淡入编排缺失');
   has(html, '.sidebar.rail .nav-item{justify-content:center;gap:0;padding:10px 0;overflow:hidden;white-space:nowrap}', 'nav-item 裁切保险缺失');
   has(html, '.sidebar.rail .sidebar-logo{position:relative;padding:24px 0 16px;justify-content:center;overflow:hidden;white-space:nowrap}', 'logo 裁切保险缺失');
   has(html, '.sidebar.rail-init,.sidebar.rail-init *{transition:none!important}', 'rail-init 缺失');

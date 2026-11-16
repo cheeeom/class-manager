@@ -31,8 +31,8 @@ t('① P1：cmgx 抽屉注入（手机「更多」含学期报告，点击收抽
   const i = cmgx.indexOf('function gxInjectReportNav()');
   const fn = cmgx.slice(i, cmgx.indexOf('\n  }', i) + 6);
   ok(fn.indexOf('cmNavReport') < fn.indexOf('cmNavReportDrawer'), '侧栏在前抽屉在后');
-  // py 模板同步
-  const py = fs.readFileSync(path.join(__dirname, '..', 'class-manager-desktop', 'app', '_port_to_web.py'), 'utf8');
+  // py 模板同步（该移植器已于 v1.7.8 归档到 _archive/，路径随之更新；断言强度不变）
+  const py = fs.readFileSync(path.join(__dirname, '..', 'class-manager-desktop', 'app', '_archive', '_port_to_web.py'), 'utf8');
   has(py, "'cmNavReportDrawer'", 'py NAV 模板同步');
 });
 
