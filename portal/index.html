@@ -210,6 +210,11 @@ body{padding-bottom:76px}
 .gbar i{width:72%;max-width:36px;background:var(--primary);opacity:.85;border-radius:6px 6px 2px 2px;display:block}
 .gbar b{font-size:11px;color:var(--ink2)}
 .gbar span{font-size:10px;color:var(--ink3);white-space:nowrap;overflow:hidden;max-width:100%;text-overflow:ellipsis}
+/* v3.9.26 成绩单条形：逐科分数条 + 班均刻度线（灰竖线=班均位置） */
+.gbarline{position:relative;height:7px;border-radius:4px;background:rgba(127,127,127,.22);margin:-5px 0 10px;overflow:visible}
+.gbarline i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--primary);display:block}
+.gbarline i.lo{background:#B42318}
+.gbarline u{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink3);border-radius:1px}
 /* ===== v4.0 教师端预览 ===== */
 .pvbadge{margin:0 0 12px;padding:9px 12px;border-radius:12px;background:rgba(166,58,43,.07);
   border:1px dashed rgba(166,58,43,.35);color:var(--primary);font-size:12.5px;line-height:1.7}
@@ -915,13 +920,22 @@ body{padding-bottom:76px}
            (cur.a != null ? '<span class="gavg">班均 ' + cur.a + '</span>' : '') +
            '<b>' + myTot + '</b>' + (prevTot != null ? deltaBadge(myTot - prevTot) : '') + '</div>';
     }
+    var hasSA = !!(cur.sa && Object.keys(cur.sa).length);
     subs.forEach(function(k){
       var v = cur.s[k];
       var p = (prev && prev.s) ? (prev.s[k] != null ? prev.s[k] : null) : null;
-      h += '<div class="grow"><span class="gl">' + esc(k) + '</span><b>' + v + '</b>' + (p != null ? deltaBadge(v - p) : '') + '</div>';
+      var sa = (cur.sa && cur.sa[k] != null) ? cur.sa[k] : null;
+      h += '<div class="grow"><span class="gl">' + esc(k) + '</span>' +
+           (sa != null ? '<span class="gavg">班均 ' + sa + '</span>' : '') +
+           '<b>' + v + '</b>' + (p != null ? deltaBadge(v - p) : '') + '</div>';
+      var nv = Number(v) || 0;
+      var pct = Math.max(2, Math.min(100, Math.round(nv)));
+      h += '<div class="gbarline"><i class="' + (nv < 60 ? 'lo' : '') + '" style="width:' + pct + '%"></i>' +
+           (sa != null ? '<u style="left:' + Math.max(0, Math.min(100, Math.round(sa))) + '%"></u>' : '') + '</div>';
     });
     if(!subs.length) h += '<div class="gnote">这场考试暂无你的分数记录</div>';
-    else if(prevTot == null) h += '<div class="gnote">这是第一场，还没有对比基准；再考一场就能看进退步</div>';
+    else if(prevTot == null) h += '<div class="gnote">这是第一场，还没有对比基准；再考一场就能看进退步' + (hasSA ? '；条上的灰线是班级平均分位置' : '') + '</div>';
+    else if(hasSA) h += '<div class="gnote">灰线 = 班级平均分位置</div>';
     h += '</div>';
     if(gs.length >= 2){
       var tots = gs.map(function(g){ var t = 0; Object.keys(g.s || {}).forEach(function(k){ t += g.s[k]; }); return t; });

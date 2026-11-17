@@ -1,4 +1,4 @@
-/*! cmgx.js — 班主任工作台 网页版 增强引擎（v3.9.25）
+/*! cmgx.js — 班主任工作台 网页版 增强引擎（v3.9.26）
  *  内容：数据分析图表引擎（成绩/学分/首页/公示，ECharts + 纸墨主题）+ 学期报告引擎（个人/班级，长图/打印PDF）
  *  移植自桌面版注入层（class-manager-desktop v1.5.5 app/src/app.patch.js 的 M3/P0/P1/P2 分节），
  *  网页版全部功能免费开放（无 Pro 闸）。echarts.min.js 首次渲染时懒加载，失败/超时静默回退原实现；
@@ -942,7 +942,7 @@ function gxPlayCounters(root) {
     var topHtml = results.slice(0, 10).map(function (r, i) {
       var cls = i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : 'rn';
       var subsDet = subs.map(function (sj) { var v = r.scores[sj]; return sj + ' ' + (v !== undefined ? v : '—'); }).join(' · ');
-      return '<div class="cmGx-rank"><div class="cmGx-rnum ' + cls + '">' + (i + 1) + '</div>' +
+      return '<div class="cmGx-rank" style="cursor:pointer" title="查看成绩详情" onclick="openStudentReportModal(' + r.stu.id + ',' + exam.id + ')"><div class="cmGx-rnum ' + cls + '">' + (i + 1) + '</div>' +
         '<div class="cmGx-rmain"><div class="cmGx-rname">' + cmGxEsc(r.stu.name) + '</div>' +
         '<div class="cmGx-rbar"><i style="width:' + (r.total / agg.mx * 100).toFixed(1) + '%"></i></div>' +
         '<div class="cmGx-rsubs">' + cmGxEsc(subsDet) + '</div></div>' +
