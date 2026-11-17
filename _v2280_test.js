@@ -289,7 +289,7 @@ try {
   eq(E.env.saves, 0, '空班不写盘');
   eq(E.env.toasts.length, 1, '空班只弹一条提示');
   eq(E.env.toasts[0][1], 'error', '空班提示类型 error');
-  has(E.env.toasts[0][0], '\u65e0\u6cd5\u5b89\u6392\u7f5a\u626b', '空班提示「无法安排罚扫」');
+  has(E.env.toasts[0][0], '\u65e0\u6cd5\u5b89\u6392\u52b3\u52a8\u6559\u80b2', '空班提示「无法安排劳动教育」');
 
   const B = mk(S28, {}, true);
   B.PEN(0, 0);
