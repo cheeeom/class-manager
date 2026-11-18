@@ -70,6 +70,7 @@ const ctx = [
   grab('examFullTotal'),
   grab('examPassLine'),
   grab('examGoodLine'),
+  grab('hasAnySubjectScore'),   // v3.9.31 「算不算参考」统一判据（删科目后孤儿分数不许算参考）
   grab('examDateTs'),
   grab('gradeTermStartTs'),
   grab('gradeYearStartTs'),
