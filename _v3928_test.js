@@ -180,7 +180,65 @@ t('⑫ 行为（反向，防修成锁死）：一场都命中 0 科时，用户�
   eq(c[0].hit.length, 0, '不应误判命中：');
 });
 
-/* ==================== 三、附带修复：esc 未定义 ==================== */
+/* ==================== 三、渲染输出（假 DOM 跑真实渲染函数） ==================== */
+const srcEscape = (html.match(/function escapeHtml\(s\)\{[\s\S]*?\n\}/) || [])[0];
+const srcRender = (html.match(/function renderGradeExamPick\(\)\{[\s\S]*?\n\}/) || [])[0];
+if (!srcEscape || !srcRender) throw new Error('escapeHtml / renderGradeExamPick 切片失败');
+
+function renderToString(pick) {
+  const els = { gradeExamPickList: { innerHTML: '' }, gradeExamPickOk: { disabled: true } };
+  const doc = { getElementById: id => els[id] || null };
+  const R = {};
+  new Function('S', 'document',
+    srcEscape + '\n' + srcRender + '\n' +
+    'var _gradePick = null;\n' +
+    'S.set=function(d){ _gradePick = d; }; S.render=renderGradeExamPick;'
+  )(R, doc);
+  R.set(pick);
+  R.render();
+  return { html: els.gradeExamPickList.innerHTML, disabled: els.gradeExamPickOk.disabled };
+}
+
+t('⑱ 渲染输出：三场考试都在、标签按命中数生成、默认选中第一场', function () {
+  state.exams = [
+    { id: 3, name: '第一次月考', date: '2026-10-12', subjects: ['语文', '数学', '英语'], scores: { 1: {}, 2: {} } },
+    { id: 4, name: '期中考试',   date: '2026-11-08', subjects: ['语文', '数学', '英语', '历史'], scores: {} },
+    { id: 5, name: '物理周测',   date: '2026-11-15', subjects: ['物理'], scores: {} }
+  ];
+  const c = S.cands(['序号', '学号', '姓名', '语文成绩', '数学(150)', '英语']);
+  const out = renderToString({ cands: c, rows: [], headers: [], headerRow: 2, fileName: 'x.xlsx', si: 0 });
+  has(out.html, '第一次月考', '第一场缺失');
+  has(out.html, '期中考试', '第二场缺失');
+  has(out.html, '物理周测', '第三场缺失');
+  has(out.html, '3/3 科', '满配标签未生成');
+  has(out.html, '3/4 科', '欠配标签未生成');
+  has(out.html, '对不上：历史', '未标出缺哪一科');
+  has(out.html, '科目对不上', '全不匹配的场次未标注');
+  has(out.html, '已有 2 人成绩', '未显示已有成绩人数');
+  eq(out.disabled, false, '有默认选中时确认按钮应可用：');
+  // 第一项带 .on（选中态），第三项带 .off（置灰）
+  ok(/class="ge-pick on"/.test(out.html), '默认选中态缺失');
+  ok(/class="ge-pick off"/.test(out.html), '置灰态缺失');
+});
+
+t('⑲ 渲染输出（边界）：全部对不上时确认按钮禁用，且每项都置灰', function () {
+  state.exams = [{ id: 9, name: '只考物理', date: '2026-11-01', subjects: ['物理'], scores: {} }];
+  const c = S.cands(['姓名', '语文']);
+  const out = renderToString({ cands: c, rows: [], headers: [], headerRow: 0, fileName: 'x.csv', si: -1 });
+  eq(out.disabled, true, '全不匹配时确认按钮应禁用：');
+  notHas(out.html, 'class="ge-pick on"', '不该有选中项');
+  has(out.html, '科目对不上', '缺置灰标注');
+});
+
+t('⑳ 渲染输出：考试名带尖括号不会破坏结构（XSS 兜底）', function () {
+  state.exams = [{ id: 11, name: '<img src=x>期中', date: '', subjects: ['语文'], scores: {} }];
+  const c = S.cands(['姓名', '语文']);
+  const out = renderToString({ cands: c, rows: [], headers: [], headerRow: 0, fileName: 'x.csv', si: 0 });
+  notHas(out.html, '<img src=x>', '考试名未转义');
+  has(out.html, '&lt;img', '应转义成实体');
+});
+
+/* ==================== 四、附带修复：esc 未定义 ==================== */
 t('⑬ 成绩摘要弹窗不再调用不存在的 esc()', function () {
   notHas(html, 'esc(exam.name)', '残留未定义的 esc 调用');
   notHas(html, 'esc(a.name)', '残留未定义的 esc 调用');
