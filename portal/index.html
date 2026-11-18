@@ -866,7 +866,7 @@ body{padding-bottom:76px}
     try{ window.scrollTo(0, 0); }catch(e){}
   }
 
-  /* ===== 🏠 学分（默认页）：大数字 + 排名 + 周/月 + 流水筛选 ===== */
+  /* ===== 学分（默认页）：大数字 + 排名 + 周/月 + 流水筛选 ===== */
   function renderHome(){
     var data = _data;
     var h = '';
@@ -913,7 +913,7 @@ body{padding-bottom:76px}
     renderOpsChips(ops);
   }
 
-  /* ===== 📊 成绩：每科 vs 上一场（📈进步 / 📉退步 / ➖持平）+ 总分趋势条 ===== */
+  /* ===== 成绩：每科 vs 上一场（进步 / 退步 / 持平）+ 总分趋势条 ===== */
   function renderGrades(){
     var gs = (_data && _data.grades) || [];
     var h = '';
@@ -984,7 +984,7 @@ body{padding-bottom:76px}
   }
   window.gsel = function(i){ _gIdx = i; renderGrades(); };
 
-  /* ===== 🛍 商店：学分币余额 + 商品架 + 购物车（申请二维码流程原样保留） ===== */
+  /* ===== 商店：学分币余额 + 商品架 + 购物车（申请二维码流程原样保留） ===== */
   function renderShop(){
     var data = _data;
     var h = '';
@@ -1029,7 +1029,7 @@ body{padding-bottom:76px}
     $('result').innerHTML = h;
   }
 
-  /* ===== 👤 我的：档案徽章 / 荣誉 / 班主任寄语 / 退出登录 ===== */
+  /* ===== 我的：档案徽章 / 荣誉 / 班主任寄语 / 退出登录 ===== */
   function renderMe(){
     var data = _data;
     var h = '';
