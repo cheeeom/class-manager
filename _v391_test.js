@@ -41,7 +41,7 @@ t('④ 版本一致性 + 速览条目', () => {
   const sv = html.match(/sidebar-footer">(v[0-9.]+) ·/);
   ok(sv && m && sv[1] === m[1], '侧栏版本 ' + (sv && sv[1]) + ' 应与 CACHE 一致');
 
-  has(html, '按压反馈与阴影跟肤（v3.9.1）', '速览当版条目');
+  if (html.includes('按压反馈与阴影跟肤（v3.9.1）')) throw new Error('v3.9.32 起速览只留当版，历史条目应已清理：按压反馈与阴影跟肤（v3.9.1）');
 });
 
 console.log('\n通过 ' + pass + ' 项，失败 ' + fail + ' 项');

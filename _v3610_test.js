@@ -54,7 +54,7 @@ t('④ 版本一致性 + 速览条目（一律从 CACHE_NAME 反推，不写死�
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
   ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应一致');
-  has(html, '手机端学期报告入口（v3.6.10）', '速览历史条目');
+  if (html.includes('手机端学期报告入口（v3.6.10）')) throw new Error('v3.9.32 起速览只留当版，历史条目应已清理：手机端学期报告入口（v3.6.10）');
   ok((cmgx.match(/增强引擎（v[0-9.]+）/g) || []).length === 1, 'cmgx 头跟版（动态，不写死版本）');
 });
 

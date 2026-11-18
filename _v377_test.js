@@ -43,7 +43,7 @@ t('③ 既有契约不破坏（v370 锚点抽检）+ 版本 v3.7.7', () => {
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
   ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同版（动态跟版）');
-  has(html, '学生端弱网体验修复（v3.7.7）', '速览历史条目（v3.7.7）仍在');
+  if (html.includes('学生端弱网体验修复（v3.7.7）')) throw new Error('v3.9.32 起速览只留当版，历史条目应已清理：学生端弱网体验修复（v3.7.7）');
 });
 
 console.log('\n通过 ' + pass + ' 项，失败 ' + fail + ' 项');

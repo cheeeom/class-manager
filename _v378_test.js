@@ -44,8 +44,8 @@ t('③ 既有契约抽检（学生页核心路径未动）+ 版本 v3.7.8', () =
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
   ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同版（动态跟版）');
-  has(html, '查询提速 4 倍（v3.7.8）', '速览历史条目（v3.7.8）仍在');
-  ok(html.includes('改完请点「重新发布」才生效'), '速览含重新发布提醒');
+  if (html.includes('查询提速 4 倍（v3.7.8）')) throw new Error('v3.9.32 起速览只留当版，历史条目应已清理：查询提速 4 倍（v3.7.8）');
+  ok(html.includes('请重新发布学生查询端'), '重新发布提醒（v3.9.32 起钉产品 toast，不再钉速览历史条目）');
 });
 
 console.log('\n通过 ' + pass + ' 项，失败 ' + fail + ' 项');

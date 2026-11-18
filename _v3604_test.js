@@ -69,7 +69,7 @@ t('⑤ 版本一致性（动态跟版）+ 速览条目 + 默认表未动', () =>
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
   ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同版（版本从 CACHE 反推，无需随版改）');
-  has(html, '补齐默认商品（v3.6.4）', '速览历史条目（v3.6.4）仍在');
+  if (html.includes('补齐默认商品（v3.6.4）')) throw new Error('v3.9.32 起速览只留当版，历史条目应已清理：补齐默认商品（v3.6.4）');
   ok(CB_STORE.length === 15, 'CB_STORE 保持 15 件');
 });
 

@@ -100,7 +100,7 @@ t('⑤ sw.js：PWA 离线资产 + CACHE_NAME 跟版', () => {
   // 版本一致性：登录页与 CACHE 同版
   const vm = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
   ok(vm && vm[1] === m[1], '登录页版本 ' + (vm && vm[1]) + ' 与 CACHE ' + m[1] + ' 不同步');
-  has(html, '📊 <b>数据分析图表引擎 + 学期报告引擎上线', '速览当版条目');
+  if (html.includes('📊 <b>数据分析图表引擎 + 学期报告引擎上线')) throw new Error('v3.9.32 起速览只留当版，历史条目应已清理：📊 <b>数据分析图表引擎 + 学期报告引擎上线');
 });
 
 t('⑥ 结构铁律：全文档 div 深度平衡（横幅摘除是结构手术）', () => {

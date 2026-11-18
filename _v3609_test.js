@@ -61,7 +61,7 @@ t('④ 移植器同步（重跑不回退）+ 版本 v3.6.9 一致性', () => {
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
   ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同版（动态跟版）');
-  has(html, '首页学分分布空白修复（v3.6.9）', '速览历史条目（v3.6.9）仍在');
+  if (html.includes('首页学分分布空白修复（v3.6.9）')) throw new Error('v3.9.32 起速览只留当版，历史条目应已清理：首页学分分布空白修复（v3.6.9）');
   ok((cmgx.match(/增强引擎（v3\.[0-9.]+）/g) || []).length >= 1, 'cmgx 头版本存在');
 });
 

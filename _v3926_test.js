@@ -195,12 +195,13 @@ t('cmgx 引用与缓存参数同版', () => {
   has(swjs, `class-manager-v${VNUM}`, 'CACHE_NAME');
   has(cmgx, `增强引擎（${VT}）`, 'cmgx 头注释');
 });
-t('速览是累积式：上一版条目仍在', () => {
-  has(html, '措辞对齐教育政策（v3.9.25）', 'v3.9.25 条目不得被清掉');
-  /* 本条刻意钉字面量 v3.9.26，不拼当版号：个人成绩单是 v3.9.26 的史实，
-     条目文本永不随版本移动。原写法 `'个人成绩单（' + VT + '）'` 把当版号绑进了
-     历史条目，升到 v3.9.27 就误报「条目丢失」——判据错，不是产品错。 */
-  has(html, '个人成绩单（v3.9.26）', 'v3.9.26 条目不得被清掉');
+t('v3.9.32 起速览只留当版：旧条目已清理', () => {
+  if (html.includes('措辞对齐教育政策（v3.9.25）')) throw new Error('v3.9.32 起速览只留当版，历史条目应已清理：措辞对齐教育政策（v3.9.25）');
+  /* 只能在【速览块区间内】查，不能全文件 includes：
+     「个人成绩单（v3.9.26）」同时是 index.html 里的分节注释，全文件查会误伤历史注释。 */
+  const _n0 = html.indexOf('id="settingsReleaseNotes"');
+  const _notes = _n0 < 0 ? '' : html.slice(_n0, html.indexOf('</div>', _n0));
+  if (_notes.includes('个人成绩单（v3.9.26）')) throw new Error('v3.9.32 起速览只留当版，历史条目应已清理：个人成绩单（v3.9.26）');
 });
 
 console.log(`通过 ${pass} 项，失败 ${fail} 项`);

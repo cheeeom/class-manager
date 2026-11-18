@@ -132,7 +132,7 @@ t('④ 版本一致性（动态跟版）+ 速览条目', () => {
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
   ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同版（从 CACHE 反推，无需随版改）');
-  has(html, '学号续号与批量配学号（v3.7.5）', '速览历史条目（v3.7.5）仍在');
+  if (html.includes('学号续号与批量配学号（v3.7.5）')) throw new Error('v3.9.32 起速览只留当版，历史条目应已清理：学号续号与批量配学号（v3.7.5）');
 });
 
 console.log('\n通过 ' + pass + ' 项，失败 ' + fail + ' 项');

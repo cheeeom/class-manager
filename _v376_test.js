@@ -67,7 +67,7 @@ t('④ 版本一致性（动态跟版）+ 速览条目', () => {
   const m = sw.match(/CACHE_NAME = 'class-manager-(v[0-9.]+)'/);
   const v = html.match(/<div class="login-version">(v[0-9.]+)<\/div>/);
   ok(m && v && m[1] === v[1], 'CACHE ' + (m && m[1]) + ' / 登录页 ' + (v && v[1]) + ' 应同版（从 CACHE 反推）');
-  has(html, '二维码卡 + 记住我（v3.7.6）', '速览历史条目（v3.7.6）仍在');
+  if (html.includes('二维码卡 + 记住我（v3.7.6）')) throw new Error('v3.9.32 起速览只留当版，历史条目应已清理：二维码卡 + 记住我（v3.7.6）');
   has(sw, './portal/qrcode.js', 'QR 库仍在离线清单');
 });
 

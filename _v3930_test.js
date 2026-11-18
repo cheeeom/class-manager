@@ -400,9 +400,9 @@ t('㊱ 跟版六处同源：CACHE / 侧栏 / 图标 / cmgx / manifest', () => {
   eq(countOf(mani, new RegExp('\\?v=' + NUM.replace(/\./g, '\\.'), 'g')), 3, 'manifest 三处：');
 });
 
-t('㊲ 历史注释与速览史实不许被跟版误改（v3.9.29 那几条还在）', () => {
+t('㊲ 历史注释不被跟版误改；速览历史条目已清理', () => {
   has(html, '<!-- v3.9.29 场次范围');
-  has(html, '成绩页看得全、收得拢（v3.9.29）');
+  if (html.includes('成绩页看得全、收得拢（v3.9.29）')) throw new Error('v3.9.32 起速览只留当版，历史条目应已清理：成绩页看得全、收得拢（v3.9.29）');
   has(html, 'var _pfScoreScope = \'term\';   // v3.9.29');
 });
 
