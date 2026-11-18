@@ -175,6 +175,17 @@
   #qrpage .qs{font-size:12.5px; color:var(--ink3); margin:0}
   .qrbox{width:248px; height:248px; margin:20px auto 8px; background:#fff; border:1.5px solid var(--border); border-radius:14px; padding:12px; box-shadow:0 4px 18px rgba(43,43,51,.06)}
   .qrbox img{width:100%; height:100%; display:block}
+  /* ===== 扫码查询层（沿用 #qrpage 的全屏模式，z 比它高一档） ===== */
+  #scanpage{position:fixed; inset:0; background:var(--bg); z-index:80; display:none; overflow-y:auto}
+  #scanpage .inner{max-width:460px; margin:0 auto; padding:26px 18px 40px; text-align:center}
+  #scanpage h2{font-size:18px; margin:0 0 4px}
+  #scanpage .qs{font-size:12.5px; color:var(--ink3); margin:0}
+  .scanbox{position:relative; width:100%; aspect-ratio:3/4; max-height:62vh; margin:18px auto 12px;
+    background:#000; border:1.5px solid var(--border); border-radius:14px; overflow:hidden}
+  .scanbox video{width:100%; height:100%; object-fit:cover; display:block}
+  /* 用超大外阴影做「挖洞」遮罩：中间保留清晰取景区，四周压暗 */
+  .scanframe{position:absolute; inset:14% 12%; border:2px solid rgba(255,255,255,.92); border-radius:12px;
+    box-shadow:0 0 0 999px rgba(0,0,0,.3); pointer-events:none}
   .qr-exp{font-size:12px; color:var(--down); margin-bottom:10px}
   .qr-meta{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px; text-align:left; font-size:13px; margin:8px 0 14px}
   .qr-meta .r{display:flex; justify-content:space-between; padding:3px 0}
@@ -309,6 +320,7 @@ body{padding-bottom:76px}
     <label class="rmrow"><input type="checkbox" id="rmChk"> <span>记住我：在这台设备上保存，下次免输入（<b>公共设备请勿勾选</b>）</span></label>
     <button class="go" id="goBtn">查询</button>
     <div class="msg" id="msg"></div>
+    <button class="ghost" onclick="openScan()">扫一扫 · 用二维码查</button>
   </div>
 
   <!-- PWA 安装引导：只在「还没装到桌面」时出现，装好/独立模式打开时永久不显示。
@@ -369,6 +381,25 @@ body{padding-bottom:76px}
     <div class="qr-code" id="qrcodetext">-</div>
     <button class="btn2" onclick="qrDone()">已完成 · 返回</button>
     <div class="foot">二维码为一次性凭据 · 核销后即失效<br>凭据由你的查询码签名，他人无法伪造</div>
+  </div>
+</div>
+
+<!-- 扫码查询：摄像头实时扫 + 相册选图双通道。
+     二维码里装的是「学生入口链接 + &s=学号&c=查询码」，扫到后抠出 s/c 自动填表查询。
+     相册通道是给 iOS 兜底的：iOS 上摄像头要授权，学生手上又常常只是一张截图。 -->
+<div id="scanpage">
+  <div class="inner">
+    <h2>扫一扫查询码</h2>
+    <p class="qs">把二维码放进取景框，不用按快门</p>
+    <div class="scanbox">
+      <video id="scanVideo" playsinline muted autoplay></video>
+      <div class="scanframe"></div>
+    </div>
+    <div class="msg" id="scanMsg"></div>
+    <label class="ghost" for="scanFile" style="text-align:center;cursor:pointer">从相册选二维码图片</label>
+    <input type="file" id="scanFile" accept="image/*" style="display:none" onchange="scanFromFile(this)">
+    <button class="ghost" onclick="closeScan()">取消</button>
+    <div class="foot">扫到的码只填进本页，不会发到别处</div>
   </div>
 </div>
 
@@ -510,6 +541,163 @@ body{padding-bottom:76px}
     _instEvt = null;
     var tip = $('instTip'); if(tip) tip.style.display = 'none';
   });
+
+  /* ===== 扫码查询（2026-11-18）=====
+     二维码内容 = 学生入口链接 + &s=学号&c=查询码（老师端 index.html 生成）。
+     解码器复用老师端那份 jsqr.min.js（站点根目录，懒加载，零 CDN），不复制第二份库。
+     两条通道：① 摄像头实时扫（安卓与 iOS 主屏 App 都可用，iOS 首次要授权）
+               ② 相册选图（iOS 兜底：学生手上常常只是一张截图）
+     🔴 只认带 s/c 的链接，别的二维码一律拒收 —— 绝不能把无关的码当查询码喂进解密流程。 */
+  var _scanStream = null, _scanStop = null;
+
+  function ensureJsQr(cb){
+    if(window.jsQR){ cb(); return; }
+    var s = document.createElement('script');
+    s.src = '../jsqr.min.js';
+    s.onload = cb;
+    s.onerror = function(){ scanMsg('解码器没加载下来，可以直接手动输入查询码。', 'warn'); };
+    document.head.appendChild(s);
+  }
+
+  function scanMsg(html, kind){
+    var el = $('scanMsg');
+    if(!el) return;
+    el.className = 'msg show' + (kind ? ' ' + kind : '');
+    el.innerHTML = html;
+  }
+
+  function closeScan(){
+    if(_scanStop){ try{ _scanStop(); }catch(e){} _scanStop = null; }
+    if(_scanStream){
+      try{ _scanStream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
+      _scanStream = null;
+    }
+    var v = $('scanVideo'); if(v) v.srcObject = null;
+    var p = $('scanpage'); if(p) p.style.display = 'none';
+    var m = $('scanMsg'); if(m){ m.className = 'msg'; m.innerHTML = ''; }
+  }
+
+  function openScan(){
+    var p = $('scanpage'); if(!p) return;
+    p.style.display = 'block';
+    ensureJsQr(function(){
+      if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+        scanMsg('这个浏览器打不开摄像头。点下面「从相册选二维码图片」，或直接手输查询码。', 'warn');
+        return;
+      }
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+        .then(function(stream){
+          _scanStream = stream;
+          var v = $('scanVideo');
+          v.srcObject = stream;
+          var pl = v.play();
+          if(pl && pl.catch) pl.catch(function(){});
+          scanMsg('正在识别…把二维码对准取景框，不用按快门');
+          startScanLoop();
+        })
+        .catch(function(e){
+          var n = (e && e.name) || '';
+          var why = n === 'NotAllowedError' ? '摄像头权限被拒绝了'
+                  : n === 'NotFoundError' ? '这台设备没找到摄像头'
+                  : '摄像头打不开';
+          scanMsg(why + '。点下面「从相册选二维码图片」，或直接手输查询码。', 'warn');
+        });
+    });
+  }
+
+  function startScanLoop(){
+    var v = $('scanVideo');
+    var cv = document.createElement('canvas');
+    var ctx = cv.getContext('2d');
+    var stopped = false, lastBad = '';
+    _scanStop = function(){ stopped = true; };
+    (function tick(){
+      if(stopped || !_scanStream) return;
+      try{
+        if(v.videoWidth && window.jsQR){
+          cv.width = v.videoWidth;
+          cv.height = v.videoHeight;
+          ctx.drawImage(v, 0, 0);
+          var img = ctx.getImageData(0, 0, cv.width, cv.height);
+          var r = window.jsQR(img.data, cv.width, cv.height);
+          if(r && r.data){
+            /* 同一个无效码只提示一次，否则每帧都会重复刷提示 */
+            if(r.data !== lastBad){
+              lastBad = r.data;
+              if(onScanHit(r.data)) return;   /* 成功：已经关层并查询 */
+            }
+          }
+        }
+      }catch(e){}
+      requestAnimationFrame(tick);
+    })();
+  }
+
+  /* 从二维码文本里抠学号与查询码。只有形如 ?s=…&c=… 的链接才算数。 */
+  function parseQrText(text){
+    var t = String(text == null ? '' : text).trim();
+    if(!t) return null;
+    var ms = t.match(/[?&]s=([^&#\s]+)/);
+    var mc = t.match(/[?&]c=([^&#\s]+)/);
+    if(!ms || !mc) return null;
+    var sid = ms[1], code = mc[1];
+    try{ sid = decodeURIComponent(sid); }catch(e){}
+    try{ code = decodeURIComponent(code); }catch(e){}
+    sid = String(sid).trim();
+    if(!sid || !normCode(code)) return null;
+    return { sid: sid, code: code };
+  }
+
+  /* 成功返回 true（调用方据此停止扫描循环） */
+  function onScanHit(text){
+    var hit = parseQrText(text);
+    if(!hit){
+      scanMsg('这个二维码不是查询码。换一张，或手动输入。', 'err');
+      return false;
+    }
+    closeScan();
+    $('sidInput').value = hit.sid;
+    var nc = normCode(hit.code);
+    $('codeInput').value = nc.length > 4 ? nc.slice(0, 4) + '-' + nc.slice(4) : nc;
+    submit();
+    return true;
+  }
+
+  function scanFromFile(inp){
+    var f = inp.files && inp.files[0];
+    if(!f) return;
+    scanMsg('正在识别图片…');
+    ensureJsQr(function(){
+      var fr = new FileReader();
+      fr.onload = function(){
+        var img = new Image();
+        img.onload = function(){
+          try{
+            /* 手机截图动辄两千万像素，原尺寸 getImageData 会卡死；先等比缩到 1200 内 */
+            var maxSide = 1200;
+            var k = Math.min(1, maxSide / Math.max(img.width, img.height));
+            var cv = document.createElement('canvas');
+            cv.width = Math.max(1, Math.round(img.width * k));
+            cv.height = Math.max(1, Math.round(img.height * k));
+            var ctx = cv.getContext('2d');
+            ctx.drawImage(img, 0, 0, cv.width, cv.height);
+            var d = ctx.getImageData(0, 0, cv.width, cv.height);
+            var r = window.jsQR(d.data, cv.width, cv.height);
+            if(r && r.data){ onScanHit(r.data); }
+            else scanMsg('图里没认出二维码。截图一般能识别，拍照反光会失败——也可以手动输入。', 'err');
+          }catch(e){ scanMsg('图片解析失败，请手动输入查询码。', 'err'); }
+        };
+        img.onerror = function(){ scanMsg('图片读不出来，请手动输入查询码。', 'err'); };
+        img.src = fr.result;
+      };
+      fr.readAsDataURL(f);
+    });
+    inp.value = '';
+  }
+
+  window.openScan = openScan;
+  window.closeScan = closeScan;
+  window.scanFromFile = scanFromFile;
 
   function qsp(k){
     var m = new RegExp('[?&]' + k + '=([^&]*)').exec(location.search);
