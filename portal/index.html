@@ -645,7 +645,16 @@ body{padding-bottom:76px}
     try{ code = decodeURIComponent(code); }catch(e){}
     sid = String(sid).trim();
     if(!sid || !normCode(code)) return null;
-    return { sid: sid, code: code };
+    /* 2026-11-18：二维码里同时带班级参数（o/g）时一并取出。
+       用途是「自愈」—— iOS 主屏 App 的存储与 Safari 完全隔离（WebKit 明确记载），
+       本机存参数那条路对 iPhone 无效，扫一次班主任发的二维码卡就成了唯一自救手段。 */
+    var out = { sid: sid, code: code, o: '', g: '' };
+    var mo = t.match(/[?&]o=([^&#\s]+)/), mg = t.match(/[?&]g=([^&#\s]+)/);
+    if(mo && mg){
+      try{ out.o = decodeURIComponent(mo[1]); out.g = decodeURIComponent(mg[1]); }catch(e){}
+      if(!locSane(out.o) || !locSane(out.g)){ out.o = ''; out.g = ''; }
+    }
+    return out;
   }
 
   /* 成功返回 true（调用方据此停止扫描循环） */
@@ -654,6 +663,16 @@ body{padding-bottom:76px}
     if(!hit){
       scanMsg('这个二维码不是查询码。换一张，或手动输入。', 'err');
       return false;
+    }
+    /* 扫到的码带了班级参数、而本页正缺（桌面图标启动丢了参数）⇒ 带上参数重启，一次到位。
+       iOS 主屏 App 读不到 Safari 存的参数，扫一下就能自己修好，不用找老师。 */
+    if(hit.o && hit.g && (!OWNER || !GIST)){
+      try{ localStorage.setItem(LOC_KEY, hit.o + '|' + hit.g); }catch(e){}
+      closeScan();
+      location.replace(location.pathname +
+        '?o=' + encodeURIComponent(hit.o) + '&g=' + encodeURIComponent(hit.g) +
+        '&s=' + encodeURIComponent(hit.sid) + '&c=' + encodeURIComponent(hit.code));
+      return true;
     }
     closeScan();
     $('sidInput').value = hit.sid;
@@ -705,9 +724,47 @@ body{padding-bottom:76px}
   }
   var OWNER = qsp('o');
   var GIST = qsp('g');
-  /* v3.7.6 二维码卡直达参数（&s=学号&c=查询码）：自动填充并直接查询 */
+  /* v3.7.6 二维码卡直达参数（&s=学号&c=查询码）：自动填充并直接查询。
+     必须在下面对地址栏的改写之前读走，否则会被 replaceState 带走。 */
   var PSID = qsp('s');
   var PCODE = qsp('c');
+  /* 2026-11-18 修复「装到桌面后手输和扫码都查不了」：
+     manifest 的 start_url 是 "./"，从桌面图标启动时 ?o=&g= 会被整个丢掉 ⇒ OWNER/GIST 为空
+     ⇒ init() 直接拦下整页（实测学生端就停在这张报错卡上）。
+     对策：把入口参数在本机存一份，URL 里缺哪个就补哪个；URL 带了就以 URL 为准并覆盖本机值。
+     特意用「分号拼接的字符串」而不是 JSON：读写都不会因解析异常抛错，也不与 cm_portal_cache 抢键。
+     🔴 2026-11-18 补：iOS 主屏 App 与 Safari 的存储是**隔离**的（WebKit 明确记载，localStorage 不复制不共享），
+     所以这一段只救安卓/桌面，对 iPhone 无效。iPhone 靠的是 portal/manifest.json 里 start_url 写死的 o/g。
+     ⇒ 换 gist 时必须同步改 portal/manifest.json 的 start_url，否则已装的老图标会一直读旧班级的数据（静默错误）。 */
+  var LOC_KEY = 'cm_portal_loc';
+  function locSane(s){ return /^[A-Za-z0-9_-]{1,64}$/.test(String(s == null ? '' : s)); }
+  (function(){
+    var okO = locSane(OWNER), okG = locSane(GIST);
+    if(okO && okG){
+      try{ localStorage.setItem(LOC_KEY, OWNER + '|' + GIST); }catch(e){}
+      return;
+    }
+    try{
+      var v = String(localStorage.getItem(LOC_KEY) || '').split('|');
+      if(v.length === 2){
+        if(!okO && locSane(v[0])) OWNER = v[0];
+        if(!okG && locSane(v[1])) GIST = v[1];
+      }
+    }catch(e){}
+    /* 把补回来的参数写进地址栏：否则在 App 里再「添加到主屏幕」仍会拿到不带参数的 URL；
+       老版 iOS 不读 manifest 的 start_url，靠的就是当时的地址栏，这一步对它们才算真修好。
+       ⚠️ 只补 o/g，其余参数（尤其二维码直达的 s/c）必须原样保留 —— 第一版直接重写整条 query，
+       把 s/c 抹掉了，导致「有 s/c 但缺 o/g」的链接不再自动填充。 */
+    if(!okO && OWNER && GIST){
+      try{
+        var keep = String(location.search || '').replace(/^\?/, '').split('&')
+          .filter(function(x){ return x && !/^[og]=/.test(x); });
+        history.replaceState(null, '', location.pathname + '?o=' + encodeURIComponent(OWNER) +
+                             '&g=' + encodeURIComponent(GIST) +
+                             (keep.length ? '&' + keep.join('&') : '') + (location.hash || ''));
+      }catch(e){}
+    }
+  })();
 
   function esc(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
@@ -1584,7 +1641,7 @@ body{padding-bottom:76px}
       return;
     }
     if(!OWNER || !GIST){
-      msg('链接不完整。<br>请使用班主任发的那条查询链接打开，不要手动输入网址。');
+      msg('这台设备还没记下班级。<br>请点一次<b>班主任发的那条查询链接</b>，不要手动输入网址。');
       return;
     }
     var sid = String($('sidInput').value || '').trim();
@@ -1669,7 +1726,8 @@ body{padding-bottom:76px}
     }
 
     if(!OWNER || !GIST){
-      msg('这个页面需要通过<b>班主任发来的链接</b>打开。<br>直接访问会缺少查询参数，无法定位你班级的数据。');
+      msg('这台设备还没记下班级。<br>请<b>点一次班主任发的那条查询链接</b>，之后从桌面图标进来就能正常查了。' +
+          '<br><span style="font-size:12px">若从链接打开后仍提示，再重新「添加到主屏幕」覆盖一次即可。</span>');
       return;
     }
     /* 走到这里才是正常入口（预览模式已在上面 return，不会显示安装引导） */

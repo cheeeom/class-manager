@@ -3,7 +3,7 @@
   "short_name": "我的学业",
   "description": "查看自己的学分、成绩、加减分流水与兑换申请",
   "lang": "zh-CN",
-  "start_url": "./",
+  "start_url": "./?o=cheeeom&g=307f8dcd703f46aa45354944f71d2f99",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
