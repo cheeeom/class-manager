@@ -124,13 +124,14 @@ t('★ .grade-table tr:hover（成绩表悬停）', () => {
   has(html, '.grade-table tr:hover{background:var(--row-bg)}', '成绩表悬停没走变量');
   notHas(html, `.grade-table tr:hover{background:${OLD_LIGHT}}`, '成绩表悬停仍是硬编码');
 });
-t('恰好 17 处使用 var(--row-bg)（新增第 18 处时提醒你回来更新本测试）', () => {
+t('恰好 18 处使用 var(--row-bg)（新增第 19 处时提醒你回来更新本测试）', () => {
   /* v3.7.0 +1：学生查询面板的状态区 */
   /* v3.7.1 +1：兑换核销弹窗的结果卡 */
   /* v3.7.5 +1：批量配学号预览框 */
   /* v3.9.2 +4：成绩自动分析弹窗（3 个统计格 + 波动名单底色） */
+  /* v3.9.29 +1：学生档案「学业」卡的科目标签 .pf-score-subj */
   const n = html.split('background:var(--row-bg)').length - 1;
-  eq(n, 17, 'var(--row-bg) 使用处数：');
+  eq(n, 18, 'var(--row-bg) 使用处数：');
 });
 
 /* ============================================================ */
