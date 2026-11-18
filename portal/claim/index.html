@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#A63A2B">
+<meta name="robots" content="noindex,nofollow">
+<title>领取我的查询码 · 班主任工作台</title>
+<!--
+  领码站 v1.0（2026-11-18）· 独立应用，刻意不塞进学生查询页
+  ─────────────────────────────────────────────────────────────
+  职责只有一个：把查询凭证发到学生手里。查学分、看成绩、兑换，全在 ../ 那页，互不掺和。
+
+  为什么独立成页（老板 2026-11-18 拍板）：
+    查询页是「用钥匙开门」的地方，领码是「配钥匙」。把配钥匙的表格塞在门口，
+    既让第一次来的人分不清该填哪个框，也让老用户每次都要跳过一块跟自己无关的表单。
+
+  数据层（沿用 2026-10-28 的设计，未改）：
+    claim.json 与 portal.json 同一个 Gist；每人一块 AES-GCM 密文，
+    密钥 = PBKDF2-SHA256(归一化学号 + '|' + 归一化姓名, 100000 轮)。Gist 里没有明文查询码。
+
+  ⚠️ 安全边界（老板 2026-10-28 拍板，此处不翻案）：
+    学号 + 姓名是班里半公开信息 ⇒ 能挡住「顺手翻看」，挡不住「存心逐个试」。
+    所以：①10 万轮派生让批量刷全班变得很慢；②同一台设备连错 5 次锁 60 秒；
+         ③领到后把姓名显示出来 —— 领错了会一眼看见「这不是我的名字」。
+-->
+
+<style>
+  :root{
+    --bg:#F6F2E9; --card:#FFFDF7; --ink:#2B2B33; --ink2:#5F5E5A; --ink3:#8C8577;
+    --border:#E6DECD; --primary:#A63A2B; --primary-light:#C25A49;
+    --ok:#2F7D5B; --err:#B42318; --warn:#B5731A; --warnbg:#FDF6E7;
+    --radius:16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#191714; --card:#232019; --ink:#EDE8DD; --ink2:#B8B2A5; --ink3:#8C8577;
+      --border:#3A352C; --primary:#D9705E; --primary-light:#E58877;
+      --ok:#5FBF8E; --err:#E57373; --warn:#D9A94E; --warnbg:#2B2418;
+    }
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink); min-height:100vh;
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:15px; line-height:1.65; padding:0 16px 46px;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .wrap{width:100%; max-width:440px; padding-top:26px}
+
+  .brand{text-align:center; margin-bottom:20px}
+  .brand h1{font-size:18px; font-weight:600; margin:0 0 5px; letter-spacing:.3px}
+  .brand p{font-size:12px; color:var(--ink3); margin:0}
+
+  .card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px 18px 20px; margin-bottom:13px}
+
+  .intro{padding:16px 18px}
+  .intro p{margin:0; font-size:14px; color:var(--ink2)}
+  .intro p + p{margin-top:8px}
+  .intro b{color:var(--ink); font-weight:600}
+
+  label{display:block; font-size:12.5px; color:var(--ink2); margin-bottom:6px}
+  input{
+    width:100%; padding:12px 14px; font-size:16px; border-radius:12px;
+    border:1px solid var(--border); background:var(--bg); color:var(--ink);
+    outline:none; font-family:inherit;
+  }
+  input:focus{border-color:var(--primary)}
+  .field + .field{margin-top:14px}
+  .hint{font-size:11.5px; color:var(--ink3); margin-top:7px; line-height:1.6}
+
+  button{font-family:inherit; cursor:pointer}
+  .go{
+    width:100%; margin-top:18px; padding:13px; font-size:15.5px; font-weight:600;
+    border:none; border-radius:12px; background:var(--primary); color:#fff;
+    transition:opacity .15s;
+  }
+  .go:active{opacity:.82}
+  .go[disabled]{opacity:.55; cursor:default}
+  .ghost{
+    width:100%; padding:12px; font-size:14.5px; font-weight:500;
+    border:1px solid var(--primary); border-radius:12px;
+    background:transparent; color:var(--primary);
+  }
+  .ghost:active{opacity:.75}
+
+  .msg{display:none; margin-top:14px; font-size:13.5px; line-height:1.65;
+       padding:11px 13px; border-radius:11px; border:1px solid transparent}
+  .msg.show{display:block}
+  .msg.err{color:var(--err); background:rgba(180,35,24,.07); border-color:rgba(180,35,24,.22)}
+  .msg.ok{color:var(--ok); background:rgba(47,125,91,.08); border-color:rgba(47,125,91,.22)}
+  .msg.warn{color:var(--warn); background:var(--warnbg); border-color:rgba(181,115,26,.28)}
+  .msg small{font-size:12px; opacity:.85}
+
+  /* ---------- 领到之后 ---------- */
+  #out{display:none; text-align:center; padding-bottom:22px}
+  #out.show{display:block; animation:pop .22s ease-out}
+  @keyframes pop{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+
+  .who{font-size:14.5px; margin-bottom:4px}
+  .who b{font-weight:600}
+  .who span{color:var(--ink3); font-size:12.5px; margin-left:6px}
+  .who-note{font-size:11.5px; color:var(--ink3); margin:2px 0 0}
+
+  #oQr{display:block; width:214px; height:214px; margin:14px auto 10px;
+       border-radius:10px; background:#fff; padding:6px}
+  .code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:23px; letter-spacing:2.5px; font-weight:600; color:var(--ink);
+    margin:2px 0 6px;
+  }
+  .tip{font-size:11.5px; color:var(--ink3); line-height:1.75; margin-bottom:16px}
+  .acts{display:flex; flex-direction:column; gap:9px}
+  .acts .go{margin-top:0}
+
+  details{margin-top:16px; text-align:left; border-top:1px solid var(--border); padding-top:13px}
+  summary{font-size:13px; color:var(--primary); cursor:pointer; list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"＋ "; font-weight:600}
+  details[open] summary::before{content:"－ "}
+  details .body{font-size:12.5px; color:var(--ink2); line-height:1.85; margin-top:10px}
+  details .body p{margin:0 0 8px}
+  details .body p:last-child{margin-bottom:0}
+  details .body b{color:var(--ink); font-weight:600}
+
+  .foot{text-align:center; font-size:11.5px; color:var(--ink3); line-height:1.9; margin-top:20px}
+  .foot b{color:var(--ink2); font-weight:500}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand">
+    <h1>领取我的查询码</h1>
+    <p id="clsLine">班主任工作台 · 学生端</p>
+  </div>
+
+  <div class="card intro">
+    <p>查询码是查<b>自己</b>学分、成绩的钥匙。</p>
+    <p>纸质卡丢了不用等老师补印 —— 填一次<b>学号</b>和<b>姓名</b>，当场就能重新领到自己的二维码。</p>
+  </div>
+
+  <div class="card" id="formCard">
+    <div class="field">
+      <label for="fSid">学号</label>
+      <input id="fSid" inputmode="numeric" autocomplete="off" autocapitalize="off"
+             spellcheck="false" placeholder="7 位数字，如 2602001">
+    </div>
+    <div class="field">
+      <label for="fName">姓名</label>
+      <input id="fName" autocomplete="off" spellcheck="false" placeholder="填真实姓名">
+      <div class="hint">姓名后面括号里的备注不用填（如「刘梓萱（白驿）」只填「刘梓萱」）。</div>
+    </div>
+    <button class="go" id="btnClaim">领取我的查询码</button>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div class="card" id="out">
+    <div class="who"><b id="oName"></b><span id="oSid"></span></div>
+    <img id="oQr" alt="我的查询二维码">
+    <div class="code" id="oCode"></div>
+    <div class="tip">长按二维码存进相册 · 以后扫这张就能看自己的学分和成绩</div>
+    <div class="acts">
+      <button class="go" id="btnGo">马上去查询</button>
+      <button class="ghost" id="btnSave">保存二维码图片</button>
+    </div>
+    <details>
+      <summary>怎么装到手机桌面？</summary>
+      <div class="body">
+        <p>先点上面的「马上去查询」把页面打开，再按下面的方法装：</p>
+        <p><b>安卓</b>：浏览器右上角菜单 →「安装应用」或「添加到主屏幕」。</p>
+        <p><b>苹果</b>：底部「分享」→ 往下找「添加到主屏幕」。</p>
+        <p><b>如果是在微信里打开的</b>：先点右上角「···」→「在浏览器打开」，否则装不了。</p>
+        <p>装好后桌面会多一个「我的学业」，以后点图标直接进，不用再输学号和查询码。</p>
+      </div>
+    </details>
+  </div>
+
+  <div class="foot">
+    查询码等于钥匙，只存自己手机，<b>别发给同学</b>。<br>
+    领不到？先核对学号；还不行就找班主任。
+  </div>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ---------- 常量 ----------
+     默认值写死当前班级，但 URL 带 ?o=&g= 时以 URL 为准：
+     老师发的入口码可以带参数，换数据源时不用改这份代码。 */
+  var DEF_OWNER = 'cheeeom';
+  var DEF_GIST  = '307f8dcd703f46aa45354944f71d2f99';
+  var CLAIM_FILE = 'claim.json';
+  var ROUNDS_FALLBACK = 100000;
+  var CACHE_KEY = 'cm_claim_page_cache';
+  var CACHE_TTL_MS = 30 * 60 * 1000;
+  var FAIL_KEY = 'cm_claim_page_fail';
+  var FAIL_MAX = 5;
+  var FAIL_LOCK_MS = 60000;
+  var RM_KEY = 'cm_portal_remember';
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  function qsp(k){
+    var m = new RegExp('[?&]' + k + '=([^&#]*)').exec(location.search);
+    return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : '';
+  }
+  function sane(v){ return /^[A-Za-z0-9_-]{1,64}$/.test(String(v || '')); }
+
+  var OWNER = sane(qsp('o')) ? qsp('o') : DEF_OWNER;
+  var GIST  = sane(qsp('g')) ? qsp('g') : DEF_GIST;
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+  function normSid(s){ return String(s == null ? '' : s).toUpperCase().replace(/[^0-9A-Z]/g, ''); }
+  function normName(s){
+    return String(s == null ? '' : s).replace(/[\s\u3000]+/g, '').replace(/[（(][^）)]*[）)]/g, '');
+  }
+  function normCode(s){ return String(s == null ? '' : s).toUpperCase().replace(/[^0-9A-Z]/g, ''); }
+  function fmtCode(code){
+    var c = normCode(code);
+    return c.length > 4 ? c.slice(0, 4) + '-' + c.slice(4) : c;
+  }
+  function material(sid, name){ return normSid(sid) + '|' + normName(name); }
+
+  function b64dec(s){ return Uint8Array.from(atob(s), function(c){ return c.charCodeAt(0); }); }
+  function hasCrypto(){
+    return !!(window.crypto && window.crypto.subtle && window.crypto.subtle.deriveKey);
+  }
+
+  function say(text, kind){
+    var el = $('msg');
+    el.className = 'msg show ' + (kind || 'err');
+    el.innerHTML = text;
+  }
+  function hush(){ var el = $('msg'); el.className = 'msg'; el.innerHTML = ''; }
+
+  /* ---------- 试错锁定（只锁本机，防不住换设备，但足以劝退课间乱试） ---------- */
+  function failState(){
+    try{
+      var o = JSON.parse(localStorage.getItem(FAIL_KEY) || 'null');
+      if(!o || typeof o.n !== 'number') return { n:0, at:0 };
+      if(Date.now() - (o.at || 0) > FAIL_LOCK_MS) return { n:0, at:0 };
+      return o;
+    }catch(e){ return { n:0, at:0 }; }
+  }
+  function bumpFail(){
+    var s = failState();
+    s.n = (s.n || 0) + 1; s.at = Date.now();
+    try{ localStorage.setItem(FAIL_KEY, JSON.stringify(s)); }catch(e){}
+    return s;
+  }
+  function clearFail(){ try{ localStorage.removeItem(FAIL_KEY); }catch(e){} }
+
+  /* ---------- 拉 claim.json：缓存 → CDN → API ---------- */
+  var _payload = null;
+  function grab(url, parse){
+    if(typeof AbortController === 'undefined') return fetch(url, { cache:'no-store' }).then(parse);
+    var ctl = new AbortController();
+    var timer = setTimeout(function(){ try{ ctl.abort(); }catch(e){} }, 20000);
+    return fetch(url, { cache:'no-store', signal:ctl.signal })
+      .finally(function(){ clearTimeout(timer); }).then(parse);
+  }
+  function asJson(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.text().then(JSON.parse); }
+
+  function fetchClaim(){
+    if(_payload) return Promise.resolve(_payload);
+    try{
+      var c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+      if(c && c.owner === OWNER && c.gist === GIST && (Date.now() - (c.at || 0)) < CACHE_TTL_MS
+         && c.payload && c.payload.students){
+        _payload = c.payload;
+        return Promise.resolve(_payload);
+      }
+    }catch(e){}
+
+    var cdn = 'https://gist.githubusercontent.com/' + encodeURIComponent(OWNER) + '/' +
+              encodeURIComponent(GIST) + '/raw/' + CLAIM_FILE;
+    return grab(cdn, asJson).catch(function(){
+      return grab('https://api.github.com/gists/' + encodeURIComponent(GIST), function(r){
+        if(!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function(j){
+        var f = j.files && j.files[CLAIM_FILE];
+        if(!f) throw new Error('NOFILE');
+        if(f.truncated) throw new Error('NOFILE');
+        return f.content ? JSON.parse(f.content)
+          : grab(f.raw_url, function(r){ return r.text().then(JSON.parse); });
+      });
+    }).then(function(p){
+      if(!p || !p.students) throw new Error('NOFILE');
+      _payload = p;
+      try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ owner:OWNER, gist:GIST, at:Date.now(), payload:p })); }catch(e){}
+      if(p.className) $('clsLine').textContent = p.className + ' · 学生端';
+      return p;
+    });
+  }
+
+  /* ---------- 解密自己那一片 ---------- */
+  function derive(materialStr, salt, rounds){
+    return crypto.subtle.importKey('raw', new TextEncoder().encode(materialStr), 'PBKDF2', false, ['deriveKey'])
+      .then(function(base){
+        return crypto.subtle.deriveKey(
+          { name:'PBKDF2', salt:salt, iterations:rounds, hash:'SHA-256' },
+          base, { name:'AES-GCM', length:256 }, false, ['decrypt']);
+      });
+  }
+
+  /* ---------- 二维码：按需加载，不拖首屏 ---------- */
+  var _qrReady = false, _qrPromise = null;
+  function ensureQr(){
+    if(_qrReady) return Promise.resolve();
+    if(_qrPromise) return _qrPromise;
+    var load = function(src){
+      return new Promise(function(res, rej){
+        var s = document.createElement('script');
+        s.src = src;
+        s.onload = function(){ res(); };
+        s.onerror = function(){ rej(new Error('QRLOAD')); };
+        document.head.appendChild(s);
+      });
+    };
+    _qrPromise = load('../qrcode.js')
+      .then(function(){ return load('../qrcode_utf8.js'); })
+      .then(function(){ _qrReady = true; })
+      .catch(function(e){ _qrPromise = null; throw e; });
+    return _qrPromise;
+  }
+
+  /* 查询页是上一级目录（本页在 /portal/claim/，查询页在 /portal/）。
+     不用写死路径：万一以后整站换到子路径部署，这里跟着走。 */
+  function parentDir(){
+    var segs = location.pathname.split('/').filter(Boolean);
+    if(/\.html?$/i.test(segs[segs.length - 1] || '')) segs.pop();
+    segs.pop();
+    return '/' + segs.join('/') + (segs.length ? '/' : '');
+  }
+  function queryUrl(sid, code){
+    var dir = parentDir();
+    return location.origin + dir +
+      '?o=' + encodeURIComponent(OWNER) + '&g=' + encodeURIComponent(GIST) +
+      '&s=' + encodeURIComponent(sid) + '&c=' + encodeURIComponent(normCode(code));
+  }
+
+  var _last = null;
+
+  function render(o){
+    var sid = String(o.sid || '').trim();
+    var code = normCode(o.code || '');
+    var nm = String(o.name || '').trim();
+    var url = queryUrl(sid, code);
+
+    $('oName').textContent = nm;
+    $('oSid').textContent = sid;
+    $('oCode').textContent = fmtCode(code);
+
+    return ensureQr().then(function(){
+      var qr = window.qrcode(0, 'M');
+      qr.addData(url, 'Byte');
+      qr.make();
+      var dataUrl = qr.createDataURL(6, 10);
+      $('oQr').src = dataUrl;
+      _last = { sid: sid, code: code, name: nm, dataUrl: dataUrl, url: url };
+      $('out').className = 'card show';
+      try{ $('out').scrollIntoView({ behavior:'smooth', block:'center' }); }catch(e){}
+    });
+  }
+
+  function doClaim(){
+    var btn = $('btnClaim');
+    if(btn.disabled) return;
+
+    var sid = normSid($('fSid').value);
+    var name = normName($('fName').value);
+    if(!sid){ say('先填学号。'); $('fSid').focus(); return; }
+    if(!name){ say('先填姓名。'); $('fName').focus(); return; }
+    if(!hasCrypto()){
+      say('这个打开方式不支持加密，请用手机自带浏览器（Safari / Chrome）打开本页。', 'warn');
+      return;
+    }
+    var fs = failState();
+    if(fs.n >= FAIL_MAX){
+      var left = Math.ceil((FAIL_LOCK_MS - (Date.now() - fs.at)) / 1000);
+      if(left > 0){ say('试错次数太多了，请 <b>' + left + '</b> 秒后再试。'); return; }
+      clearFail();
+    }
+
+    btn.disabled = true;
+    var old = btn.textContent;
+    btn.textContent = '正在领取…';
+    hush();
+    $('out').className = 'card';
+
+    fetchClaim().then(function(p){
+      var blk = p.students && p.students[sid];
+      if(!blk) throw new Error('NOMATCH');
+      return derive(material(sid, name), b64dec(blk.salt), p.rounds || ROUNDS_FALLBACK)
+        .then(function(key){
+          return crypto.subtle.decrypt({ name:'AES-GCM', iv:b64dec(blk.iv) }, key, b64dec(blk.data));
+        })
+        .then(function(pt){ return JSON.parse(new TextDecoder().decode(pt)); });
+    }).then(function(o){
+      clearFail();
+      return render(o).then(function(){
+        /* 顺手写进「记住我」，学生点「马上去查询」就不用再输一遍；
+           查询页与本页同源，读的是同一个键 cm_portal_remember。 */
+        try{
+          localStorage.setItem(RM_KEY, JSON.stringify({
+            sid: String(o.sid || '').trim(), code: normCode(o.code || ''), at: Date.now()
+          }));
+        }catch(e){}
+        say('领到了，记得存图。', 'ok');
+      });
+    }).catch(function(e){
+      var m = String((e && e.message) || e);
+      if(m === 'NOMATCH' || (e && e.name === 'OperationError') || m.indexOf('operation') >= 0){
+        var s2 = bumpFail();
+        say('学号和姓名对不上，没找到这个人。' +
+            '<br><small>常见原因：学号少打了、姓名写的是小名、或者名字里的括号备注也填进去了。</small>' +
+            (s2.n >= FAIL_MAX ? '<br><small>已连错 ' + s2.n + ' 次，先锁 60 秒。</small>' : ''));
+      }else if(m === 'NOFILE' || m.indexOf('404') >= 0){
+        say('班主任还没打开这个功能。先用纸质查询卡，或者直接问班主任。', 'warn');
+      }else{
+        say('没连上，可能是网络不稳。' +
+            '<br><small>' + esc(m) + '</small>', 'warn');
+      }
+    }).finally(function(){
+      btn.disabled = false;
+      btn.textContent = old;
+    });
+  }
+
+  $('btnClaim').addEventListener('click', doClaim);
+  ['fSid', 'fName'].forEach(function(id){
+    $(id).addEventListener('keydown', function(e){ if(e.key === 'Enter') doClaim(); });
+  });
+
+  $('btnGo').addEventListener('click', function(){
+    if(!_last) return;
+    location.href = _last.url;
+  });
+
+  $('btnSave').addEventListener('click', function(){
+    if(!_last) return;
+    try{
+      var a = document.createElement('a');
+      a.href = _last.dataUrl;
+      a.download = '查询码-' + _last.sid + '.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      say('已保存。手机端如果没反应，直接长按上面的二维码存图。', 'ok');
+    }catch(e){
+      say('这台设备不支持直接下载，长按二维码保存即可。', 'warn');
+    }
+  });
+
+  /* 首屏就把班级名换掉：claim.json 里带 className，但别为这一行字阻塞首屏 */
+  fetchClaim().then(function(p){
+    if(p.className) $('clsLine').textContent = p.className + ' · 学生端';
+  }).catch(function(){});
+
+})();
+</script>
+</body>
+</html>

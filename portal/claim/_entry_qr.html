@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>入口码生成</title>
+<body style="margin:0;background:#fff">
+<img id="q" style="width:512px;height:512px;display:block">
+<script src="../../jsqr.min.js"></script>
+<script src="../../jsqr.min.js"></script>
+<script src="../qrcode.js"></script>
+<script src="../qrcode_utf8.js"></script>
+<script>
+// 指向领码站的裸链接：不带 o/g，换数据源时改页面默认值即可，已印出去的码不会作废
+var TARGET = 'https://cheeeom.github.io/class-manager/portal/claim/';
+var qr = window.qrcode(0, 'M');
+qr.addData(TARGET, 'Byte');
+qr.make();
+document.getElementById('q').src = qr.createDataURL(24, 16);
+window.__TARGET__ = TARGET;
+window.__SRC__ = document.getElementById('q').src;
+// 自检：把刚生成的码画到 canvas 再用 jsQR 解回来，肉眼清晰不算数
+(function(){
+  var im = new Image();
+  im.onload = function(){
+    var c = document.createElement('canvas');
+    c.width = im.width; c.height = im.height;
+    var g = c.getContext('2d'); g.drawImage(im, 0, 0);
+    var px = g.getImageData(0, 0, c.width, c.height);
+    var r = window.jsQR(px.data, px.width, px.height);
+    window.__DECODED__ = r ? r.data : 'FAIL';
+  };
+  im.src = document.getElementById('q').src;
+})();
+// 自检：把刚生成的码画到 canvas 再用 jsQR 解回来，肉眼清晰不算数
+(function(){
+  var im = new Image();
+  im.onload = function(){
+    var c = document.createElement('canvas');
+    c.width = im.width; c.height = im.height;
+    var g = c.getContext('2d'); g.drawImage(im, 0, 0);
+    var px = g.getImageData(0, 0, c.width, c.height);
+    var r = window.jsQR(px.data, px.width, px.height);
+    window.__DECODED__ = r ? r.data : 'FAIL';
+  };
+  im.src = document.getElementById('q').src;
+})();
+</script>
+</body>
