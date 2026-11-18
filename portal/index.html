@@ -9,7 +9,7 @@
      crossorigin 必须写：fetch 是 CORS 请求，匿名预连接才能被复用。 -->
 <link rel="preconnect" href="https://gist.githubusercontent.com" crossorigin>
 <link rel="preconnect" href="https://api.github.com" crossorigin>
-<title>我的学分 · 班主任工作台</title>
+<title>我的学业 · 班主任工作台</title>
 <!--
   学生查询端（v3.7.1）· 独立只读页 + 自助兑换申请
   规格见 ../SPEC_学生查询端.md（v3.7.0 基础）与 ../PROGRESS.md v3.7.1 章节。铁律：
@@ -246,8 +246,8 @@ body{padding-bottom:76px}
 <body>
 <div class="wrap">
   <div class="brand">
-    <h1 id="clsName">学分查询</h1>
-    <p>输入学号和查询码，查看自己的学分与流水</p>
+    <h1 id="clsName">学业详情</h1>
+    <p>输入学号和查询码，查看自己的学分、成绩与流水</p>
   </div>
 
   <div class="card" id="formCard">
@@ -1160,7 +1160,7 @@ body{padding-bottom:76px}
     h += '<div class="gnote">四个页签（学分/成绩/商店/我的）都能点；预览模式不生成兑换二维码</div></div>';
     $('formCard').style.display = 'none';
     var rb = $('rmBanner'); if(rb) rb.style.display = 'none';
-    if(pp.className) $('clsName').textContent = pp.className + ' · 学分查询（预览）';
+    if(pp.className) $('clsName').textContent = pp.className + ' · 学业详情（预览）';
     $('result').innerHTML = h;
     return true;
   }
@@ -1245,7 +1245,7 @@ body{padding-bottom:76px}
     var getP = payloadCache ? Promise.resolve(payloadCache) : fetchPayload();
     getP.then(function(p){
       payloadCache = p;
-      if(p.className){ $('clsName').textContent = p.className + ' · 学分查询'; }
+      if(p.className){ $('clsName').textContent = p.className + ' · 学业详情'; }
       var blk = p.students && p.students[sid];
       if(!blk){
         setBusy(false);
@@ -1320,7 +1320,7 @@ body{padding-bottom:76px}
     /* 预取发布包：让学生输完码点查询时不用等网络 */
     fetchPayload().then(function(p){
       payloadCache = p;
-      if(p.className) $('clsName').textContent = p.className + ' · 学分查询';
+      if(p.className) $('clsName').textContent = p.className + ' · 学业详情';
     }).catch(function(e){
       var m = String(e && e.message || e);
       if(m.indexOf('404') >= 0){
