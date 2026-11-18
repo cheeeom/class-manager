@@ -4,6 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#A63A2B">
+<!-- PWA：让这个页面能「添加到主屏幕」，从图标直接进、不带浏览器地址栏。
+     manifest 与图标都在本目录，scope 锁死在 /portal/，与主应用 manifest.json 互不干扰。
+     图标必须是满版无透明（icon-512.png 源图四角 alpha=0，直接当 apple-touch-icon 会出现白角，
+     故由 _pwa_portal_icons.py 生成满版版本；改图标请重跑那个脚本，别手工替换）。 -->
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="我的学业">
 <!-- 2026-11-11 预连接：数据包在 gist 上，真发请求前先把 TLS 建好。
      手机 4G 下 TLS 要 2–3 个 RTT（约 150–300ms），这段原来全落在「查询中」的转圈里。
      crossorigin 必须写：fetch 是 CORS 请求，匿名预连接才能被复用。 -->
@@ -171,6 +181,18 @@
   .qr-meta .r b{font-weight:600}
   .qr-code{font-family:Consolas,monospace; font-size:11px; color:var(--ink3); word-break:break-all; background:var(--card); border:1px dashed var(--border); border-radius:9px; padding:9px 11px; text-align:left; margin-bottom:14px; user-select:all}
   .foot{text-align:center; font-size:11.5px; color:var(--ink3); margin-top:26px; line-height:1.9}
+  /* ===== PWA 安装引导（未装到桌面时出现，装好后永久消失） ===== */
+  #instTip{display:none}
+  #instTip .it-h{font-size:13.5px; color:var(--ink); font-weight:600; margin-bottom:6px}
+  #instTip .it-p{font-size:12.5px; color:var(--ink2); line-height:1.85}
+  #instTip .it-row{display:flex; gap:10px; align-items:center; margin-top:12px}
+  #instTip .it-go{flex:1; padding:11px 14px; font-size:14px; font-weight:600; border:0; border-radius:11px;
+    background:var(--primary); color:#fff; cursor:pointer; font-family:inherit; transition:opacity .15s}
+  #instTip .it-go:active{opacity:.8}
+  #instTip .it-x{padding:11px 14px; font-size:13px; border:1px solid var(--border); border-radius:11px;
+    background:transparent; color:var(--ink3); cursor:pointer; font-family:inherit}
+  #instTip .it-kbd{display:inline-block; padding:1px 6px; border:1px solid var(--border); border-radius:6px;
+    background:rgba(166,58,43,.06); color:var(--primary); font-size:12px; font-style:normal}
   .foot a{color:var(--ink3)}
   .hidden{display:none !important}
   .spinner{display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.35); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; vertical-align:-2px; margin-right:6px}
@@ -289,6 +311,17 @@ body{padding-bottom:76px}
     <div class="msg" id="msg"></div>
   </div>
 
+  <!-- PWA 安装引导：只在「还没装到桌面」时出现，装好/独立模式打开时永久不显示。
+       微信里不能装（只能先「在浏览器打开」），文案按 UA 分岔，见 initInstallTip()。 -->
+  <div class="card" id="instTip">
+    <div class="it-h" id="itH">装到手机桌面，下次点图标直接查</div>
+    <div class="it-p" id="itP"></div>
+    <div class="it-row" id="itRow">
+      <button class="it-go" id="itGo" style="display:none" onclick="instGo()">装到桌面</button>
+      <button class="it-x" onclick="instLater()">以后再说</button>
+    </div>
+  </div>
+
   <div id="result"></div>
 
   <!-- v4.0 四页底部导航（查询成功 / 预览进入后出现） -->
@@ -366,6 +399,117 @@ body{padding-bottom:76px}
   var REDEEM_WINDOW_MS = 3 * 24 * 60 * 60 * 1000;   // v3.8.1 10 分钟→3 天（与老师端同步）
 
   var $ = function(id){ return document.getElementById(id); };
+
+  /* ===== PWA：添加到主屏幕（2026-11-18）
+     目的：学生把页面装成桌面图标，点开直接进，不用记网址、也不用每次翻二维码。
+     边界：① 已经是独立模式（装好了）就永久不提示；② 微信/QQ 内嵌浏览器装不了，
+           只能引导「在浏览器打开」；③ 点「以后再说」记 7 天，别天天烦人；
+           ④ 教师预览模式在 init() 里已短路，走不到这里。
+     刻意不加 service worker：数据在 Gist 上，必须联网才查得到，缓存个空壳没意义，
+     反而会让学生停在旧版页面。 */
+  var INST_LATER_KEY = 'cm_inst_later';
+  var INST_LATER_MS = 7 * 24 * 60 * 60 * 1000;
+  var _instEvt = null;
+
+  function isStandalone(){
+    try{
+      if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+      if(navigator.standalone === true) return true;   /* iOS Safari 专有标记 */
+    }catch(e){}
+    return false;
+  }
+
+  function instKind(){
+    var ua = navigator.userAgent || '';
+    if(/MicroMessenger/i.test(ua)) return 'wechat';
+    if(/QQ\//i.test(ua)) return 'qq';
+    var ios = /iPhone|iPad|iPod/i.test(ua) ||
+              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if(ios) return /(CriOS|FxiOS|EdgiOS|OPiOS)/.test(ua) ? 'ios-other' : 'ios';
+    if(/Android/i.test(ua)) return 'android';
+    return 'other';
+  }
+
+  function instLater(){
+    try{ localStorage.setItem(INST_LATER_KEY, String(Date.now())); }catch(e){}
+    var t = $('instTip'); if(t) t.style.display = 'none';
+  }
+
+  function instGo(){
+    var ev = _instEvt;
+    if(!ev) return;
+    _instEvt = null;
+    try{ ev.prompt(); }catch(e){ return; }
+    var p = ev.userChoice;
+    if(p && p.then){
+      p.then(function(r){
+        if(r && r.outcome === 'accepted'){ var t = $('instTip'); if(t) t.style.display = 'none'; }
+      }).catch(function(){});
+    }
+  }
+  window.instGo = instGo;
+  window.instLater = instLater;
+
+  function initInstallTip(){
+    var tip = $('instTip'); if(!tip) return;
+    if(isStandalone()) return;              /* 已经装成 App 了，永不显示 */
+
+    try{
+      var t0 = parseInt(localStorage.getItem(INST_LATER_KEY) || '0', 10);
+      if(t0 && (Date.now() - t0) < INST_LATER_MS) return;   /* 7 天内不再打扰 */
+    }catch(e){}
+
+    var kind = instKind(), H = $('itH'), P = $('itP'), GO = $('itGo');
+    tip.dataset.kind = kind;          /* 给 beforeinstallprompt 门控用：非安卓别显示安装按钮 */
+    if(GO) GO.style.display = 'none';
+    var kbd = function(s){ return '<span class="it-kbd">' + s + '</span>'; };
+
+    if(kind === 'wechat' || kind === 'qq'){
+      H.textContent = '想装到桌面？先换个浏览器打开';
+      P.innerHTML = '点右上角 ' + kbd('···') + ' 选「在浏览器打开」，再在浏览器菜单里选「添加到主屏幕」。'
+                  + '<br>微信 / QQ 内置浏览器不能直接装。';
+    }else if(kind === 'ios'){
+      H.textContent = '装到手机桌面，下次点图标直接查';
+      P.innerHTML = '点底部 ' + kbd('分享') + ' → 往下找「添加到主屏幕」→ 右上角「添加」。'
+                  + '<br>装好后不用再记网址。';
+    }else if(kind === 'ios-other'){
+      H.textContent = '想装到桌面？请用 Safari 打开';
+      P.innerHTML = 'iPhone 上只有 Safari 能「添加到主屏幕」：把本页链接粘到 Safari 打开，'
+                  + '再点底部 ' + kbd('分享') + ' →「添加到主屏幕」。';
+    }else if(kind === 'android'){
+      H.textContent = '装到手机桌面，下次点图标直接查';
+      /* 这里不能提「下面的按钮」：beforeinstallprompt 没来的时候按钮是不存在的，
+         文案会自相矛盾。等事件真的到了，再由下面的 listener 改写文案。 */
+      P.innerHTML = '用浏览器右上角菜单里的「添加到主屏幕」或「安装应用」即可。';
+    }else{
+      H.textContent = '装到桌面，下次点图标直接查';
+      P.innerHTML = '在浏览器菜单里选「安装」或「添加到主屏幕」。';
+    }
+    tip.style.display = 'block';
+  }
+
+  window.addEventListener('beforeinstallprompt', function(e){
+    /* 只在安卓 / 桌面浏览器上认这个事件。iOS Safari 与微信内置浏览器不会触发它，
+       但 Chromium 是按平台能力而非 UA 判定的 —— 拿 iPhone UA 跑 Chromium 也会触发，
+       所以这里必须用 instKind() 的结果做门控，不能只靠平台默认行为。 */
+    var tip = $('instTip');
+    var k = tip ? (tip.dataset.kind || '') : '';
+    if(k !== 'android' && k !== 'other') return;
+    e.preventDefault();
+    _instEvt = e;
+    if(isStandalone()) return;
+    var GO = $('itGo');
+    if(GO) GO.style.display = '';
+    if(tip) tip.style.display = 'block';
+    /* 按钮真的出现了，才把文案改成「点下面的按钮」——否则那句话是空的 */
+    var P2 = $('itP');
+    if(P2) P2.innerHTML = '点下面的按钮即可安装，也可以走浏览器菜单里的「添加到主屏幕」。';
+  });
+
+  window.addEventListener('appinstalled', function(){
+    _instEvt = null;
+    var tip = $('instTip'); if(tip) tip.style.display = 'none';
+  });
 
   function qsp(k){
     var m = new RegExp('[?&]' + k + '=([^&]*)').exec(location.search);
@@ -1340,6 +1484,8 @@ body{padding-bottom:76px}
       msg('这个页面需要通过<b>班主任发来的链接</b>打开。<br>直接访问会缺少查询参数，无法定位你班级的数据。');
       return;
     }
+    /* 走到这里才是正常入口（预览模式已在上面 return，不会显示安装引导） */
+    initInstallTip();
     if(!hasCrypto()){
       msg('当前打开方式不支持加密查询，请用系统浏览器（Safari / Chrome）打开本链接。', 'warn');
     }
