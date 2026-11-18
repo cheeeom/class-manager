@@ -65,6 +65,11 @@ const ctx = [
   'var _gradeCollapsed = {};',
   'var _pfScoreScope = "term";',
   grab('escapeHtml'),
+  grab('defaultFullOf'),     // v3.9.30 renderGrades 卡片显示「满分X」，沙箱要补齐新增依赖
+  grab('examMaxOf'),
+  grab('examFullTotal'),
+  grab('examPassLine'),
+  grab('examGoodLine'),
   grab('examDateTs'),
   grab('gradeTermStartTs'),
   grab('gradeYearStartTs'),

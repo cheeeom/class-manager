@@ -25,13 +25,21 @@ function count(a, b, n, msg) { const c = String(a).split(b).length - 1; eq(c, n,
 
 /* ---------- 切出真实纯函数（闭合锚点：函数体内无列 0 的 `}`） ---------- */
 const FN_DATA = (html.match(/function reportCardData\(examId, sid\)\{[\s\S]*?\n\}/) || [])[0];
-const FN_TIER = (html.match(/function rcGradeTier\(v\)\{[\s\S]*?\n\}/) || [])[0];
+/* v3.9.30 起等第按「占本科满分比例」判，签名多了 full 形参（不传仍按 100，老断言全部照旧） */
+const FN_TIER = (html.match(/function rcGradeTier\(v, full\)\{[\s\S]*?\n\}/) || [])[0];
+const FN_MAXOF = (html.match(/function examMaxOf\(exam\)\{[\s\S]*?\n\}/) || [])[0];
+const FN_FULLSUM = (html.match(/function examFullTotal\(exam\)\{[\s\S]*?\n\}/) || [])[0];
+const FN_DEF = (html.match(/function defaultFullOf\(subj\)\{[\s\S]*?\n\}/) || [])[0];
 ok(FN_DATA, 'reportCardData 切片失败（锚点被改动？）');
 ok(FN_TIER, 'rcGradeTier 切片失败');
+ok(FN_MAXOF, 'examMaxOf 切片失败');
+ok(FN_FULLSUM, 'examFullTotal 切片失败');
+ok(FN_DEF, 'defaultFullOf 切片失败');
 
 const STUB_LEVEL = function (c) { return Number(c) >= 110 ? '进取' : (Number(c) >= 60 ? '常规' : '需努力'); };
 const sandbox = new Function('state', 'portalLevelText',
-  FN_DATA + '\n' + FN_TIER + '\n;return {reportCardData: reportCardData, rcGradeTier: rcGradeTier};');
+  FN_MAXOF + '\n' + FN_DEF + '\n' + FN_FULLSUM + '\n' + FN_DATA + '\n' + FN_TIER
+  + '\n;return {reportCardData: reportCardData, rcGradeTier: rcGradeTier};');
 
 /* ---------- 夹具：两场考试 + 一名缺科学生 ---------- */
 const ST = {
