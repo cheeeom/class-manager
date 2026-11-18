@@ -238,14 +238,34 @@ body{padding-bottom:76px}
 .merow{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
   padding:9px 0;border-bottom:1px dashed var(--border);font-size:13px;line-height:1.7}
 .merow:last-of-type{border-bottom:0}
-.merow .mk{flex-shrink:0;color:var(--ink3);font-size:12px}
+.merow .mk{flex-shrink:0;color:var(--ink3);font-size:12px;display:inline-flex;align-items:center;gap:5px}
 .merow .mv{flex:1;color:var(--ink);text-align:right}
 .plogout{width:100%;margin-top:14px;padding:12px;border-radius:12px;border:1px solid var(--border);
-  background:var(--card-bg);color:#B42318;font-size:14px;font-weight:600;cursor:pointer}
+  background:var(--card-bg);color:#B42318;font-size:14px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:7px}
 .plogout:active{opacity:.7}
+/* ===== v4.0 线性小图标（替代全部 emoji 图标位）=====
+   1em 跟随字号 ⇒ 大小自动匹配所在文字；描边吃 currentColor ⇒ 主题/选中态零维护 */
+.pi{width:1.12em;height:1.12em;display:inline-block;vertical-align:-.16em;fill:none;stroke:currentColor;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.piset{position:absolute;width:0;height:0;overflow:hidden}
 </style>
 </head>
 <body>
+<!-- v4.0 线性图标库：一处定义、`<use href="#pn-*">` 全局引用（改图标只改这里） -->
+<svg class="piset" aria-hidden="true" focusable="false">
+  <symbol id="pn-cart" viewBox="0 0 24 24"><path d="M3 4h2.2l2.4 10.6h9.6L19.6 7.2H6.1"/><circle cx="9.6" cy="18.4" r="1.35"/><circle cx="16.6" cy="18.4" r="1.35"/></symbol>
+  <symbol id="pn-up" viewBox="0 0 24 24"><path d="M4 16.6 9.6 11l3.6 3.6L20 7.8"/><path d="M15.2 7.8H20v4.8"/></symbol>
+  <symbol id="pn-down" viewBox="0 0 24 24"><path d="M4 7.4 9.6 13l3.6-3.6L20 16.2"/><path d="M15.2 16.2H20v-4.8"/></symbol>
+  <symbol id="pn-flat" viewBox="0 0 24 24"><path d="M4.5 12h15"/></symbol>
+  <symbol id="pn-home" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></symbol>
+  <symbol id="pn-medal" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.2"/><path d="M9.2 13.3 7.6 21l4.4-2.9L16.4 21l-1.6-7.7"/></symbol>
+  <symbol id="pn-chart" viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="M8.5 16.5V11"/><path d="M13 16.5V7.5"/><path d="M17.5 16.5v-6"/></symbol>
+  <symbol id="pn-cal" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M8.2 3.6v4M15.8 3.6v4M4 10.2h16"/></symbol>
+  <symbol id="pn-door" viewBox="0 0 24 24"><path d="M14.2 4H18a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3.8"/><path d="M9.8 8.4 6.2 12l3.6 3.6"/><path d="M6.4 12H15"/></symbol>
+  <symbol id="pn-phone" viewBox="0 0 24 24"><rect x="7" y="2.8" width="10" height="18.4" rx="2.2"/><path d="M10.8 18.3h2.4"/></symbol>
+  <symbol id="pn-check" viewBox="0 0 24 24"><path d="M4.6 12.6 9.6 17.4 19.6 6.8"/></symbol>
+</svg>
 <div class="wrap">
   <div class="brand">
     <h1 id="clsName">学业详情</h1>
@@ -291,7 +311,7 @@ body{padding-bottom:76px}
 <div class="sheetmask" id="sheetmask" onclick="closeCart()"></div>
 <div class="sheet" id="sheet">
   <div class="shead">
-    <h3>🛒 兑换清单</h3>
+    <h3><svg class="pi" aria-hidden="true"><use href="#pn-cart"></use></svg> 兑换清单</h3>
     <button class="clrbtn" id="clrbtn" onclick="clearCart()">清空</button>
   </div>
   <div class="sub">实际兑换以班主任核销时的最新数据为准</div>
@@ -361,6 +381,10 @@ body{padding-bottom:76px}
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
       return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
     });
+  }
+  /* v4.0 线性小图标：pi('cart') ⇒ <svg class="pi"><use href="#pn-cart"></svg>（尺寸走 CSS 的 1em） */
+  function pi(name, cls){
+    return '<svg class="pi' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><use href="#pn-' + name + '"></use></svg>';
   }
   function normCode(s){
     return String(s == null ? '' : s).toUpperCase().replace(/[^0-9A-Z]/g, '');
@@ -651,7 +675,7 @@ body{padding-bottom:76px}
     if(!n || !_data){ bar.style.display = 'none'; return; }
     bar.style.display = 'flex';
     var lack = t > (Number(_data.coins) || 0);
-    $('cartinfo').innerHTML = '🛒 已选 ' + n + ' 件 · 合计 <b>' + t + '</b> 币' +
+    $('cartinfo').innerHTML = pi('cart') + ' 已选 ' + n + ' 件 · 合计 <b>' + t + '</b> 币' +
       (lack ? '<span class="lack">币不足（还差 ' + (t - (Number(_data.coins) || 0)) + ' 币），请减少商品</span>' : '');
     /* 币不足时也必须能进清单（看提示 / 减商品 / 清空）；disabled 会吞掉点击、也不冒泡给浮条，
        与 v3.8.1「浮条整条可点」的本意冲突，这里改为换文案。 */
@@ -811,7 +835,7 @@ body{padding-bottom:76px}
   }
   function deltaBadge(d){
     var cls = d > 0 ? 'up' : (d < 0 ? 'down' : 'flat');
-    var ico = d > 0 ? '📈 +' : (d < 0 ? '📉 ' : '➖ ');
+    var ico = d > 0 ? pi('up') + ' +' : (d < 0 ? pi('down') + ' ' : pi('flat') + ' ');
     return '<span class="gdelta ' + cls + '">' + ico + d + '</span>';
   }
 
@@ -1012,15 +1036,15 @@ body{padding-bottom:76px}
     h += '<div class="card hero" style="margin-top:14px">';
     h += '<div class="nm">' + esc(data.name || '') + '　<span style="color:var(--ink3);font-size:12.5px">' + esc(data.sid || '') + '</span></div>';
     var pf = data.profile || {};
-    if(pf.dorm) h += '<span class="mebadge">🏠 ' + esc(pf.dorm) + ' 寝室</span>';
-    if(pf.pos) h += '<span class="mebadge">🏅 ' + esc(pf.pos) + '</span>';
+    if(pf.dorm) h += '<span class="mebadge">' + pi('home') + esc(pf.dorm) + ' 寝室</span>';
+    if(pf.pos) h += '<span class="mebadge">' + pi('medal') + esc(pf.pos) + '</span>';
     if(!pf.dorm && !pf.pos) h += '<div style="font-size:12px;color:var(--ink3)">暂无寝室 / 职位信息</div>';
     h += '</div>';
 
     /* ===== v4.0 P3 学期报告卡：近8周学分曲线 + 名次/最新成绩 + 出勤（老包无字段自动隐藏） ===== */
     var repData = (data.ops && data.ops.length) || (data.grades && data.grades.length) || data.attend;
     if(repData){
-      h += '<div class="sec-title">📈 学期报告</div>';
+      h += '<div class="sec-title"><span>' + pi('up') + ' 学期报告</span></div>';
       h += '<div class="card">';
       /* 学分曲线：周一开头的 8 个周桶（口径与首页「本周」一致） */
       if(data.ops && data.ops.length){
@@ -1054,7 +1078,7 @@ body{padding-bottom:76px}
       /* 名次 + 出勤（attend 来自老师端学期口径） */
       var at = data.attend;
       if(data.rank && data.total){
-        h += '<div class="merow"><span class="mk">🏅 学分排名</span><span class="mv">第 ' + data.rank + ' / ' + data.total + ' 名</span></div>';
+        h += '<div class="merow"><span class="mk">' + pi('medal') + '学分排名</span><span class="mv">第 ' + data.rank + ' / ' + data.total + ' 名</span></div>';
       }
       var gs = data.grades || [];
       if(gs.length){
@@ -1066,14 +1090,14 @@ body{padding-bottom:76px}
           var pk = Object.keys(prev.s || {});
           if(pk.length){ pt = 0; pk.forEach(function(k){ pt += prev.s[k]; }); }
         }
-        h += '<div class="merow"><span class="mk">📊 最新成绩</span><span class="mv">' + esc(cur.n || '') +
+        h += '<div class="merow"><span class="mk">' + pi('chart') + '最新成绩</span><span class="mv">' + esc(cur.n || '') +
              (pn.length ? ' · 总分 <b style="font-size:14px">' + tot + '</b>' : '') +
-             (pt != null ? ' ' + (tot >= pt ? '<span style="color:#2F7D5B;font-weight:700">📈 +' + (tot - pt) + '</span>' : '<span style="color:#B42318;font-weight:700">📉 ' + (tot - pt) + '</span>') : '') +
+             (pt != null ? ' ' + (tot >= pt ? '<span style="color:#2F7D5B;font-weight:700">' + pi('up') + ' +' + (tot - pt) + '</span>' : '<span style="color:#B42318;font-weight:700">' + pi('down') + ' ' + (tot - pt) + '</span>') : '') +
              '</span></div>';
       }
       if(at){
-        h += '<div class="merow"><span class="mk">🗓 本学期出勤</span><span class="mv">' +
-             (at.lv === 0 ? '<span style="color:#2F7D5B;font-weight:700">全勤 🎉</span>'
+        h += '<div class="merow"><span class="mk">' + pi('cal') + '本学期出勤</span><span class="mv">' +
+             (at.lv === 0 ? '<span style="color:#2F7D5B;font-weight:700">全勤 ' + pi('check') + '</span>'
                           : '请假 ' + at.lv + ' 次 · 共 ' + at.ld + ' 天') + '</span></div>';
       }
       h += '</div>';
@@ -1086,7 +1110,7 @@ body{padding-bottom:76px}
     } else {
       h += '<div class="card" style="padding:4px 16px">';
       hs.slice().reverse().forEach(function(x){
-        h += '<div class="merow"><span class="mk">🏅</span><span style="flex:1">' + esc(x.t || '') +
+        h += '<div class="merow"><span class="mk">' + pi('medal') + '</span><span style="flex:1">' + esc(x.t || '') +
              (x.l ? '<span style="font-size:11px;color:var(--ink3);margin-left:6px">' + esc(x.l) + '</span>' : '') + '</span>' +
              '<span class="mv" style="color:var(--ink3);font-size:12px">' + esc(x.d || '') + '</span></div>';
       });
@@ -1098,7 +1122,7 @@ body{padding-bottom:76px}
     } else {
       h += '<div class="empty">班主任还没有给你写寄语</div>';
     }
-    h += '<button class="plogout" onclick="plogout()">🚪 退出登录</button>';
+    h += '<button class="plogout" onclick="plogout()">' + pi('door') + '退出登录</button>';
     h += '<div class="foot">' + footHtml() + '</div>';
     $('result').innerHTML = h;
   }
@@ -1149,7 +1173,7 @@ body{padding-bottom:76px}
     _previewMode = true;
     _previewData = pp;
     var sids = Object.keys(pp.students).sort(pvSidCmp);
-    var h = '<div class="pvbadge">📱 教师端实机预览 · 数据直接来自本机工作台（不经过网络，30 分钟内有效）。<br>正式入口仍是班主任发的查询链接。</div>';
+    var h = '<div class="pvbadge">' + pi('phone') + ' 教师端实机预览 · 数据直接来自本机工作台（不经过网络，30 分钟内有效）。<br>正式入口仍是班主任发的查询链接。</div>';
     h += '<div class="card"><div class="cl-title">选择要预览的学生身份</div>';
     h += '<input id="pvSearch" class="pvsearch" type="search" autocomplete="off" placeholder="搜索姓名或学号…" oninput="previewFilter(this.value)">';
     h += '<div id="pvCount" class="pvcount">共 ' + sids.length + ' 人</div>';
