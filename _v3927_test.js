@@ -150,15 +150,24 @@ t('⑬ 复用既有 xlsx 解析（不与学生导入各写一套）', function (
   has(fn, 'decodeTableText(u8)', '未复用 decodeTableText（GBK 回退）');
 });
 
-t('⑭ 导入不再把列表头原样当科目名（走 matchScoreSubject）', function () {
+t('⑭ 导入不再把列表头原样当科目名（走 detectScoreCols / matchScoreSubject）', function () {
   const fn = (html.match(/function importGrades\(input\)\{[\s\S]*?\n\}/) || [])[0];
-  has(fn, 'detectScoreCols(headers, exam.subjects)', '未做科目列识别');
-  ok(fn.indexOf('cols.subjectCols') >= 0, '未使用识别出的科目列');
+  // v3.9.28 起科目识别搬到 scoreExamCandidates（要拿每场考试的 subjects 逐一比对），
+  // importGrades 只负责把表头交过去 ⇒ 锚点从「函数内直接 detectScoreCols」升级成这两处同强度断言
+  has(fn, 'openGradeExamPick(scoreExamCandidates(headers)', '未交给「按考试匹配科目」的通道');
+  const cf = (html.match(/function scoreExamCandidates\(headers\)\{[\s\S]*?\n\}/) || [])[0];
+  ok(cf, 'scoreExamCandidates 切片失败');
+  has(cf, 'detectScoreCols(headers, subs)', '未做科目列识别');
 });
 
-t('⑮ 导入无科目列时给出可读提示（列出本场考试科目）', function () {
-  const fn = (html.match(/function importGrades\(input\)\{[\s\S]*?\n\}/) || [])[0];
-  has(fn, "exam.subjects.join('、')", '错误提示未列科目名');
+t('⑮ 科目对不上时给出可读提示（列出各场考试的科目）', function () {
+  // v3.9.28 起「没认出科目」不再是 toast 报错，而是弹窗里逐场标注 ⇒ 断言跟着搬到渲染层
+  const rf = (html.match(/function renderGradeExamPick\(\)\{[\s\S]*?\n\}/) || [])[0];
+  ok(rf, 'renderGradeExamPick 切片失败');
+  has(rf, '科目对不上', '缺「科目对不上」提示');
+  has(rf, "join('/')", '未列出各场考试的科目名');
+  const pf = (html.match(/function openGradeExamPick\(([\s\S]*?)\n\}/) || [])[0];
+  has(pf, '请核对考试科目或表头写法', '缺「全都不匹配」时的引导文案');
 });
 
 t('⑯ 行为：表头归一 + 科目宽松匹配', function () {
@@ -242,8 +251,8 @@ t('⑳ 查询串与缓存名同步（index 2 + sw 3 + manifest 3）', function (
 });
 
 t('㉑ 本版速览条目存在（两条都是用户能看懂的「症状→原因→现状」写法）', function () {
-  has(html, '删掉的考试不再自己回来（' + VER + '）', '缺考试删除条目');
-  has(html, '成绩导入认表头，不再挑模板（' + VER + '）', '缺成绩导入条目');
+  has(html, '删掉的考试不再自己回来（v3.9.27）', '缺考试删除条目');   // 史实：条目文本永远停在出这个功能的版本，不跟当版号走
+  has(html, '成绩导入认表头，不再挑模板（v3.9.27）', '缺成绩导入条目');   // 史实：同上，不跟当版号走
 });
 
 console.log('\n通过 ' + pass + ' 项，失败 ' + fail + ' 项');
