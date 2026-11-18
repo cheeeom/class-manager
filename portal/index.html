@@ -183,10 +183,12 @@
   padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));z-index:50}
 .pni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;cursor:pointer;
   color:var(--ink3);font-size:10.5px;-webkit-tap-highlight-color:transparent}
-.pni span{font-size:19px;line-height:1;filter:grayscale(1);opacity:.55;transition:transform .18s,filter .18s,opacity .18s}
+/* 图标一律走线性 SVG（描边用 currentColor，未选中自动跟随 --ink3，不靠 grayscale 滤镜） */
+.pni svg{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round;opacity:.5;transition:transform .18s,opacity .18s}
 .pni b{font-weight:600}
 .pni.on{color:var(--primary)}
-.pni.on span{filter:none;opacity:1;transform:translateY(-1px)}
+.pni.on svg{opacity:1;transform:translateY(-1px)}
 body{padding-bottom:76px}
 /* ===== v4.0 成绩页 ===== */
 .gtitle{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px}
@@ -271,10 +273,10 @@ body{padding-bottom:76px}
 
   <!-- v4.0 四页底部导航（查询成功 / 预览进入后出现） -->
   <div id="pnav" style="display:none">
-    <div class="pni on" data-v="home" onclick="pview('home')"><span>🏠</span><b>学分</b></div>
-    <div class="pni" data-v="grades" onclick="pview('grades')"><span>📊</span><b>成绩</b></div>
-    <div class="pni" data-v="shop" onclick="pview('shop')"><span>🛍</span><b>商店</b></div>
-    <div class="pni" data-v="me" onclick="pview('me')"><span>👤</span><b>我的</b></div>
+    <div class="pni on" data-v="home" onclick="pview('home')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M10 20v-5h4v5"/></svg><b>学分</b></div>
+    <div class="pni" data-v="grades" onclick="pview('grades')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16"/><path d="M8.5 16.5V11"/><path d="M13 16.5V7.5"/><path d="M17.5 16.5v-6"/></svg><b>成绩</b></div>
+    <div class="pni" data-v="shop" onclick="pview('shop')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.1 12H6.1z"/><path d="M8.6 8V6.2a3.4 3.4 0 0 1 6.8 0V8"/></svg><b>商店</b></div>
+    <div class="pni" data-v="me" onclick="pview('me')"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.9-3.6 3.7-5.4 7.2-5.4s6.3 1.8 7.2 5.4"/></svg><b>我的</b></div>
   </div>
 
 
