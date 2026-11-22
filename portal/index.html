@@ -88,6 +88,11 @@
   .trend .k{font-size:11.5px; color:var(--ink3); display:block; margin-bottom:3px}
   .trend .v{font-size:17px; font-weight:600; font-variant-numeric:tabular-nums}
   .up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--ink3)}
+  /* 学期总加分 / 总扣分 小卡（2026-11-22）：变量取色，暗色模式自动适配 */
+  .semstat{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; margin-bottom:14px}
+  .semstat .ss{min-width:0; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:14px 10px 13px; text-align:center}
+  .semstat .k{font-size:11.5px; color:var(--ink3); display:block; margin-bottom:4px}
+  .semstat .v{font-size:21px; font-weight:700; font-variant-numeric:tabular-nums}
   .coin-line{text-align:center; font-size:12.5px; color:var(--ink3); margin-top:14px}
   .coin-line b{color:var(--primary); font-size:15px; font-weight:600}
   /* 流水 */
@@ -1259,6 +1264,13 @@ body{padding-bottom:76px}
   function renderHome(){
     var data = _data;
     var h = '';
+    var ops = data.ops || [];
+    /* 本学期总加分 / 总扣分：ops 即本学期流水，直接加总 */
+    var semPlus = 0, semMinus = 0;
+    ops.forEach(function(o){
+      var a = Number(o.amount) || 0;
+      if(a > 0) semPlus += a; else if(a < 0) semMinus += Math.abs(a);
+    });
     h += '<div class="card hero">';
     h += '<div class="nm">' + esc(data.name || '') + '　<span style="color:var(--ink3);font-size:12.5px">' + esc(data.sid || '') + '</span></div>';
     h += '<div><span class="score">' + (Number(data.credit) || 0) + '</span><span class="unit">分</span></div>';
@@ -1274,7 +1286,13 @@ body{padding-bottom:76px}
     h += '</div>';
     h += '</div>';
 
-    var ops = data.ops || [];
+    if(ops.length){
+      h += '<div class="semstat">';
+      h += '<div class="ss"><span class="k">本学期总加分</span><span class="v ' + (semPlus > 0 ? 'up' : 'flat') + '">' + (semPlus > 0 ? '＋' + semPlus : '0') + '</span></div>';
+      h += '<div class="ss"><span class="k">本学期总扣分</span><span class="v ' + (semMinus > 0 ? 'down' : 'flat') + '">' + (semMinus > 0 ? '−' + semMinus : '0') + '</span></div>';
+      h += '</div>';
+    }
+
     h += '<div class="sec-title">学分流水<span>' + (ops.length ? '本学期共 ' + ops.length + ' 条' : '') + '</span></div>';
     h += '<div class="chips" id="opChips"></div>';
     var fs = opsFilters(ops);
