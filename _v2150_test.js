@@ -271,10 +271,14 @@ t('renderOpItem：姓名缺失时用学号兜底，不显示 undefined', () => {
   eq(/#42/.test(h), true);
   eq(/undefined/.test(h), false);
 });
-t('操作时间线：容器 null 保护 + 50 条上限提示', () => {
+t('操作时间线：容器 null 保护 + 折叠 50 / 展开 100 上限提示（v3.9.34 升级，旧断言只认固定 LIMIT=50 已作废）', () => {
   const src = grab('function renderCreditsTimeline()');
   if (!src.includes('if(!tl) return;')) throw new Error('容器未做 null 保护');
-  if (!src.includes('LIMIT = 50')) throw new Error('未设显示上限');
+  // 同强度替换：折叠 50 + 展开 100 两态都得在，比旧的「有上限」更强
+  if (!src.includes('const LIMIT = _cmTlExpand ? 100 : 50;')) throw new Error('未设折叠 50 / 展开 100 双上限');
+  if (!src.includes('ops.length > 50')) throw new Error('超过 50 条时才出展开按钮的门槛丢失');
+  const toggle = grab('function cmCreditTlToggle()');
+  if (!toggle.includes('_cmTlExpand = !_cmTlExpand;')) throw new Error('展开态切换逻辑丢失');
 });
 t('首页最近记录复用统一渲染 renderOpItem（不再自己拼 innerHTML）', () => {
   const dash = html.match(/function renderDashboard\(\)\{[\s\S]*?\n\}/)[0];
