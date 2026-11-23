@@ -1012,7 +1012,8 @@ body{padding-bottom:76px}
   }
   function trendCls(n){ var v = Number(n) || 0; return v > 0 ? 'up' : (v < 0 ? 'down' : 'flat'); }
 
-  /* v3.7.1 流水筛选（客户端按时间阈值）：最近 8 条 / 本周（周一起）/ 本月 / 全部 */
+  /* v3.7.1 流水筛选（客户端按时间阈值）：最近 8 条 / 本周（周一起）/ 本月 / 全部
+     全部：最多显示最近 50 条（发布包上限仍是 200，界面只展示近 50，避免一次铺太长）。 */
   function weekStartTs(){
     var d = new Date();
     var dow = d.getDay();
@@ -1030,7 +1031,7 @@ body{padding-bottom:76px}
       { k:'recent', label:'最近', list:ops.slice(0, 8) },
       { k:'week',   label:'本周', list:ops.filter(function(o){ return o.time >= wk; }) },
       { k:'month',  label:'本月', list:ops.filter(function(o){ return o.time >= mo; }) },
-      { k:'all',    label:'全部', list:ops.slice() }
+      { k:'all',    label:'全部', list:ops.slice(0, 50) }
     ];
   }
   function renderOpsChips(ops){
