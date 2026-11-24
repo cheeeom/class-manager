@@ -136,7 +136,12 @@ t('⑧ 版本落点：活动标记已升到当版，历史注释保留', () => {
   ok(html.indexOf('<div class="sidebar-footer">' + VER + ' · 班主任工作台</div>') >= 0, '侧边栏版本标记不是当版');
   ok(html.indexOf('🏷️ ' + VER + '</span>') >= 0, '设置页徽标不是当版');
   ok(html.indexOf('近版更新速览（' + VER + '）') >= 0, '速览标题不是当版');
-  ok(html.indexOf('🧾') >= 0 && html.indexOf('学分流水默认看 50 条') >= 0, '速览缺本版说明');
+  // v3.9.35 起改成「速览块内必须有当版标记」：原断言写死了 v3.9.34 的条目文案（🧾 学分流水…），
+  // 每版都得跟着改，等于把历史内容钉成契约。改成只认当版号，强度更高且与文案无关（速览按规矩只留当版）。
+  const rnStart = html.indexOf('id="settingsReleaseNotes"');
+  ok(rnStart >= 0, '找不到速览容器');
+  const rnBlock = html.slice(rnStart, html.indexOf('</div>', rnStart));
+  ok(rnBlock.indexOf('（' + VER + '）') >= 0, '速览缺本版说明');
   // 历史注释不许回改：v3.9.33 的启动画面注释仍在
   ok(html.indexOf('启动画面（v3.9.33）') >= 0, '历史注释被误改');
 });
